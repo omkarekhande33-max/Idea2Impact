@@ -1,0 +1,67 @@
+
+import unittest
+from app.matching.engine import calculate_candidate_job_match
+from app.ai.copilot import analyze_startup_idea, analyze_investor_proposal
+from app.services.pdf_generator import generate_business_proposal_pdf, generate_candidate_passport_pdf
+from app.database import db
+
+class TestIdea2Impact(unittest.TestCase):
+
+    def test_matching_engine_full_match(self):
+        """Candidate cand-01 satisfies 100% of job-01 required skills."""
+        result = calculate_candidate_job_match("cand-01", "job-01")
+        self.assertEqual(result["score"], 100.0)
+        self.assertEqual(result["matched_count"], 3)
+        self.assertEqual(len(result["missing_skills"]), 0)
+        self.assertTrue(result["is_strong_fit"])
+
+    def test_matching_engine_partial_match(self):
+        """Candidate cand-02 satisfies only Python for job-01 (40% match)."""
+        result = calculate_candidate_job_match("cand-02", "job-01")
+        self.assertEqual(result["score"], 40.0)
+        self.assertEqual(result["matched_count"], 1)
+        self.assertEqual(len(result["missing_skills"]), 2)
+        self.assertFalse(result["is_strong_fit"])
+        self.assertTrue(len(result["learning_roadmap"]) > 0)
+
+    def test_ai_copilot_analysis(self):
+        """AI Startup Copilot generates valid multidimensional feasibility scores."""
+        payload = {
+            "title": "QuantumFlow",
+            "industry": "DeepTech",
+            "problem": "Slow optimization workflows in quantum compilers.",
+            "solution": "GPU-accelerated compilation graph engine.",
+            "target_customers": "Quantum research laboratories and enterprise simulation teams.",
+            "business_model": "Annual high-performance computing licenses.",
+            "known_costs": "GPU clusters, engineering talent.",
+            "funding_assumptions": "$1,500,000 Seed"
+        }
+        res = analyze_startup_idea(payload)
+        self.assertIn("feasibility_score", res)
+        self.assertGreater(res["feasibility_score"], 70.0)
+        self.assertIn("dimensions", res)
+        self.assertIn("milestones_90_days", res)
+
+    def test_investor_due_diligence_assistant(self):
+        """AI Investor assistant extracts assumptions and risks."""
+        proposal = {
+            "startup_name": "EcoTrace AI",
+            "industry": "CleanTech",
+            "stage": "Seed",
+            "pitch": "Real-time carbon telemetry and ESG compliance.",
+            "valuation_ask": "$1,200,000 for 12% equity"
+        }
+        res = analyze_investor_proposal(proposal)
+        self.assertEqual(res["startup_name"], "EcoTrace AI")
+        self.assertTrue(len(res["key_assumptions_flagged"]) > 0)
+        self.assertTrue(len(res["due_diligence_questions"]) > 0)
+
+    def test_pdf_generation(self):
+        """Generates valid non-empty PDF bytes."""
+        cand = {"full_name": "Alex Rivera", "email": "alex@test.com", "id": "cand-01"}
+        skills = [{"name": "Python & FastAPI", "category": "Backend", "assessment_score": 92.0, "verified_at": "2026-02-14"}]
+        pdf_bytes = generate_candidate_passport_pdf(cand, skills)
+        self.assertTrue(len(pdf_bytes) > 1000)
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,92 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE configurations
+.vscode/
+.idea/
+
+# Documents & runtime artifacts
+*.pdf
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Linked vendor packages in backend directory
+backend/annotated_types/
+backend/annotated_types*/
+backend/anyio/
+backend/anyio*/
+backend/chardet/
+backend/chardet*/
+backend/click/
+backend/click*/
+backend/fastapi/
+backend/fastapi*/
+backend/h11/
+backend/h11*/
+backend/idna/
+backend/idna*/
+backend/multipart/
+backend/PIL/
+backend/pillow*/
+backend/pip/
+backend/pip*/
+backend/pydantic/
+backend/pydantic*/
+backend/pydantic_core/
+backend/pydantic_core*/
+backend/python_multipart*/
+backend/reportlab/
+backend/reportlab*/
+backend/starlette/
+backend/starlette*/
+backend/typing_extensions*/
+backend/typing_extensions.py
+backend/uvicorn/
+backend/uvicorn*/
+backend/__pycache__/

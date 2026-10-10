@@ -1,0 +1,912 @@
+{
+  "profiles": [
+    {
+      "id": "cand-01",
+      "full_name": "Alex Rivera",
+      "email": "alex.rivera@example.com",
+      "role": "candidate",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "bio": "Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.",
+      "created_at": "2026-01-15T10:00:00Z"
+    },
+    {
+      "id": "cand-02",
+      "full_name": "Priya Sharma",
+      "email": "priya.sharma@example.com",
+      "role": "candidate",
+      "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "bio": "AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.",
+      "created_at": "2026-02-10T12:00:00Z"
+    },
+    {
+      "id": "cand-03",
+      "full_name": "Jordan Lee",
+      "email": "jordan.lee@example.com",
+      "role": "candidate",
+      "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "bio": "Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.",
+      "created_at": "2026-03-01T09:30:00Z"
+    },
+    {
+      "id": "found-01",
+      "full_name": "Sarah Lin",
+      "email": "sarah.lin@ecotrace.ai",
+      "role": "founder",
+      "avatar_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+      "bio": "Founder & CEO at EcoTrace AI. Passionate about decarbonizing supply chains with autonomous carbon accounting.",
+      "created_at": "2026-01-05T08:00:00Z"
+    },
+    {
+      "id": "hr-01",
+      "full_name": "Elena Rostova",
+      "email": "elena.rostova@novatech.io",
+      "role": "hr",
+      "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+      "bio": "Head of Technical Talent Acquisition at NovaTech Systems. Building high-growth engineering teams.",
+      "created_at": "2026-01-20T11:00:00Z"
+    },
+    {
+      "id": "inv-01",
+      "full_name": "Victoria Sterling",
+      "email": "v.sterling@apexfrontier.vc",
+      "role": "investor",
+      "avatar_url": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80",
+      "bio": "General Partner at Apex Frontier Ventures. Backing early-stage AI, Sustainability, and Enterprise SaaS.",
+      "created_at": "2026-01-08T14:00:00Z"
+    }
+  ],
+  "candidate_profiles": [
+    {
+      "candidate_id": "cand-01",
+      "education": "B.S. in Computer Science, Georgia Tech",
+      "experience_years": 4,
+      "portfolio_url": "https://github.com/alexrivera-dev",
+      "target_role": "Senior Full-Stack Engineer",
+      "summary": "Proven track record in high-concurrency REST APIs, database optimization, and modern web application frontends."
+    },
+    {
+      "candidate_id": "cand-02",
+      "education": "M.S. in Artificial Intelligence, Carnegie Mellon",
+      "experience_years": 3,
+      "portfolio_url": "https://github.com/priyasharma-ai",
+      "target_role": "AI / Machine Learning Engineer",
+      "summary": "Specialist in fine-tuning open source LLMs, embedding architectures, and agentic workflows."
+    },
+    {
+      "candidate_id": "cand-03",
+      "education": "B.A. in Interactive Design & CS, University of Washington",
+      "experience_years": 2,
+      "portfolio_url": "https://jordanlee.design",
+      "target_role": "Frontend Software Engineer",
+      "summary": "Passionate about accessible UI systems, micro-animations, and fast client-side rendering."
+    }
+  ],
+  "founder_profiles": [
+    {
+      "founder_id": "found-01",
+      "company_name": "EcoTrace AI",
+      "industry": "CleanTech / AI",
+      "stage": "Seed",
+      "pitch_deck_url": "https://ecotrace.ai/deck.pdf"
+    }
+  ],
+  "hr_profiles": [
+    {
+      "hr_id": "hr-01",
+      "company_name": "NovaTech Systems",
+      "position": "Director of Engineering Talent",
+      "website": "https://novatech.io"
+    }
+  ],
+  "investor_profiles": [
+    {
+      "investor_id": "inv-01",
+      "fund_name": "Apex Frontier Ventures",
+      "preferred_stages": [
+        "Seed",
+        "Pre-Seed",
+        "Series A"
+      ],
+      "target_industries": [
+        "AI / Machine Learning",
+        "CleanTech",
+        "Enterprise SaaS",
+        "Developer Tools"
+      ],
+      "min_ticket": 100000,
+      "max_ticket": 1000000
+    }
+  ],
+  "skills": [
+    {
+      "id": "sk-01",
+      "name": "Python & FastAPI",
+      "category": "Backend",
+      "description": "Async programming, Pydantic validation, dependency injection, REST APIs."
+    },
+    {
+      "id": "sk-02",
+      "name": "PostgreSQL & Database Design",
+      "category": "Database",
+      "description": "Relational schema modeling, indexing, foreign keys, query optimization, RLS."
+    },
+    {
+      "id": "sk-03",
+      "name": "Modern JavaScript & Frontend",
+      "category": "Frontend",
+      "description": "ES Modules, async DOM manipulation, state management, responsive UI design."
+    },
+    {
+      "id": "sk-04",
+      "name": "AI & LLM Integration",
+      "category": "AI / ML",
+      "description": "Prompt orchestration, structured JSON outputs, embeddings, LangChain/LlamaIndex."
+    },
+    {
+      "id": "sk-05",
+      "name": "Cloud Deployment & Docker",
+      "category": "DevOps",
+      "description": "Containerization, CI/CD pipelines, container orchestration, static hosting."
+    },
+    {
+      "id": "sk-06",
+      "name": "System Architecture & Security",
+      "category": "Architecture",
+      "description": "Role-based access control (RBAC), token authentication, API rate limiting, sanitization."
+    }
+  ],
+  "candidate_skills": [
+    {
+      "candidate_id": "cand-01",
+      "skill_id": "sk-01",
+      "assessment_score": 92.0,
+      "is_verified": true,
+      "verified_at": "2026-02-14T15:20:00Z"
+    },
+    {
+      "candidate_id": "cand-01",
+      "skill_id": "sk-02",
+      "assessment_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-02-15T10:15:00Z"
+    },
+    {
+      "candidate_id": "cand-01",
+      "skill_id": "sk-03",
+      "assessment_score": 80.0,
+      "is_verified": true,
+      "verified_at": "2026-02-16T11:45:00Z"
+    },
+    {
+      "candidate_id": "cand-02",
+      "skill_id": "sk-01",
+      "assessment_score": 85.0,
+      "is_verified": true,
+      "verified_at": "2026-02-18T09:00:00Z"
+    },
+    {
+      "candidate_id": "cand-02",
+      "skill_id": "sk-04",
+      "assessment_score": 95.0,
+      "is_verified": true,
+      "verified_at": "2026-02-20T14:30:00Z"
+    },
+    {
+      "candidate_id": "cand-03",
+      "skill_id": "sk-03",
+      "assessment_score": 90.0,
+      "is_verified": true,
+      "verified_at": "2026-03-02T16:00:00Z"
+    },
+    {
+      "candidate_id": "cand-03",
+      "skill_id": "sk-01",
+      "assessment_score": 100.0,
+      "is_verified": true,
+      "verified_at": "2026-10-10T08:27:30.761329+00:00",
+      "id": "cand-dbdec8de"
+    }
+  ],
+  "assessments": [
+    {
+      "id": "asm-01",
+      "skill_id": "sk-01",
+      "title": "Python & FastAPI Backend Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "q1",
+          "text": "In FastAPI, how do you specify that an endpoint handler should run asynchronously without blocking the event loop?",
+          "options": [
+            "Use the @async_route decorator",
+            "Define the handler function with 'async def'",
+            "Wrap the return value in asyncio.Future()",
+            "Set background_task=True in router configuration"
+          ],
+          "correct_index": 1,
+          "explanation": "Declaring endpoint functions with 'async def' allows FastAPI to execute them cooperatively on the asyncio event loop."
+        },
+        {
+          "id": "q2",
+          "text": "What does Pydantic BaseModel primarily provide when used in FastAPI request bodies?",
+          "options": [
+            "Database connection pooling",
+            "Data validation, parsing, and automated OpenAPI documentation schema generation",
+            "Automatic SQL query generation and ORM mapping",
+            "Client-side cookie storage encryption"
+          ],
+          "correct_index": 1,
+          "explanation": "Pydantic performs runtime data type validation, sanitization, and produces OpenAPI/Swagger schemas."
+        },
+        {
+          "id": "q3",
+          "text": "Which dependency injection tool in FastAPI is used to share authentication, database sessions, and permissions across routes?",
+          "options": [
+            "fastapi.Depends",
+            "fastapi.Inject",
+            "fastapi.Provide",
+            "fastapi.Autowired"
+          ],
+          "correct_index": 0,
+          "explanation": "Depends() is FastAPI's standard mechanism for dependency declaration and hierarchical resolution."
+        },
+        {
+          "id": "q4",
+          "text": "How should long-running CPU-intensive or slow operations be handled without starving FastAPI async requests?",
+          "options": [
+            "Execute them synchronously in the main async function",
+            "Offload them to BackgroundTasks, Celery worker, or run in a thread pool via run_in_executor",
+            "Increase the OS thread stack size",
+            "Set async_timeout to 0"
+          ],
+          "correct_index": 1,
+          "explanation": "Blocking operations block the GIL and asyncio loop unless dispatched to worker threads or external task queues."
+        }
+      ]
+    },
+    {
+      "id": "asm-02",
+      "skill_id": "sk-02",
+      "title": "PostgreSQL & Relational Design Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "q1",
+          "text": "What is the primary architectural purpose of Row Level Security (RLS) in PostgreSQL?",
+          "options": [
+            "Compressing table rows on disk to save storage",
+            "Restricting which rows a database user or session can select, update, or delete based on SQL policies",
+            "Creating read-only replicas across multiple geographical regions",
+            "Automatically converting JSON fields into B-Trees"
+          ],
+          "correct_index": 1,
+          "explanation": "RLS applies security filters directly in the database engine, preventing unauthorized row leakage regardless of application flaws."
+        },
+        {
+          "id": "q2",
+          "text": "When establishing a relationship where each Job Listing requires multiple skills with custom weights, which relational pattern is ideal?",
+          "options": [
+            "A single CSV column in the jobs table",
+            "A junction / associative table (job_required_skills) with foreign keys to jobs and skills",
+            "Duplicate job rows for every single skill",
+            "Store unindexed text blobs"
+          ],
+          "correct_index": 1,
+          "explanation": "An associative table allows clean Many-to-Many mappings, relational integrity, indexing, and per-skill metadata such as weight."
+        },
+        {
+          "id": "q3",
+          "text": "What type of index is most effective in PostgreSQL for high-speed lookup on an exact UUID primary key?",
+          "options": [
+            "B-Tree index (default)",
+            "GIN full-text index",
+            "BRIN index",
+            "Spatial R-Tree index"
+          ],
+          "correct_index": 0,
+          "explanation": "B-Tree indexes provide logarithmic O(log N) lookups and are the default standard index for equality lookups."
+        },
+        {
+          "id": "q4",
+          "text": "What is the consequence of adding 'ON DELETE CASCADE' to a foreign key constraint from job_applications to candidates?",
+          "options": [
+            "Candidate deletion will fail if applications exist",
+            "Deleting the candidate profile automatically purges all related application records",
+            "The foreign key is converted into a loose pointer",
+            "Candidate records become anonymous"
+          ],
+          "correct_index": 1,
+          "explanation": "ON DELETE CASCADE propagates the delete operation to dependent child rows automatically."
+        }
+      ]
+    },
+    {
+      "id": "asm-03",
+      "skill_id": "sk-03",
+      "title": "Modern JavaScript & Responsive Web Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "q1",
+          "text": "Why is using ES Modules ('import' / 'export' with type='module') advantageous in modern vanilla web apps?",
+          "options": [
+            "It eliminates the need for any CSS styling",
+            "It enables scoped modular code without global variable collisions and supports native browser loading",
+            "It forces synchronous execution of all scripts",
+            "It prevents fetch requests from failing"
+          ],
+          "correct_index": 1,
+          "explanation": "ES Modules provide isolated scopes, strict mode enforcement, and clean code organization without global namespace pollution."
+        },
+        {
+          "id": "q2",
+          "text": "Which CSS layout method is best suited for a 2-dimensional dashboard grid with responsive sidebar and main content?",
+          "options": [
+            "Float layout with clearfix",
+            "CSS Grid (grid-template-columns / grid-template-rows)",
+            "Inline-block elements with vertical-align",
+            "Table elements"
+          ],
+          "correct_index": 1,
+          "explanation": "CSS Grid is purpose-built for two-dimensional structured dashboard layouts with seamless responsive adaptability."
+        },
+        {
+          "id": "q3",
+          "text": "How can a web app detect when a candidate navigates away or switches browser tabs during an active proctored assessment?",
+          "options": [
+            "Listen to 'visibilitychange' on document and 'blur' on window",
+            "Inspect the user's desktop taskbar via navigator",
+            "Read local process memory through WebSocket",
+            "Check screen brightness values"
+          ],
+          "correct_index": 0,
+          "explanation": "Document visibilitychange and window blur events reliably detect when the user minimizes the tab or switches apps."
+        },
+        {
+          "id": "q4",
+          "text": "What is the key advantage of client-side optimistic UI updates combined with API synchronization?",
+          "options": [
+            "It eliminates the need for a database",
+            "It provides instant, zero-latency feedback to the user while keeping server data consistent",
+            "It automatically solves all network outages permanently",
+            "It bypasses authentication requirements"
+          ],
+          "correct_index": 1,
+          "explanation": "Optimistic UI immediately reflects user actions on screen while performing asynchronous network requests in the background."
+        }
+      ]
+    },
+    {
+      "id": "asm-04",
+      "skill_id": "sk-04",
+      "title": "AI & LLM Integration Architecture Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "q1",
+          "text": "When building an AI Startup Copilot, why should the backend enforce structured JSON schema validation on LLM output?",
+          "options": [
+            "To prevent the browser from having to parse text and guarantee predictable UI rendering of fields like risks and assumptions",
+            "Because LLMs cannot output plain English",
+            "To reduce cloud server electricity consumption",
+            "To encrypt the prompt tokens"
+          ],
+          "correct_index": 0,
+          "explanation": "Enforcing structured JSON guarantees that downstream frontend components receive guaranteed typed fields without parser crashes."
+        },
+        {
+          "id": "q2",
+          "text": "Why must AI API keys (such as OpenAI, Gemini, or Anthropic keys) NEVER be exposed in browser client JavaScript?",
+          "options": [
+            "Browsers do not support UTF-8 characters",
+            "Any user can inspect network traffic or source code, steal the key, and rack up unauthorized API bills",
+            "API keys slow down CSS rendering",
+            "The browser console will automatically deactivate the key"
+          ],
+          "correct_index": 1,
+          "explanation": "Client-side secrets are fully accessible to end users; API credentials must strictly reside on the secured backend."
+        },
+        {
+          "id": "q3",
+          "text": "According to the Idea2Impact architectural principles, how should AI-generated evaluations and startup risks be treated?",
+          "options": [
+            "As infallible guarantees of financial success or failure",
+            "As assistive decision support for human judgment, clearly labeled with assumptions rather than certainty",
+            "As legal binding contracts for venture capital",
+            "As automatic rejections for startup founders"
+          ],
+          "correct_index": 1,
+          "explanation": "AI models provide decision support and summarize assumptions, but human judgment remains the ultimate authority."
+        },
+        {
+          "id": "q4",
+          "text": "What is the purpose of Retrieval-Augmented Generation (RAG) in corporate candidate or startup discovery?",
+          "options": [
+            "Grounding model responses in verifiable database documents and private profiles to prevent hallucinations",
+            "Replacing all SQL database tables with text embeddings",
+            "Converting PDFs to image files",
+            "Compressing video streams"
+          ],
+          "correct_index": 0,
+          "explanation": "RAG retrieves specific facts and profiles from verified databases before prompting the model, anchoring the generation in real data."
+        }
+      ]
+    }
+  ],
+  "assessment_attempts": [
+    {
+      "id": "att-01",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-01",
+      "score": 92.0,
+      "passed": true,
+      "flags": [
+        "tab_switches: 0",
+        "clean_session"
+      ],
+      "completed_at": "2026-02-14T15:20:00Z"
+    },
+    {
+      "id": "att-02",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-02",
+      "score": 88.0,
+      "passed": true,
+      "flags": [
+        "tab_switches: 0",
+        "clean_session"
+      ],
+      "completed_at": "2026-02-15T10:15:00Z"
+    },
+    {
+      "id": "att-88e1e2b9",
+      "candidate_id": "cand-03",
+      "assessment_id": "asm-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-10T08:27:30.754382+00:00"
+    },
+    {
+      "id": "att-493081e1",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-01",
+      "score": 25.0,
+      "passed": false,
+      "flags": [
+        "tab_switches: 0",
+        "clean_session"
+      ],
+      "completed_at": "2026-10-10T09:00:10.205447+00:00"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job-01",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "title": "Senior Full-Stack Platform Engineer",
+      "description": "Lead the core platform engineering team building next-generation cloud analytics and microservices. You will design robust Python/FastAPI services, design high-throughput PostgreSQL schemas, and craft delightful responsive interfaces.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 120000,
+      "salary_max": 160000,
+      "location": "San Francisco, CA (Hybrid / Remote)",
+      "status": "Active",
+      "created_at": "2026-02-01T10:00:00Z"
+    },
+    {
+      "id": "job-02",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "title": "AI Systems & Inference Engineer",
+      "description": "Architect and optimize high-throughput LLM pipelines, prompt orchestration, and autonomous agent systems. Must have deep experience in Python, vector embeddings, and backend scalability.",
+      "experience_level": "Mid-Senior (3+ years)",
+      "salary_min": 130000,
+      "salary_max": 175000,
+      "location": "Remote (US & Global)",
+      "status": "Active",
+      "created_at": "2026-02-10T14:30:00Z"
+    },
+    {
+      "id": "job-03",
+      "created_by": "found-01",
+      "company_name": "EcoTrace AI",
+      "title": "Founding Frontend & UI Architect",
+      "description": "Join as employee #1 on frontend to build the enterprise carbon visualization portal. Shape the design system, data visualization charts, and responsive user experience.",
+      "experience_level": "Mid-Level (2+ years)",
+      "salary_min": 95000,
+      "salary_max": 135000,
+      "location": "Boston, MA / Remote",
+      "status": "Active",
+      "created_at": "2026-02-18T09:15:00Z"
+    }
+  ],
+  "job_required_skills": [
+    {
+      "job_id": "job-01",
+      "skill_id": "sk-01",
+      "is_required": true,
+      "weight": 0.4
+    },
+    {
+      "job_id": "job-01",
+      "skill_id": "sk-02",
+      "is_required": true,
+      "weight": 0.35
+    },
+    {
+      "job_id": "job-01",
+      "skill_id": "sk-03",
+      "is_required": true,
+      "weight": 0.25
+    },
+    {
+      "job_id": "job-02",
+      "skill_id": "sk-01",
+      "is_required": true,
+      "weight": 0.35
+    },
+    {
+      "job_id": "job-02",
+      "skill_id": "sk-04",
+      "is_required": true,
+      "weight": 0.45
+    },
+    {
+      "job_id": "job-02",
+      "skill_id": "sk-05",
+      "is_required": true,
+      "weight": 0.2
+    },
+    {
+      "job_id": "job-03",
+      "skill_id": "sk-03",
+      "is_required": true,
+      "weight": 0.6
+    },
+    {
+      "job_id": "job-03",
+      "skill_id": "sk-01",
+      "is_required": false,
+      "weight": 0.4
+    }
+  ],
+  "job_applications": [
+    {
+      "id": "app-01",
+      "job_id": "job-01",
+      "candidate_id": "cand-01",
+      "status": "Interview",
+      "applied_at": "2026-02-18T16:00:00Z",
+      "notes": "Top candidate with 100% verified required skills in Python, Postgres, and JS.",
+      "interview_date": "2026-03-12T17:00:00Z"
+    },
+    {
+      "id": "app-02",
+      "job_id": "job-02",
+      "candidate_id": "cand-02",
+      "status": "Shortlisted",
+      "applied_at": "2026-02-22T10:30:00Z",
+      "notes": "Outstanding score on AI Integration assessment (95%).",
+      "interview_date": null
+    }
+  ],
+  "startups": [
+    {
+      "id": "stp-01",
+      "founder_id": "found-01",
+      "name": "EcoTrace AI",
+      "tagline": "Autonomous carbon accounting and ESG supply-chain intelligence.",
+      "stage": "Seed",
+      "industry": "CleanTech / Enterprise AI",
+      "readiness_score": 92.5,
+      "pitch": "EcoTrace AI ingests raw ERP data, freight telematics, and supplier invoices to automate Scope 1, 2, and 3 emissions auditing in real-time.",
+      "valuation_ask": "$1,200,000 for 12% equity",
+      "team_count": 3,
+      "created_at": "2026-01-10T12:00:00Z"
+    },
+    {
+      "id": "stp-02",
+      "founder_id": "found-01",
+      "name": "NeuroHealth Diagnostic",
+      "tagline": "Early biomarker screening for neurodegenerative conditions via multimodal sensory capture.",
+      "stage": "Pre-Seed",
+      "industry": "HealthTech / BioAI",
+      "readiness_score": 85.0,
+      "pitch": "Non-invasive tablet app assessing subtle oculomotor and vocal tremors to detect early onset cognitive shifts.",
+      "valuation_ask": "$600,000 for 10% equity",
+      "team_count": 2,
+      "created_at": "2026-02-05T09:00:00Z"
+    }
+  ],
+  "startup_ideas": [
+    {
+      "id": "idea-01",
+      "startup_id": "stp-01",
+      "founder_id": "found-01",
+      "problem": "Enterprises spend months and hundreds of thousands of dollars on manual sustainability consulting with outdated spreadsheet models that fail CSRD and SEC compliance.",
+      "solution": "An automated AI agent ingestion pipeline that connects directly to ERPs (SAP, NetSuite) and supply telemetry to calculate precise emission metrics in real-time.",
+      "target_customers": "Mid-to-large enterprise manufacturers, logistics operators, and consumer brands subject to ESG mandates.",
+      "business_model": "B2B SaaS subscription tiered by supplier count ($24k - $96k ARR) + compliance audit report certification fees.",
+      "risks": "Integration complexity across legacy ERP systems; evolving regulatory emission factor benchmarks.",
+      "market_size": "$18.4 Billion global climate accounting software market by 2030."
+    }
+  ],
+  "startup_proposals": [
+    {
+      "id": "prop-01",
+      "startup_id": "stp-01",
+      "founder_id": "found-01",
+      "investor_id": "inv-01",
+      "status": "Under Review",
+      "shared_at": "2026-02-15T14:00:00Z",
+      "ai_summary": "EcoTrace AI is addressing a high-urgency compliance pain point in enterprise ESG auditing with an automated agentic architecture. Strong unit economics and clear regulatory tailwinds.",
+      "risk_score": "Moderate (ERP sales cycles typically 6-9 months)",
+      "due_diligence_notes": "Founder has 6 years domain expertise in supply logistics. Initial LOIs signed with 2 tier-1 pilot manufacturers."
+    }
+  ],
+  "investor_interests": [
+    {
+      "id": "int-01",
+      "investor_id": "inv-01",
+      "startup_id": "stp-01",
+      "status": "Meeting Requested",
+      "note": "Extremely impressed with the automated Scope 3 ingestion engine. Would love to discuss lead terms for the $1.2M seed round.",
+      "created_at": "2026-02-25T11:00:00Z"
+    }
+  ],
+  "meetings": [
+    {
+      "id": "mtg-01",
+      "requester_id": "inv-01",
+      "recipient_id": "found-01",
+      "meeting_type": "Investor Pitch & Due Diligence",
+      "scheduled_at": "2026-03-15T18:00:00Z",
+      "status": "Confirmed",
+      "meeting_link": "https://meet.google.com/xyz-idea-impact",
+      "agenda": "Review enterprise pilot metrics, customer acquisition pipeline, and cap table."
+    },
+    {
+      "id": "mtg-02",
+      "requester_id": "hr-01",
+      "recipient_id": "cand-01",
+      "meeting_type": "Technical Architecture Deep Dive",
+      "scheduled_at": "2026-03-12T17:00:00Z",
+      "status": "Confirmed",
+      "meeting_link": "https://meet.google.com/nova-tech-interview",
+      "agenda": "FastAPI async pipeline design and PostgreSQL indexing strategy."
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "log-01",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Alex Rivera passed Python & FastAPI Backend Assessment with 92% score. Badge issued.",
+      "timestamp": "2026-02-14T15:20:00Z"
+    },
+    {
+      "id": "log-02",
+      "event": "Proposal Shared",
+      "user_id": "found-01",
+      "details": "Sarah Lin shared EcoTrace AI Seed Proposal with Victoria Sterling (Apex Frontier Ventures).",
+      "timestamp": "2026-02-15T14:00:00Z"
+    },
+    {
+      "id": "log-bed3deae",
+      "event": "Skill Verified",
+      "user_id": "cand-03",
+      "details": "Candidate passed Python & FastAPI Backend Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-10T08:27:30.761329+00:00"
+    },
+    {
+      "id": "log-a152e23f",
+      "event": "Skill Assessment Failed",
+      "user_id": "cand-01",
+      "details": "Candidate scored 25.0% on Python & FastAPI Backend Assessment (Threshold: 75%).",
+      "timestamp": "2026-10-10T09:00:10.211658+00:00"
+    }
+  ],
+  "match_results": [
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-01",
+      "score": 100.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "category": "Backend",
+          "is_required": true,
+          "weight": 0.4,
+          "candidate_assessment_score": 92.0,
+          "is_verified": true,
+          "verified_at": "2026-02-14T15:20:00Z"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Database",
+          "is_required": true,
+          "weight": 0.35,
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        },
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-02-16T11:45:00Z"
+        }
+      ],
+      "missing_skills": [],
+      "matched_count": 3,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 3 of 3 mandatory skill requirements (1.0 of 1.0 weighted points), yielding a 100.0% verified compatibility score. Full alignment across all verified mandatory technical competencies.",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v1.0-explainable-weighted",
+      "id": "matc-69be9e4c"
+    },
+    {
+      "candidate_id": "cand-02",
+      "job_id": "job-01",
+      "score": 40.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "category": "Backend",
+          "is_required": true,
+          "weight": 0.4,
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-02-18T09:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Database",
+          "is_required": true,
+          "weight": 0.35,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        }
+      ],
+      "matched_count": 1,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.4 of 1.0 weighted points), yielding a 40.0% verified compatibility score. Skills required to bridge: PostgreSQL & Database Design, Modern JavaScript & Frontend.",
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 15-minute verification assessment to earn your badge."
+        },
+        {
+          "skill_name": "Modern JavaScript & Frontend",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Modern JavaScript & Frontend interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Modern JavaScript & Frontend production patterns.",
+          "assessment_cta": "Take the Modern JavaScript & Frontend 15-minute verification assessment to earn your badge."
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v1.0-explainable-weighted",
+      "id": "matc-ab2cc09c"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-02",
+      "score": 35.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "category": "Backend",
+          "is_required": true,
+          "weight": 0.35,
+          "candidate_assessment_score": 92.0,
+          "is_verified": true,
+          "verified_at": "2026-02-14T15:20:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "category": "DevOps",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        }
+      ],
+      "matched_count": 1,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 35.0% verified compatibility score. Skills required to bridge: AI & LLM Integration, Cloud Deployment & Docker.",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 15-minute verification assessment to earn your badge."
+        },
+        {
+          "skill_name": "Cloud Deployment & Docker",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Deployment & Docker interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Deployment & Docker production patterns.",
+          "assessment_cta": "Take the Cloud Deployment & Docker 15-minute verification assessment to earn your badge."
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v1.0-explainable-weighted",
+      "id": "matc-64703749"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-03",
+      "score": 100.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.6,
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-02-16T11:45:00Z"
+        },
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "category": "Backend",
+          "is_required": false,
+          "weight": 0.4,
+          "candidate_assessment_score": 92.0,
+          "is_verified": true,
+          "verified_at": "2026-02-14T15:20:00Z"
+        }
+      ],
+      "missing_skills": [],
+      "matched_count": 1,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.6 of 0.6 weighted points), yielding a 100.0% verified compatibility score. Full alignment across all verified mandatory technical competencies.",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v1.0-explainable-weighted",
+      "id": "matc-6d7087f2"
+    }
+  ]
+}
