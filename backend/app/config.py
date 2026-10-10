@@ -5,7 +5,7 @@ class Settings(BaseModel):
     APP_NAME: str = "Idea2Impact"
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api"
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", 8000))
     CORS_ORIGINS: list[str] = ["*"]
     
