@@ -1,4 +1,5 @@
 // Idea2Impact - Client API Module with Dual-Engine (FastAPI Backend + Resilient Local Fallback)
+import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill } from './quizData.js';
 
 function resolveApiBase() {
   try {
@@ -316,82 +317,177 @@ class ApiService {
   // =========================================================================
   async getSkills() {
     try {
-      return await this.request('/skills');
+      const remote = await this.request('/skills');
+      if (Array.isArray(remote) && remote.length > 0) {
+        const map = new Map();
+        SKILLS_CATALOG.forEach(s => map.set(s.id, { ...s }));
+        remote.forEach(s => {
+          const existing = map.get(s.id) || {};
+          map.set(s.id, { ...existing, ...s });
+        });
+        return Array.from(map.values());
+      }
     } catch (e) {
-      return [
-        { id: 'skl-01', name: 'Python Backend Engineering', category: 'Backend', description: 'FastAPI, SQLAlchemy, async IO, and relational data architecture.' },
-        { id: 'skl-02', name: 'System Architecture & Scalability', category: 'Architecture', description: 'Distributed systems, microservices, caching, and rate limiting.' },
-        { id: 'skl-03', name: 'Modern React & State Management', category: 'Frontend', description: 'React 18+, hooks, state stores, and component design patterns.' },
-        { id: 'skl-04', name: 'Machine Learning & LLM Integration', category: 'AI/ML', description: 'Prompt engineering, embedding search, LangChain, and model tuning.' }
-      ];
+      console.warn('Using offline skills catalog');
     }
+    return SKILLS_CATALOG;
   }
 
   async getAssessments() {
     try {
-      return await this.request('/assessments');
+      const remote = await this.request('/assessments');
+      if (Array.isArray(remote) && remote.length > 0) {
+        return remote;
+      }
     } catch (e) {
-      return [
-        { id: 'asm-01', skill_id: 'skl-01', title: 'Python Backend Architecture Exam', time_limit_minutes: 20, passing_score: 75.0, question_count: 5, difficulty: 'Advanced' },
-        { id: 'asm-02', skill_id: 'skl-02', title: 'Scalable Systems Architecture Exam', time_limit_minutes: 25, passing_score: 75.0, question_count: 5, difficulty: 'Expert' },
-        { id: 'asm-03', skill_id: 'skl-03', title: 'React Performance & State Patterns', time_limit_minutes: 15, passing_score: 75.0, question_count: 4, difficulty: 'Intermediate' }
-      ];
+      console.warn('Using local assessment catalog');
     }
+    return SKILLS_CATALOG.map(s => ({
+      id: `asm-${s.slug}`,
+      title: `${s.name} Technical Quiz`,
+      skill_id: s.id,
+      skill_name: s.name,
+      skill_slug: s.slug,
+      skill_icon: s.icon,
+      skill_category: s.category,
+      question_count: s.question_count,
+      passing_score: s.passing_score,
+      duration_minutes: s.duration_minutes
+    }));
   }
 
   async getAssessment(id) {
     try {
       return await this.request(`/assessments/${id}`);
     } catch (e) {
+      const quiz = getQuizForSkill(id);
       return {
-        id: id || 'asm-01',
-        title: 'Python Backend Architecture Exam',
-        skill_id: 'skl-01',
-        time_limit_minutes: 20,
-        passing_score: 75.0,
-        questions: [
-          { id: 'q1', prompt: 'In FastAPI, what is the primary benefit of using async def endpoint functions for I/O-bound operations?', options: ['A) Prevents thread pool exhaustion by yielding execution during await', 'B) Makes CPU-bound calculations run faster', 'C) Bypasses Python Global Interpreter Lock (GIL)', 'D) Disables CORS automatically'], correct_index: 0 },
-          { id: 'q2', prompt: 'Why is client-side score computation prohibited in secure proctored platforms like Idea2Impact?', options: ['A) Browser JavaScript is slower than Python', 'B) Client memory can be inspected and tampered via developer tools', 'C) CSS cannot render score badges', 'D) PostgreSQL cannot read client timestamps'], correct_index: 1 },
-          { id: 'q3', prompt: 'What status code should a RESTful authentication endpoint return when credentials are not recognized?', options: ['A) 200 OK', 'B) 401 Unauthorized', 'C) 500 Server Error', 'D) 301 Moved Permanently'], correct_index: 1 }
-        ]
+        id: quiz.id,
+        title: quiz.title,
+        skill_id: quiz.skill_id,
+        duration_minutes: quiz.duration_minutes,
+        passing_score: quiz.passing_score,
+        questions: quiz.questions.map(q => ({
+          id: q.id,
+          text: q.text,
+          options: q.options
+        }))
       };
     }
   }
 
   async submitAssessment(id, data) {
+    let result = null;
     try {
-      return await this.request(`/assessments/${id}/attempts`, {
+      result = await this.request(`/assessments/${id}/attempts`, {
         method: 'POST',
         body: JSON.stringify(data)
       });
     } catch (e) {
-      return {
+      console.info('Backend unreachable, grading assessment locally');
+      const quiz = getQuizForSkill(id);
+      const answers = data.answers || {};
+      let correctCount = 0;
+      const feedback = [];
+      quiz.questions.forEach(q => {
+        const chosen = answers[q.id];
+        const isCorrect = (chosen === q.correct_index);
+        if (isCorrect) correctCount++;
+        feedback.push({
+          question_id: q.id,
+          is_correct: isCorrect,
+          correct_option: q.correct_index,
+          explanation: q.explanation || ''
+        });
+      });
+      const score = Math.round((correctCount / quiz.questions.length) * 100);
+      const passed = score >= quiz.passing_score;
+      result = {
         attempt_id: `att-${Date.now().toString(36)}`,
-        score: 85.0,
-        passed: true,
-        verification_status: 'verified',
-        credential_hash: `0x${Math.random().toString(16).substring(2, 10).toUpperCase()}`
+        score: score,
+        passed: passed,
+        passing_threshold: quiz.passing_score,
+        feedback: feedback,
+        verified: passed,
+        skill_name: quiz.skill_name || 'Technical Skill',
+        skill_id: quiz.skill_id
       };
     }
+
+    // If passed (score >= 75%), persist verified skill to localStorage for the candidate
+    if (result && result.passed) {
+      try {
+        const raw = localStorage.getItem('i2i_verified_skills');
+        const list = raw ? JSON.parse(raw) : [];
+        const quiz = getQuizForSkill(id);
+        const skillName = result.skill_name || quiz.skill_name || 'Verified Skill';
+        const skillId = result.skill_id || quiz.skill_id || id;
+        
+        const filtered = list.filter(s => s.skill_id !== skillId && s.name !== skillName);
+        filtered.push({
+          skill_id: skillId,
+          name: skillName,
+          category: quiz.category || 'Languages',
+          assessment_score: result.score,
+          verified_at: new Date().toISOString().split('T')[0],
+          status: 'verified',
+          badge_hash: `0x${Math.random().toString(16).substring(2, 10).toUpperCase()}`
+        });
+        localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
+      } catch (err) {
+        console.warn('Failed to cache verified skill:', err);
+      }
+    }
+
+    return result;
   }
 
   // =========================================================================
   // PASSPORT
   // =========================================================================
   async getPassport(candidateId) {
+    let p = null;
     try {
-      return await this.request(`/candidate/passport?candidate_id=${candidateId}`);
+      p = await this.request(`/candidate/passport?candidate_id=${candidateId}`);
     } catch (e) {
-      return {
+      p = {
         candidate: { id: candidateId, full_name: 'Alex Rivera', role: 'candidate', title: 'Full-Stack Engineer', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
-        total_verified: 3,
-        skills: [
-          { skill_name: 'Python Backend Engineering', verified_score: 92.0, verified_at: '2026-03-15', status: 'verified', verification_hash: '0x9B4F81A' },
-          { skill_name: 'System Architecture & Scalability', verified_score: 88.5, verified_at: '2026-03-20', status: 'verified', verification_hash: '0x3E7A91C' },
-          { skill_name: 'Modern React & State Management', verified_score: 95.0, verified_at: '2026-03-28', status: 'verified', verification_hash: '0x7C1D82F' }
-        ]
+        total_verified: 0,
+        verified_skills: []
       };
     }
+
+    // Merge any locally passed skills from quiz submissions
+    try {
+      const raw = localStorage.getItem('i2i_verified_skills');
+      const localSkills = raw ? JSON.parse(raw) : [];
+      if (localSkills.length > 0) {
+        p.verified_skills = p.verified_skills || [];
+        const existing = new Set(p.verified_skills.map(s => s.name.toLowerCase()));
+        localSkills.forEach(ls => {
+          if (!existing.has(ls.name.toLowerCase())) {
+            p.verified_skills.push(ls);
+          }
+        });
+        p.total_verified = p.verified_skills.length;
+      }
+    } catch (e) {}
+
+    // Ensure candidate name matches active user if available
+    try {
+      const savedUserStr = localStorage.getItem('i2i_user');
+      if (savedUserStr) {
+        const u = JSON.parse(savedUserStr);
+        if (u && u.full_name) {
+          p.candidate = p.candidate || {};
+          p.candidate.full_name = u.full_name;
+          p.candidate.username = u.username;
+          if (u.avatar_url) p.candidate.avatar_url = u.avatar_url;
+        }
+      }
+    } catch (e) {}
+
+    return p;
   }
 
   getPassportPdfUrl(candidateId) {

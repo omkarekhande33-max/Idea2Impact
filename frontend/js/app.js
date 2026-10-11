@@ -1,5 +1,6 @@
 import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
+import { SKILLS_CATALOG, getQuizForSkill } from './quizData.js';
 
 class App {
   constructor() {
@@ -780,21 +781,27 @@ class App {
   // 2. CANDIDATE DASHBOARD (Section 6.2 & 2.1)
   // =========================================================================
   async renderCandidateDashboard() {
-    const candidateId = state.activeUser.id;
+    const candidateId = state.activeUser ? state.activeUser.id : 'cand-01';
     let passport = null;
     let jobs = [];
     let assessments = [];
     let applications = [];
+    let skills = [];
 
     try {
-      [passport, jobs, assessments, applications] = await Promise.all([
+      [passport, jobs, assessments, applications, skills] = await Promise.all([
         api.getPassport(candidateId),
         api.getJobs(candidateId),
         api.getAssessments(),
-        api.getMyApplications(candidateId)
+        api.getMyApplications(candidateId),
+        api.getSkills()
       ]);
     } catch (e) {
       console.warn("Error fetching candidate data", e);
+    }
+
+    if (!skills || skills.length === 0) {
+      skills = SKILLS_CATALOG;
     }
 
     const currentTab = state.activeTab;
@@ -810,7 +817,7 @@ class App {
                 <h4>${passport?.candidate?.full_name || 'Alex Rivera'}</h4>
                 <p>Candidate Mode</p>
                 <span class="badge badge-verified" style="margin-top:0.35rem; font-size:0.7rem;">
-                  ✓ ${passport?.total_verified || 3} Verified Skills
+                  ✓ ${passport?.total_verified || 0} Verified Skills
                 </span>
               </div>
             </div>
@@ -825,7 +832,7 @@ class App {
               </button>
               <button class="sidebar-link ${currentTab === 'assessments' ? 'active' : ''}" data-tab="assessments">
                 <span class="sidebar-link-content">⚡ Assessments</span>
-                <span class="sidebar-badge">${assessments.length}</span>
+                <span class="sidebar-badge">${skills.length}</span>
               </button>
               <button class="sidebar-link ${currentTab === 'jobs' ? 'active' : ''}" data-tab="jobs">
                 <span class="sidebar-link-content">🎯 Recommended Jobs</span>
@@ -843,7 +850,7 @@ class App {
 
           <!-- Main Content -->
           <div class="dashboard-content" id="candidate-content-area">
-            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, candidateId })}
+            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, skills, candidateId })}
           </div>
         </div>
       </div>
@@ -857,11 +864,12 @@ class App {
     });
 
     // Attach event listeners for Candidate interactions
-    this.attachCandidateEvents({ passport, jobs, assessments, applications, candidateId });
+    this.attachCandidateEvents({ passport, jobs, assessments, applications, skills, candidateId });
   }
 
   renderCandidateTabContent(tab, data) {
-    const { passport, jobs, assessments, applications, candidateId } = data;
+    const { passport, jobs, assessments, applications, skills, candidateId } = data;
+    const skillList = (skills && skills.length > 0) ? skills : SKILLS_CATALOG;
 
     if (tab === 'overview') {
       return `
@@ -870,7 +878,7 @@ class App {
             <h2>Candidate Dashboard</h2>
             <p>Track verified competencies, take proctored quizzes, and view explainable job matching.</p>
           </div>
-          <button class="btn btn-secondary" id="tab-btn-take-quiz">Take New Assessment</button>
+          <button class="btn btn-secondary" id="tab-btn-take-quiz">⚡ Browse Skills & Quizzes</button>
         </div>
 
         <div class="stats-grid">
@@ -893,6 +901,33 @@ class App {
               <h3>${applications.length}</h3>
               <p>Active Applications</p>
             </div>
+          </div>
+        </div>
+
+        <!-- Quick Technical Skills Quiz Ribbon -->
+        <div class="quick-skills-ribbon">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <span style="font-size:0.75rem; font-weight:700; color:var(--secondary); text-transform:uppercase; letter-spacing:0.8px;">⚡ Instant Skill Quiz</span>
+              <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary); margin:0.2rem 0 0;">Pick Any Skill to Generate a Quiz</h4>
+            </div>
+            <button class="btn btn-sm btn-outline" id="jump-to-all-skills-btn">View All ${skillList.length} Skills →</button>
+          </div>
+          <div class="quick-skills-chips-row">
+            ${skillList.map(s => {
+              const isV = (passport?.verified_skills || []).some(vs => 
+                vs.name?.toLowerCase() === s.name?.toLowerCase() || 
+                vs.skill_id === s.id ||
+                (s.slug && vs.skill_id?.includes(s.slug))
+              );
+              return `
+                <button class="quick-skill-chip-btn" data-skill="${s.slug || s.id}" data-id="${s.id}" title="${s.description}">
+                  <span>${s.icon || '⚡'}</span>
+                  <span>${s.name}</span>
+                  ${isV ? '<span style="color:var(--success); font-weight:800; font-size:0.85rem;">✓</span>' : ''}
+                </button>
+              `;
+            }).join('')}
           </div>
         </div>
 
@@ -993,37 +1028,83 @@ class App {
       return `
         <div class="dashboard-header">
           <div class="dashboard-title">
-            <h2>Skill Verification Assessments</h2>
-            <p>Score 75% or higher to earn an official verified badge on your Skill Passport.</p>
+            <h2>Technical Skills & Quiz Generator</h2>
+            <p>Select any skill below to generate an interactive 15-minute proctored quiz. Score 75% or higher to earn an official verified badge on your Skill Passport.</p>
           </div>
-          <span class="badge" style="background:rgba(20, 184, 166, 0.15); color:var(--accent-dark); border:1px solid var(--accent);">
-            Anti-Cheat Proctored Focus Monitoring
+          <span class="badge" style="background:rgba(20, 184, 166, 0.15); color:var(--accent-dark); border:1px solid var(--accent); padding:0.4rem 0.85rem;">
+            🛡️ Proctored Focus Monitoring & Real-Time Scoring
           </span>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
-          ${assessments.map(asm => {
-            const isVerified = passport?.verified_skills?.some(vs => vs.skill_id === asm.skill_id);
-            return `
-              <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-                <div>
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
-                    <span class="badge ${isVerified ? 'badge-verified' : 'badge-unverified'}">
-                      ${isVerified ? '✓ Already Verified' : 'Unverified'}
-                    </span>
-                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">⏱️ ${asm.duration_minutes} Mins</span>
+        <div class="skills-catalog-container">
+          <!-- Filter Toolbar with Search and Category Pills -->
+          <div class="skills-filter-toolbar">
+            <div class="skill-search-box">
+              <span>🔍</span>
+              <input type="text" id="skill-search-input" placeholder="Search skills (e.g. C++, Python, Java, CSS, SQL...)" autocomplete="off">
+            </div>
+
+            <div class="skill-category-pills">
+              <button class="skill-cat-pill active" data-category="all">All Skills (${skillList.length})</button>
+              <button class="skill-cat-pill" data-category="Languages">Languages (C++, Python, Java, C)</button>
+              <button class="skill-cat-pill" data-category="Web & Frontend">Web & Frontend (JS, HTML, CSS, React)</button>
+              <button class="skill-cat-pill" data-category="Databases & Tools">Databases & Tools (SQL, Git)</button>
+            </div>
+          </div>
+
+          <!-- Skills Cards Grid -->
+          <div class="skills-cards-grid" id="skills-cards-grid">
+            ${skillList.map(skill => {
+              const verifiedEntry = (passport?.verified_skills || []).find(vs => 
+                vs.name?.toLowerCase() === skill.name?.toLowerCase() || 
+                vs.skill_id === skill.id ||
+                (skill.slug && vs.skill_id?.includes(skill.slug))
+              );
+              const isVerified = Boolean(verifiedEntry);
+              const vScore = verifiedEntry ? (verifiedEntry.assessment_score || 85) : null;
+
+              return `
+                <div class="skill-technical-card" data-skill="${skill.slug || skill.id}" data-id="${skill.id}" data-category="${skill.category || 'Languages'}" data-name="${skill.name.toLowerCase()} ${skill.full_name?.toLowerCase() || ''}">
+                  <div>
+                    <div class="skill-card-top-row">
+                      <div class="skill-icon-avatar" style="--skill-bg:${skill.bg || 'rgba(37,99,235,0.1)'};">
+                        ${skill.icon || '⚡'}
+                      </div>
+                      <span class="badge ${isVerified ? 'badge-verified' : 'badge-unverified'}">
+                        ${isVerified ? `✓ Verified (${vScore}%)` : 'Ready for Quiz'}
+                      </span>
+                    </div>
+
+                    <div class="skill-card-title">
+                      ${skill.name}
+                      <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted); background:#F1F5F9; padding:0.15rem 0.45rem; border-radius:4px; margin-left:auto;">
+                        ${skill.level || 'Intermediate'}
+                      </span>
+                    </div>
+                    <div style="font-size:0.8rem; font-weight:600; color:var(--secondary); margin-bottom:0.5rem;">
+                      ${skill.category || 'Technical Skill'}
+                    </div>
+
+                    <p class="skill-card-desc">
+                      ${skill.description}
+                    </p>
                   </div>
-                  <h3 style="font-size:1.15rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem;">${asm.title}</h3>
-                  <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
-                    ${asm.question_count} proctored technical questions. Passing benchmark: <b>${asm.passing_score}%</b>.
-                  </p>
+
+                  <div>
+                    <div class="skill-card-meta">
+                      <span>⏱️ ${skill.duration_minutes || 15} Mins</span>
+                      <span>📝 ${skill.question_count || 5} Questions</span>
+                      <span>🎯 75% Pass</span>
+                    </div>
+
+                    <button class="btn ${isVerified ? 'btn-outline' : 'btn-secondary'} w-full generate-skill-quiz-btn" data-skill="${skill.slug || skill.id}" data-id="${skill.id}">
+                      ${isVerified ? `Retake ${skill.name} Quiz ⚡` : `⚡ Generate ${skill.name} Quiz →`}
+                    </button>
+                  </div>
                 </div>
-                <button class="btn ${isVerified ? 'btn-outline' : 'btn-secondary'} w-full start-quiz-btn" data-id="${asm.id}">
-                  ${isVerified ? 'Retake Assessment' : 'Start Assessment Quiz →'}
-                </button>
-              </div>
-            `;
-          }).join('')}
+              `;
+            }).join('')}
+          </div>
         </div>
       `;
     }
@@ -1210,7 +1291,85 @@ class App {
   attachCandidateEvents(data) {
     const { assessments, candidateId } = data;
 
-    // Start Quiz Buttons
+    // Quick quiz ribbon buttons in Overview tab
+    const quizTopBtn = this.appContainer.querySelector('#tab-btn-take-quiz');
+    if (quizTopBtn) {
+      quizTopBtn.addEventListener('click', () => state.setTab('assessments'));
+    }
+
+    const jumpToSkillsBtn = this.appContainer.querySelector('#jump-to-all-skills-btn');
+    if (jumpToSkillsBtn) {
+      jumpToSkillsBtn.addEventListener('click', () => state.setTab('assessments'));
+    }
+
+    // Quick skill chips in the ribbon
+    this.appContainer.querySelectorAll('.quick-skill-chip-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const skill = btn.dataset.skill || btn.dataset.id;
+        await this.openAssessmentModal(skill, candidateId);
+      });
+    });
+
+    // Technical skills search & category filtering
+    const searchInput = this.appContainer.querySelector('#skill-search-input');
+    const catPills = this.appContainer.querySelectorAll('.skill-cat-pill');
+    const cards = this.appContainer.querySelectorAll('.skill-technical-card');
+
+    const filterSkills = () => {
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const activePill = this.appContainer.querySelector('.skill-cat-pill.active');
+      const selectedCategory = activePill ? activePill.dataset.category : 'all';
+
+      cards.forEach(card => {
+        const cardCategory = card.dataset.category || '';
+        const cardName = card.dataset.name || '';
+        const cardText = card.textContent.toLowerCase();
+
+        const matchesCategory = (selectedCategory === 'all' || cardCategory.toLowerCase() === selectedCategory.toLowerCase());
+        const matchesSearch = !query || cardName.includes(query) || cardText.includes(query);
+
+        if (matchesCategory && matchesSearch) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener('input', filterSkills);
+    }
+
+    catPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        catPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        filterSkills();
+      });
+    });
+
+    // Generate Quiz buttons on skill cards
+    this.appContainer.querySelectorAll('.generate-skill-quiz-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const skill = btn.dataset.skill || btn.dataset.id;
+        await this.openAssessmentModal(skill, candidateId);
+      });
+    });
+
+    // Clicking anywhere on a skill technical card also triggers the quiz
+    this.appContainer.querySelectorAll('.skill-technical-card').forEach(card => {
+      card.addEventListener('click', async (e) => {
+        if (e.target.closest('button')) return;
+        const skill = card.dataset.skill || card.dataset.id;
+        await this.openAssessmentModal(skill, candidateId);
+      });
+    });
+
+    // Legacy / other assessment buttons
     this.appContainer.querySelectorAll('.start-quiz-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const asmId = btn.dataset.id;
@@ -1218,14 +1377,7 @@ class App {
       });
     });
 
-    const quizTopBtn = this.appContainer.querySelector('#tab-btn-take-quiz');
-    if (quizTopBtn && assessments.length > 0) {
-      quizTopBtn.addEventListener('click', async () => {
-        await this.openAssessmentModal(assessments[0].id, candidateId);
-      });
-    }
-
-    // Apply Buttons
+    // Job application buttons
     this.appContainer.querySelectorAll('.apply-job-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const jobId = btn.dataset.id;
@@ -1257,7 +1409,15 @@ class App {
     try {
       asm = await api.getAssessment(assessmentId);
     } catch (e) {
-      state.showToast("Could not load assessment questions", "danger");
+      console.warn("Could not load assessment from API, using fallback catalog", e);
+    }
+
+    if (!asm || !asm.questions || asm.questions.length === 0) {
+      asm = getQuizForSkill(assessmentId);
+    }
+
+    if (!asm || !asm.questions || asm.questions.length === 0) {
+      state.showToast("Could not generate quiz for this skill", "danger");
       return;
     }
 
@@ -1267,32 +1427,41 @@ class App {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
-      <div class="modal-content" style="max-width:700px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+      <div class="modal-content" style="max-width:760px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-shrink:0;">
           <div>
-            <span class="badge" style="background:var(--warning-bg); color:var(--warning); margin-bottom:0.25rem;">
-              PROCTORED ASSESSMENT (75% PASS)
-            </span>
-            <h3 style="font-size:1.3rem; font-weight:800; color:var(--primary);">${asm.title}</h3>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+              <span class="badge" style="background:var(--warning-bg); color:var(--warning); font-size:0.75rem;">
+                🛡️ PROCTORED TECHNICAL ASSESSMENT
+              </span>
+              <span class="badge" style="background:#EEF2FF; color:#4338CA; font-size:0.75rem;">
+                🎯 75% BENCHMARK TO PASS
+              </span>
+            </div>
+            <h3 style="font-size:1.35rem; font-weight:800; color:var(--primary); margin:0;">${asm.title}</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0;">
+              Answer all ${asm.questions.length} questions. Passing will award an official verified credential to your Skill Passport.
+            </p>
           </div>
-          <div style="text-align:right;">
-            <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:800; color:var(--secondary);" id="exam-timer">15:00</div>
-            <span style="font-size:0.75rem; color:var(--text-muted);">Integrity monitor active</span>
+          <div style="text-align:right; flex-shrink:0; padding-left:1rem;">
+            <div style="font-family:var(--font-mono); font-size:1.3rem; font-weight:800; color:var(--secondary);" id="exam-timer">15:00</div>
+            <span style="font-size:0.75rem; color:var(--text-muted); display:block;">Tab Integrity Active</span>
           </div>
         </div>
 
-        <form id="quiz-form">
-          <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        <form id="quiz-form" style="display:flex; flex-direction:column; flex:1; overflow-y:auto; padding-right:0.4rem;">
+          <div style="display:flex; flex-direction:column; gap:1.25rem; padding-bottom:1rem;">
             ${asm.questions.map((q, qIndex) => `
-              <div style="border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem;">
-                <p style="font-weight:700; color:var(--primary); margin-bottom:0.85rem; font-size:0.95rem;">
-                  Q${qIndex + 1}. ${q.text}
+              <div style="border:1px solid var(--border); border-radius:var(--radius-md); padding:1.15rem; background:#FAFAFA; transition:all 150ms;">
+                <p style="font-weight:700; color:var(--primary); margin-bottom:0.75rem; font-size:0.95rem; line-height:1.45;">
+                  <span style="display:inline-block; background:var(--secondary); color:#fff; font-size:0.75rem; padding:0.1rem 0.45rem; border-radius:4px; margin-right:0.4rem;">Q${qIndex + 1}</span>
+                  ${(q.text || q.prompt || '').replace(/`([^`]+)`/g, '<code style="background:#E2E8F0; color:#0F172A; padding:0.15rem 0.35rem; border-radius:4px; font-family:var(--font-mono); font-size:0.85rem;">$1</code>')}
                 </p>
-                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; flex-direction:column; gap:0.45rem;">
                   ${q.options.map((opt, optIndex) => `
                     <label class="quiz-option" for="q_${q.id}_${optIndex}">
                       <input type="radio" name="${q.id}" id="q_${q.id}_${optIndex}" value="${optIndex}" required />
-                      <span style="font-size:0.9rem;">${opt}</span>
+                      <span style="font-size:0.88rem; line-height:1.4;">${opt}</span>
                     </label>
                   `).join('')}
                 </div>
@@ -1300,10 +1469,10 @@ class App {
             `).join('')}
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-            <button type="button" class="btn btn-outline" id="cancel-exam-btn">Cancel</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; border-top:1px solid var(--border); padding-top:1rem; flex-shrink:0;">
+            <button type="button" class="btn btn-outline" id="cancel-exam-btn">Cancel Quiz</button>
             <button type="submit" class="btn btn-secondary btn-lg" id="submit-exam-btn">
-              Submit Assessment & Grade Backend →
+              Submit Assessment & Grade Results →
             </button>
           </div>
         </form>
@@ -1313,7 +1482,7 @@ class App {
     document.body.appendChild(overlay);
 
     // Timer countdown
-    let timeLeft = asm.duration_minutes * 60;
+    let timeLeft = (asm.duration_minutes || 15) * 60;
     const timerEl = overlay.querySelector('#exam-timer');
     const timerInterval = setInterval(() => {
       timeLeft -= 1;
@@ -1345,6 +1514,12 @@ class App {
         answers[key] = parseInt(value, 10);
       }
 
+      const submitBtn = overlay.querySelector('#submit-exam-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Grading Assessment...';
+      }
+
       try {
         const result = await api.submitAssessment(asm.id, {
           candidate_id: candidateId,
@@ -1353,57 +1528,113 @@ class App {
         });
 
         overlay.remove();
-        this.openAssessmentResultModal(result, asm.title);
-        // Refresh state
+        this.openAssessmentResultModal(result, asm.title, asm.id, candidateId);
+        // Refresh candidate dashboard data
         state.notify();
       } catch (err) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Assessment & Grade Results →';
+        }
         state.showToast(err.message, 'danger');
       }
     });
   }
 
-  openAssessmentResultModal(result, title) {
+  openAssessmentResultModal(result, title, assessmentId, candidateId) {
     const isPassed = result.passed;
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
-      <div class="modal-content" style="text-align:center;">
-        <div style="font-size:3.5rem; margin-bottom:1rem;">
+      <div class="modal-content" style="max-width:620px; text-align:center;">
+        <div style="font-size:3.5rem; margin-bottom:0.75rem;">
           ${isPassed ? '🎉' : '📚'}
         </div>
-        <h2 style="font-size:1.8rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">
-          ${isPassed ? 'Assessment Verified!' : 'Verification Benchmark Not Reached'}
+        <h2 style="font-size:1.8rem; font-weight:800; color:var(--primary); margin-bottom:0.35rem;">
+          ${isPassed ? 'Assessment Verified!' : 'Benchmark Not Reached'}
         </h2>
-        <p style="font-size:1rem; color:var(--text-muted); margin-bottom:1.5rem;">
+        <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:1.25rem;">
           ${title}
         </p>
 
-        <div style="background:${isPassed ? 'var(--success-bg)' : '#F1F5F9'}; border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.5rem;">
-          <div style="font-size:3rem; font-weight:800; color:${isPassed ? 'var(--success)' : 'var(--text-muted)'}; line-height:1;">
+        <div style="background:${isPassed ? 'var(--success-bg)' : '#F1F5F9'}; border:1px solid ${isPassed ? 'var(--success)' : '#CBD5E1'}; border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1.25rem;">
+          <div style="font-size:3.2rem; font-weight:800; color:${isPassed ? 'var(--success)' : 'var(--text-muted)'}; line-height:1;">
             ${result.score}%
           </div>
-          <p style="font-size:0.85rem; font-weight:700; color:${isPassed ? 'var(--success)' : 'var(--text-muted)'}; margin-top:0.5rem;">
-            ${isPassed ? 'VERIFIED BADGE AWARDED (Threshold: 75%)' : 'Passing Threshold: 75%'}
+          <p style="font-size:0.85rem; font-weight:700; color:${isPassed ? 'var(--success)' : 'var(--text-muted)'}; margin-top:0.5rem; margin-bottom:0;">
+            ${isPassed ? '✓ OFFICIAL VERIFIED BADGE AWARDED (Threshold: 75%)' : 'Passing Threshold: 75% required for verification'}
           </p>
         </div>
 
-        <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:1.5rem; text-align:left; background:#F8FAFC; padding:1rem; border-radius:var(--radius-md);">
+        <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:1.25rem; text-align:left; background:#F8FAFC; padding:0.9rem 1.1rem; border-radius:var(--radius-md); border-left:4px solid ${isPassed ? 'var(--success)' : 'var(--secondary)'}; line-height:1.5;">
           ${isPassed 
-            ? 'Congratulations! Your score has been cryptographically recorded on your Verified Skill Passport. Employers and startup founders can now view this verified competency.' 
-            : 'You scored below the 75% threshold required for official verification. Check out the skill gap learning roadmap to study recommended materials and retake the test!'}
+            ? 'Congratulations! Your score has been cryptographically recorded on your Verified Skill Passport. Recruiter and HR modes can now see your verified ability.' 
+            : 'You scored below the 75% threshold required for official verification. You can review the questions below, brush up, and retake this quiz at any time!'}
         </p>
 
-        <button class="btn btn-primary w-full" id="close-result-modal">
-          ${isPassed ? 'View Updated Skill Passport →' : 'Continue to Dashboard'}
-        </button>
+        ${result.feedback && result.feedback.length > 0 ? `
+          <div style="text-align:left; margin-bottom:1.25rem; max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem;">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem;">Question Feedback & Explanations:</div>
+            ${result.feedback.map((fb, idx) => `
+              <div style="font-size:0.78rem; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #F1F5F9;">
+                <span style="font-weight:700; color:${fb.is_correct ? 'var(--success)' : 'var(--danger)'};">
+                  ${fb.is_correct ? '✓ Correct' : '✗ Incorrect'}
+                </span>
+                ${fb.explanation ? `<span style="color:#64748B; margin-left:0.35rem;">— ${fb.explanation}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          ${!isPassed ? `
+            <button class="btn btn-secondary" id="retake-quiz-btn" style="flex:1;">
+              ⚡ Retake Quiz Now
+            </button>
+            <button class="btn btn-outline" id="browse-other-skills-btn" style="flex:1;">
+              Browse Other Skills
+            </button>
+          ` : `
+            <button class="btn btn-primary" id="view-passport-btn" style="flex:1;">
+              🛡️ View Updated Skill Passport →
+            </button>
+            <button class="btn btn-outline" id="take-another-quiz-btn" style="flex:1;">
+              ⚡ Take Another Skill Quiz
+            </button>
+          `}
+        </div>
       </div>
     `;
 
     document.body.appendChild(modal);
-    modal.querySelector('#close-result-modal').addEventListener('click', () => {
-      modal.remove();
-      state.setTab('passport');
-    });
+
+    if (modal.querySelector('#retake-quiz-btn')) {
+      modal.querySelector('#retake-quiz-btn').addEventListener('click', async () => {
+        modal.remove();
+        await this.openAssessmentModal(assessmentId, candidateId);
+      });
+    }
+
+    if (modal.querySelector('#browse-other-skills-btn')) {
+      modal.querySelector('#browse-other-skills-btn').addEventListener('click', () => {
+        modal.remove();
+        state.setTab('assessments');
+      });
+    }
+
+    if (modal.querySelector('#view-passport-btn')) {
+      modal.querySelector('#view-passport-btn').addEventListener('click', () => {
+        modal.remove();
+        state.setTab('passport');
+      });
+    }
+
+    if (modal.querySelector('#take-another-quiz-btn')) {
+      modal.querySelector('#take-another-quiz-btn').addEventListener('click', () => {
+        modal.remove();
+        state.setTab('assessments');
+      });
+    }
   }
 
   // =========================================================================

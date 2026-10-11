@@ -267,16 +267,22 @@ def list_skills():
     return db.get_table("skills")
 
 @router.get("/assessments")
-def list_assessments():
+def list_assessments(skill_id: Optional[str] = Query(None)):
     assessments = db.get_table("assessments")
-    skills = {s["id"]: s["name"] for s in db.get_table("skills")}
+    skills = {s["id"]: s for s in db.get_table("skills")}
     results = []
     for a in assessments:
+        if skill_id and a.get("skill_id") != skill_id and a.get("id") != skill_id:
+            continue
+        s_obj = skills.get(a["skill_id"], {})
         results.append({
             "id": a["id"],
             "title": a["title"],
             "skill_id": a["skill_id"],
-            "skill_name": skills.get(a["skill_id"], "Technical Skill"),
+            "skill_name": s_obj.get("name", "Technical Skill"),
+            "skill_slug": s_obj.get("slug", ""),
+            "skill_icon": s_obj.get("icon", "⚡"),
+            "skill_category": s_obj.get("category", "Languages"),
             "question_count": len(a.get("questions", [])),
             "passing_score": a.get("passing_score", 75.0),
             "duration_minutes": a.get("duration_minutes", 15)
@@ -285,7 +291,13 @@ def list_assessments():
 
 @router.get("/assessments/{assessment_id}")
 def get_assessment(assessment_id: str):
-    asm = db.find_one("assessments", lambda a: a["id"] == assessment_id)
+    aid = assessment_id.lower().strip()
+    asm = db.find_one("assessments", lambda a: a["id"].lower() == aid or a["skill_id"].lower() == aid)
+    if not asm:
+        # Check matching skill slug
+        skill = db.find_one("skills", lambda s: s.get("slug", "").lower() == aid or s["id"].lower() == aid or aid in s["name"].lower())
+        if skill:
+            asm = db.find_one("assessments", lambda a: a["skill_id"] == skill["id"])
     if not asm:
         raise HTTPException(status_code=404, detail="Assessment not found")
     
@@ -307,9 +319,18 @@ def get_assessment(assessment_id: str):
         "questions": safe_questions
     }
 
+@router.get("/assessments/skill/{skill_id}")
+def get_assessment_by_skill(skill_id: str):
+    return get_assessment(skill_id)
+
 @router.post("/assessments/{assessment_id}/attempts")
 def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
-    asm = db.find_one("assessments", lambda a: a["id"] == assessment_id)
+    aid = assessment_id.lower().strip()
+    asm = db.find_one("assessments", lambda a: a["id"].lower() == aid or a["skill_id"].lower() == aid)
+    if not asm:
+        skill = db.find_one("skills", lambda s: s.get("slug", "").lower() == aid or s["id"].lower() == aid or aid in s["name"].lower())
+        if skill:
+            asm = db.find_one("assessments", lambda a: a["skill_id"] == skill["id"])
     if not asm:
         raise HTTPException(status_code=404, detail="Assessment not found")
 
@@ -371,13 +392,18 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
     else:
         db.log_audit("Skill Assessment Failed", payload.candidate_id, f"Candidate scored {score}% on {asm['title']} (Threshold: 75%).")
 
+    skill_obj = db.find_one("skills", lambda s: s["id"] == skill_id)
+    skill_name = skill_obj["name"] if skill_obj else asm["title"].replace(" Technical Quiz", "")
+
     return {
         "attempt_id": attempt["id"],
         "score": score,
         "passed": passed,
         "passing_threshold": asm.get("passing_score", 75.0),
         "feedback": feedback,
-        "verified": passed
+        "verified": passed,
+        "skill_name": skill_name,
+        "skill_id": skill_id
     }
 
 # -------------------------------------------------------------
