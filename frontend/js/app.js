@@ -1,4 +1,4 @@
-﻿import { api } from './api.js';
+import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
 
 class App {
@@ -281,10 +281,14 @@ class App {
           state.setAuth(res.user, res.token);
         } catch (err) {
           const msg = (err.message || '').toLowerCase();
-          if (msg.includes('invalid') || msg.includes('401') || msg.includes('not found') || msg.includes('incorrect')) {
+          if (msg.includes('password')) {
+            this.showAuthAlert('Incorrect password. Please try again.', 'error');
+          } else if (msg.includes('no account') || msg.includes('not found') || msg.includes('create an account') || msg.includes('401') || msg.includes('invalid')) {
             this.showAuthAlert('No account found. <a href="#" id="alert-create-link" style="color:var(--secondary);font-weight:700;">Create an account first</a>.', 'error');
             setTimeout(() => { const l = document.getElementById('alert-create-link'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); state.authMode = 'role-pick'; this.renderLoginPage(); }); }, 50);
-          } else { this.showAuthAlert(err.message || 'Invalid username or password.', 'error'); }
+          } else {
+            this.showAuthAlert(err.message || 'Invalid username or password.', 'error');
+          }
           submitBtn.disabled = false; submitBtn.textContent = 'Sign In';
         }
       });

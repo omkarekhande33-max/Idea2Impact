@@ -1,10 +1,10 @@
 // Idea2Impact - Client State Management
 
 export const DEFAULT_USERS = {
-  candidate: { id: "cand-01", name: "Alex Rivera", role: "candidate", title: "Full-Stack Engineer", email: "alex.rivera@example.com" },
-  founder: { id: "found-01", name: "Sarah Lin", role: "founder", title: "Founder & CEO, EcoTrace AI", email: "sarah.lin@ecotrace.ai" },
-  hr: { id: "hr-01", name: "Elena Rostova", role: "hr", title: "Head of Talent, NovaTech", email: "elena.rostova@novatech.io" },
-  investor: { id: "inv-01", name: "Victoria Sterling", role: "investor", title: "Partner, Apex Frontier VC", email: "v.sterling@apexfrontier.vc" }
+  candidate: { id: "cand-01", name: "Alex Rivera", full_name: "Alex Rivera", username: "alex", role: "candidate", title: "Full-Stack Engineer", email: "alex.rivera@example.com" },
+  founder: { id: "found-01", name: "Sarah Lin", full_name: "Sarah Lin", username: "sarah", role: "founder", title: "Founder & CEO, EcoTrace AI", email: "sarah.lin@ecotrace.ai" },
+  hr: { id: "hr-01", name: "Elena Rostova", full_name: "Elena Rostova", username: "elena", role: "hr", title: "Head of Talent, NovaTech", email: "elena.rostova@novatech.io" },
+  investor: { id: "inv-01", name: "Victoria Sterling", full_name: "Victoria Sterling", username: "victoria", role: "investor", title: "Partner, Apex Frontier VC", email: "v.sterling@apexfrontier.vc" }
 };
 
 class StateManager {

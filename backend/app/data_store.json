@@ -113,12 +113,36 @@
       "username": "google_user_412564",
       "full_name": "Google Innovator",
       "email": "google_user_412564@gmail.com",
-      "password_hash": "",
+      "password_hash": "pbkdf2_sha256$100000$7b06b8a2086df7f1476bfe75a4255509$81c2032f4bd69323b33cab96120f2a582627d856f2c8a259d32f043fbfd3f4aa",
       "role": "investor",
       "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
       "bio": "Joined via Google Authentication",
       "auth_provider": "google",
       "created_at": "2026-10-11T09:11:57.717475+00:00"
+    },
+    {
+      "id": "cand-291eba",
+      "username": "testuser99",
+      "full_name": "Test User",
+      "email": "testuser99@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$d27a766c9c07f7d008ef1d9ccc08d36d$3b178309d2259e0323bb4a9e9b1302ee731f716f9cd66d7d10a60236b5205361",
+      "role": "candidate",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test User",
+      "bio": "Software engineer",
+      "auth_provider": "local",
+      "created_at": "2026-10-11T11:23:15.163030+00:00"
+    },
+    {
+      "id": "cand-3354dd",
+      "username": "tiger",
+      "full_name": "rushikesh wagh",
+      "email": "rushikeshwagh2501@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$35e10fb69d847815ca0b852cf815b447$628e9c619f45d4e27e848d2748bbb4d97d8cc8afa0a209a538a02fa17ceb8063",
+      "role": "candidate",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh wagh",
+      "bio": "Senior Software Engineer specializing in AI",
+      "auth_provider": "local",
+      "created_at": "2026-10-11T11:29:30.340084+00:00"
     }
   ],
   "candidate_profiles": [
@@ -145,6 +169,24 @@
       "portfolio_url": "https://jordanlee.design",
       "target_role": "Frontend Software Engineer",
       "summary": "Passionate about accessible UI systems, micro-animations, and fast client-side rendering."
+    },
+    {
+      "candidate_id": "cand-291eba",
+      "education": "Not specified",
+      "experience_years": 1,
+      "portfolio_url": "",
+      "target_role": "Software Engineer",
+      "summary": "Software engineer",
+      "id": "cand-8aaa9df2"
+    },
+    {
+      "candidate_id": "cand-3354dd",
+      "education": "Not specified",
+      "experience_years": 1,
+      "portfolio_url": "",
+      "target_role": "Software Engineer",
+      "summary": "Senior Software Engineer specializing in AI",
+      "id": "cand-7427a069"
     }
   ],
   "founder_profiles": [
@@ -891,6 +933,27 @@
       "user_id": "inve-a5dc4b",
       "details": "User Google Innovator logged in via Google",
       "timestamp": "2026-10-11T09:11:57.725530+00:00"
+    },
+    {
+      "id": "log-ca034c56",
+      "event": "Account Registered",
+      "user_id": "cand-291eba",
+      "details": "User testuser99 registered as candidate",
+      "timestamp": "2026-10-11T11:23:15.165362+00:00"
+    },
+    {
+      "id": "log-1460ece0",
+      "event": "Account Registered",
+      "user_id": "cand-3354dd",
+      "details": "User tiger registered as candidate",
+      "timestamp": "2026-10-11T11:29:30.340084+00:00"
+    },
+    {
+      "id": "log-1f934cd8",
+      "event": "User Login",
+      "user_id": "cand-3354dd",
+      "details": "User tiger logged in successfully",
+      "timestamp": "2026-10-11T11:29:30.396458+00:00"
     }
   ],
   "match_results": [
