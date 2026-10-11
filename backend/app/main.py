@@ -28,11 +28,14 @@ app.include_router(api_router, prefix=settings.API_PREFIX)
 
 @app.get("/api/health")
 def health_check():
+    has_supabase = bool(settings.SUPABASE_URL and settings.SUPABASE_KEY)
     return {
         "status": "healthy",
         "app": settings.APP_NAME,
         "version": settings.VERSION,
-        "mode": "relational-fastapi-backend"
+        "mode": "supabase-relational-backend" if has_supabase else "relational-fastapi-backend",
+        "supabase_configured": has_supabase,
+        "supabase_url": settings.SUPABASE_URL if has_supabase else None
     }
 
 # Frontend static files mounting
