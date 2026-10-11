@@ -19,166 +19,196 @@ class App {
 
   renderTopBars() {
     const roleBar = document.getElementById('role-bar');
-    if (roleBar) {
-      roleBar.innerHTML = `
-        <div class="role-bar-left">
-          <span class="role-bar-badge">SYSTEM ROLE DEMO</span>
-          <span style="font-size:0.8rem; color:#94A3B8;">Switch personas instantly or sign in:</span>
-        </div>
-        <div class="role-buttons">
-          <button class="role-btn ${state.currentRole === 'landing' ? 'active' : ''}" data-role="landing">
-            🌐 Public Portal
-          </button>
-          <button class="role-btn ${state.currentRole === 'candidate' ? 'active' : ''}" data-role="candidate">
-            🎓 Candidate Mode
-          </button>
-          <button class="role-btn ${state.currentRole === 'founder' ? 'active' : ''}" data-role="founder">
-            🚀 Founder Mode
-          </button>
-          <button class="role-btn ${state.currentRole === 'hr' ? 'active' : ''}" data-role="hr">
-            💼 HR / Recruiter Mode
-          </button>
-          <button class="role-btn ${state.currentRole === 'investor' ? 'active' : ''}" data-role="investor">
-            🦈 Investor / Shark Mode
-          </button>
-          <button class="role-btn ${state.currentRole === 'login' ? 'active' : ''}" data-role="login" style="border-left:1px solid rgba(255,255,255,0.15); margin-left:0.35rem; color:#67E8F9;">
-            🔐 ${state.isAuthenticated() ? 'My Account' : 'Sign In / Register'}
-          </button>
-        </div>
-      `;
+    const isAuth = state.isAuthenticated();
 
-      roleBar.querySelectorAll('.role-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const role = btn.dataset.role;
-          if (role === 'landing') {
-            state.currentRole = 'landing';
-            state.activeTab = 'overview';
-            state.notify();
-          } else if (role === 'login') {
-            state.openLogin('signin');
-          } else {
-            state.setRole(role);
-          }
-          this.renderTopBars();
-        });
-      });
+    if (roleBar) {
+      if (!isAuth) {
+        // Initial visit: HIDE persona switcher completely so user ONLY sees login/register
+        roleBar.style.display = 'none';
+      } else {
+        // Authenticated: Show ONLY the user's active role — no cross-role switching
+        const roleEmoji = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
+        const roleLabel = { candidate: 'Candidate Mode', hr: 'HR / Recruiter Mode', founder: 'Founder Mode', investor: 'Investor / Shark Mode' };
+        roleBar.style.display = 'flex';
+        roleBar.innerHTML = `
+          <div class="role-bar-left">
+            <span class="role-bar-badge">ACTIVE WORKSPACE</span>
+            <span style="font-size:0.8rem; color:#94A3B8;">You are signed in as <strong style="color:#fff;">${roleEmoji[state.currentRole] || ''} ${roleLabel[state.currentRole] || state.currentRole.toUpperCase()}</strong></span>
+          </div>
+          <div style="font-size:0.75rem; color:#64748B; font-style:italic;">
+            To access a different mode, please sign out and sign in with a different account.
+          </div>
+        `;
+      }
     }
 
     const navbar = document.getElementById('navbar');
     if (navbar) {
-      const isAuth = state.isAuthenticated();
-      navbar.innerHTML = `
-        <div class="nav-container">
-          <a href="#" class="brand" id="brand-link">
-            <div class="brand-icon">I²</div>
-            <span>Idea<span class="impact-text">2Impact</span></span>
-          </a>
-          <ul class="nav-menu">
-            <li><a href="#" class="nav-link" data-nav="landing">Overview</a></li>
-            <li><a href="#" class="nav-link" data-nav="candidate">Candidate Hub</a></li>
-            <li><a href="#" class="nav-link" data-nav="founder">AI Startup Copilot</a></li>
-            <li><a href="#" class="nav-link" data-nav="hr">HR Matching</a></li>
-            <li><a href="#" class="nav-link" data-nav="investor">Investor Shark Room</a></li>
-          </ul>
-          <div class="flex items-center gap-3">
-            ${isAuth ? `
+      if (!isAuth) {
+        // Initial visit: Clean navbar with brand and secure gateway indicator
+        navbar.innerHTML = `
+          <div class="nav-container">
+            <a href="#" class="brand" id="brand-link" style="cursor:default;">
+              <div class="brand-icon">I²</div>
+              <span>Idea<span class="impact-text">2Impact</span></span>
+            </a>
+            <div style="font-size:0.85rem; font-weight:600; color:#94A3B8; display:flex; align-items:center; gap:0.5rem;">
+              <span>🔒</span>
+              <span>Secure Gateway: Candidate · HR · Founder · Investor</span>
+            </div>
+          </div>
+        `;
+      } else {
+        // Authenticated: Show mode-specific nav links for the user's OWN role only
+        const modeNavLinks = {
+          candidate: [
+            { label: 'Dashboard', tab: 'overview' },
+            { label: 'Assessments', tab: 'assessments' },
+            { label: 'Skill Passport', tab: 'passport' },
+            { label: 'Job Matches', tab: 'jobs' }
+          ],
+          hr: [
+            { label: 'Dashboard', tab: 'overview' },
+            { label: 'Post a Job', tab: 'create-job' },
+            { label: 'Applicants', tab: 'applicants' },
+            { label: 'Skill Reports', tab: 'reports' }
+          ],
+          founder: [
+            { label: 'Dashboard', tab: 'overview' },
+            { label: 'AI Copilot', tab: 'ai-copilot' },
+            { label: 'Pitch Deck', tab: 'pitch' },
+            { label: 'Find Investors', tab: 'investors' }
+          ],
+          investor: [
+            { label: 'Dashboard', tab: 'overview' },
+            { label: 'Deal Flow', tab: 'startups' },
+            { label: 'Portfolio', tab: 'portfolio' },
+            { label: 'Term Sheets', tab: 'termsheets' }
+          ]
+        };
+        const links = modeNavLinks[state.currentRole] || modeNavLinks.candidate;
+        const navLinksHtml = links.map(l =>
+          `<li><a href="#" class="nav-link ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</a></li>`
+        ).join('');
+
+        navbar.innerHTML = `
+          <div class="nav-container">
+            <a href="#" class="brand" id="brand-link">
+              <div class="brand-icon">I²</div>
+              <span>Idea<span class="impact-text">2Impact</span></span>
+            </a>
+            <ul class="nav-menu">
+              ${navLinksHtml}
+            </ul>
+            <div class="flex items-center gap-3">
               <div class="flex items-center gap-2" style="background: rgba(255,255,255,0.08); padding: 0.25rem 0.65rem 0.25rem 0.35rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.15);">
-                <img src="${state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
-                <span style="font-size: 0.82rem; font-weight: 600; color: #fff;">${state.activeUser.name}</span>
-                <span class="badge badge-role" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${state.activeUser.role.toUpperCase()}</span>
+                <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: #fff;">${state.activeUser ? state.activeUser.name : 'User'}</span>
+                <span class="badge badge-role" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${state.currentRole.toUpperCase()}</span>
               </div>
               <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: transparent;">
                 Sign Out
               </button>
-            ` : `
-              <button class="btn btn-outline btn-sm" id="nav-login-btn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: transparent;">
-                Sign In
+              <button class="btn btn-primary btn-sm" id="quick-action-btn">
+                ${state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Explore'}
               </button>
-              <button class="btn btn-accent btn-sm" id="nav-register-btn">
-                Create Account
-              </button>
-            `}
-            <button class="btn btn-primary btn-sm" id="quick-action-btn">
-              ${state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Get Started'}
-            </button>
+            </div>
           </div>
-        </div>
-      `;
+        `;
 
-      navbar.querySelector('#brand-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        state.currentRole = 'landing';
-        state.notify();
-        this.renderTopBars();
-      });
-
-      navbar.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = link.dataset.nav;
-          if (target === 'landing') {
-            state.currentRole = 'landing';
-          } else {
-            state.setRole(target);
-          }
-          this.renderTopBars();
+        navbar.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            state.setTab(link.dataset.tab);
+            this.renderTopBars();
+          });
         });
-      });
 
-      const loginBtn = navbar.querySelector('#nav-login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-          state.openLogin('signin');
+        const logoutBtn = navbar.querySelector('#nav-logout-btn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            state.logout();
+            this.renderTopBars();
+          });
+        }
+
+        navbar.querySelector('#quick-action-btn').addEventListener('click', () => {
+          if (state.currentRole === 'candidate') state.setTab('assessments');
+          else if (state.currentRole === 'founder') state.setTab('ai-copilot');
+          else if (state.currentRole === 'hr') state.setTab('create-job');
+          else if (state.currentRole === 'investor') state.setTab('startups');
         });
       }
-
-      const registerBtn = navbar.querySelector('#nav-register-btn');
-      if (registerBtn) {
-        registerBtn.addEventListener('click', () => {
-          state.openLogin('register');
-        });
-      }
-
-      const logoutBtn = navbar.querySelector('#nav-logout-btn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-          state.logout();
-          this.renderTopBars();
-        });
-      }
-
-      navbar.querySelector('#quick-action-btn').addEventListener('click', () => {
-        if (state.currentRole === 'candidate') state.setTab('assessments');
-        else if (state.currentRole === 'founder') state.setTab('ai-copilot');
-        else if (state.currentRole === 'hr') state.setTab('create-job');
-        else if (state.currentRole === 'investor') state.setTab('startups');
-        else state.setRole('candidate');
-      });
     }
   }
 
   async renderCurrentView() {
     this.renderTopBars();
-    if (state.currentRole === 'login') {
+
+    // STRICT AUTH GUARD: Unauthenticated users MUST only see the login/register page!
+    if (!state.isAuthenticated()) {
       await this.renderLoginPage();
-    } else if (state.currentRole === 'landing') {
-      await this.renderLandingPage();
-    } else if (state.currentRole === 'candidate') {
+      return;
+    }
+
+    // Authenticated: Route directly to their signed-in role mode
+    if (state.currentRole === 'candidate') {
       await this.renderCandidateDashboard();
-    } else if (state.currentRole === 'founder') {
-      await this.renderFounderDashboard();
     } else if (state.currentRole === 'hr') {
       await this.renderHrDashboard();
+    } else if (state.currentRole === 'founder') {
+      await this.renderFounderDashboard();
     } else if (state.currentRole === 'investor') {
       await this.renderInvestorDashboard();
+    } else {
+      await this.renderCandidateDashboard();
     }
   }
 
   // =========================================================================
-  // AUTHENTICATION: LOGIN & CREATE ACCOUNT PAGE (With Google Auth)
+  // AUTHENTICATION: LOGIN & REGISTER PAGE FOR CANDIDATE, HR, FOUNDER, INVESTOR
   // =========================================================================
   async renderLoginPage() {
     const isSignIn = state.authMode !== 'register';
+    const activeRole = state.selectedAuthRole || 'candidate';
+
+    const roleMeta = {
+      candidate: {
+        title: "Candidate Portal",
+        badge: "🎓 CANDIDATE MODE",
+        desc: "Take timed technical assessments, earn verified tamper-proof passports & unlock explainable job match scores.",
+        demoUser: "alexrivera",
+        demoName: "Alex Rivera",
+        btnText: "Sign In to Candidate Mode"
+      },
+      hr: {
+        title: "HR & Recruiter Portal",
+        badge: "💼 HR / RECRUITER MODE",
+        desc: "Post weighted engineering jobs, review applicant compatibility math, and hire verified technical talent.",
+        demoUser: "elenarostova",
+        demoName: "Elena Rostova",
+        btnText: "Sign In to HR Recruiter Mode"
+      },
+      founder: {
+        title: "Startup Founder Portal",
+        badge: "🚀 FOUNDER MODE",
+        desc: "Transform raw ideas into business plans with AI Copilot, evaluate 5-axis feasibility, and export pitch decks.",
+        demoUser: "sarahlin",
+        demoName: "Sarah Lin",
+        btnText: "Sign In to Founder Mode"
+      },
+      investor: {
+        title: "Shark Investor Portal",
+        badge: "🦈 INVESTOR / SHARK MODE",
+        desc: "Discover vetted startups, review automated AI due diligence, and issue direct lead round term sheets.",
+        demoUser: "vsterling",
+        demoName: "Victoria Sterling",
+        btnText: "Sign In to Investor Mode"
+      }
+    };
+
+    const currentMeta = roleMeta[activeRole] || roleMeta.candidate;
+
     this.appContainer.innerHTML = `
       <div class="auth-wrapper">
         <div class="auth-card">
@@ -187,8 +217,33 @@ class App {
               <span>🛡️</span>
               <span>Idea2Impact Secure Access</span>
             </div>
-            <h1>${isSignIn ? 'Welcome Back' : 'Create Your Account'}</h1>
-            <p>${isSignIn ? 'Sign in with your username/email or Google account.' : 'Join founders, verified engineers, recruiters, and investors.'}</p>
+            <h1>${isSignIn ? currentMeta.title : 'Create Your Account'}</h1>
+            <p>${isSignIn ? currentMeta.desc : 'Select your platform role and register to access your personalized workspace.'}</p>
+          </div>
+
+          <!-- 4 Modes Selector (Candidate, HR, Founder, Investor) -->
+          <div style="margin-bottom:1rem;">
+            <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem; text-align:center;">
+              Choose Role Mode:
+            </div>
+            <div class="portal-mode-selector" id="portal-mode-selector">
+              <div class="portal-mode-pill ${activeRole === 'candidate' ? 'active' : ''}" data-target-role="candidate">
+                <span class="pill-icon">🎓</span>
+                <span class="pill-label">Candidate</span>
+              </div>
+              <div class="portal-mode-pill ${activeRole === 'hr' ? 'active' : ''}" data-target-role="hr">
+                <span class="pill-icon">💼</span>
+                <span class="pill-label">HR / Recruiter</span>
+              </div>
+              <div class="portal-mode-pill ${activeRole === 'founder' ? 'active' : ''}" data-target-role="founder">
+                <span class="pill-icon">🚀</span>
+                <span class="pill-label">Founder</span>
+              </div>
+              <div class="portal-mode-pill ${activeRole === 'investor' ? 'active' : ''}" data-target-role="investor">
+                <span class="pill-icon">🦈</span>
+                <span class="pill-label">Investor</span>
+              </div>
+            </div>
           </div>
 
           <div class="auth-tabs">
@@ -206,11 +261,11 @@ class App {
               <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
               <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
             </svg>
-            <span>${isSignIn ? 'Continue with Google' : 'Sign up with Google'}</span>
+            <span>${isSignIn ? `Sign in with Google (${activeRole.toUpperCase()} Mode)` : `Sign up with Google as ${activeRole.toUpperCase()}`}</span>
           </button>
 
           <div class="auth-divider">
-            <span>or continue with credentials</span>
+            <span>or continue with password</span>
           </div>
 
           ${isSignIn ? `
@@ -218,36 +273,36 @@ class App {
             <form class="auth-form" id="signin-form">
               <div class="form-group">
                 <label for="signin-username">Username or Email</label>
-                <input type="text" id="signin-username" placeholder="Enter username or email address" required autocomplete="username">
+                <input type="text" id="signin-username" value="${currentMeta.demoUser}" placeholder="Enter username or email address" required autocomplete="username">
               </div>
 
               <div class="form-group">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <label for="signin-password">Password</label>
-                  <span style="font-size:0.78rem; color:#64748B;">Demo pass: <code>password123</code></span>
+                  <span style="font-size:0.78rem; color:#64748B;">Default demo: <code>password123</code></span>
                 </div>
                 <div class="password-input-wrapper">
-                  <input type="password" id="signin-password" placeholder="Enter password" required autocomplete="current-password">
+                  <input type="password" id="signin-password" value="password123" placeholder="Enter password" required autocomplete="current-password">
                   <button type="button" class="password-toggle-btn" id="toggle-signin-password" title="Show/Hide password">👁️</button>
                 </div>
               </div>
 
               <button type="submit" class="auth-submit-btn" id="signin-submit-btn">
-                Sign In to Idea2Impact
+                ${currentMeta.btnText}
               </button>
             </form>
 
-            <!-- Quick Fill Demo Accounts -->
+            <!-- 1-Click Fast Mode Entry -->
             <div class="demo-credentials-box">
               <div class="demo-title">
-                <span>⚡ 1-Click Demo Login</span>
+                <span>⚡ 1-Click Instant Mode Entry</span>
                 <span style="font-weight:400; text-transform:none;">(password123)</span>
               </div>
               <div class="demo-pills">
-                <button class="demo-pill" data-user="alexrivera" data-pass="password123">🎓 Alex (Candidate)</button>
-                <button class="demo-pill" data-user="sarahlin" data-pass="password123">🚀 Sarah (Founder)</button>
-                <button class="demo-pill" data-user="elenarostova" data-pass="password123">💼 Elena (HR)</button>
-                <button class="demo-pill" data-user="vsterling" data-pass="password123">🦈 Victoria (Investor)</button>
+                <button class="demo-pill ${activeRole === 'candidate' ? 'active' : ''}" data-direct-role="candidate" data-user="alexrivera" data-pass="password123">🎓 Candidate Mode (Alex Rivera)</button>
+                <button class="demo-pill ${activeRole === 'hr' ? 'active' : ''}" data-direct-role="hr" data-user="elenarostova" data-pass="password123">💼 HR Mode (Elena Rostova)</button>
+                <button class="demo-pill ${activeRole === 'founder' ? 'active' : ''}" data-direct-role="founder" data-user="sarahlin" data-pass="password123">🚀 Founder Mode (Sarah Lin)</button>
+                <button class="demo-pill ${activeRole === 'investor' ? 'active' : ''}" data-direct-role="investor" data-user="vsterling" data-pass="password123">🦈 Investor Mode (Victoria Sterling)</button>
               </div>
             </div>
           ` : `
@@ -270,21 +325,21 @@ class App {
               </div>
 
               <div class="form-group">
-                <label>Select Your Platform Role</label>
+                <label>Select Workspace Role To Join</label>
                 <div class="role-selector-cards" id="role-selector-cards">
-                  <div class="role-card-radio selected" data-role="candidate">
+                  <div class="role-card-radio ${activeRole === 'candidate' ? 'selected' : ''}" data-role="candidate">
                     <div class="role-card-title"><span>🎓</span> Candidate</div>
                     <div class="role-card-desc">Verify skills & get matched to jobs</div>
                   </div>
-                  <div class="role-card-radio" data-role="founder">
-                    <div class="role-card-title"><span>🚀</span> Founder</div>
-                    <div class="role-card-desc">AI Copilot, pitch deck & investors</div>
-                  </div>
-                  <div class="role-card-radio" data-role="hr">
+                  <div class="role-card-radio ${activeRole === 'hr' ? 'selected' : ''}" data-role="hr">
                     <div class="role-card-title"><span>💼</span> HR Recruiter</div>
                     <div class="role-card-desc">Post jobs & hire verified talent</div>
                   </div>
-                  <div class="role-card-radio" data-role="investor">
+                  <div class="role-card-radio ${activeRole === 'founder' ? 'selected' : ''}" data-role="founder">
+                    <div class="role-card-title"><span>🚀</span> Founder</div>
+                    <div class="role-card-desc">AI Copilot, pitch deck & investors</div>
+                  </div>
+                  <div class="role-card-radio ${activeRole === 'investor' ? 'selected' : ''}" data-role="investor">
                     <div class="role-card-title"><span>🦈</span> Shark Investor</div>
                     <div class="role-card-desc">Discover ventures & lead rounds</div>
                   </div>
@@ -314,14 +369,14 @@ class App {
               </div>
 
               <button type="submit" class="auth-submit-btn" id="reg-submit-btn">
-                Create Account & Join Ecosystem
+                Create Account & Open ${activeRole.toUpperCase()} Mode
               </button>
             </form>
           `}
 
           <div style="text-align:center; margin-top:1.5rem; font-size:0.88rem; color:var(--text-muted);">
             ${isSignIn ? `
-              Don't have an account? <a href="#" id="switch-to-register" style="color:var(--secondary); font-weight:700; text-decoration:none;">Create Account</a>
+              Need a new account? <a href="#" id="switch-to-register" style="color:var(--secondary); font-weight:700; text-decoration:none;">Create Account</a>
             ` : `
               Already have an account? <a href="#" id="switch-to-signin" style="color:var(--secondary); font-weight:700; text-decoration:none;">Sign In</a>
             `}
@@ -330,32 +385,55 @@ class App {
       </div>
     `;
 
-    this.attachAuthEventListeners(isSignIn);
+    this.attachAuthEventListeners(isSignIn, activeRole);
   }
 
-  attachAuthEventListeners(isSignIn) {
+  attachAuthEventListeners(isSignIn, activeRole) {
     const tabSignIn = document.getElementById('tab-signin');
     const tabRegister = document.getElementById('tab-register');
     const switchRegister = document.getElementById('switch-to-register');
     const switchSignIn = document.getElementById('switch-to-signin');
 
-    if (tabSignIn) tabSignIn.addEventListener('click', () => { state.openLogin('signin'); });
-    if (tabRegister) tabRegister.addEventListener('click', () => { state.openLogin('register'); });
-    if (switchRegister) switchRegister.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('register'); });
-    if (switchSignIn) switchSignIn.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('signin'); });
+    if (tabSignIn) tabSignIn.addEventListener('click', () => { state.openLogin('signin', activeRole); });
+    if (tabRegister) tabRegister.addEventListener('click', () => { state.openLogin('register', activeRole); });
+    if (switchRegister) switchRegister.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('register', activeRole); });
+    if (switchSignIn) switchSignIn.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('signin', activeRole); });
+
+    // Mode Selector Pills
+    document.querySelectorAll('.portal-mode-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const targetRole = pill.dataset.targetRole;
+        state.selectedAuthRole = targetRole;
+        this.renderLoginPage();
+      });
+    });
 
     // Google Authentication Trigger
     const googleBtn = document.getElementById('google-auth-btn');
     if (googleBtn) {
       googleBtn.addEventListener('click', () => {
-        this.showGoogleAccountChooserModal();
+        this.showGoogleAccountChooserModal(activeRole);
       });
     }
+
+    // Direct 1-Click fast mode entry pills
+    document.querySelectorAll('.demo-pill').forEach(pill => {
+      pill.addEventListener('click', async () => {
+        const user = pill.dataset.user;
+        const pass = pill.dataset.pass;
+        state.showToast(`Entering ${pill.dataset.directRole.toUpperCase()} Mode...`, 'info');
+        try {
+          const res = await api.login(user, pass);
+          state.setAuth(res.user, res.token);
+        } catch (err) {
+          this.showAuthAlert(err.message || 'Login failed.', 'error');
+        }
+      });
+    });
 
     // Sign In form submit
     const signinForm = document.getElementById('signin-form');
     if (signinForm) {
-      // Toggle password visibility
       const toggleBtn = document.getElementById('toggle-signin-password');
       const passInput = document.getElementById('signin-password');
       if (toggleBtn && passInput) {
@@ -363,18 +441,6 @@ class App {
           passInput.type = passInput.type === 'password' ? 'text' : 'password';
         });
       }
-
-      // Demo credential pills
-      document.querySelectorAll('.demo-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          const userField = document.getElementById('signin-username');
-          const passField = document.getElementById('signin-password');
-          if (userField && passField) {
-            userField.value = pill.dataset.user;
-            passField.value = pill.dataset.pass;
-          }
-        });
-      });
 
       signinForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -392,11 +458,12 @@ class App {
 
         try {
           const res = await api.login(username, password);
+          // Automatically opens candidate, hr, founder, or investor mode!
           state.setAuth(res.user, res.token);
         } catch (err) {
           this.showAuthAlert(err.message || 'Invalid username or password.', 'error');
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In to Idea2Impact';
+          submitBtn.textContent = 'Sign In';
         }
       });
     }
@@ -404,16 +471,16 @@ class App {
     // Register form submit
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
-      let selectedRole = 'candidate';
+      let selectedRole = activeRole || 'candidate';
       document.querySelectorAll('.role-card-radio').forEach(card => {
         card.addEventListener('click', () => {
           document.querySelectorAll('.role-card-radio').forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
           selectedRole = card.dataset.role;
+          state.selectedAuthRole = selectedRole;
         });
       });
 
-      // Toggle password visibility
       const toggleReg = document.getElementById('toggle-reg-password');
       const regPass = document.getElementById('reg-password');
       if (toggleReg && regPass) {
@@ -462,11 +529,12 @@ class App {
             role: selectedRole,
             bio: bio
           });
+          // Automatically opens candidate, hr, founder, or investor mode!
           state.setAuth(res.user, res.token);
         } catch (err) {
           this.showAuthAlert(err.message || 'Registration failed. Try another username/email.', 'error');
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Create Account & Join Ecosystem';
+          submitBtn.textContent = `Create Account & Open ${selectedRole.toUpperCase()} Mode`;
         }
       });
     }
@@ -483,7 +551,7 @@ class App {
     `;
   }
 
-  showGoogleAccountChooserModal() {
+  showGoogleAccountChooserModal(defaultRole = 'candidate') {
     const existing = document.getElementById('google-modal-overlay');
     if (existing) existing.remove();
 
@@ -491,8 +559,8 @@ class App {
     overlay.className = 'modal-overlay';
     overlay.id = 'google-modal-overlay';
     overlay.innerHTML = `
-      <div class="modal-content" style="max-width: 440px; padding: 2rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <div class="modal-content" style="max-width: 460px; padding: 2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
           <div style="display:flex; align-items:center; gap:0.6rem;">
             <svg width="24" height="24" viewBox="0 0 18 18">
               <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
@@ -505,43 +573,61 @@ class App {
           <button id="close-google-modal" style="background:none; border:none; font-size:1.4rem; color:#94A3B8; cursor:pointer;">&times;</button>
         </div>
 
-        <p style="font-size:0.88rem; color:#64748B; margin-bottom:1.25rem;">
-          Choose an account to continue to <strong>Idea2Impact</strong>
+        <p style="font-size:0.85rem; color:#64748B; margin-bottom:1.2rem;">
+          Choose an account and select your workspace mode to enter <strong>Idea2Impact</strong>:
         </p>
 
-        <div style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;">
-          <div class="google-acc-item" data-email="alex.rivera@gmail.com" data-name="Alex Rivera" data-role="candidate" style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.25rem;">
+          <div class="google-acc-item" data-email="alex.rivera@gmail.com" data-name="Alex Rivera" data-role="candidate" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
             <div style="flex:1;">
-              <div style="font-weight:700; font-size:0.88rem; color:var(--text-main);">Alex Rivera</div>
-              <div style="font-size:0.78rem; color:#64748B;">alex.rivera@gmail.com</div>
+              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Alex Rivera</div>
+              <div style="font-size:0.75rem; color:#64748B;">alex.rivera@gmail.com</div>
             </div>
-            <span class="badge" style="background:#E0F2FE; color:#0369A1; font-size:0.7rem;">Candidate</span>
+            <span class="badge" style="background:#E0F2FE; color:#0369A1; font-size:0.7rem;">🎓 Open Candidate</span>
           </div>
 
-          <div class="google-acc-item" data-email="sarah.lin@gmail.com" data-name="Sarah Lin" data-role="founder" style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
-            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop&q=80" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+          <div class="google-acc-item" data-email="elena.rostova@gmail.com" data-name="Elena Rostova" data-role="hr" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
             <div style="flex:1;">
-              <div style="font-weight:700; font-size:0.88rem; color:var(--text-main);">Sarah Lin</div>
-              <div style="font-size:0.78rem; color:#64748B;">sarah.lin@gmail.com</div>
+              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Elena Rostova</div>
+              <div style="font-size:0.75rem; color:#64748B;">elena.rostova@gmail.com</div>
             </div>
-            <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem;">Founder</span>
+            <span class="badge" style="background:#FEF3C7; color:#B45309; font-size:0.7rem;">💼 Open HR Mode</span>
+          </div>
+
+          <div class="google-acc-item" data-email="sarah.lin@gmail.com" data-name="Sarah Lin" data-role="founder" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+            <div style="flex:1;">
+              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Sarah Lin</div>
+              <div style="font-size:0.75rem; color:#64748B;">sarah.lin@gmail.com</div>
+            </div>
+            <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem;">🚀 Open Founder</span>
+          </div>
+
+          <div class="google-acc-item" data-email="v.sterling@gmail.com" data-name="Victoria Sterling" data-role="investor" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+            <div style="flex:1;">
+              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Victoria Sterling</div>
+              <div style="font-size:0.75rem; color:#64748B;">v.sterling@gmail.com</div>
+            </div>
+            <span class="badge" style="background:#F3E8FF; color:#7E22CE; font-size:0.7rem;">🦈 Open Investor</span>
           </div>
         </div>
 
-        <div style="border-top:1px solid #E2E8F0; padding-top:1rem;">
-          <div style="font-size:0.82rem; font-weight:700; color:#475569; margin-bottom:0.5rem;">Or connect another Google account:</div>
-          <form id="custom-google-form" style="display:flex; flex-direction:column; gap:0.6rem;">
-            <input type="text" id="custom-google-name" placeholder="Your Name" required style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
-            <input type="email" id="custom-google-email" placeholder="name@gmail.com" required style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
-            <select id="custom-google-role" style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
-              <option value="candidate">Role: 🎓 Candidate</option>
-              <option value="founder">Role: 🚀 Founder</option>
-              <option value="hr">Role: 💼 HR Recruiter</option>
-              <option value="investor">Role: 🦈 Investor</option>
+        <div style="border-top:1px solid #E2E8F0; padding-top:0.85rem;">
+          <div style="font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:0.4rem;">Or enter another Google account:</div>
+          <form id="custom-google-form" style="display:flex; flex-direction:column; gap:0.5rem;">
+            <input type="text" id="custom-google-name" placeholder="Your Name" required style="padding:0.55rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+            <input type="email" id="custom-google-email" placeholder="name@gmail.com" required style="padding:0.55rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+            <select id="custom-google-role" style="padding:0.55rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+              <option value="candidate" ${defaultRole === 'candidate' ? 'selected' : ''}>Target: 🎓 Candidate Mode</option>
+              <option value="hr" ${defaultRole === 'hr' ? 'selected' : ''}>Target: 💼 HR Recruiter Mode</option>
+              <option value="founder" ${defaultRole === 'founder' ? 'selected' : ''}>Target: 🚀 Founder Mode</option>
+              <option value="investor" ${defaultRole === 'investor' ? 'selected' : ''}>Target: 🦈 Shark Investor Mode</option>
             </select>
-            <button type="submit" class="btn btn-primary btn-sm" style="width:100%; margin-top:0.3rem;">
-              Verify & Sign In with Google
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%; margin-top:0.25rem;">
+              Sign In with Google & Open Workspace
             </button>
           </form>
         </div>

@@ -502,16 +502,71 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(15, 23, 42, 0.05);
-  max-width: 500px;
+  max-width: 530px;
   width: 100%;
-  padding: 2.5rem;
+  padding: 2.25rem;
   position: relative;
   overflow: hidden;
 }
 
+.portal-mode-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-mode-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.65rem 0.35rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #F8FAFC;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.portal-mode-pill:hover {
+  background: #ffffff;
+  border-color: #94A3B8;
+  transform: translateY(-1px);
+}
+
+.portal-mode-pill.active {
+  background: #ffffff;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.portal-mode-pill .pill-icon {
+  font-size: 1.25rem;
+}
+
+.portal-mode-pill .pill-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.mode-description-banner {
+  background: #F1F5F9;
+  border-left: 3px solid var(--secondary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.82rem;
+  color: #475569;
+  margin-bottom: 1.25rem;
+  line-height: 1.45;
+}
+
 .auth-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .auth-header .brand-badge {

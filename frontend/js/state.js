@@ -19,8 +19,11 @@ class StateManager {
     }
     this.authUser = savedUser;
 
-    this.currentRole = localStorage.getItem('i2i_role') || (this.authUser ? this.authUser.role : 'landing');
-    if (this.authUser) {
+    // Requirement: When user initially visits website, show ONLY login/register page!
+    // When authenticated, open their specific mode (candidate, founder, hr, investor).
+    if (this.isAuthenticated()) {
+      const savedRole = localStorage.getItem('i2i_role') || this.authUser.role || 'candidate';
+      this.currentRole = savedRole;
       this.activeUser = {
         id: this.authUser.id,
         name: this.authUser.full_name,
@@ -30,11 +33,13 @@ class StateManager {
         avatar_url: this.authUser.avatar_url
       };
     } else {
-      this.activeUser = DEFAULT_USERS[this.currentRole] || DEFAULT_USERS.candidate;
+      this.currentRole = 'login';
+      this.activeUser = null;
     }
 
     this.activeTab = 'overview';
     this.authMode = 'signin'; // 'signin' or 'register'
+    this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
     this.tabSwitchCount = 0;
     this.isExamActive = false;
     this.listeners = [];
@@ -52,18 +57,19 @@ class StateManager {
     localStorage.setItem('i2i_token', token);
     localStorage.setItem('i2i_user', JSON.stringify(user));
 
-    this.currentRole = user.role;
-    localStorage.setItem('i2i_role', user.role);
+    const role = user.role || 'candidate';
+    this.currentRole = role;
+    localStorage.setItem('i2i_role', role);
     this.activeUser = {
       id: user.id,
       name: user.full_name,
-      role: user.role,
-      title: user.title || `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Member`,
+      role: role,
+      title: user.title || `${role.charAt(0).toUpperCase() + role.slice(1)} Member`,
       email: user.email,
       avatar_url: user.avatar_url
     };
     this.activeTab = 'overview';
-    this.showToast(`Welcome back, ${user.full_name}!`, 'success');
+    this.showToast(`Signed in successfully! Entering ${role.toUpperCase()} Mode.`, 'success');
     this.notify();
   }
 
@@ -72,33 +78,37 @@ class StateManager {
     this.authUser = null;
     localStorage.removeItem('i2i_token');
     localStorage.removeItem('i2i_user');
-    this.currentRole = 'landing';
-    localStorage.setItem('i2i_role', 'landing');
-    this.activeUser = DEFAULT_USERS.candidate;
+    localStorage.removeItem('i2i_role');
+    this.currentRole = 'login';
+    this.authMode = 'signin';
+    this.activeUser = null;
     this.activeTab = 'overview';
-    this.showToast('You have been logged out successfully.', 'info');
+    this.showToast('You have been signed out. Please sign in to continue.', 'info');
     this.notify();
   }
 
-  openLogin(mode = 'signin') {
+  openLogin(mode = 'signin', role = 'candidate') {
     this.authMode = mode;
+    this.selectedAuthRole = role;
     this.currentRole = 'login';
     this.notify();
   }
 
   setRole(role) {
-    if (role === 'landing' || role === 'login') {
-      this.currentRole = role;
-      this.activeTab = 'overview';
-      localStorage.setItem('i2i_role', role);
+    // Auth Guard: Unauthenticated users are restricted strictly to login page
+    if (!this.isAuthenticated()) {
+      this.currentRole = 'login';
       this.notify();
       return;
     }
-    if (!DEFAULT_USERS[role]) return;
-    this.currentRole = role;
-    if (!this.isAuthenticated() || this.authUser.role !== role) {
-      this.activeUser = DEFAULT_USERS[role];
+    // ROLE LOCK: Authenticated users are locked to their registered role.
+    // They cannot switch to another mode without signing out first.
+    const registeredRole = this.authUser && this.authUser.role;
+    if (registeredRole && role !== registeredRole) {
+      this.showToast(`You are signed in as ${registeredRole.toUpperCase()}. Sign out to access a different mode.`, 'warning');
+      return;
     }
+    this.currentRole = role;
     this.activeTab = 'overview';
     localStorage.setItem('i2i_role', role);
     this.notify();
