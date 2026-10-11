@@ -1,4 +1,4 @@
-import { api } from './api.js';
+﻿import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
 
 class App {
@@ -166,338 +166,254 @@ class App {
   }
 
   // =========================================================================
-  // AUTHENTICATION: LOGIN & REGISTER PAGE FOR CANDIDATE, HR, FOUNDER, INVESTOR
+  // AUTHENTICATION: 3-STATE FLOW
+  //   'landing'   -> Landing page with Sign In & Create Account buttons only
+  //   'signin'    -> Username/password login form  
+  //   'role-pick' -> 4 role-selection cards
+  //   'register'  -> Registration form for selected role
   // =========================================================================
   async renderLoginPage() {
-    const isSignIn = state.authMode !== 'register';
+    const authScreen = state.authMode;
     const activeRole = state.selectedAuthRole || 'candidate';
 
     const roleMeta = {
-      candidate: {
-        title: "Candidate Portal",
-        badge: "🎓 CANDIDATE MODE",
-        desc: "Take timed technical assessments, earn verified tamper-proof passports & unlock explainable job match scores.",
-        demoUser: "alexrivera",
-        demoName: "Alex Rivera",
-        btnText: "Sign In to Candidate Mode"
-      },
-      hr: {
-        title: "HR & Recruiter Portal",
-        badge: "💼 HR / RECRUITER MODE",
-        desc: "Post weighted engineering jobs, review applicant compatibility math, and hire verified technical talent.",
-        demoUser: "elenarostova",
-        demoName: "Elena Rostova",
-        btnText: "Sign In to HR Recruiter Mode"
-      },
-      founder: {
-        title: "Startup Founder Portal",
-        badge: "🚀 FOUNDER MODE",
-        desc: "Transform raw ideas into business plans with AI Copilot, evaluate 5-axis feasibility, and export pitch decks.",
-        demoUser: "sarahlin",
-        demoName: "Sarah Lin",
-        btnText: "Sign In to Founder Mode"
-      },
-      investor: {
-        title: "Shark Investor Portal",
-        badge: "🦈 INVESTOR / SHARK MODE",
-        desc: "Discover vetted startups, review automated AI due diligence, and issue direct lead round term sheets.",
-        demoUser: "vsterling",
-        demoName: "Victoria Sterling",
-        btnText: "Sign In to Investor Mode"
-      }
+      candidate: { emoji: '🎓', label: 'Candidate', color: '#2563EB', colorBg: 'rgba(37,99,235,0.08)', desc: 'Take timed assessments, earn verified skill passports and unlock explainable job match scores.' },
+      hr: { emoji: '💼', label: 'HR / Recruiter', color: '#D97706', colorBg: 'rgba(217,119,6,0.08)', desc: 'Post weighted engineering jobs, review applicant compatibility and hire verified technical talent.' },
+      founder: { emoji: '🚀', label: 'Founder', color: '#16A34A', colorBg: 'rgba(22,163,74,0.08)', desc: 'Transform raw ideas into business plans with AI Copilot, evaluate feasibility and export pitch decks.' },
+      investor: { emoji: '🦈', label: 'Shark Investor', color: '#7C3AED', colorBg: 'rgba(124,58,237,0.08)', desc: 'Discover vetted startups, review AI due diligence reports and issue direct lead round term sheets.' }
     };
+    const meta = roleMeta[activeRole] || roleMeta.candidate;
 
-    const currentMeta = roleMeta[activeRole] || roleMeta.candidate;
+    const googleSvg = `<svg width="20" height="20" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.836.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>`;
 
-    this.appContainer.innerHTML = `
-      <div class="auth-wrapper">
-        <div class="auth-card">
-          <div class="auth-header">
-            <div class="brand-badge">
-              <span>🛡️</span>
-              <span>Idea2Impact Secure Access</span>
+    // ── STATE 1: LANDING ──────────────────────────────────────────────────────
+    if (!authScreen || authScreen === 'landing') {
+      this.appContainer.innerHTML = `
+        <div class="auth-landing-wrapper">
+          <div class="auth-landing-card">
+            <div class="auth-landing-brand">
+              <div class="auth-landing-icon">I²</div>
+              <span class="auth-landing-brand-name">Idea<span>2Impact</span></span>
             </div>
-            <h1>${isSignIn ? currentMeta.title : 'Create Your Account'}</h1>
-            <p>${isSignIn ? currentMeta.desc : 'Select your platform role and register to access your personalized workspace.'}</p>
-          </div>
-
-          <!-- 4 Modes Selector (Candidate, HR, Founder, Investor) -->
-          <div style="margin-bottom:1rem;">
-            <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem; text-align:center;">
-              Choose Role Mode:
+            <p class="auth-landing-tagline">From Ideas to Innovation · From Talent to Impact</p>
+            <div class="auth-landing-modes">
+              <div class="auth-landing-mode-pill">🎓 <span>Candidate</span></div>
+              <div class="auth-landing-mode-pill">💼 <span>HR</span></div>
+              <div class="auth-landing-mode-pill">🚀 <span>Founder</span></div>
+              <div class="auth-landing-mode-pill">🦈 <span>Investor</span></div>
             </div>
-            <div class="portal-mode-selector" id="portal-mode-selector">
-              <div class="portal-mode-pill ${activeRole === 'candidate' ? 'active' : ''}" data-target-role="candidate">
-                <span class="pill-icon">🎓</span>
-                <span class="pill-label">Candidate</span>
-              </div>
-              <div class="portal-mode-pill ${activeRole === 'hr' ? 'active' : ''}" data-target-role="hr">
-                <span class="pill-icon">💼</span>
-                <span class="pill-label">HR / Recruiter</span>
-              </div>
-              <div class="portal-mode-pill ${activeRole === 'founder' ? 'active' : ''}" data-target-role="founder">
-                <span class="pill-icon">🚀</span>
-                <span class="pill-label">Founder</span>
-              </div>
-              <div class="portal-mode-pill ${activeRole === 'investor' ? 'active' : ''}" data-target-role="investor">
-                <span class="pill-icon">🦈</span>
-                <span class="pill-label">Investor</span>
-              </div>
+            <div id="auth-alert-container"></div>
+            <div class="auth-landing-actions">
+              <button class="auth-landing-btn-primary" id="landing-login-btn">Sign In</button>
+              <button class="auth-landing-btn-outline" id="landing-register-btn">Create Account</button>
             </div>
+            <button class="auth-google-btn" id="google-auth-btn" type="button" style="margin-top:1rem;">
+              ${googleSvg}
+              <span>Continue with Google</span>
+            </button>
+            <p class="auth-landing-secure">🔒 Secure · Verified · Encrypted</p>
           </div>
+        </div>
+      `;
+      document.getElementById('landing-login-btn').addEventListener('click', () => { state.authMode = 'signin'; this.renderLoginPage(); });
+      document.getElementById('landing-register-btn').addEventListener('click', () => { state.authMode = 'role-pick'; this.renderLoginPage(); });
+      const gBtn = document.getElementById('google-auth-btn');
+      if (gBtn) gBtn.addEventListener('click', () => this.showGoogleAccountChooserModal('candidate'));
+      return;
+    }
 
-          <div class="auth-tabs">
-            <button class="auth-tab-btn ${isSignIn ? 'active' : ''}" id="tab-signin">Sign In</button>
-            <button class="auth-tab-btn ${!isSignIn ? 'active' : ''}" id="tab-register">Create Account</button>
-          </div>
-
-          <div id="auth-alert-container"></div>
-
-          <!-- Google Authentication Button -->
-          <button class="auth-google-btn" id="google-auth-btn" type="button">
-            <svg width="20" height="20" viewBox="0 0 18 18">
-              <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
-              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.836.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
-              <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
-              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
-            </svg>
-            <span>${isSignIn ? `Sign in with Google (${activeRole.toUpperCase()} Mode)` : `Sign up with Google as ${activeRole.toUpperCase()}`}</span>
-          </button>
-
-          <div class="auth-divider">
-            <span>or continue with password</span>
-          </div>
-
-          ${isSignIn ? `
-            <!-- Sign In Form -->
+    // ── STATE 2: SIGN IN ──────────────────────────────────────────────────────
+    if (authScreen === 'signin') {
+      this.appContainer.innerHTML = `
+        <div class="auth-wrapper">
+          <div class="auth-card">
+            <button class="auth-back-btn" id="auth-back-btn">← Back</button>
+            <div class="auth-header">
+              <div class="brand-badge"><span>🛡️</span><span>Idea2Impact Secure Access</span></div>
+              <h1>Welcome Back</h1>
+              <p>Sign in with your username/email or Google account.</p>
+            </div>
+            <button class="auth-google-btn" id="google-auth-btn" type="button">
+              ${googleSvg}<span>Continue with Google</span>
+            </button>
+            <div class="auth-divider"><span>OR CONTINUE WITH CREDENTIALS</span></div>
+            <div id="auth-alert-container"></div>
             <form class="auth-form" id="signin-form">
               <div class="form-group">
                 <label for="signin-username">Username or Email</label>
-                <input type="text" id="signin-username" value="${currentMeta.demoUser}" placeholder="Enter username or email address" required autocomplete="username">
+                <input type="text" id="signin-username" placeholder="Enter username or email address" required autocomplete="username">
               </div>
-
               <div class="form-group">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <label for="signin-password">Password</label>
-                  <span style="font-size:0.78rem; color:#64748B;">Default demo: <code>password123</code></span>
+                  <span style="font-size:0.78rem; color:#64748B;">Demo pass: <code>password123</code></span>
                 </div>
                 <div class="password-input-wrapper">
-                  <input type="password" id="signin-password" value="password123" placeholder="Enter password" required autocomplete="current-password">
-                  <button type="button" class="password-toggle-btn" id="toggle-signin-password" title="Show/Hide password">👁️</button>
+                  <input type="password" id="signin-password" placeholder="Enter password" required autocomplete="current-password">
+                  <button type="button" class="password-toggle-btn" id="toggle-signin-password">👁️</button>
                 </div>
               </div>
-
-              <button type="submit" class="auth-submit-btn" id="signin-submit-btn">
-                ${currentMeta.btnText}
-              </button>
+              <button type="submit" class="auth-submit-btn" id="signin-submit-btn">Sign In</button>
             </form>
-
-            <!-- 1-Click Fast Mode Entry -->
-            <div class="demo-credentials-box">
-              <div class="demo-title">
-                <span>⚡ 1-Click Instant Mode Entry</span>
-                <span style="font-weight:400; text-transform:none;">(password123)</span>
-              </div>
-              <div class="demo-pills">
-                <button class="demo-pill ${activeRole === 'candidate' ? 'active' : ''}" data-direct-role="candidate" data-user="alexrivera" data-pass="password123">🎓 Candidate Mode (Alex Rivera)</button>
-                <button class="demo-pill ${activeRole === 'hr' ? 'active' : ''}" data-direct-role="hr" data-user="elenarostova" data-pass="password123">💼 HR Mode (Elena Rostova)</button>
-                <button class="demo-pill ${activeRole === 'founder' ? 'active' : ''}" data-direct-role="founder" data-user="sarahlin" data-pass="password123">🚀 Founder Mode (Sarah Lin)</button>
-                <button class="demo-pill ${activeRole === 'investor' ? 'active' : ''}" data-direct-role="investor" data-user="vsterling" data-pass="password123">🦈 Investor Mode (Victoria Sterling)</button>
-              </div>
+            <div style="text-align:center; margin-top:1.25rem; font-size:0.88rem; color:var(--text-muted);">
+              Don't have an account?
+              <a href="#" id="switch-to-register" style="color:var(--secondary); font-weight:700;">Create Account</a>
             </div>
-          ` : `
-            <!-- Create Account Form -->
+          </div>
+        </div>
+      `;
+      document.getElementById('auth-back-btn').addEventListener('click', () => { state.authMode = 'landing'; this.renderLoginPage(); });
+      document.getElementById('switch-to-register').addEventListener('click', (e) => { e.preventDefault(); state.authMode = 'role-pick'; this.renderLoginPage(); });
+      const gBtn2 = document.getElementById('google-auth-btn');
+      if (gBtn2) gBtn2.addEventListener('click', () => this.showGoogleAccountChooserModal('candidate'));
+      const tBtn = document.getElementById('toggle-signin-password');
+      const pInp = document.getElementById('signin-password');
+      if (tBtn && pInp) tBtn.addEventListener('click', () => { pInp.type = pInp.type === 'password' ? 'text' : 'password'; });
+      document.getElementById('signin-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signin-username').value.trim();
+        const password = document.getElementById('signin-password').value;
+        const submitBtn = document.getElementById('signin-submit-btn');
+        if (!username || !password) { this.showAuthAlert('Please enter both username and password.', 'error'); return; }
+        submitBtn.disabled = true; submitBtn.textContent = 'Verifying...';
+        try {
+          const res = await api.login(username, password);
+          state.setAuth(res.user, res.token);
+        } catch (err) {
+          const msg = (err.message || '').toLowerCase();
+          if (msg.includes('invalid') || msg.includes('401') || msg.includes('not found') || msg.includes('incorrect')) {
+            this.showAuthAlert('No account found. <a href="#" id="alert-create-link" style="color:var(--secondary);font-weight:700;">Create an account first</a>.', 'error');
+            setTimeout(() => { const l = document.getElementById('alert-create-link'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); state.authMode = 'role-pick'; this.renderLoginPage(); }); }, 50);
+          } else { this.showAuthAlert(err.message || 'Invalid username or password.', 'error'); }
+          submitBtn.disabled = false; submitBtn.textContent = 'Sign In';
+        }
+      });
+      return;
+    }
+
+    // ── STATE 3: ROLE PICKER ──────────────────────────────────────────────────
+    if (authScreen === 'role-pick') {
+      const roleCards = Object.entries(roleMeta).map(([key, r]) =>
+        `<div class="auth-role-big-card${activeRole === key ? ' selected' : ''}" data-role="${key}" style="--role-color:${r.color}; --role-bg:${r.colorBg};">
+          <div class="auth-role-big-emoji">${r.emoji}</div>
+          <div class="auth-role-big-label">${r.label}</div>
+          <div class="auth-role-big-desc">${r.desc}</div>
+          <div class="auth-role-big-check">✓</div>
+        </div>`
+      ).join('');
+      this.appContainer.innerHTML = `
+        <div class="auth-wrapper">
+          <div class="auth-card" style="max-width:600px;">
+            <button class="auth-back-btn" id="auth-back-btn">← Back</button>
+            <div class="auth-header">
+              <div class="brand-badge"><span>🎯</span><span>Choose Your Mode</span></div>
+              <h1>Create Account</h1>
+              <p>Select the workspace mode that best describes you.</p>
+            </div>
+            <div id="auth-alert-container"></div>
+            <div class="auth-role-grid">${roleCards}</div>
+            <button class="auth-submit-btn" id="role-continue-btn" style="margin-top:1.5rem;">
+              Continue as ${meta.emoji} ${meta.label} →
+            </button>
+            <div style="text-align:center; margin-top:1rem; font-size:0.88rem; color:var(--text-muted);">
+              Already have an account?
+              <a href="#" id="switch-to-signin" style="color:var(--secondary); font-weight:700;">Sign In</a>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('auth-back-btn').addEventListener('click', () => { state.authMode = 'landing'; this.renderLoginPage(); });
+      document.getElementById('switch-to-signin').addEventListener('click', (e) => { e.preventDefault(); state.authMode = 'signin'; this.renderLoginPage(); });
+      let selectedRole = activeRole;
+      document.querySelectorAll('.auth-role-big-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.auth-role-big-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedRole = card.dataset.role;
+          state.selectedAuthRole = selectedRole;
+          const m = roleMeta[selectedRole];
+          document.getElementById('role-continue-btn').textContent = 'Continue as ' + m.emoji + ' ' + m.label + ' →';
+        });
+      });
+      document.getElementById('role-continue-btn').addEventListener('click', () => { state.selectedAuthRole = selectedRole; state.authMode = 'register'; this.renderLoginPage(); });
+      return;
+    }
+
+    // ── STATE 4: REGISTER FORM ────────────────────────────────────────────────
+    if (authScreen === 'register') {
+      this.appContainer.innerHTML = `
+        <div class="auth-wrapper">
+          <div class="auth-card">
+            <button class="auth-back-btn" id="auth-back-btn">← Back</button>
+            <div class="auth-header">
+              <div class="brand-badge" style="background:${meta.colorBg}; color:${meta.color};">
+                <span>${meta.emoji}</span><span>${meta.label} Mode</span>
+              </div>
+              <h1>Create Your Account</h1>
+              <p>Register to access your personalized <strong>${meta.label}</strong> workspace.</p>
+            </div>
+            <div id="auth-alert-container"></div>
+            <button class="auth-google-btn" id="google-auth-btn" type="button">
+              ${googleSvg}<span>Sign up with Google as ${meta.label}</span>
+            </button>
+            <div class="auth-divider"><span>or fill in your details</span></div>
             <form class="auth-form" id="register-form">
               <div class="form-group">
                 <label for="reg-fullname">Full Name</label>
                 <input type="text" id="reg-fullname" placeholder="e.g. Alex Rivera" required>
               </div>
-
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
                 <div class="form-group">
                   <label for="reg-username">Username</label>
                   <input type="text" id="reg-username" placeholder="e.g. alexrivera" required autocomplete="username">
                 </div>
                 <div class="form-group">
-                  <label for="reg-email">Email Address</label>
-                  <input type="email" id="reg-email" placeholder="e.g. alex@example.com" required autocomplete="email">
+                  <label for="reg-email">Email</label>
+                  <input type="email" id="reg-email" placeholder="alex@example.com" required autocomplete="email">
                 </div>
               </div>
-
-              <div class="form-group">
-                <label>Select Workspace Role To Join</label>
-                <div class="role-selector-cards" id="role-selector-cards">
-                  <div class="role-card-radio ${activeRole === 'candidate' ? 'selected' : ''}" data-role="candidate">
-                    <div class="role-card-title"><span>🎓</span> Candidate</div>
-                    <div class="role-card-desc">Verify skills & get matched to jobs</div>
-                  </div>
-                  <div class="role-card-radio ${activeRole === 'hr' ? 'selected' : ''}" data-role="hr">
-                    <div class="role-card-title"><span>💼</span> HR Recruiter</div>
-                    <div class="role-card-desc">Post jobs & hire verified talent</div>
-                  </div>
-                  <div class="role-card-radio ${activeRole === 'founder' ? 'selected' : ''}" data-role="founder">
-                    <div class="role-card-title"><span>🚀</span> Founder</div>
-                    <div class="role-card-desc">AI Copilot, pitch deck & investors</div>
-                  </div>
-                  <div class="role-card-radio ${activeRole === 'investor' ? 'selected' : ''}" data-role="investor">
-                    <div class="role-card-title"><span>🦈</span> Shark Investor</div>
-                    <div class="role-card-desc">Discover ventures & lead rounds</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
                 <div class="form-group">
                   <label for="reg-password">Password</label>
                   <div class="password-input-wrapper">
                     <input type="password" id="reg-password" placeholder="Min. 6 chars" required autocomplete="new-password">
-                    <button type="button" class="password-toggle-btn" id="toggle-reg-password" title="Show/Hide">👁️</button>
+                    <button type="button" class="password-toggle-btn" id="toggle-reg-password">👁️</button>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="reg-password-confirm">Confirm Password</label>
                   <div class="password-input-wrapper">
                     <input type="password" id="reg-password-confirm" placeholder="Repeat password" required autocomplete="new-password">
-                    <button type="button" class="password-toggle-btn" id="toggle-reg-password-confirm" title="Show/Hide">👁️</button>
+                    <button type="button" class="password-toggle-btn" id="toggle-reg-confirm">👁️</button>
                   </div>
                 </div>
               </div>
-
               <div class="form-group">
-                <label for="reg-bio">Headline / Bio (Optional)</label>
-                <input type="text" id="reg-bio" placeholder="e.g. Senior Software Engineer specializing in Python & AI">
+                <label for="reg-bio">Bio <span style="font-weight:400; color:#94A3B8;">(optional)</span></label>
+                <input type="text" id="reg-bio" placeholder="e.g. Senior Software Engineer specializing in AI">
               </div>
-
               <button type="submit" class="auth-submit-btn" id="reg-submit-btn">
-                Create Account & Open ${activeRole.toUpperCase()} Mode
+                ${meta.emoji} Create Account &amp; Open ${meta.label} Mode
               </button>
             </form>
-          `}
-
-          <div style="text-align:center; margin-top:1.5rem; font-size:0.88rem; color:var(--text-muted);">
-            ${isSignIn ? `
-              Need a new account? <a href="#" id="switch-to-register" style="color:var(--secondary); font-weight:700; text-decoration:none;">Create Account</a>
-            ` : `
-              Already have an account? <a href="#" id="switch-to-signin" style="color:var(--secondary); font-weight:700; text-decoration:none;">Sign In</a>
-            `}
+            <div style="text-align:center; margin-top:1.25rem; font-size:0.88rem; color:var(--text-muted);">
+              Already have an account?
+              <a href="#" id="switch-to-signin" style="color:var(--secondary); font-weight:700;">Sign In</a>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-
-    this.attachAuthEventListeners(isSignIn, activeRole);
-  }
-
-  attachAuthEventListeners(isSignIn, activeRole) {
-    const tabSignIn = document.getElementById('tab-signin');
-    const tabRegister = document.getElementById('tab-register');
-    const switchRegister = document.getElementById('switch-to-register');
-    const switchSignIn = document.getElementById('switch-to-signin');
-
-    if (tabSignIn) tabSignIn.addEventListener('click', () => { state.openLogin('signin', activeRole); });
-    if (tabRegister) tabRegister.addEventListener('click', () => { state.openLogin('register', activeRole); });
-    if (switchRegister) switchRegister.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('register', activeRole); });
-    if (switchSignIn) switchSignIn.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('signin', activeRole); });
-
-    // Mode Selector Pills
-    document.querySelectorAll('.portal-mode-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        const targetRole = pill.dataset.targetRole;
-        state.selectedAuthRole = targetRole;
-        this.renderLoginPage();
-      });
-    });
-
-    // Google Authentication Trigger
-    const googleBtn = document.getElementById('google-auth-btn');
-    if (googleBtn) {
-      googleBtn.addEventListener('click', () => {
-        this.showGoogleAccountChooserModal(activeRole);
-      });
-    }
-
-    // Direct 1-Click fast mode entry pills
-    document.querySelectorAll('.demo-pill').forEach(pill => {
-      pill.addEventListener('click', async () => {
-        const user = pill.dataset.user;
-        const pass = pill.dataset.pass;
-        state.showToast(`Entering ${pill.dataset.directRole.toUpperCase()} Mode...`, 'info');
-        try {
-          const res = await api.login(user, pass);
-          state.setAuth(res.user, res.token);
-        } catch (err) {
-          this.showAuthAlert(err.message || 'Login failed.', 'error');
-        }
-      });
-    });
-
-    // Sign In form submit
-    const signinForm = document.getElementById('signin-form');
-    if (signinForm) {
-      const toggleBtn = document.getElementById('toggle-signin-password');
-      const passInput = document.getElementById('signin-password');
-      if (toggleBtn && passInput) {
-        toggleBtn.addEventListener('click', () => {
-          passInput.type = passInput.type === 'password' ? 'text' : 'password';
-        });
-      }
-
-      signinForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('signin-username').value.trim();
-        const password = document.getElementById('signin-password').value;
-        const submitBtn = document.getElementById('signin-submit-btn');
-
-        if (!username || !password) {
-          this.showAuthAlert('Please enter both username and password.', 'error');
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Verifying credentials...';
-
-        try {
-          const res = await api.login(username, password);
-          // Automatically opens candidate, hr, founder, or investor mode!
-          state.setAuth(res.user, res.token);
-        } catch (err) {
-          this.showAuthAlert(err.message || 'Invalid username or password.', 'error');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In';
-        }
-      });
-    }
-
-    // Register form submit
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-      let selectedRole = activeRole || 'candidate';
-      document.querySelectorAll('.role-card-radio').forEach(card => {
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.role-card-radio').forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          selectedRole = card.dataset.role;
-          state.selectedAuthRole = selectedRole;
-        });
-      });
-
-      const toggleReg = document.getElementById('toggle-reg-password');
-      const regPass = document.getElementById('reg-password');
-      if (toggleReg && regPass) {
-        toggleReg.addEventListener('click', () => {
-          regPass.type = regPass.type === 'password' ? 'text' : 'password';
-        });
-      }
-
-      const toggleRegConf = document.getElementById('toggle-reg-password-confirm');
-      const regPassConf = document.getElementById('reg-password-confirm');
-      if (toggleRegConf && regPassConf) {
-        toggleRegConf.addEventListener('click', () => {
-          regPassConf.type = regPassConf.type === 'password' ? 'text' : 'password';
-        });
-      }
-
-      registerForm.addEventListener('submit', async (e) => {
+      `;
+      document.getElementById('auth-back-btn').addEventListener('click', () => { state.authMode = 'role-pick'; this.renderLoginPage(); });
+      document.getElementById('switch-to-signin').addEventListener('click', (e) => { e.preventDefault(); state.authMode = 'signin'; this.renderLoginPage(); });
+      const gBtn3 = document.getElementById('google-auth-btn');
+      if (gBtn3) gBtn3.addEventListener('click', () => this.showGoogleAccountChooserModal(activeRole));
+      const tReg = document.getElementById('toggle-reg-password');
+      const rPass = document.getElementById('reg-password');
+      if (tReg && rPass) tReg.addEventListener('click', () => { rPass.type = rPass.type === 'password' ? 'text' : 'password'; });
+      const tConf = document.getElementById('toggle-reg-confirm');
+      const cPass = document.getElementById('reg-password-confirm');
+      if (tConf && cPass) tConf.addEventListener('click', () => { cPass.type = cPass.type === 'password' ? 'text' : 'password'; });
+      document.getElementById('register-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const fullName = document.getElementById('reg-fullname').value.trim();
         const username = document.getElementById('reg-username').value.trim();
@@ -506,39 +422,22 @@ class App {
         const confirmPass = document.getElementById('reg-password-confirm').value;
         const bio = document.getElementById('reg-bio').value.trim();
         const submitBtn = document.getElementById('reg-submit-btn');
-
-        if (password !== confirmPass) {
-          this.showAuthAlert('Passwords do not match. Please re-check.', 'error');
-          return;
-        }
-
-        if (password.length < 6) {
-          this.showAuthAlert('Password must be at least 6 characters long.', 'error');
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
-
+        if (password !== confirmPass) { this.showAuthAlert('Passwords do not match.', 'error'); return; }
+        if (password.length < 6) { this.showAuthAlert('Password must be at least 6 characters.', 'error'); return; }
+        submitBtn.disabled = true; submitBtn.textContent = 'Creating account...';
         try {
-          const res = await api.register({
-            full_name: fullName,
-            username: username,
-            email: email,
-            password: password,
-            role: selectedRole,
-            bio: bio
-          });
-          // Automatically opens candidate, hr, founder, or investor mode!
+          const res = await api.register({ full_name: fullName, username, email, password, role: activeRole, bio });
           state.setAuth(res.user, res.token);
         } catch (err) {
-          this.showAuthAlert(err.message || 'Registration failed. Try another username/email.', 'error');
+          this.showAuthAlert(err.message || 'Registration failed. Try a different username/email.', 'error');
           submitBtn.disabled = false;
-          submitBtn.textContent = `Create Account & Open ${selectedRole.toUpperCase()} Mode`;
+          submitBtn.textContent = meta.emoji + ' Create Account & Open ' + meta.label + ' Mode';
         }
       });
     }
   }
+
+  attachAuthEventListeners() { /* event listeners are now inline in renderLoginPage() */ }
 
   showAuthAlert(message, type = 'error') {
     const container = document.getElementById('auth-alert-container');

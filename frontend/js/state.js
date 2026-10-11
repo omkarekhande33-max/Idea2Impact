@@ -38,7 +38,7 @@ class StateManager {
     }
 
     this.activeTab = 'overview';
-    this.authMode = 'signin'; // 'signin' or 'register'
+    this.authMode = 'landing'; // 'landing' | 'signin' | 'role-pick' | 'register'
     this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
     this.tabSwitchCount = 0;
     this.isExamActive = false;
@@ -80,7 +80,7 @@ class StateManager {
     localStorage.removeItem('i2i_user');
     localStorage.removeItem('i2i_role');
     this.currentRole = 'login';
-    this.authMode = 'signin';
+    this.authMode = 'landing';
     this.activeUser = null;
     this.activeTab = 'overview';
     this.showToast('You have been signed out. Please sign in to continue.', 'info');
