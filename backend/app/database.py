@@ -631,15 +631,32 @@ class Database:
         self._data: Dict[str, List[Dict[str, Any]]] = {}
         self.load()
 
+    def _migrate_users(self):
+        try:
+            from .security.auth import hash_password
+            default_pw_hash = hash_password("password123")
+            profiles = self._data.setdefault("profiles", [])
+            for p in profiles:
+                if not p.get("username"):
+                    p["username"] = p["email"].split("@")[0].replace(".", "").lower()
+                if not p.get("password_hash"):
+                    p["password_hash"] = default_pw_hash
+                if not p.get("auth_provider"):
+                    p["auth_provider"] = "local"
+        except Exception as e:
+            print(f"User migration notice: {e}")
+
     def load(self):
         if os.path.exists(DB_FILE):
             try:
                 with open(DB_FILE, "r", encoding="utf-8") as f:
                     self._data = json.load(f)
+                    self._migrate_users()
                     return
             except Exception as e:
                 print(f"Error loading {DB_FILE}, resetting to initial data: {e}")
         self._data = json.loads(json.dumps(INITIAL_DATA))
+        self._migrate_users()
         self.save()
 
     def save(self):
@@ -648,6 +665,13 @@ class Database:
                 json.dump(self._data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Error saving to {DB_FILE}: {e}")
+
+    def find_user(self, identifier: str) -> Optional[Dict[str, Any]]:
+        ident = identifier.strip().lower()
+        return self.find_one(
+            "profiles",
+            lambda p: p.get("email", "").lower() == ident or p.get("username", "").lower() == ident
+        )
 
     def get_table(self, table_name: str) -> List[Dict[str, Any]]:
         return self._data.setdefault(table_name, [])

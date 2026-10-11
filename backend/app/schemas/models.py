@@ -1,11 +1,32 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    full_name: str
+    role: str = "candidate" # candidate, founder, hr, investor
+    bio: Optional[str] = ""
+
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = None
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    role: Optional[str] = "candidate"
+
 class ProfileCreate(BaseModel):
     full_name: str
     email: str
     role: str # candidate, founder, hr, investor
     bio: Optional[str] = ""
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None

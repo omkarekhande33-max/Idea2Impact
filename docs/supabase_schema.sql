@@ -31,8 +31,11 @@ DROP TABLE IF EXISTS public.profiles CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.profiles (
     id VARCHAR(64) PRIMARY KEY,
+    username VARCHAR(64) UNIQUE,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT,
+    auth_provider VARCHAR(32) DEFAULT 'local',
     role VARCHAR(32) NOT NULL CHECK (role IN ('candidate', 'founder', 'hr', 'investor', 'admin')),
     avatar_url TEXT,
     bio TEXT,

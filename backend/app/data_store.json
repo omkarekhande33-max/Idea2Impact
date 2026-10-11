@@ -7,7 +7,10 @@
       "role": "candidate",
       "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
       "bio": "Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.",
-      "created_at": "2026-01-15T10:00:00Z"
+      "created_at": "2026-01-15T10:00:00Z",
+      "username": "alexrivera",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     },
     {
       "id": "cand-02",
@@ -16,7 +19,10 @@
       "role": "candidate",
       "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
       "bio": "AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.",
-      "created_at": "2026-02-10T12:00:00Z"
+      "created_at": "2026-02-10T12:00:00Z",
+      "username": "priyasharma",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     },
     {
       "id": "cand-03",
@@ -25,7 +31,10 @@
       "role": "candidate",
       "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
       "bio": "Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.",
-      "created_at": "2026-03-01T09:30:00Z"
+      "created_at": "2026-03-01T09:30:00Z",
+      "username": "jordanlee",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     },
     {
       "id": "found-01",
@@ -34,7 +43,10 @@
       "role": "founder",
       "avatar_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
       "bio": "Founder & CEO at EcoTrace AI. Passionate about decarbonizing supply chains with autonomous carbon accounting.",
-      "created_at": "2026-01-05T08:00:00Z"
+      "created_at": "2026-01-05T08:00:00Z",
+      "username": "sarahlin",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     },
     {
       "id": "hr-01",
@@ -43,7 +55,10 @@
       "role": "hr",
       "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
       "bio": "Head of Technical Talent Acquisition at NovaTech Systems. Building high-growth engineering teams.",
-      "created_at": "2026-01-20T11:00:00Z"
+      "created_at": "2026-01-20T11:00:00Z",
+      "username": "elenarostova",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     },
     {
       "id": "inv-01",
@@ -52,7 +67,58 @@
       "role": "investor",
       "avatar_url": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80",
       "bio": "General Partner at Apex Frontier Ventures. Backing early-stage AI, Sustainability, and Enterprise SaaS.",
-      "created_at": "2026-01-08T14:00:00Z"
+      "created_at": "2026-01-08T14:00:00Z",
+      "username": "vsterling",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
+    },
+    {
+      "id": "foun-bb3782",
+      "username": "tester_45454b",
+      "full_name": "Test Developer",
+      "email": "tester_45454b@test.io",
+      "password_hash": "pbkdf2_sha256$100000$cc02a43d2117879f13177a2ddb0a45f4$647414bd7b8096fd0cfabce496aaa2633edce85ab11902573e7a8d87e00e2b90",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-11T09:01:39.807071+00:00"
+    },
+    {
+      "id": "inve-1bafb0",
+      "username": "google_user_30e876",
+      "full_name": "Google Innovator",
+      "email": "google_user_30e876@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$a55055195933cf250ef1ac70e81affde$270ac0cda798168e2498bcff9ac5cdc077aaf9d4c47e2052029bb9591c6c5c1f",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-11T09:01:39.841869+00:00"
+    },
+    {
+      "id": "foun-53431c",
+      "username": "tester_7a0f7a",
+      "full_name": "Test Developer",
+      "email": "tester_7a0f7a@test.io",
+      "password_hash": "pbkdf2_sha256$100000$e6ef18167726e9090b39f59f03a0f438$4b1a0524bb10d25e4337d18f999a400da222c9ff75dc8e8591257b17f714019a",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-11T09:11:57.682871+00:00"
+    },
+    {
+      "id": "inve-a5dc4b",
+      "username": "google_user_412564",
+      "full_name": "Google Innovator",
+      "email": "google_user_412564@gmail.com",
+      "password_hash": "",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-11T09:11:57.717475+00:00"
     }
   ],
   "candidate_profiles": [
@@ -88,6 +154,22 @@
       "industry": "CleanTech / AI",
       "stage": "Seed",
       "pitch_deck_url": "https://ecotrace.ai/deck.pdf"
+    },
+    {
+      "founder_id": "foun-bb3782",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-991c2442"
+    },
+    {
+      "founder_id": "foun-53431c",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-7e5cded2"
     }
   ],
   "hr_profiles": [
@@ -115,6 +197,34 @@
       ],
       "min_ticket": 100000,
       "max_ticket": 1000000
+    },
+    {
+      "investor_id": "inve-1bafb0",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-2ac2e816"
+    },
+    {
+      "investor_id": "inve-a5dc4b",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-ef962a75"
     }
   ],
   "skills": [
@@ -711,6 +821,76 @@
       "user_id": "cand-01",
       "details": "Candidate scored 25.0% on Python & FastAPI Backend Assessment (Threshold: 75%).",
       "timestamp": "2026-10-10T09:00:10.211658+00:00"
+    },
+    {
+      "id": "log-eaa08c27",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-11T09:01:39.772435+00:00"
+    },
+    {
+      "id": "log-6152c381",
+      "event": "Account Registered",
+      "user_id": "foun-bb3782",
+      "details": "User tester_45454b registered as founder",
+      "timestamp": "2026-10-11T09:01:39.814174+00:00"
+    },
+    {
+      "id": "log-70be0eb2",
+      "event": "User Login",
+      "user_id": "foun-bb3782",
+      "details": "User tester_45454b logged in successfully",
+      "timestamp": "2026-10-11T09:01:39.841869+00:00"
+    },
+    {
+      "id": "log-5d7129da",
+      "event": "Google Signup",
+      "user_id": "inve-1bafb0",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-11T09:01:39.849465+00:00"
+    },
+    {
+      "id": "log-5256518a",
+      "event": "Google Login",
+      "user_id": "inve-1bafb0",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-11T09:01:39.850042+00:00"
+    },
+    {
+      "id": "log-34662460",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-11T09:11:57.648271+00:00"
+    },
+    {
+      "id": "log-00fcfe9b",
+      "event": "Account Registered",
+      "user_id": "foun-53431c",
+      "details": "User tester_7a0f7a registered as founder",
+      "timestamp": "2026-10-11T09:11:57.682871+00:00"
+    },
+    {
+      "id": "log-0db56bb9",
+      "event": "User Login",
+      "user_id": "foun-53431c",
+      "details": "User tester_7a0f7a logged in successfully",
+      "timestamp": "2026-10-11T09:11:57.717475+00:00"
+    },
+    {
+      "id": "log-75679249",
+      "event": "Google Signup",
+      "user_id": "inve-a5dc4b",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-11T09:11:57.724640+00:00"
+    },
+    {
+      "id": "log-a40aac77",
+      "event": "Google Login",
+      "user_id": "inve-a5dc4b",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-11T09:11:57.725530+00:00"
     }
   ],
   "match_results": [

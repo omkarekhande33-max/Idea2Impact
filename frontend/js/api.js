@@ -7,10 +7,13 @@ const API_BASE = window.location.origin.includes('localhost') || window.location
 class ApiService {
   async request(endpoint, options = {}) {
     const url = `${API_BASE}${endpoint}`;
+    const token = localStorage.getItem('i2i_token');
+    const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
     try {
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
           ...(options.headers || {})
         },
         ...options
@@ -24,6 +27,32 @@ class ApiService {
       console.warn(`API call ${endpoint} error:`, error.message);
       throw error;
     }
+  }
+
+  // Authentication
+  async login(username, password) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+  }
+
+  async register(data) {
+    return this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async googleAuth(data) {
+    return this.request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async getMe() {
+    return this.request('/auth/me');
   }
 
   // Stats

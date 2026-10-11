@@ -23,7 +23,7 @@ class App {
       roleBar.innerHTML = `
         <div class="role-bar-left">
           <span class="role-bar-badge">SYSTEM ROLE DEMO</span>
-          <span style="font-size:0.8rem; color:#94A3B8;">Switch personas instantly to explore the unified platform:</span>
+          <span style="font-size:0.8rem; color:#94A3B8;">Switch personas instantly or sign in:</span>
         </div>
         <div class="role-buttons">
           <button class="role-btn ${state.currentRole === 'landing' ? 'active' : ''}" data-role="landing">
@@ -41,6 +41,9 @@ class App {
           <button class="role-btn ${state.currentRole === 'investor' ? 'active' : ''}" data-role="investor">
             🦈 Investor / Shark Mode
           </button>
+          <button class="role-btn ${state.currentRole === 'login' ? 'active' : ''}" data-role="login" style="border-left:1px solid rgba(255,255,255,0.15); margin-left:0.35rem; color:#67E8F9;">
+            🔐 ${state.isAuthenticated() ? 'My Account' : 'Sign In / Register'}
+          </button>
         </div>
       `;
 
@@ -51,6 +54,8 @@ class App {
             state.currentRole = 'landing';
             state.activeTab = 'overview';
             state.notify();
+          } else if (role === 'login') {
+            state.openLogin('signin');
           } else {
             state.setRole(role);
           }
@@ -61,6 +66,7 @@ class App {
 
     const navbar = document.getElementById('navbar');
     if (navbar) {
+      const isAuth = state.isAuthenticated();
       navbar.innerHTML = `
         <div class="nav-container">
           <a href="#" class="brand" id="brand-link">
@@ -75,7 +81,23 @@ class App {
             <li><a href="#" class="nav-link" data-nav="investor">Investor Shark Room</a></li>
           </ul>
           <div class="flex items-center gap-3">
-            <span class="badge badge-role" id="current-persona-badge">${state.activeUser ? state.activeUser.name : 'Guest'} (${state.currentRole.toUpperCase()})</span>
+            ${isAuth ? `
+              <div class="flex items-center gap-2" style="background: rgba(255,255,255,0.08); padding: 0.25rem 0.65rem 0.25rem 0.35rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.15);">
+                <img src="${state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: #fff;">${state.activeUser.name}</span>
+                <span class="badge badge-role" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${state.activeUser.role.toUpperCase()}</span>
+              </div>
+              <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: transparent;">
+                Sign Out
+              </button>
+            ` : `
+              <button class="btn btn-outline btn-sm" id="nav-login-btn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: transparent;">
+                Sign In
+              </button>
+              <button class="btn btn-accent btn-sm" id="nav-register-btn">
+                Create Account
+              </button>
+            `}
             <button class="btn btn-primary btn-sm" id="quick-action-btn">
               ${state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Get Started'}
             </button>
@@ -103,6 +125,28 @@ class App {
         });
       });
 
+      const loginBtn = navbar.querySelector('#nav-login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+          state.openLogin('signin');
+        });
+      }
+
+      const registerBtn = navbar.querySelector('#nav-register-btn');
+      if (registerBtn) {
+        registerBtn.addEventListener('click', () => {
+          state.openLogin('register');
+        });
+      }
+
+      const logoutBtn = navbar.querySelector('#nav-logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          state.logout();
+          this.renderTopBars();
+        });
+      }
+
       navbar.querySelector('#quick-action-btn').addEventListener('click', () => {
         if (state.currentRole === 'candidate') state.setTab('assessments');
         else if (state.currentRole === 'founder') state.setTab('ai-copilot');
@@ -115,7 +159,9 @@ class App {
 
   async renderCurrentView() {
     this.renderTopBars();
-    if (state.currentRole === 'landing') {
+    if (state.currentRole === 'login') {
+      await this.renderLoginPage();
+    } else if (state.currentRole === 'landing') {
       await this.renderLandingPage();
     } else if (state.currentRole === 'candidate') {
       await this.renderCandidateDashboard();
@@ -126,6 +172,420 @@ class App {
     } else if (state.currentRole === 'investor') {
       await this.renderInvestorDashboard();
     }
+  }
+
+  // =========================================================================
+  // AUTHENTICATION: LOGIN & CREATE ACCOUNT PAGE (With Google Auth)
+  // =========================================================================
+  async renderLoginPage() {
+    const isSignIn = state.authMode !== 'register';
+    this.appContainer.innerHTML = `
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-header">
+            <div class="brand-badge">
+              <span>🛡️</span>
+              <span>Idea2Impact Secure Access</span>
+            </div>
+            <h1>${isSignIn ? 'Welcome Back' : 'Create Your Account'}</h1>
+            <p>${isSignIn ? 'Sign in with your username/email or Google account.' : 'Join founders, verified engineers, recruiters, and investors.'}</p>
+          </div>
+
+          <div class="auth-tabs">
+            <button class="auth-tab-btn ${isSignIn ? 'active' : ''}" id="tab-signin">Sign In</button>
+            <button class="auth-tab-btn ${!isSignIn ? 'active' : ''}" id="tab-register">Create Account</button>
+          </div>
+
+          <div id="auth-alert-container"></div>
+
+          <!-- Google Authentication Button -->
+          <button class="auth-google-btn" id="google-auth-btn" type="button">
+            <svg width="20" height="20" viewBox="0 0 18 18">
+              <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.836.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
+            </svg>
+            <span>${isSignIn ? 'Continue with Google' : 'Sign up with Google'}</span>
+          </button>
+
+          <div class="auth-divider">
+            <span>or continue with credentials</span>
+          </div>
+
+          ${isSignIn ? `
+            <!-- Sign In Form -->
+            <form class="auth-form" id="signin-form">
+              <div class="form-group">
+                <label for="signin-username">Username or Email</label>
+                <input type="text" id="signin-username" placeholder="Enter username or email address" required autocomplete="username">
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label for="signin-password">Password</label>
+                  <span style="font-size:0.78rem; color:#64748B;">Demo pass: <code>password123</code></span>
+                </div>
+                <div class="password-input-wrapper">
+                  <input type="password" id="signin-password" placeholder="Enter password" required autocomplete="current-password">
+                  <button type="button" class="password-toggle-btn" id="toggle-signin-password" title="Show/Hide password">👁️</button>
+                </div>
+              </div>
+
+              <button type="submit" class="auth-submit-btn" id="signin-submit-btn">
+                Sign In to Idea2Impact
+              </button>
+            </form>
+
+            <!-- Quick Fill Demo Accounts -->
+            <div class="demo-credentials-box">
+              <div class="demo-title">
+                <span>⚡ 1-Click Demo Login</span>
+                <span style="font-weight:400; text-transform:none;">(password123)</span>
+              </div>
+              <div class="demo-pills">
+                <button class="demo-pill" data-user="alexrivera" data-pass="password123">🎓 Alex (Candidate)</button>
+                <button class="demo-pill" data-user="sarahlin" data-pass="password123">🚀 Sarah (Founder)</button>
+                <button class="demo-pill" data-user="elenarostova" data-pass="password123">💼 Elena (HR)</button>
+                <button class="demo-pill" data-user="vsterling" data-pass="password123">🦈 Victoria (Investor)</button>
+              </div>
+            </div>
+          ` : `
+            <!-- Create Account Form -->
+            <form class="auth-form" id="register-form">
+              <div class="form-group">
+                <label for="reg-fullname">Full Name</label>
+                <input type="text" id="reg-fullname" placeholder="e.g. Alex Rivera" required>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                <div class="form-group">
+                  <label for="reg-username">Username</label>
+                  <input type="text" id="reg-username" placeholder="e.g. alexrivera" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                  <label for="reg-email">Email Address</label>
+                  <input type="email" id="reg-email" placeholder="e.g. alex@example.com" required autocomplete="email">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Select Your Platform Role</label>
+                <div class="role-selector-cards" id="role-selector-cards">
+                  <div class="role-card-radio selected" data-role="candidate">
+                    <div class="role-card-title"><span>🎓</span> Candidate</div>
+                    <div class="role-card-desc">Verify skills & get matched to jobs</div>
+                  </div>
+                  <div class="role-card-radio" data-role="founder">
+                    <div class="role-card-title"><span>🚀</span> Founder</div>
+                    <div class="role-card-desc">AI Copilot, pitch deck & investors</div>
+                  </div>
+                  <div class="role-card-radio" data-role="hr">
+                    <div class="role-card-title"><span>💼</span> HR Recruiter</div>
+                    <div class="role-card-desc">Post jobs & hire verified talent</div>
+                  </div>
+                  <div class="role-card-radio" data-role="investor">
+                    <div class="role-card-title"><span>🦈</span> Shark Investor</div>
+                    <div class="role-card-desc">Discover ventures & lead rounds</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                <div class="form-group">
+                  <label for="reg-password">Password</label>
+                  <div class="password-input-wrapper">
+                    <input type="password" id="reg-password" placeholder="Min. 6 chars" required autocomplete="new-password">
+                    <button type="button" class="password-toggle-btn" id="toggle-reg-password" title="Show/Hide">👁️</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="reg-password-confirm">Confirm Password</label>
+                  <div class="password-input-wrapper">
+                    <input type="password" id="reg-password-confirm" placeholder="Repeat password" required autocomplete="new-password">
+                    <button type="button" class="password-toggle-btn" id="toggle-reg-password-confirm" title="Show/Hide">👁️</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-bio">Headline / Bio (Optional)</label>
+                <input type="text" id="reg-bio" placeholder="e.g. Senior Software Engineer specializing in Python & AI">
+              </div>
+
+              <button type="submit" class="auth-submit-btn" id="reg-submit-btn">
+                Create Account & Join Ecosystem
+              </button>
+            </form>
+          `}
+
+          <div style="text-align:center; margin-top:1.5rem; font-size:0.88rem; color:var(--text-muted);">
+            ${isSignIn ? `
+              Don't have an account? <a href="#" id="switch-to-register" style="color:var(--secondary); font-weight:700; text-decoration:none;">Create Account</a>
+            ` : `
+              Already have an account? <a href="#" id="switch-to-signin" style="color:var(--secondary); font-weight:700; text-decoration:none;">Sign In</a>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.attachAuthEventListeners(isSignIn);
+  }
+
+  attachAuthEventListeners(isSignIn) {
+    const tabSignIn = document.getElementById('tab-signin');
+    const tabRegister = document.getElementById('tab-register');
+    const switchRegister = document.getElementById('switch-to-register');
+    const switchSignIn = document.getElementById('switch-to-signin');
+
+    if (tabSignIn) tabSignIn.addEventListener('click', () => { state.openLogin('signin'); });
+    if (tabRegister) tabRegister.addEventListener('click', () => { state.openLogin('register'); });
+    if (switchRegister) switchRegister.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('register'); });
+    if (switchSignIn) switchSignIn.addEventListener('click', (e) => { e.preventDefault(); state.openLogin('signin'); });
+
+    // Google Authentication Trigger
+    const googleBtn = document.getElementById('google-auth-btn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => {
+        this.showGoogleAccountChooserModal();
+      });
+    }
+
+    // Sign In form submit
+    const signinForm = document.getElementById('signin-form');
+    if (signinForm) {
+      // Toggle password visibility
+      const toggleBtn = document.getElementById('toggle-signin-password');
+      const passInput = document.getElementById('signin-password');
+      if (toggleBtn && passInput) {
+        toggleBtn.addEventListener('click', () => {
+          passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        });
+      }
+
+      // Demo credential pills
+      document.querySelectorAll('.demo-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const userField = document.getElementById('signin-username');
+          const passField = document.getElementById('signin-password');
+          if (userField && passField) {
+            userField.value = pill.dataset.user;
+            passField.value = pill.dataset.pass;
+          }
+        });
+      });
+
+      signinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signin-username').value.trim();
+        const password = document.getElementById('signin-password').value;
+        const submitBtn = document.getElementById('signin-submit-btn');
+
+        if (!username || !password) {
+          this.showAuthAlert('Please enter both username and password.', 'error');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying credentials...';
+
+        try {
+          const res = await api.login(username, password);
+          state.setAuth(res.user, res.token);
+        } catch (err) {
+          this.showAuthAlert(err.message || 'Invalid username or password.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In to Idea2Impact';
+        }
+      });
+    }
+
+    // Register form submit
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+      let selectedRole = 'candidate';
+      document.querySelectorAll('.role-card-radio').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.role-card-radio').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedRole = card.dataset.role;
+        });
+      });
+
+      // Toggle password visibility
+      const toggleReg = document.getElementById('toggle-reg-password');
+      const regPass = document.getElementById('reg-password');
+      if (toggleReg && regPass) {
+        toggleReg.addEventListener('click', () => {
+          regPass.type = regPass.type === 'password' ? 'text' : 'password';
+        });
+      }
+
+      const toggleRegConf = document.getElementById('toggle-reg-password-confirm');
+      const regPassConf = document.getElementById('reg-password-confirm');
+      if (toggleRegConf && regPassConf) {
+        toggleRegConf.addEventListener('click', () => {
+          regPassConf.type = regPassConf.type === 'password' ? 'text' : 'password';
+        });
+      }
+
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('reg-fullname').value.trim();
+        const username = document.getElementById('reg-username').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const confirmPass = document.getElementById('reg-password-confirm').value;
+        const bio = document.getElementById('reg-bio').value.trim();
+        const submitBtn = document.getElementById('reg-submit-btn');
+
+        if (password !== confirmPass) {
+          this.showAuthAlert('Passwords do not match. Please re-check.', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          this.showAuthAlert('Password must be at least 6 characters long.', 'error');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
+
+        try {
+          const res = await api.register({
+            full_name: fullName,
+            username: username,
+            email: email,
+            password: password,
+            role: selectedRole,
+            bio: bio
+          });
+          state.setAuth(res.user, res.token);
+        } catch (err) {
+          this.showAuthAlert(err.message || 'Registration failed. Try another username/email.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account & Join Ecosystem';
+        }
+      });
+    }
+  }
+
+  showAuthAlert(message, type = 'error') {
+    const container = document.getElementById('auth-alert-container');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="auth-alert ${type}">
+        <span>${type === 'error' ? '⚠️' : '✓'}</span>
+        <span>${message}</span>
+      </div>
+    `;
+  }
+
+  showGoogleAccountChooserModal() {
+    const existing = document.getElementById('google-modal-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'google-modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-content" style="max-width: 440px; padding: 2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <svg width="24" height="24" viewBox="0 0 18 18">
+              <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.836.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
+            </svg>
+            <h3 style="font-size:1.15rem; font-weight:700; color:var(--primary); margin:0;">Sign in with Google</h3>
+          </div>
+          <button id="close-google-modal" style="background:none; border:none; font-size:1.4rem; color:#94A3B8; cursor:pointer;">&times;</button>
+        </div>
+
+        <p style="font-size:0.88rem; color:#64748B; margin-bottom:1.25rem;">
+          Choose an account to continue to <strong>Idea2Impact</strong>
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;">
+          <div class="google-acc-item" data-email="alex.rivera@gmail.com" data-name="Alex Rivera" data-role="candidate" style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+            <div style="flex:1;">
+              <div style="font-weight:700; font-size:0.88rem; color:var(--text-main);">Alex Rivera</div>
+              <div style="font-size:0.78rem; color:#64748B;">alex.rivera@gmail.com</div>
+            </div>
+            <span class="badge" style="background:#E0F2FE; color:#0369A1; font-size:0.7rem;">Candidate</span>
+          </div>
+
+          <div class="google-acc-item" data-email="sarah.lin@gmail.com" data-name="Sarah Lin" data-role="founder" style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop&q=80" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+            <div style="flex:1;">
+              <div style="font-weight:700; font-size:0.88rem; color:var(--text-main);">Sarah Lin</div>
+              <div style="font-size:0.78rem; color:#64748B;">sarah.lin@gmail.com</div>
+            </div>
+            <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem;">Founder</span>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #E2E8F0; padding-top:1rem;">
+          <div style="font-size:0.82rem; font-weight:700; color:#475569; margin-bottom:0.5rem;">Or connect another Google account:</div>
+          <form id="custom-google-form" style="display:flex; flex-direction:column; gap:0.6rem;">
+            <input type="text" id="custom-google-name" placeholder="Your Name" required style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+            <input type="email" id="custom-google-email" placeholder="name@gmail.com" required style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+            <select id="custom-google-role" style="padding:0.6rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
+              <option value="candidate">Role: 🎓 Candidate</option>
+              <option value="founder">Role: 🚀 Founder</option>
+              <option value="hr">Role: 💼 HR Recruiter</option>
+              <option value="investor">Role: 🦈 Investor</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%; margin-top:0.3rem;">
+              Verify & Sign In with Google
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeModal = () => overlay.remove();
+    overlay.querySelector('#close-google-modal').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    const triggerGoogleSignIn = async (email, name, role) => {
+      try {
+        closeModal();
+        state.showToast(`Signing in via Google (${email})...`, 'info');
+        const res = await api.googleAuth({
+          email: email,
+          full_name: name,
+          role: role || 'candidate'
+        });
+        state.setAuth(res.user, res.token);
+      } catch (err) {
+        state.showToast(err.message || 'Google authentication failed', 'danger');
+      }
+    };
+
+    overlay.querySelectorAll('.google-acc-item').forEach(item => {
+      item.addEventListener('mouseenter', () => { item.style.background = '#F8FAFC'; item.style.borderColor = '#94A3B8'; });
+      item.addEventListener('mouseleave', () => { item.style.background = '#fff'; item.style.borderColor = '#E2E8F0'; });
+      item.addEventListener('click', () => {
+        triggerGoogleSignIn(item.dataset.email, item.dataset.name, item.dataset.role);
+      });
+    });
+
+    overlay.querySelector('#custom-google-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('custom-google-name').value.trim();
+      const email = document.getElementById('custom-google-email').value.trim();
+      const role = document.getElementById('custom-google-role').value;
+      triggerGoogleSignIn(email, name, role);
+    });
   }
 
   // =========================================================================

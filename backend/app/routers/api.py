@@ -5,10 +5,14 @@ from typing import Optional, List, Dict, Any
 
 from ..database import db
 from ..schemas.models import (
+    LoginRequest, RegisterRequest, GoogleAuthRequest,
     ProfileCreate, ProfileUpdate, AssessmentSubmission,
     JobCreate, JobApplicationCreate, ApplicationStatusUpdate,
     IdeaAnalyzeRequest, StartupCreate, ProposalShareRequest,
     InvestorInterestRequest, MeetingRequest
+)
+from ..security.auth import (
+    hash_password, verify_password, create_access_token, verify_access_token
 )
 from ..matching.engine import calculate_candidate_job_match
 from ..ai.copilot import analyze_startup_idea, analyze_investor_proposal
@@ -16,54 +20,41 @@ from ..services.pdf_generator import generate_business_proposal_pdf, generate_ca
 
 router = APIRouter()
 
-# -------------------------------------------------------------
-# 1. AUTHENTICATION & PROFILES (Section 11)
-# -------------------------------------------------------------
-@router.post("/auth/profile")
-def create_profile(payload: ProfileCreate):
-    existing = db.find_one("profiles", lambda p: p["email"].lower() == payload.email.lower())
-    if existing:
-        return existing
-    
-    new_profile = {
-        "id": f"{payload.role[:4]}-{str(uuid.uuid4())[:6]}",
-        "full_name": payload.full_name,
-        "email": payload.email,
-        "role": payload.role,
-        "avatar_url": f"https://api.dicebear.com/7.x/initials/svg?seed={payload.full_name}",
-        "bio": payload.bio or "",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    db.insert("profiles", new_profile)
-    
-    # Initialize role profile
-    if payload.role == "candidate":
+def _sanitize_profile(profile: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if not profile:
+        return None
+    safe = dict(profile)
+    safe.pop("password_hash", None)
+    return safe
+
+def _init_role_profile(role: str, user_id: str, bio: str = ""):
+    if role == "candidate":
         db.insert("candidate_profiles", {
-            "candidate_id": new_profile["id"],
+            "candidate_id": user_id,
             "education": "Not specified",
             "experience_years": 1,
             "portfolio_url": "",
             "target_role": "Software Engineer",
-            "summary": payload.bio or ""
+            "summary": bio or ""
         })
-    elif payload.role == "founder":
+    elif role == "founder":
         db.insert("founder_profiles", {
-            "founder_id": new_profile["id"],
+            "founder_id": user_id,
             "company_name": "New Venture",
             "industry": "Technology",
             "stage": "Idea",
             "pitch_deck_url": ""
         })
-    elif payload.role == "hr":
+    elif role == "hr":
         db.insert("hr_profiles", {
-            "hr_id": new_profile["id"],
+            "hr_id": user_id,
             "company_name": "Enterprise Co",
             "position": "Recruitment Lead",
             "website": ""
         })
-    elif payload.role == "investor":
+    elif role == "investor":
         db.insert("investor_profiles", {
-            "investor_id": new_profile["id"],
+            "investor_id": user_id,
             "fund_name": "Angel Syndicate",
             "preferred_stages": ["Seed"],
             "target_industries": ["AI", "SaaS"],
@@ -71,12 +62,142 @@ def create_profile(payload: ProfileCreate):
             "max_ticket": 250000
         })
 
-    db.log_audit("Profile Created", new_profile["id"], f"User {new_profile['full_name']} registered as {new_profile['role']}")
-    return new_profile
+# -------------------------------------------------------------
+# 1. AUTHENTICATION & PROFILES
+# -------------------------------------------------------------
+@router.post("/auth/register")
+def register(payload: RegisterRequest):
+    # Check username uniqueness
+    if db.find_one("profiles", lambda p: p.get("username", "").lower() == payload.username.lower()):
+        raise HTTPException(status_code=400, detail="Username already in use")
+    # Check email uniqueness
+    if db.find_one("profiles", lambda p: p.get("email", "").lower() == payload.email.lower()):
+        raise HTTPException(status_code=400, detail="Email already registered")
 
-@router.get("/profiles/me")
-def get_current_user_profile(user_id: Optional[str] = Query(None)):
-    uid = user_id or "cand-01"
+    new_profile = {
+        "id": f"{payload.role[:4]}-{str(uuid.uuid4())[:6]}",
+        "username": payload.username.lower(),
+        "full_name": payload.full_name,
+        "email": payload.email.lower(),
+        "password_hash": hash_password(payload.password),
+        "role": payload.role,
+        "avatar_url": f"https://api.dicebear.com/7.x/initials/svg?seed={payload.full_name}",
+        "bio": payload.bio or "",
+        "auth_provider": "local",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    db.insert("profiles", new_profile)
+    _init_role_profile(payload.role, new_profile["id"], payload.bio or "")
+    db.log_audit("Account Registered", new_profile["id"], f"User {new_profile['username']} registered as {new_profile['role']}")
+    
+    token = create_access_token({
+        "sub": new_profile["id"],
+        "username": new_profile["username"],
+        "role": new_profile["role"]
+    })
+    return {
+        "token": token,
+        "user": _sanitize_profile(new_profile),
+        "message": "Account created successfully"
+    }
+
+@router.post("/auth/login")
+def login(payload: LoginRequest):
+    user = db.find_user(payload.username)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    if not verify_password(payload.password, user.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    token = create_access_token({
+        "sub": user["id"],
+        "username": user.get("username", ""),
+        "role": user["role"]
+    })
+    db.log_audit("User Login", user["id"], f"User {user.get('username', user['id'])} logged in successfully")
+    return {
+        "token": token,
+        "user": _sanitize_profile(user),
+        "message": "Login successful"
+    }
+
+@router.post("/auth/google")
+def google_auth(payload: GoogleAuthRequest):
+    email = (payload.email or "").strip().lower()
+    full_name = payload.full_name or "Google User"
+    avatar_url = payload.avatar_url or f"https://api.dicebear.com/7.x/initials/svg?seed={full_name}"
+    role = payload.role or "candidate"
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Google account email is required")
+
+    existing = db.find_one("profiles", lambda p: p.get("email", "").lower() == email)
+    if existing:
+        token = create_access_token({
+            "sub": existing["id"],
+            "username": existing.get("username", ""),
+            "role": existing["role"]
+        })
+        db.log_audit("Google Login", existing["id"], f"User {existing['full_name']} logged in via Google")
+        return {
+            "token": token,
+            "user": _sanitize_profile(existing),
+            "is_new_user": False,
+            "message": "Google authentication successful"
+        }
+
+    # Generate new user
+    base_username = email.split("@")[0].replace(".", "").lower()
+    candidate_username = base_username
+    counter = 1
+    while db.find_one("profiles", lambda p: p.get("username", "").lower() == candidate_username):
+        candidate_username = f"{base_username}{counter}"
+        counter += 1
+
+    new_profile = {
+        "id": f"{role[:4]}-{str(uuid.uuid4())[:6]}",
+        "username": candidate_username,
+        "full_name": full_name,
+        "email": email,
+        "password_hash": "",
+        "role": role,
+        "avatar_url": avatar_url,
+        "bio": "Joined via Google Authentication",
+        "auth_provider": "google",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    db.insert("profiles", new_profile)
+    _init_role_profile(role, new_profile["id"], new_profile["bio"])
+    db.log_audit("Google Signup", new_profile["id"], f"New user {new_profile['full_name']} created via Google")
+
+    token = create_access_token({
+        "sub": new_profile["id"],
+        "username": new_profile["username"],
+        "role": new_profile["role"]
+    })
+    return {
+        "token": token,
+        "user": _sanitize_profile(new_profile),
+        "is_new_user": True,
+        "message": "Google account created and logged in"
+    }
+
+@router.get("/auth/me")
+def get_auth_me(
+    user_id: Optional[str] = Query(None),
+    authorization: Optional[str] = Header(None),
+    x_user_id: Optional[str] = Header(None)
+):
+    uid = None
+    if authorization and authorization.lower().startswith("bearer "):
+        tok = authorization.split(" ", 1)[1].strip()
+        claims = verify_access_token(tok)
+        if claims and "sub" in claims:
+            uid = claims["sub"]
+    if not uid:
+        uid = user_id or x_user_id or "cand-01"
+
     profile = db.find_one("profiles", lambda p: p["id"] == uid)
     if not profile:
         profile = db.get_table("profiles")[0]
@@ -92,7 +213,36 @@ def get_current_user_profile(user_id: Optional[str] = Query(None)):
     elif role == "investor":
         role_data = db.find_one("investor_profiles", lambda ip: ip["investor_id"] == profile["id"]) or {}
 
-    return {**profile, "details": role_data}
+    return {**_sanitize_profile(profile), "details": role_data}
+
+@router.post("/auth/profile")
+def create_profile(payload: ProfileCreate):
+    existing = db.find_one("profiles", lambda p: p["email"].lower() == payload.email.lower())
+    if existing:
+        return _sanitize_profile(existing)
+    
+    username = payload.username or payload.email.split("@")[0].replace(".", "").lower()
+    pw_hash = hash_password(payload.password) if payload.password else hash_password("password123")
+    new_profile = {
+        "id": f"{payload.role[:4]}-{str(uuid.uuid4())[:6]}",
+        "username": username,
+        "full_name": payload.full_name,
+        "email": payload.email,
+        "password_hash": pw_hash,
+        "role": payload.role,
+        "avatar_url": f"https://api.dicebear.com/7.x/initials/svg?seed={payload.full_name}",
+        "bio": payload.bio or "",
+        "auth_provider": "local",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    db.insert("profiles", new_profile)
+    _init_role_profile(payload.role, new_profile["id"], payload.bio or "")
+    db.log_audit("Profile Created", new_profile["id"], f"User {new_profile['full_name']} registered as {new_profile['role']}")
+    return _sanitize_profile(new_profile)
+
+@router.get("/profiles/me")
+def get_current_user_profile(user_id: Optional[str] = Query(None)):
+    return get_auth_me(user_id=user_id)
 
 @router.patch("/profiles/me")
 def update_profile(payload: ProfileUpdate, user_id: Optional[str] = Query(None)):
@@ -101,7 +251,7 @@ def update_profile(payload: ProfileUpdate, user_id: Optional[str] = Query(None))
     updated = db.update("profiles", lambda p: p["id"] == uid, updates)
     if not updated:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return updated
+    return _sanitize_profile(updated)
 
 @router.get("/profiles")
 def list_profiles(role: Optional[str] = Query(None)):

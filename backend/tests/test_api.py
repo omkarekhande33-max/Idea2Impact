@@ -63,5 +63,63 @@ class TestIdea2Impact(unittest.TestCase):
         pdf_bytes = generate_candidate_passport_pdf(cand, skills)
         self.assertTrue(len(pdf_bytes) > 1000)
 
+    def test_authentication_login_and_register(self):
+        """Tests user login with password, registration, and token validation."""
+        from app.routers.api import login, register, get_auth_me
+        from app.schemas.models import LoginRequest, RegisterRequest
+
+        # Login with existing demo account
+        login_res = login(LoginRequest(username="alexrivera", password="password123"))
+        self.assertIn("token", login_res)
+        self.assertEqual(login_res["user"]["role"], "candidate")
+        self.assertNotIn("password_hash", login_res["user"])
+
+        # Validate token with get_auth_me
+        me_res = get_auth_me(authorization=f"Bearer {login_res['token']}")
+        self.assertEqual(me_res["id"], "cand-01")
+
+        # Register a unique user
+        import uuid
+        test_user = f"tester_{uuid.uuid4().hex[:6]}"
+        reg_res = register(RegisterRequest(
+            username=test_user,
+            email=f"{test_user}@test.io",
+            password="StrongPassword123!",
+            full_name="Test Developer",
+            role="founder"
+        ))
+        self.assertIn("token", reg_res)
+        self.assertEqual(reg_res["user"]["username"], test_user)
+        self.assertEqual(reg_res["user"]["role"], "founder")
+
+        # Verify login of new user
+        new_login = login(LoginRequest(username=test_user, password="StrongPassword123!"))
+        self.assertEqual(new_login["user"]["email"], f"{test_user}@test.io")
+
+    def test_google_auth_flow(self):
+        """Tests Google OAuth registration and login."""
+        from app.routers.api import google_auth
+        from app.schemas.models import GoogleAuthRequest
+        import uuid
+
+        g_email = f"google_user_{uuid.uuid4().hex[:6]}@gmail.com"
+        # 1. First time signup via Google
+        res1 = google_auth(GoogleAuthRequest(
+            email=g_email,
+            full_name="Google Innovator",
+            role="investor"
+        ))
+        self.assertTrue(res1["is_new_user"])
+        self.assertEqual(res1["user"]["role"], "investor")
+        self.assertEqual(res1["user"]["auth_provider"], "google")
+
+        # 2. Subsequent login with same Google account
+        res2 = google_auth(GoogleAuthRequest(
+            email=g_email,
+            full_name="Google Innovator"
+        ))
+        self.assertFalse(res2["is_new_user"])
+        self.assertEqual(res2["user"]["id"], res1["user"]["id"])
+
 if __name__ == "__main__":
     unittest.main()
