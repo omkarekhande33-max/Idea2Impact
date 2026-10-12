@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Idea2Impact — AI-Powered Talent, Startup & Investment Ecosystem</title>
+  <title>Idea2Impact — AI-Powered Talent, Startup &amp; Investment Ecosystem</title>
   <meta name="description" content="Idea2Impact connects candidates, startup founders, recruiters, and investors through verified technical skill passports, AI startup development, explainable recruitment matching, and venture due diligence.">
   <meta name="keywords" content="Idea2Impact, Verified Skills, Skill Passport, AI Startup Copilot, Explainable Job Matching, Shark Investors">
   <meta name="author" content="Idea2Impact Team">
 
   <!-- Open Graph Meta Tags -->
-  <meta property="og:title" content="Idea2Impact — Unified Talent, Startup & Investment Platform">
+  <meta property="og:title" content="Idea2Impact — Unified Talent, Startup &amp; Investment Platform">
   <meta property="og:description" content="From Ideas to Innovation. From Talent to Growth. A unified ecosystem connecting verified talent, startups, recruiters, and investors.">
   <meta property="og:type" content="website">
 
@@ -23,68 +23,205 @@
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
-
-  <!-- AI Proctoring & Computer Vision Libraries (TensorFlow.js + COCO-SSD) -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
-
-  <!-- Google Identity Services (GIS) for Google Authentication -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
-  <!-- Role Switcher Bar (Instant Persona Selector for Demo & Testing) -->
-  <aside class="role-bar" id="role-bar" aria-label="Demo Persona Switcher"></aside>
-
   <!-- Top Navigation -->
-  <header class="navbar" id="navbar" role="banner"></header>
+  <header class="landing-nav" role="banner">
+    <div class="landing-nav-container">
+      <a href="index.html" class="brand" aria-label="Idea2Impact Home">
+        <div class="brand-icon">I²</div>
+        <span>Idea<span class="impact-text">2Impact</span></span>
+      </a>
 
-  <!-- Main View Container -->
-  <main class="main-wrapper" id="app" role="main"></main>
+      <ul class="landing-nav-links">
+        <li><a href="#personas" class="landing-nav-link">Workspaces</a></li>
+        <li><a href="#features" class="landing-nav-link">Platform Standards</a></li>
+        <li><a href="roadmap.html" class="landing-nav-link">Skill Roadmap</a></li>
+      </ul>
 
-  <!-- Global Footer -->
-  <footer class="footer" role="contentinfo">
-    <div class="footer-content">
-      <div style="max-width:380px;">
-        <div class="brand" style="color:#fff; margin-bottom:0.75rem;">
-          <div class="brand-icon">I²</div>
-          <span>Idea<span style="color:var(--accent);">2Impact</span></span>
-        </div>
-        <p style="font-size:0.85rem; color:#94A3B8; line-height:1.6;">
-          Connecting verified talent, startup development, recruitment, and investment through one secure, explainable ecosystem.
-        </p>
-      </div>
-
-      <div style="display:flex; gap:3rem; flex-wrap:wrap;">
-        <div>
-          <h4 style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.75rem;">Platform Workflows</h4>
-          <ul style="list-style:none; font-size:0.85rem; display:flex; flex-direction:column; gap:0.4rem; color:#94A3B8;">
-            <li>Verified Skill Passport</li>
-            <li>AI Startup Copilot</li>
-            <li>Explainable Job Matching</li>
-            <li>Investor Shark Room</li>
-          </ul>
-        </div>
-        <div>
-          <h4 style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.75rem;">Security & Integrity</h4>
-          <ul style="list-style:none; font-size:0.85rem; display:flex; flex-direction:column; gap:0.4rem; color:#94A3B8;">
-            <li>Backend Scoring (75% Rule)</li>
-            <li>Anti-Tamper Session Telemetry</li>
-            <li>Row Level Security (RLS)</li>
-            <li>Confidential ReportLab Exports</li>
-          </ul>
-        </div>
+      <div class="landing-nav-actions" id="landing-nav-actions">
+        <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="login.html?mode=register" class="btn btn-primary btn-sm">Get Started Free →</a>
       </div>
     </div>
+  </header>
 
-    <div class="footer-bottom">
-      <p>© 2026 Idea2Impact Platform. All rights reserved. Built with Python FastAPI, Supabase-compatible relational architecture, and modern JavaScript.</p>
+  <!-- Hero Section -->
+  <section class="landing-hero" role="region" aria-labelledby="hero-heading">
+    <div class="landing-hero-content">
+      
+      <!-- Session Indicator Pill (Shown dynamically if user already logged in) -->
+      <div id="landing-session-pill" class="hero-session-pill hidden">
+        <span>👋 Welcome back, <strong id="session-user-name"></strong>!</span>
+        <span>·</span>
+        <a href="dashboard.html">Open Workspace Dashboard →</a>
+      </div>
+
+      <div class="hero-pill">
+        <span>✨</span>
+        <span>AI-Powered Talent, Startup &amp; Investment Ecosystem</span>
+      </div>
+
+      <h1 class="hero-title" id="hero-heading">
+        From Ideas to Innovation.<br>
+        <span class="gradient-text">From Talent to Impact.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        A unified platform connecting verified technical talent, ambitious startup founders, enterprise recruiters, and angel investors through explainable AI matching and venture copilots.
+      </p>
+
+      <div class="hero-actions">
+        <a href="login.html?mode=register" class="hero-btn-primary">
+          <span>Get Started Free</span>
+          <span>→</span>
+        </a>
+        <a href="login.html" class="hero-btn-secondary">
+          <span>Sign In to Workspace</span>
+        </a>
+      </div>
+
+      <!-- Trust Badges Strip -->
+      <div class="hero-badges-strip" id="features">
+        <div class="trust-badge-item">
+          <span class="icon">🔒</span>
+          <span>Anti-Tamper Skill Passport</span>
+        </div>
+        <div class="trust-badge-item">
+          <span class="icon">🎯</span>
+          <span>75/25 Explainable Job Matching</span>
+        </div>
+        <div class="trust-badge-item">
+          <span class="icon">🚀</span>
+          <span>AI Startup Copilot &amp; Feasibility</span>
+        </div>
+        <div class="trust-badge-item">
+          <span class="icon">🦈</span>
+          <span>Shark Room Lead-Round Deals</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4 Personas Ecosystem Section -->
+  <section class="landing-personas-section" id="personas" role="region" aria-labelledby="personas-heading">
+    <div class="section-header">
+      <span class="section-label">Tailored Ecosystem</span>
+      <h2 class="section-title" id="personas-heading">Four Dedicated Workspaces. One Platform.</h2>
+      <p class="section-subtitle">
+        Each persona has a specialized workspace optimized with AI workflows and rigorous verification standards.
+      </p>
+    </div>
+
+    <div class="personas-grid">
+      <!-- Candidate Card -->
+      <a href="login.html?role=candidate" class="persona-card" style="--card-accent:#2563EB; --card-bg-tint:rgba(37,99,235,0.08);">
+        <div class="persona-icon-box">🎓</div>
+        <span class="persona-role-badge">For Engineers &amp; Talent</span>
+        <h3 class="persona-title">Candidate Workspace</h3>
+        <p class="persona-desc">
+          Take proctored technical assessments, earn cryptographically verified skill passports, and discover jobs where you are mathematically matched.
+        </p>
+        <ul class="persona-features-list">
+          <li class="persona-feature-item"><span class="bullet">✓</span> Real-Time Anti-Cheat Proctoring</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Verified Skill Passport PDF Export</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Dual-Tier 75/25 Match Explanations</li>
+        </ul>
+        <span class="persona-action-link">Launch Candidate Portal →</span>
+      </a>
+
+      <!-- Recruiter Card -->
+      <a href="login.html?role=hr" class="persona-card" style="--card-accent:#D97706; --card-bg-tint:rgba(217,119,6,0.08);">
+        <div class="persona-icon-box">💼</div>
+        <span class="persona-role-badge">For Hiring Teams &amp; HR</span>
+        <h3 class="persona-title">Recruiter &amp; HR Suite</h3>
+        <p class="persona-desc">
+          Post weighted engineering roles with mandatory (75%) and preferred (25%) skills. Review verified candidate dossiers with zero bias.
+        </p>
+        <ul class="persona-features-list">
+          <li class="persona-feature-item"><span class="bullet">✓</span> Transparent Scoring Breakdown</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Automated Skill Gap Identification</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Candidate Pipeline Kanban Tracking</li>
+        </ul>
+        <span class="persona-action-link">Launch Recruiter Portal →</span>
+      </a>
+
+      <!-- Founder Card -->
+      <a href="login.html?role=founder" class="persona-card" style="--card-accent:#16A34A; --card-bg-tint:rgba(22,163,74,0.08);">
+        <div class="persona-icon-box">🚀</div>
+        <span class="persona-role-badge">For Innovators &amp; Founders</span>
+        <h3 class="persona-title">Founder AI Copilot</h3>
+        <p class="persona-desc">
+          Transform raw ideas into structured business proposals. Evaluate market feasibility, calculate financial projections, and generate pitch decks.
+        </p>
+        <ul class="persona-features-list">
+          <li class="persona-feature-item"><span class="bullet">✓</span> Autonomous Business Plan Engine</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> ReportLab PDF Pitch Deck Builder</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Investor Match Score &amp; Thesis Fit</li>
+        </ul>
+        <span class="persona-action-link">Launch Founder Portal →</span>
+      </a>
+
+      <!-- Investor Card -->
+      <a href="login.html?role=investor" class="persona-card" style="--card-accent:#7C3AED; --card-bg-tint:rgba(124,58,237,0.08);">
+        <div class="persona-icon-box">🦈</div>
+        <span class="persona-role-badge">For Angels &amp; VCs</span>
+        <h3 class="persona-title">Shark Investor Room</h3>
+        <p class="persona-desc">
+          Discover vetted high-growth startups. Review AI due diligence reports, inspect founder metrics, and issue direct lead-round term sheets.
+        </p>
+        <ul class="persona-features-list">
+          <li class="persona-feature-item"><span class="bullet">✓</span> Curated High-Signal Deal Flow</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> AI-Powered Due Diligence Audits</li>
+          <li class="persona-feature-item"><span class="bullet">✓</span> Direct Term Sheet Generation</li>
+        </ul>
+        <span class="persona-action-link">Launch Investor Portal →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Bottom CTA Callout -->
+  <section class="landing-cta-section" role="region" aria-labelledby="cta-heading">
+    <div class="cta-box">
+      <h2 class="cta-title" id="cta-heading">Ready to Turn Ideas into Real-World Impact?</h2>
+      <p class="cta-subtitle">
+        Join verified engineers, founders, and investors building the next generation of high-impact technology.
+      </p>
+      <div class="cta-buttons">
+        <a href="login.html?mode=register" class="hero-btn-primary">
+          <span>Create Your Account</span>
+          <span>→</span>
+        </a>
+        <a href="login.html" class="hero-btn-secondary" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #fff;">
+          <span>Sign In to Existing Account</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimalist Footer -->
+  <footer class="landing-footer" role="contentinfo">
+    <div class="landing-footer-container">
+      <div class="landing-footer-left">
+        <div class="brand" style="color: #fff; font-size: 1.15rem;">
+          <div class="brand-icon" style="width: 28px; height: 28px; font-size: 0.85rem;">I²</div>
+          <span>Idea<span style="color: var(--accent);">2Impact</span></span>
+        </div>
+        <span>© 2026 Idea2Impact Platform. All rights reserved.</span>
+      </div>
+
+      <ul class="landing-footer-links">
+        <li><a href="login.html">Sign In</a></li>
+        <li><a href="login.html?mode=register">Register</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="roadmap.html">Skill Roadmap</a></li>
+      </ul>
     </div>
   </footer>
 
-  <!-- Toast Container -->
-  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js"></script>
+  <!-- Script for dynamic session detection -->
+  <script src="js/landing.js"></script>
 </body>
 </html>

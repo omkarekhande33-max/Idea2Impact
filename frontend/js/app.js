@@ -118,7 +118,7 @@ class App {
 
         navbar.innerHTML = `
           <div class="nav-container">
-            <a href="#" class="brand" id="brand-link">
+            <a href="dashboard.html" class="brand" id="brand-link" title="Dashboard Overview">
               <div class="brand-icon">I²</div>
               <span>Idea<span class="impact-text">2Impact</span></span>
             </a>
@@ -170,9 +170,9 @@ class App {
   async renderCurrentView() {
     this.renderTopBars();
 
-    // STRICT AUTH GUARD: Unauthenticated users MUST only see the login/register page!
+    // STRICT AUTH GUARD: Unauthenticated users are redirected to login.html
     if (!state.isAuthenticated()) {
-      await this.renderLoginPage();
+      window.location.replace('login.html');
       return;
     }
 

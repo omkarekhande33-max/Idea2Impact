@@ -51,9 +51,9 @@
                 </a>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="window.close(); if(!window.closed) window.location.href='index.html';" class="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors flex items-center gap-1.5 border border-white/15">
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                    <span>Close Hub</span>
+                <button onclick="if(localStorage.getItem('i2i_token')){window.location.href='dashboard.html';}else{window.location.href='index.html';}" class="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors flex items-center gap-1.5 border border-white/15">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    <span>Back to Platform</span>
                 </button>
             </div>
         </div>

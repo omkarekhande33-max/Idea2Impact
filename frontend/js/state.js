@@ -79,12 +79,15 @@ class StateManager {
     localStorage.removeItem('i2i_token');
     localStorage.removeItem('i2i_user');
     localStorage.removeItem('i2i_role');
-    this.currentRole = 'login';
+    this.currentRole = 'candidate';
     this.authMode = 'landing';
     this.activeUser = null;
     this.activeTab = 'overview';
-    this.showToast('You have been signed out. Please sign in to continue.', 'info');
+    this.showToast('You have been signed out. Redirecting to home...', 'info');
     this.notify();
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 400);
   }
 
   openLogin(mode = 'signin', role = 'candidate') {
