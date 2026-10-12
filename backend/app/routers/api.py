@@ -217,7 +217,8 @@ def get_auth_me(
     elif role == "investor":
         role_data = db.find_one("investor_profiles", lambda ip: ip["investor_id"] == profile["id"]) or {}
 
-    return {**_sanitize_profile(profile), "details": role_data}
+    sanitized = _sanitize_profile(profile) or {}
+    return {**sanitized, "details": role_data}
 
 @router.post("/auth/profile")
 def create_profile(payload: ProfileCreate):
@@ -251,7 +252,7 @@ def get_current_user_profile(user_id: Optional[str] = Query(None)):
 @router.patch("/profiles/me")
 def update_profile(payload: ProfileUpdate, user_id: Optional[str] = Query(None)):
     uid = user_id or "cand-01"
-    updates = {k: v for k, v in payload.dict().items() if v is not None}
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
     updated = db.update("profiles", lambda p: p["id"] == uid, updates)
     if not updated:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -747,7 +748,7 @@ def update_application_status(app_id: str, payload: ApplicationStatusUpdate):
 # -------------------------------------------------------------
 @router.post("/resumes/parse")
 async def parse_resume(file: UploadFile = File(...)):
-    if not file.filename.lower().endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
     try:
         content = await file.read()
@@ -837,7 +838,7 @@ def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = 
     score = payload.quiz_score
     is_verified = (score is not None and score >= 75.0)
 
-    data = {
+    data: Dict[str, Any] = {
         "candidate_id": cid,
         "skill_id": payload.skill_id,
         "proficiency_level": payload.proficiency_level or "intermediate",
@@ -880,7 +881,7 @@ def delete_user_skill(skill_id: str, candidate_id: Optional[str] = Query(None)):
 @router.post("/ideas/analyze")
 def run_ai_idea_analysis(payload: IdeaAnalyzeRequest):
     """AI Startup Copilot: Generates structured business breakdown & feasibility analysis."""
-    analysis = analyze_startup_idea(payload.dict())
+    analysis = analyze_startup_idea(payload.model_dump())
     return analysis
 
 @router.post("/startups")
