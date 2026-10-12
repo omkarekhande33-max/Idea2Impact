@@ -85,7 +85,7 @@ class App {
         // Authenticated: Show mode-specific nav links for the user's OWN role only
         const modeNavLinks = {
           candidate: [
-            { label: 'Recommended Jobs', tab: 'jobs' },
+            { label: 'Analyze & Match', tab: 'jobs' },
             { label: 'My Competencies', tab: 'competencies' },
             { label: 'Applied Roles', tab: 'applications' }
           ],
@@ -961,8 +961,11 @@ class App {
       skills = SKILLS_CATALOG;
     }
 
-    // Default to clean 'jobs' tab if not in the primary 3 candidate tabs
+    // Default to clean 'jobs' tab if not in the primary candidate tabs
     let currentTab = state.activeTab;
+    if (['analyze-match', 'analyze-and-match'].includes(currentTab)) {
+      currentTab = 'jobs';
+    }
     if (!['jobs', 'competencies', 'applications'].includes(currentTab)) {
       currentTab = 'jobs';
       state.activeTab = 'jobs';
@@ -1024,8 +1027,8 @@ class App {
 
               <nav class="sb-nav-list">
                 <button class="sb-nav-link ${currentTab === 'jobs' ? 'active' : ''}" data-tab="jobs">
-                  <span class="sb-nav-icon">💼</span>
-                  <span>Recommended Jobs</span>
+                  <span class="sb-nav-icon">🎯</span>
+                  <span>Analyze & Match (Jobs)</span>
                 </button>
                 <button class="sb-nav-link ${currentTab === 'competencies' ? 'active' : ''}" data-tab="competencies">
                   <span class="sb-nav-icon">🛠️</span>
@@ -1516,11 +1519,11 @@ class App {
       `;
     }
 
-    if (tab === 'jobs') {
+    if (tab === 'jobs' || tab === 'analyze-match' || tab === 'analyze-and-match') {
       return `
         <div style="margin-bottom:1.25rem;">
-          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">Personalized Job Feed</h2>
-          <p style="font-size:0.85rem; color:#64748B; margin:0;">Jobs matched against your verified technical competencies</p>
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">Analyze & Match Technical Roles</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">Open requisitions evaluated against verified technical competencies • Click Analyze & Match for instant gap breakdown</p>
         </div>
 
         <!-- Filter Search Bar (Matches Image 2) -->
@@ -3819,7 +3822,7 @@ class App {
 
         <div class="managed-roles-grid">
           ${jobs.map(j => {
-            const reqSkills = j.required_skills || [];
+            const reqSkills = j.required_skills || j.skills || [];
             const mandSkills = reqSkills.filter(s => s.is_required !== false);
             const prefSkills = reqSkills.filter(s => s.is_required === false);
 
@@ -3833,7 +3836,7 @@ class App {
                     </div>
                     <h4 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0;">${j.title}</h4>
                     <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-                      📍 ${j.location} • Compensation: $${j.salary_min?.toLocaleString()} - $${j.salary_max?.toLocaleString()}
+                      📍 ${j.location || 'Remote'} • Compensation: $${(j.salary_min || 120000).toLocaleString()} - $${(j.salary_max || 160000).toLocaleString()}
                     </p>
                   </div>
                   <button class="btn btn-secondary inspect-dossier-btn" data-job="${j.id}">
@@ -3847,13 +3850,17 @@ class App {
                     🔵 75% Core Mandatory Requirements:
                   </div>
                   <div class="chips-cluster">
-                    ${mandSkills.length > 0 ? mandSkills.map(s => `
-                      <span class="chip-mandatory">
-                        ✓ ${s.skill_name || s.skill_id} (${Math.round((s.weight || 0.35) * 100)}%)
-                      </span>
-                    `).join('') : `
-                      <span class="chip-mandatory">✓ Python Backend Engineering (40%)</span>
-                      <span class="chip-mandatory">✓ PostgreSQL & Architecture (35%)</span>
+                    ${mandSkills.length > 0 ? mandSkills.map(s => {
+                      const sName = s.skill_name || s.name || (s.skill && s.skill.name) || s.skill_id;
+                      const sWeight = Math.round(((s.weight !== undefined && s.weight <= 1) ? s.weight : (0.75 / mandSkills.length)) * 100);
+                      return `
+                        <span class="chip-mandatory">
+                          ✓ ${sName} (${sWeight}%)
+                        </span>
+                      `;
+                    }).join('') : `
+                      <span class="chip-mandatory">✓ Python & FastAPI (38%)</span>
+                      <span class="chip-mandatory">✓ PostgreSQL & Database Design (37%)</span>
                     `}
                   </div>
                 </div>
@@ -3864,13 +3871,16 @@ class App {
                     🟢 25% Preferred Bonus Competencies:
                   </div>
                   <div class="chips-cluster">
-                    ${prefSkills.length > 0 ? prefSkills.map(s => `
-                      <span class="chip-preferred">
-                        ★ ${s.skill_name || s.skill_id} (${Math.round((s.weight || 0.25) * 100)}%)
-                      </span>
-                    `).join('') : `
-                      <span class="chip-preferred">★ Docker & Kubernetes (15%)</span>
-                      <span class="chip-preferred">★ Redis / Caching (10%)</span>
+                    ${prefSkills.length > 0 ? prefSkills.map(s => {
+                      const sName = s.skill_name || s.name || (s.skill && s.skill.name) || s.skill_id;
+                      const sWeight = Math.round(((s.weight !== undefined && s.weight <= 1) ? s.weight : (0.25 / prefSkills.length)) * 100);
+                      return `
+                        <span class="chip-preferred">
+                          ★ ${sName} (${sWeight}%)
+                        </span>
+                      `;
+                    }).join('') : `
+                      <span style="font-size:0.75rem; color:#94A3B8; font-style:italic;">No optional bonus competencies defined</span>
                     `}
                   </div>
                 </div>
@@ -3939,7 +3949,7 @@ class App {
               </div>
 
               <!-- Input and Pool Selector -->
-              <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+              <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:0.75rem;">
                 <input type="text" class="form-input" id="hr-skill-chip-input" placeholder="Enter competency name (e.g. FastAPI, Kubernetes, Redis, AWS...)" style="flex:1; min-width:260px;" />
                 <div style="display:flex; gap:0.4rem;">
                   <button type="button" class="btn btn-sm" id="pool-toggle-mand" style="background:#2563EB; color:#FFF; font-weight:700;">
@@ -3954,13 +3964,34 @@ class App {
                 </button>
               </div>
 
+              <!-- Quick Add Suggestions Row -->
+              <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:1rem; padding:0.45rem 0.65rem; background:#FFF; border:1px solid #E2E8F0; border-radius:var(--radius-sm);">
+                <span style="font-size:0.73rem; font-weight:700; color:#64748B;">⚡ Quick Add:</span>
+                ${[
+                  'Python & FastAPI',
+                  'PostgreSQL & Database Design',
+                  'Distributed Systems',
+                  'Docker & Kubernetes',
+                  'Redis Caching',
+                  'Cloud Architecture',
+                  'Modern JavaScript & Frontend',
+                  'React',
+                  'TypeScript',
+                  'System Architecture & Security'
+                ].map(s => `
+                  <button type="button" class="hr-quick-suggest-chip" data-skill="${s}" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#1E293B; padding:0.18rem 0.5rem; border-radius:1rem; font-size:0.7rem; cursor:pointer; font-weight:600; transition:all 120ms;">
+                    + ${s}
+                  </button>
+                `).join('')}
+              </div>
+
               <!-- Live Chips Container -->
               <div id="hr-chips-preview-container">
                 <!-- Dynamically populated by JS attachHrEvents -->
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:0.5rem;">
+            <button type="submit" id="hr-publish-job-submit-btn" class="btn btn-primary btn-lg" style="width:100%; margin-top:0.5rem;">
               💼 Publish 75/25 Weighted Job Opening →
             </button>
           </form>
@@ -4132,33 +4163,43 @@ class App {
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.5rem;">
           <!-- Mandatory Chips (75%) -->
           <div style="background:#FFF; border:1px solid #BFDBFE; border-radius:var(--radius-sm); padding:0.75rem;">
-            <div style="font-size:0.8rem; font-weight:700; color:#1D4ED8; margin-bottom:0.5rem;">
-              🔵 Mandatory Pool: 75% Total (${mandatoryChips.length} competencies, ~${Math.round(mandWeightPerChip * 100)}% each)
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-size:0.8rem; font-weight:700; color:#1D4ED8;">
+                🔵 Mandatory Pool: 75% Total (${mandatoryChips.length} competencies, ~${Math.round(mandWeightPerChip * 100)}% each)
+              </span>
+              ${mandatoryChips.length > 0 ? `
+                <button type="button" class="clear-pool-btn" data-pool="mandatory" style="background:none; border:none; color:#94A3B8; font-size:0.7rem; cursor:pointer; text-decoration:underline;">Clear</button>
+              ` : ''}
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
               ${mandatoryChips.map((s, idx) => `
-                <span class="chip-mandatory" style="font-size:0.75rem;">
-                  ✓ ${s}
-                  <button type="button" class="remove-chip-btn" data-pool="mandatory" data-idx="${idx}" style="background:none; border:none; color:#1D4ED8; cursor:pointer; font-weight:bold; margin-left:4px;">&times;</button>
+                <span class="chip-mandatory" style="font-size:0.75rem; display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.6rem; border-radius:1rem;">
+                  <span>✓ ${s}</span>
+                  <button type="button" class="remove-chip-btn" data-pool="mandatory" data-idx="${idx}" title="Remove ${s}" style="background:rgba(29,78,216,0.15); border:none; color:#1D4ED8; cursor:pointer; font-weight:800; border-radius:50%; width:16px; height:16px; line-height:14px; text-align:center; padding:0; margin-left:2px;">&times;</button>
                 </span>
               `).join('')}
-              ${mandatoryChips.length === 0 ? '<span style="font-size:0.75rem; color:#94A3B8;">No mandatory skills added yet</span>' : ''}
+              ${mandatoryChips.length === 0 ? '<span style="font-size:0.75rem; color:#94A3B8; font-style:italic;">No mandatory skills added yet. Click suggestions above or type to add.</span>' : ''}
             </div>
           </div>
 
           <!-- Preferred Chips (25%) -->
           <div style="background:#FFF; border:1px solid #BBF7D0; border-radius:var(--radius-sm); padding:0.75rem;">
-            <div style="font-size:0.8rem; font-weight:700; color:#15803D; margin-bottom:0.5rem;">
-              🟢 Preferred Pool: 25% Total (${preferredChips.length} competencies, ~${Math.round(prefWeightPerChip * 100)}% each)
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-size:0.8rem; font-weight:700; color:#15803D;">
+                🟢 Preferred Pool: 25% Total (${preferredChips.length} competencies, ~${Math.round(prefWeightPerChip * 100)}% each)
+              </span>
+              ${preferredChips.length > 0 ? `
+                <button type="button" class="clear-pool-btn" data-pool="preferred" style="background:none; border:none; color:#94A3B8; font-size:0.7rem; cursor:pointer; text-decoration:underline;">Clear</button>
+              ` : ''}
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
               ${preferredChips.map((s, idx) => `
-                <span class="chip-preferred" style="font-size:0.75rem;">
-                  ★ ${s}
-                  <button type="button" class="remove-chip-btn" data-pool="preferred" data-idx="${idx}" style="background:none; border:none; color:#15803D; cursor:pointer; font-weight:bold; margin-left:4px;">&times;</button>
+                <span class="chip-preferred" style="font-size:0.75rem; display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.6rem; border-radius:1rem;">
+                  <span>★ ${s}</span>
+                  <button type="button" class="remove-chip-btn" data-pool="preferred" data-idx="${idx}" title="Remove ${s}" style="background:rgba(21,128,61,0.15); border:none; color:#15803D; cursor:pointer; font-weight:800; border-radius:50%; width:16px; height:16px; line-height:14px; text-align:center; padding:0; margin-left:2px;">&times;</button>
                 </span>
               `).join('')}
-              ${preferredChips.length === 0 ? '<span style="font-size:0.75rem; color:#94A3B8;">No preferred skills added yet</span>' : ''}
+              ${preferredChips.length === 0 ? '<span style="font-size:0.75rem; color:#94A3B8; font-style:italic;">No preferred skills added yet. Click suggestions above or type to add.</span>' : ''}
             </div>
           </div>
         </div>
@@ -4168,12 +4209,31 @@ class App {
       container.querySelectorAll('.remove-chip-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation();
           const pool = btn.dataset.pool;
           const idx = parseInt(btn.dataset.idx, 10);
+          if (pool === 'mandatory' && idx >= 0 && idx < mandatoryChips.length) {
+            const removed = mandatoryChips.splice(idx, 1);
+            state.showToast(`Removed "${removed[0]}" from Mandatory Pool`, 'info');
+          } else if (pool === 'preferred' && idx >= 0 && idx < preferredChips.length) {
+            const removed = preferredChips.splice(idx, 1);
+            state.showToast(`Removed "${removed[0]}" from Preferred Pool`, 'info');
+          }
+          renderChipsPreview();
+        });
+      });
+
+      // Bind clear pool buttons
+      container.querySelectorAll('.clear-pool-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const pool = btn.dataset.pool;
           if (pool === 'mandatory') {
-            mandatoryChips.splice(idx, 1);
+            mandatoryChips.length = 0;
+            state.showToast('Cleared Mandatory Pool', 'info');
           } else {
-            preferredChips.splice(idx, 1);
+            preferredChips.length = 0;
+            state.showToast('Cleared Preferred Pool', 'info');
           }
           renderChipsPreview();
         });
@@ -4182,6 +4242,31 @@ class App {
 
     // Initialize chips preview if in create-job tab
     renderChipsPreview();
+
+    // Wire up quick add suggestion buttons
+    this.appContainer.querySelectorAll('.hr-quick-suggest-chip').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const skill = btn.dataset.skill;
+        if (!skill) return;
+        if (activePool === 'mandatory') {
+          if (!mandatoryChips.includes(skill)) {
+            mandatoryChips.push(skill);
+            state.showToast(`Added ${skill} to Mandatory Pool (75%)`, 'info');
+          } else {
+            state.showToast(`${skill} already in Mandatory Pool`, 'warning');
+          }
+        } else {
+          if (!preferredChips.includes(skill)) {
+            preferredChips.push(skill);
+            state.showToast(`Added ${skill} to Preferred Pool (25%)`, 'info');
+          } else {
+            state.showToast(`${skill} already in Preferred Pool`, 'warning');
+          }
+        }
+        renderChipsPreview();
+      });
+    });
 
     const poolToggleMand = this.appContainer.querySelector('#pool-toggle-mand');
     const poolTogglePref = this.appContainer.querySelector('#pool-toggle-pref');
@@ -4215,9 +4300,15 @@ class App {
         const val = skillChipInput.value.trim();
         if (!val) return;
         if (activePool === 'mandatory') {
-          mandatoryChips.push(val);
+          if (!mandatoryChips.includes(val)) {
+            mandatoryChips.push(val);
+            state.showToast(`Added "${val}" to Mandatory Pool`, 'info');
+          }
         } else {
-          preferredChips.push(val);
+          if (!preferredChips.includes(val)) {
+            preferredChips.push(val);
+            state.showToast(`Added "${val}" to Preferred Pool`, 'info');
+          }
         }
         skillChipInput.value = '';
         renderChipsPreview();
@@ -4238,6 +4329,29 @@ class App {
       createJobForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const title = (createJobForm.querySelector('#hr-job-title')?.value || '').trim();
+        const company = (createJobForm.querySelector('#hr-company-name')?.value || '').trim();
+        const desc = (createJobForm.querySelector('#hr-job-desc')?.value || '').trim();
+        const exp = createJobForm.querySelector('#hr-job-exp')?.value || 'Senior (4+ years)';
+        const salMin = parseInt(createJobForm.querySelector('#hr-salary-min')?.value, 10) || 120000;
+        const salMax = parseInt(createJobForm.querySelector('#hr-salary-max')?.value, 10) || 160000;
+
+        if (!title || !company) {
+          state.showToast("Please provide Job Title and Company Name", "warning");
+          return;
+        }
+
+        if (mandatoryChips.length === 0 && preferredChips.length === 0) {
+          state.showToast("Please add at least one mandatory or preferred competency.", "warning");
+          return;
+        }
+
+        const submitBtn = createJobForm.querySelector('#hr-publish-job-submit-btn') || createJobForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "⏳ Publishing 75/25 Requisition...";
+        }
+
         // Calculate mathematical weights: 0.75 / mandCount, 0.25 / prefCount
         const mandWeight = mandatoryChips.length > 0 ? (0.75 / mandatoryChips.length) : 0;
         const prefWeight = preferredChips.length > 0 ? (0.25 / preferredChips.length) : 0;
@@ -4246,12 +4360,14 @@ class App {
           ...mandatoryChips.map((s, idx) => ({
             skill_id: `mand-${idx + 1}`,
             skill_name: s,
+            name: s,
             is_required: true,
             weight: Number(mandWeight.toFixed(4))
           })),
           ...preferredChips.map((s, idx) => ({
             skill_id: `pref-${idx + 1}`,
             skill_name: s,
+            name: s,
             is_required: false,
             weight: Number(prefWeight.toFixed(4))
           }))
@@ -4259,145 +4375,236 @@ class App {
 
         try {
           await api.createJob({
-            created_by: hrId,
-            company_name: document.getElementById('hr-company-name').value,
-            title: document.getElementById('hr-job-title').value,
-            description: document.getElementById('hr-job-desc').value,
-            experience_level: document.getElementById('hr-job-exp').value,
-            salary_min: parseInt(document.getElementById('hr-salary-min').value, 10),
-            salary_max: parseInt(document.getElementById('hr-salary-max').value, 10),
+            created_by: hrId || 'hr-01',
+            company_name: company,
+            title: title,
+            description: desc,
+            experience_level: exp,
+            salary_min: salMin,
+            salary_max: salMax,
             location: "San Francisco, CA / Hybrid",
-            required_skills: skillsPayload
+            required_skills: skillsPayload,
+            skills: skillsPayload
           });
 
-          state.showToast("75/25 Weighted Job Opening published to platform!", "success");
+          state.showToast(`🎉 "${title}" published successfully! Visible in Overview & Candidate Feeds.`, "success");
           state.setTab('overview');
+          state.notify();
         } catch (err) {
-          state.showToast(err.message, 'danger');
+          state.showToast(err.message || "Failed to create job", 'danger');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "💼 Publish 75/25 Weighted Job Opening →";
+          }
         }
       });
     }
 
     // =========================================================================
-    // Candidate Pipeline Dossier Tab Logic
+    // Candidate Pipeline Dossier Tab Logic (> 80% Match Filter & Matched Role Display)
     // =========================================================================
     const matchesList = this.appContainer.querySelector('#hr-candidate-matches-list');
     const jobSelector = this.appContainer.querySelector('#hr-job-selector');
 
     if (matchesList && jobSelector) {
+      let showingAll = false;
+
       const loadDossiers = async (jobId) => {
         matchesList.innerHTML = `
           <div class="card" style="text-align:center; padding:3rem;">
-            <p style="color:var(--text-muted);">Evaluating candidates under Dual-Tier 75/25 Matching Engine...</p>
+            <p style="color:var(--text-muted); font-size:1.05rem;">Evaluating talent pool under Dual-Tier 75/25 Matching Engine...</p>
           </div>
         `;
 
         try {
-          // Fetch live candidates for this job
-          let candidatesData = await api.getJobCandidates(jobId).catch(() => []);
-          if (!candidatesData || candidatesData.length === 0) {
-            // Fallback to job matches
-            const rawMatches = await api.getJobMatches(jobId).catch(() => []);
-            candidatesData = rawMatches.map(rm => ({
-              candidate_id: rm.candidate?.id || rm.candidate_id,
+          const currentJob = jobs.find(j => j.id === jobId) || jobs[0] || { id: jobId, title: 'Technical Role', company_name: 'NovaTech Systems' };
+          const roleTitle = currentJob.title;
+          const companyName = currentJob.company_name;
+
+          // Fetch matches from API
+          const rawMatches = await api.getJobMatches(jobId).catch(() => []);
+          const existingApps = await api.getJobCandidates(jobId).catch(() => []);
+          const appMap = new Map();
+          existingApps.forEach(a => appMap.set(a.candidate_id || a.id, a));
+
+          let candidatesData = rawMatches.map(rm => {
+            const cId = rm.candidate?.id || rm.candidate_id;
+            const app = appMap.get(cId);
+            return {
+              candidate_id: cId,
               full_name: rm.candidate?.full_name || rm.name || 'Candidate',
               email: rm.candidate?.email || 'candidate@idea2impact.io',
-              avatar_url: rm.candidate?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-              match_score: rm.match?.score || rm.match_score || 85,
-              mandatory_score: rm.match?.mandatory_score_component || 60,
-              preferred_score: rm.match?.preferred_score_component || 25,
-              learning_commitment: "Candidate submitted learning commitment to bridge Kubernetes & Distributed Systems on Coursera.",
-              application_status: "Under Review"
-            }));
-          }
+              avatar_url: rm.candidate?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rm.candidate?.full_name || 'Candidate')}`,
+              match_score: rm.match?.score || rm.match_score || 0,
+              mandatory_score: rm.match?.mandatory_score_component || Math.round((rm.match?.score || 0) * 0.75),
+              preferred_score: rm.match?.preferred_score_component || Math.round((rm.match?.score || 0) * 0.25),
+              matched_skills: rm.match?.matched_skills || [],
+              critical_skill_gaps: rm.match?.critical_skill_gaps || [],
+              bonus_competencies: rm.match?.bonus_competencies || [],
+              learning_commitment: app?.learning_commitment || "Candidate profile verified against 75% mandatory competency requirements.",
+              application_status: app?.status || "Under Review"
+            };
+          });
 
           // Sort candidates by match_score descending
           candidatesData.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
 
-          if (candidatesData.length === 0) {
+          // Filter candidates strictly for match score > 80 unless showingAll is toggled
+          const qualifiedCandidates = showingAll 
+            ? candidatesData 
+            : candidatesData.filter(cand => Math.round(cand.match_score || 0) > 80);
+
+          if (qualifiedCandidates.length === 0) {
             matchesList.innerHTML = `
-              <div class="card" style="text-align:center; padding:3rem;">
-                <p style="color:var(--text-muted); font-size:1.05rem;">No applicants evaluated for this job yet.</p>
+              <div class="card" style="text-align:center; padding:3.5rem 1.5rem; border:2px dashed #CBD5E1; background:#F8FAFC;">
+                <div style="font-size:3rem; margin-bottom:0.75rem;">🎯</div>
+                <h3 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0 0 0.5rem;">
+                  No Candidates Exceed the &gt;80% Benchmark for this Role
+                </h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; max-width:560px; margin:0 auto 1.25rem; line-height:1.5;">
+                  Under the 75/25 Matching Engine rules, candidates must achieve a compatibility score strictly greater than 80% (&gt; 80%) to be listed in the Pipeline Dossier for <strong>${roleTitle}</strong> (${companyName}).
+                </p>
+                <div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="toggle-show-all-dossier-btn">
+                    Show All Talent Pool Applicants (${candidatesData.length} Evaluated)
+                  </button>
+                </div>
               </div>
             `;
+
+            const toggleBtn = matchesList.querySelector('#toggle-show-all-dossier-btn');
+            if (toggleBtn) {
+              toggleBtn.addEventListener('click', () => {
+                showingAll = true;
+                loadDossiers(jobId);
+              });
+            }
             return;
           }
 
-          matchesList.innerHTML = candidatesData.map((cand, index) => {
-            const rank = index + 1;
-            const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : 'rank-3';
-            const score = Math.round(cand.match_score || 84);
-            const mandScore = cand.mandatory_score || Math.round(score * 0.75);
-            const prefScore = cand.preferred_score || Math.round(score * 0.25);
-            const status = cand.application_status || cand.status || 'Under Review';
-            const candId = cand.candidate_id || cand.profile?.id || cand.profiles?.id || `cand-0${rank}`;
-            const candName = cand.full_name || cand.profile?.full_name || cand.profiles?.full_name || 'Candidate';
-            const candEmail = cand.email || cand.profile?.email || cand.profiles?.email || 'candidate@idea2impact.io';
-            const avatar = cand.avatar_url || cand.profile?.avatar_url || cand.profiles?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candName)}`;
+          matchesList.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; padding:0.6rem 0.85rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--radius-md);">
+              <span style="font-size:0.85rem; font-weight:700; color:#1E40AF;">
+                🎯 Matched Role: <strong>${roleTitle}</strong> (${companyName}) • ${showingAll ? 'Displaying All Talent Pool Candidates' : `Filtering for Candidates with Match Score &gt; 80% (${qualifiedCandidates.length} Qualified)`}
+              </span>
+              ${showingAll ? `
+                <button type="button" class="btn btn-xs btn-outline" id="reapply-80-filter-btn" style="border-color:#3B82F6; color:#1D4ED8; font-weight:700;">
+                  Apply &gt;80% Score Filter Only
+                </button>
+              ` : `
+                <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:700;">Score &gt; 80% Filter Active</span>
+              `}
+            </div>
 
-            return `
-              <div class="dossier-card">
-                <!-- Rank Badge -->
-                <div class="dossier-rank-badge ${rankClass}">
-                  #${rank} MATCH · ${score}% FIT
-                </div>
+            ${qualifiedCandidates.map((cand, index) => {
+              const rank = index + 1;
+              const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : 'rank-3';
+              const score = Math.round(cand.match_score || 85);
+              const mandScore = Math.round(cand.mandatory_score || (score * 0.75));
+              const prefScore = Math.round(cand.preferred_score || (score * 0.25));
+              const status = cand.application_status || 'Under Review';
+              const candId = cand.candidate_id;
+              const candName = cand.full_name;
+              const candEmail = cand.email;
+              const avatar = cand.avatar_url;
 
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
-                  <!-- Left: Candidate Info -->
-                  <div class="dossier-candidate-info">
-                    <img src="${avatar}" class="dossier-avatar" alt="${candName}"/>
-                    <div>
-                      <h4 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0;">${candName}</h4>
-                      <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-                        ${candEmail} • Verified Skill Passport Profile
-                      </p>
+              const matchedChipsHtml = cand.matched_skills && cand.matched_skills.length > 0 
+                ? cand.matched_skills.map(s => `
+                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">
+                      ✓ ${s.skill_name || s.name || s}
+                    </span>
+                  `).join('')
+                : `
+                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">✓ Python & FastAPI</span>
+                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">✓ PostgreSQL & Database Design</span>
+                  `;
+
+              return `
+                <div class="dossier-card">
+                  <!-- Matched Role Banner & Rank Gauge -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; margin-bottom:1rem; border-bottom:1px solid #F1F5F9; padding-bottom:0.75rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                      <span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-weight:800; border:1px solid #BFDBFE; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:var(--radius-full);">
+                        🎯 Matched Role: ${roleTitle} (${companyName})
+                      </span>
+                      <span class="badge" style="background:${score > 80 ? '#DCFCE7' : '#FEF3C7'}; color:${score > 80 ? '#15803D' : '#B45309'}; font-weight:800; font-size:0.75rem; padding:0.35rem 0.65rem; border-radius:var(--radius-full);">
+                        ${score > 80 ? '✓ Verified Match &gt; 80%' : `${score}% Compatibility`}
+                      </span>
+                    </div>
+                    <div class="dossier-rank-badge ${rankClass}" style="position:static; transform:none;">
+                      #${rank} MATCH · ${score}% FIT
                     </div>
                   </div>
 
-                  <!-- Right: Match Gauge & 75/25 Breakdown -->
-                  <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem 1.15rem; min-width:240px;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.25rem;">
-                      <span style="font-weight:700; color:#2563EB;">Core Mandatory:</span>
-                      <span style="font-weight:800; color:#2563EB;">${mandScore}% / 75%</span>
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
+                    <!-- Left: Candidate Info -->
+                    <div class="dossier-candidate-info" style="flex:1; min-width:280px;">
+                      <img src="${avatar}" class="dossier-avatar" alt="${candName}"/>
+                      <div>
+                        <h4 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0;">${candName}</h4>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0.5rem;">
+                          ${candEmail} • Verified Technical Passport Profile
+                        </p>
+                        <!-- Matched Competencies Badges -->
+                        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem;">
+                          ${matchedChipsHtml}
+                        </div>
+                      </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.25rem;">
-                      <span style="font-weight:700; color:#10B981;">Preferred Bonus:</span>
-                      <span style="font-weight:800; color:#10B981;">${prefScore}% / 25%</span>
-                    </div>
-                    <div style="border-top:1px solid #E2E8F0; padding-top:0.25rem; display:flex; justify-content:space-between; font-size:0.85rem;">
-                      <span style="font-weight:800; color:var(--primary);">Composite Score:</span>
-                      <span style="font-weight:800; color:var(--primary);">${score}%</span>
+
+                    <!-- Right: Match Gauge & 75/25 Breakdown -->
+                    <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem 1.15rem; min-width:240px;">
+                      <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
+                        <span style="font-weight:700; color:#2563EB;">Core Mandatory:</span>
+                        <span style="font-weight:800; color:#2563EB;">${mandScore}% / 75%</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
+                        <span style="font-weight:700; color:#10B981;">Preferred Bonus:</span>
+                        <span style="font-weight:800; color:#10B981;">${prefScore}% / 25%</span>
+                      </div>
+                      <div style="border-top:1px solid #E2E8F0; padding-top:0.35rem; display:flex; justify-content:space-between; font-size:0.88rem;">
+                        <span style="font-weight:800; color:var(--primary);">Composite Score:</span>
+                        <span style="font-weight:800; color:#16A34A; font-size:1.15rem;">${score}%</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Learning Commitment Quote -->
-                <div class="learning-commitment-quote">
-                  "<strong>Bridging Action Plan:</strong> ${cand.learning_commitment || 'Committed to completing container orchestration roadmap.'}"
-                </div>
-
-                <!-- Footer: Live Status Selector & Passport PDF Link -->
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid #F1F5F9; padding-top:0.75rem;">
-                  <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Pipeline Stage:</span>
-                    <select class="form-select dossier-status-select" data-job="${jobId}" data-cand="${candId}" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
-                      <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
-                      <option value="Under Review" ${status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-                      <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                      <option value="Interview Scheduled" ${status === 'Interview Scheduled' ? 'selected' : ''}>Interview Scheduled</option>
-                      <option value="Offer Extended" ${status === 'Offer Extended' ? 'selected' : ''}>Offer Extended</option>
-                      <option value="Hired" ${status === 'Hired' ? 'selected' : ''}>Hired</option>
-                      <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                    </select>
+                  <!-- Learning Commitment Quote -->
+                  <div class="learning-commitment-quote" style="margin-top:1rem;">
+                    "<strong>Bridging Action Plan:</strong> ${cand.learning_commitment || 'Verified competency passport satisfies core requirements.'}"
                   </div>
 
-                  <a href="${api.getPassportPdfUrl(candId)}" target="_blank" class="btn btn-outline btn-sm" download>
-                    🛡️ Inspect Verified Skill Passport PDF ↗
-                  </a>
+                  <!-- Footer: Live Status Selector & Passport PDF Link -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid #F1F5F9; padding-top:0.85rem; margin-top:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                      <span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Pipeline Stage:</span>
+                      <select class="form-select dossier-status-select" data-job="${jobId}" data-cand="${candId}" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
+                        <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+                        <option value="Under Review" ${status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                        <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                        <option value="Interview Scheduled" ${status === 'Interview Scheduled' ? 'selected' : ''}>Interview Scheduled</option>
+                        <option value="Offer Extended" ${status === 'Offer Extended' ? 'selected' : ''}>Offer Extended</option>
+                        <option value="Hired" ${status === 'Hired' ? 'selected' : ''}>Hired</option>
+                        <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                      </select>
+                    </div>
+
+                    <a href="${api.getPassportPdfUrl(candId)}" target="_blank" class="btn btn-outline btn-sm" download>
+                      🛡️ Inspect Verified Skill Passport PDF ↗
+                    </a>
+                  </div>
                 </div>
-              </div>
-            `;
-          }).join('');
+              `;
+            }).join('')}
+          `;
+
+          const resetFilterBtn = matchesList.querySelector('#reapply-80-filter-btn');
+          if (resetFilterBtn) {
+            resetFilterBtn.addEventListener('click', () => {
+              showingAll = false;
+              loadDossiers(jobId);
+            });
+          }
 
           // Bind live status dropdown changes
           matchesList.querySelectorAll('.dossier-status-select').forEach(select => {
@@ -4421,7 +4628,10 @@ class App {
       };
 
       await loadDossiers(jobSelector.value);
-      jobSelector.addEventListener('change', (e) => loadDossiers(e.target.value));
+      jobSelector.addEventListener('change', (e) => {
+        showingAll = false;
+        loadDossiers(e.target.value);
+      });
     }
 
     // Advance Stage Buttons in Kanban

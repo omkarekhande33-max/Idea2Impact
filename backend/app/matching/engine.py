@@ -55,17 +55,38 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
     missing_preferred_skills = [] # Missing preferred skills
     all_missing_skills = []
 
+    # Fast candidate skill lookup by skill_id and normalized names/aliases
+    candidate_skill_names = {}
+    for cs in candidate_skills:
+        s_obj = skills_catalog.get(cs["skill_id"], {})
+        name_cand = (cs.get("skill_name") or s_obj.get("name") or cs["skill_id"]).lower().strip()
+        candidate_skill_names[name_cand] = cs
+        for token in name_cand.replace('&', ' ').replace('/', ' ').split():
+            clean_tok = token.strip()
+            if len(clean_tok) >= 3 and clean_tok not in ('and', 'the', 'for', 'with'):
+                candidate_skill_names[clean_tok] = cs
+
     for req in job_skills_req:
         skill_id = req["skill_id"]
         weight = float(req.get("weight", 1.0))
         is_required = req.get("is_required", True)
         skill_info = skills_catalog.get(skill_id, {"name": skill_id, "category": "General"})
-        skill_name = skill_info.get("name", skill_id)
+        skill_name = (req.get("skill_name") or req.get("name") or skill_info.get("name") or skill_id).strip()
+        req_name_lower = skill_name.lower().strip()
 
-        is_cand_matched = skill_id in candidate_skill_ids
-        cand_data = candidate_skill_ids.get(skill_id, {})
-        assessment_score = cand_data.get("assessment_score", cand_data.get("quiz_score", 0))
-        is_verified = cand_data.get("is_verified", assessment_score >= 75.0)
+        cand_data = candidate_skill_ids.get(skill_id)
+        if not cand_data and req_name_lower in candidate_skill_names:
+            cand_data = candidate_skill_names[req_name_lower]
+        if not cand_data:
+            for token in req_name_lower.replace('&', ' ').replace('/', ' ').split():
+                clean_tok = token.strip()
+                if len(clean_tok) >= 3 and clean_tok in candidate_skill_names:
+                    cand_data = candidate_skill_names[clean_tok]
+                    break
+
+        is_cand_matched = cand_data is not None
+        assessment_score = cand_data.get("assessment_score", cand_data.get("quiz_score", 85.0)) if cand_data else 0.0
+        is_verified = (cand_data.get("is_verified", assessment_score >= 75.0)) if cand_data else False
 
         entry = {
             "skill_id": skill_id,
@@ -74,10 +95,10 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
             "category": skill_info.get("category", "General"),
             "is_required": is_required,
             "weight": weight,
-            "proficiency_level": cand_data.get("proficiency_level", "intermediate"),
+            "proficiency_level": cand_data.get("proficiency_level", "intermediate") if cand_data else "none",
             "candidate_assessment_score": assessment_score,
             "is_verified": is_verified,
-            "verified_at": cand_data.get("verified_at")
+            "verified_at": cand_data.get("verified_at") if cand_data else None
         }
 
         if is_required:
@@ -114,20 +135,28 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
         # Both tiers active: 75% Mandatory + 25% Preferred
         mand_ratio = (matched_mandatory_weight / total_mandatory_weight) if total_mandatory_weight > 0 else 1.0
         pref_ratio = (matched_preferred_weight / total_preferred_weight) if total_preferred_weight > 0 else 0.0
-        score = round((mand_ratio * 75.0) + (pref_ratio * 25.0), 1)
+        mand_score_comp = round(mand_ratio * 75.0, 1)
+        pref_score_comp = round(pref_ratio * 25.0, 1)
+        score = round(mand_score_comp + pref_score_comp, 1)
         formula_breakdown = "75% Mandatory + 25% Preferred"
     elif mandatory_reqs:
         # 100% Mandatory
         mand_ratio = (matched_mandatory_weight / total_mandatory_weight) if total_mandatory_weight > 0 else 1.0
-        score = round(mand_ratio * 100.0, 1)
+        mand_score_comp = round(mand_ratio * 100.0, 1)
+        pref_score_comp = 0.0
+        score = mand_score_comp
         formula_breakdown = "100% Mandatory"
     elif preferred_reqs:
         # 100% Preferred
         pref_ratio = (matched_preferred_weight / total_preferred_weight) if total_preferred_weight > 0 else 1.0
-        score = round(pref_ratio * 100.0, 1)
+        mand_score_comp = 0.0
+        pref_score_comp = round(pref_ratio * 100.0, 1)
+        score = pref_score_comp
         formula_breakdown = "100% Preferred"
     else:
         score = 100.0
+        mand_score_comp = 75.0
+        pref_score_comp = 25.0
         formula_breakdown = "No strict requirements"
 
     matched_req_count = len(matched_skills)
@@ -175,6 +204,8 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
         "job_id": job_id,
         "score": score,
         "match_score_percentage": score,
+        "mandatory_score_component": mand_score_comp,
+        "preferred_score_component": pref_score_comp,
         "matched_skills": matched_skills,
         "critical_skill_gaps": critical_skill_gaps,
         "bonus_competencies": bonus_competencies,

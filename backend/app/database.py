@@ -177,6 +177,20 @@ INITIAL_DATA = {
             "verified_at": "2026-02-16T11:45:00Z"
         },
         {
+            "candidate_id": "cand-01",
+            "skill_id": "sk-05",
+            "assessment_score": 90.0,
+            "is_verified": True,
+            "verified_at": "2026-02-17T14:10:00Z"
+        },
+        {
+            "candidate_id": "cand-01",
+            "skill_id": "sk-06",
+            "assessment_score": 94.0,
+            "is_verified": True,
+            "verified_at": "2026-02-17T16:30:00Z"
+        },
+        {
             "candidate_id": "cand-02",
             "skill_id": "sk-01",
             "assessment_score": 85.0,

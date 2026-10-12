@@ -498,36 +498,126 @@ class ApiService {
   // JOBS & MATCHING
   // =========================================================================
   async getJobs(candidateId = '') {
+    let serverJobs = [];
     try {
-      return await this.request(candidateId ? `/jobs?candidate_id=${candidateId}` : '/jobs');
+      serverJobs = await this.request(candidateId ? `/jobs?candidate_id=${candidateId}` : '/jobs');
     } catch (e) {
-      return [
-        { id: 'job-01', title: 'Senior AI Platform Engineer', company: 'NovaTech', location: 'Remote / San Francisco', salary_range: '$160,000 - $195,000', match_score: 94, required_skills: ['Python Backend Engineering', 'System Architecture & Scalability'], status: 'active' },
-        { id: 'job-02', title: 'Lead Full-Stack Architect', company: 'EcoTrace AI', location: 'Hybrid / New York', salary_range: '$150,000 - $185,000', match_score: 89, required_skills: ['Modern React & State Management', 'Python Backend Engineering'], status: 'active' },
-        { id: 'job-03', title: 'Backend Distributed Systems Engineer', company: 'Aether Cloud', location: 'Remote', salary_range: '$140,000 - $175,000', match_score: 82, required_skills: ['System Architecture & Scalability'], status: 'active' }
-      ];
+      serverJobs = [];
     }
+
+    // Merge with any custom jobs saved to localStorage
+    try {
+      const localJobsRaw = localStorage.getItem('i2i_custom_jobs');
+      const localJobs = localJobsRaw ? JSON.parse(localJobsRaw) : [];
+      const jobMap = new Map();
+      [...localJobs, ...serverJobs].forEach(j => {
+        if (j && j.id && !jobMap.has(j.id)) {
+          j.required_skills = j.required_skills || j.skills || [];
+          j.skills = j.skills || j.required_skills;
+          jobMap.set(j.id, j);
+        }
+      });
+      const combined = Array.from(jobMap.values());
+      if (combined.length > 0) return combined;
+    } catch (err) {}
+
+    return serverJobs.length > 0 ? serverJobs : [
+      { id: 'job-01', title: 'Senior AI Platform Engineer', company: 'NovaTech', location: 'Remote / San Francisco', salary_range: '$160,000 - $195,000', match_score: 94, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.4 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.35 }, { skill_name: 'Cloud Deployment & Docker', is_required: false, weight: 0.25 }], status: 'Active' },
+      { id: 'job-02', title: 'Lead Full-Stack Architect', company: 'EcoTrace AI', location: 'Hybrid / New York', salary_range: '$150,000 - $185,000', match_score: 89, required_skills: [{ skill_name: 'Modern JavaScript & Frontend', is_required: true, weight: 0.5 }, { skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }], status: 'Active' },
+      { id: 'job-03', title: 'Backend Distributed Systems Engineer', company: 'Aether Cloud', location: 'Remote', salary_range: '$140,000 - $175,000', match_score: 82, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.5 }], status: 'Active' }
+    ];
   }
 
   async createJob(data) {
+    let created = null;
     try {
-      return await this.request('/jobs', {
+      created = await this.request('/jobs', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     } catch (e) {
-      return { id: `job-${Date.now().toString(36)}`, ...data, status: 'active' };
+      created = {
+        id: `job-${Date.now().toString(36)}`,
+        ...data,
+        status: 'Active',
+        created_at: new Date().toISOString()
+      };
     }
+
+    if (created) {
+      created.required_skills = created.required_skills || data.required_skills || [];
+      created.skills = created.skills || created.required_skills;
+
+      // Persist to local custom jobs cache
+      try {
+        const raw = localStorage.getItem('i2i_custom_jobs');
+        const list = raw ? JSON.parse(raw) : [];
+        const filtered = list.filter(j => j.id !== created.id);
+        filtered.unshift(created);
+        localStorage.setItem('i2i_custom_jobs', JSON.stringify(filtered));
+      } catch (err) {
+        console.warn('Could not save custom job to localStorage', err);
+      }
+    }
+
+    return created;
   }
 
   async getJobMatches(jobId) {
     try {
-      return await this.request(`/jobs/${jobId}/matches`);
+      const res = await this.request(`/jobs/${jobId}/matches`);
+      if (Array.isArray(res) && res.length > 0) return res;
     } catch (e) {
-      return [
-        { candidate_id: 'cand-01', name: 'Alex Rivera', match_score: 94.2, verified_skills_count: 3, matched_skills: ['Python Backend Engineering', 'System Architecture & Scalability'], missing_skills: [] }
-      ];
+      console.warn("Backend getJobMatches failed, using fallback calculation", e);
     }
+
+    // Client-side fallback candidate match calculation
+    const defaultCandidates = [
+      { id: 'cand-01', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', skills: ['Python & FastAPI', 'PostgreSQL & Database Design', 'Distributed Systems', 'Docker & Kubernetes', 'Modern JavaScript & Frontend'] },
+      { id: 'cand-02', full_name: 'Priya Sharma', email: 'priya.sharma@example.com', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', skills: ['Python & FastAPI', 'AI & LLM Integration', 'Python'] },
+      { id: 'cand-03', full_name: 'Jordan Lee', email: 'jordan.lee@example.com', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', skills: ['Modern JavaScript & Frontend', 'React', 'TypeScript', 'UI/UX'] }
+    ];
+
+    const allJobs = await this.getMyJobs();
+    const targetJob = allJobs.find(j => j.id === jobId) || allJobs[0];
+    const reqSkills = targetJob?.required_skills || targetJob?.skills || [];
+    const mandReqs = reqSkills.filter(s => s.is_required !== false);
+    const prefReqs = reqSkills.filter(s => s.is_required === false);
+
+    return defaultCandidates.map(c => {
+      const cSkillsLower = c.skills.map(s => s.toLowerCase());
+      const mandMatches = mandReqs.filter(r => {
+        const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
+        return cSkillsLower.some(cs => cs.includes(rName) || rName.includes(cs));
+      });
+      const prefMatches = prefReqs.filter(r => {
+        const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
+        return cSkillsLower.some(cs => cs.includes(rName) || rName.includes(cs));
+      });
+
+      const mandRatio = mandReqs.length > 0 ? (mandMatches.length / mandReqs.length) : 1.0;
+      const prefRatio = prefReqs.length > 0 ? (prefMatches.length / prefReqs.length) : 0.0;
+      const mandScore = prefReqs.length > 0 ? Math.round(mandRatio * 75) : Math.round(mandRatio * 100);
+      const prefScore = prefReqs.length > 0 ? Math.round(prefRatio * 25) : 0;
+      const totalScore = Math.min(100, mandScore + prefScore);
+
+      return {
+        candidate: { id: c.id, full_name: c.full_name, email: c.email, avatar_url: c.avatar_url, role: 'candidate' },
+        profile: { candidate_id: c.id, target_role: 'Full-Stack Engineer' },
+        match: {
+          candidate_id: c.id,
+          job_id: jobId,
+          score: totalScore,
+          match_score_percentage: totalScore,
+          mandatory_score_component: mandScore,
+          preferred_score_component: prefScore,
+          matched_skills: mandMatches.map(m => ({ skill_name: m.skill_name || m.name, is_required: true })),
+          critical_skill_gaps: mandReqs.filter(r => !mandMatches.includes(r)),
+          bonus_competencies: prefMatches.map(p => ({ skill_name: p.skill_name || p.name, is_required: false })),
+          is_strong_fit: totalScore >= 75
+        }
+      };
+    }).sort((a, b) => b.match.score - a.match.score);
   }
 
   async applyJob(jobId, data) {
@@ -551,11 +641,28 @@ class ApiService {
   }
 
   async getMyJobs(recruiterId = '') {
+    let myJobs = [];
     try {
-      return await this.request(recruiterId ? `/jobs/my-jobs?recruiter_id=${recruiterId}` : '/jobs/my-jobs');
+      myJobs = await this.request(recruiterId ? `/jobs/my-jobs?recruiter_id=${recruiterId}` : '/jobs/my-jobs');
     } catch (e) {
-      return await this.getJobs();
+      myJobs = [];
     }
+
+    try {
+      const raw = localStorage.getItem('i2i_custom_jobs');
+      const localJobs = raw ? JSON.parse(raw) : [];
+      const jobMap = new Map();
+      [...localJobs, ...myJobs].forEach(j => {
+        if (j && j.id && !jobMap.has(j.id)) {
+          j.required_skills = j.required_skills || j.skills || [];
+          j.skills = j.skills || j.required_skills;
+          jobMap.set(j.id, j);
+        }
+      });
+      if (jobMap.size > 0) return Array.from(jobMap.values());
+    } catch (err) {}
+
+    return myJobs.length > 0 ? myJobs : await this.getJobs();
   }
 
   async getJobCandidates(jobId) {

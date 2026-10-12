@@ -496,15 +496,50 @@ def create_job(payload: JobCreate):
 
     # Insert required skills from required_skills or skills
     skills_list = payload.required_skills or payload.skills or []
+    skills_name_map = {s["name"].lower().strip(): s["id"] for s in db.get_table("skills")}
+    
+    saved_skills = []
     for req in skills_list:
         is_req = req.get("is_required", True)
         default_weight = 2.0 if is_req else 1.0
-        db.insert("job_required_skills", {
+        s_name = (req.get("skill_name") or req.get("name") or req.get("skill_id") or "Skill").strip()
+
+        # Link to existing catalog skill if matching by name or substring
+        catalog_id = skills_name_map.get(s_name.lower())
+        if not catalog_id:
+            for s_cat_name, s_cat_id in skills_name_map.items():
+                if s_cat_name in s_name.lower() or s_name.lower() in s_cat_name:
+                    catalog_id = s_cat_id
+                    break
+
+        assigned_skill_id = catalog_id or req.get("skill_id") or f"sk-{str(uuid.uuid4())[:6]}"
+
+        # Ensure skill exists in database skills catalog
+        if not db.find_one("skills", lambda s: s["id"] == assigned_skill_id):
+            db.insert("skills", {
+                "id": assigned_skill_id,
+                "name": s_name,
+                "category": "Technical",
+                "description": f"Verified competency in {s_name}"
+            })
+            skills_name_map[s_name.lower()] = assigned_skill_id
+
+        req_row = {
             "job_id": new_job["id"],
-            "skill_id": req["skill_id"],
+            "skill_id": assigned_skill_id,
+            "skill_name": s_name,
             "is_required": is_req,
             "weight": req.get("weight", default_weight)
+        }
+        db.insert("job_required_skills", req_row)
+        saved_skills.append({
+            **req_row,
+            "name": s_name,
+            "skill": {"id": assigned_skill_id, "name": s_name, "category": "Technical"}
         })
+
+    new_job["required_skills"] = saved_skills
+    new_job["skills"] = saved_skills
 
     db.log_audit("Job Created", payload.created_by or "hr-01", f"Job {payload.title} created for {payload.company_name}")
     return new_job
@@ -513,6 +548,8 @@ def create_job(payload: JobCreate):
 @router.get("/jobs/feed")
 def list_jobs(candidate_id: Optional[str] = Query(None)):
     jobs = db.find_many("jobs", lambda j: j.get("status") == "Active")
+    # Sort newest first
+    jobs.sort(key=lambda j: j.get("created_at", ""), reverse=True)
     skills_catalog = {s["id"]: s for s in db.get_table("skills")}
     cid = candidate_id or "cand-01"
     
@@ -522,12 +559,14 @@ def list_jobs(candidate_id: Optional[str] = Query(None)):
         job_skills = []
         for r in reqs:
             s_data = skills_catalog.get(r["skill_id"], {})
+            resolved_name = r.get("skill_name") or s_data.get("name", r["skill_id"])
             job_skills.append({
                 "skill_id": r["skill_id"],
-                "name": s_data.get("name", r["skill_id"]),
+                "skill_name": resolved_name,
+                "name": resolved_name,
                 "weight": r.get("weight", 1.0),
                 "is_required": r.get("is_required", True),
-                "skill": {"id": r["skill_id"], "name": s_data.get("name", r["skill_id"]), "category": s_data.get("category", "General")}
+                "skill": {"id": r["skill_id"], "name": resolved_name, "category": s_data.get("category", "General")}
             })
         
         match_info = None
@@ -548,6 +587,8 @@ def list_jobs(candidate_id: Optional[str] = Query(None)):
 def get_my_jobs(recruiter_id: Optional[str] = Query(None)):
     rid = recruiter_id or "hr-01"
     jobs = db.find_many("jobs", lambda j: j.get("created_by") == rid or j.get("status") == "Active")
+    # Sort newest first
+    jobs.sort(key=lambda j: j.get("created_at", ""), reverse=True)
     skills_catalog = {s["id"]: s for s in db.get_table("skills")}
     results = []
     for j in jobs:
@@ -555,16 +596,20 @@ def get_my_jobs(recruiter_id: Optional[str] = Query(None)):
         job_skills = []
         for r in reqs:
             s_obj = skills_catalog.get(r["skill_id"], {})
+            resolved_name = r.get("skill_name") or s_obj.get("name", r["skill_id"])
             job_skills.append({
                 "skill_id": r["skill_id"],
+                "skill_name": resolved_name,
+                "name": resolved_name,
                 "is_required": r.get("is_required", True),
                 "weight": r.get("weight", 1.0),
-                "skill": {"id": r["skill_id"], "name": s_obj.get("name", r["skill_id"]), "category": s_obj.get("category", "General")}
+                "skill": {"id": r["skill_id"], "name": resolved_name, "category": s_obj.get("category", "General")}
             })
         apps = db.find_many("job_applications", lambda a: a["job_id"] == j["id"])
         results.append({
             **j,
             "skills": job_skills,
+            "required_skills": job_skills,
             "applicants_count": len(apps)
         })
     return results
