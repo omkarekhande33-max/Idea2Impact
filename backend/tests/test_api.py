@@ -78,6 +78,7 @@ class TestIdea2Impact(unittest.TestCase):
         # Login with existing demo account
         login_res = login(LoginRequest(username="alexrivera", password="password123"))
         self.assertIn("token", login_res)
+        assert login_res["user"] is not None
         self.assertEqual(login_res["user"]["role"], "candidate")
         self.assertNotIn("password_hash", login_res["user"])
 
@@ -96,11 +97,13 @@ class TestIdea2Impact(unittest.TestCase):
             role="founder"
         ))
         self.assertIn("token", reg_res)
+        assert reg_res["user"] is not None
         self.assertEqual(reg_res["user"]["username"], test_user)
         self.assertEqual(reg_res["user"]["role"], "founder")
 
         # Verify login of new user
         new_login = login(LoginRequest(username=test_user, password="StrongPassword123!"))
+        assert new_login["user"] is not None
         self.assertEqual(new_login["user"]["email"], f"{test_user}@test.io")
 
     def test_google_auth_flow(self):
@@ -186,6 +189,7 @@ class TestIdea2Impact(unittest.TestCase):
             learning_commitment="Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
             notes="Ready to interview"
         ))
+        assert app is not None
         self.assertEqual(app["match_score"], 62.5)
         self.assertIn("PostgreSQL intensive", app["learning_commitment"])
 
@@ -198,6 +202,7 @@ class TestIdea2Impact(unittest.TestCase):
 
         # 6. Recruiter updates candidate status to shortlisted
         updated = update_candidate_job_application(job_id, test_cand_id, {"status": "shortlisted"})
+        assert updated is not None
         self.assertEqual(updated["status"], "shortlisted")
 
         # 7. Candidate removes skill

@@ -4,4 +4,4 @@ pydantic==2.6.4
 python-multipart==0.0.9
 reportlab==4.1.0
 pypdf>=5.0.0
-
+types-reportlab>=5.0.0
