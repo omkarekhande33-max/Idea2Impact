@@ -85,12 +85,9 @@ class App {
         // Authenticated: Show mode-specific nav links for the user's OWN role only
         const modeNavLinks = {
           candidate: [
-            { label: 'Dashboard & Simulator', tab: 'overview' },
-            { label: 'Competencies & Resume', tab: 'competencies' },
-            { label: 'Assessments', tab: 'assessments' },
-            { label: 'Skill Passport', tab: 'passport' },
-            { label: 'Job Matches', tab: 'jobs' },
-            { label: 'Roadmap', tab: 'gap-analysis' }
+            { label: 'Recommended Jobs', tab: 'jobs' },
+            { label: 'My Competencies', tab: 'competencies' },
+            { label: 'Applied Roles', tab: 'applications' }
           ],
           hr: [
             { label: 'Executive Dashboard', tab: 'overview' },
@@ -964,68 +961,106 @@ class App {
       skills = SKILLS_CATALOG;
     }
 
-    const currentTab = state.activeTab;
+    // Default to clean 'jobs' tab if not in the primary 3 candidate tabs
+    let currentTab = state.activeTab;
+    if (!['jobs', 'competencies', 'applications'].includes(currentTab)) {
+      currentTab = 'jobs';
+      state.activeTab = 'jobs';
+    }
+
+    const candidateName = (state.activeUser && state.activeUser.name) || passport?.candidate?.full_name || 'Omkar Ekhande';
+    const nameParts = candidateName.trim().split(/\s+/);
+    const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : nameParts[0].substring(0, 2)).toUpperCase() || 'OE';
+
+    const activeJobsCount = jobs.length;
+    const taggedSkillsCount = (candidateSkills && candidateSkills.length > 0) ? candidateSkills.length : (passport?.total_verified || 0);
+    const avgMatch = jobs.length > 0 ? Math.round(jobs.reduce((acc, j) => acc + (j.match?.score || j.match_score || 0), 0) / jobs.length) : 0;
 
     this.appContainer.innerHTML = `
-      <div class="container">
-        <div class="dashboard-layout">
-          <!-- Sidebar -->
-          <div class="sidebar">
-            <div class="user-badge-card">
-              <img src="${passport?.candidate?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="user-avatar" alt="Avatar"/>
-              <div class="user-info">
-                <h4>${passport?.candidate?.full_name || 'Alex Rivera'}</h4>
-                <p>Candidate Mode</p>
-                <span class="badge badge-verified" style="margin-top:0.35rem; font-size:0.7rem;">
-                  ✓ ${passport?.total_verified || 0} Verified Skills
-                </span>
-              </div>
+      <div class="container" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
+        
+        <!-- Top 3 Stats Row (Matches Image 2) -->
+        <div class="sb-stats-row">
+          <div class="sb-stat-card">
+            <div class="sb-stat-icon-wrapper sb-stat-icon-brown">💼</div>
+            <div class="sb-stat-info">
+              <span class="sb-stat-value">${activeJobsCount}</span>
+              <span class="sb-stat-label">ACTIVE JOB FEEDS</span>
             </div>
+          </div>
+          <div class="sb-stat-card">
+            <div class="sb-stat-icon-wrapper sb-stat-icon-yellow">⚡</div>
+            <div class="sb-stat-info">
+              <span class="sb-stat-value">${taggedSkillsCount}</span>
+              <span class="sb-stat-label">TAGGED SKILLS</span>
+            </div>
+          </div>
+          <div class="sb-stat-card">
+            <div class="sb-stat-icon-wrapper sb-stat-icon-red">🎯</div>
+            <div class="sb-stat-info">
+              <span class="sb-stat-value">${avgMatch > 0 ? avgMatch + '%' : '--%'}</span>
+              <span class="sb-stat-label">AVERAGE MATCH</span>
+            </div>
+          </div>
+        </div>
 
-            <nav class="sidebar-nav">
-              <button class="sidebar-link ${currentTab === 'overview' ? 'active' : ''}" data-tab="overview">
-                <span class="sidebar-link-content">📊 Overview & Simulator</span>
+        <div class="dashboard-layout" style="display:grid; grid-template-columns: 280px 1fr; gap:1.75rem; align-items:start;">
+          
+          <!-- Clean Candidate Sidebar (Matches Images 2, 3, 4) -->
+          <div class="sidebar">
+            <div class="sb-sidebar-card">
+              <div class="sb-avatar-initials">${initials}</div>
+              <h3 class="sb-candidate-name">${candidateName}</h3>
+              <span class="sb-verified-candidate-badge">VERIFIED CANDIDATE</span>
+              
+              <div class="sb-verified-skills-box">
+                <span>Verified Skills:</span>
+                <span class="sb-verified-skills-count">${taggedSkillsCount}</span>
+              </div>
+
+              <button type="button" class="btn btn-outline btn-xs" id="candidate-edit-profile-btn" style="width:100%; border-color:#CBD5E1; color:#334155; margin-bottom:0.75rem; font-size:0.78rem;">
+                ✏️ Edit Candidate Profile
               </button>
-              <button class="sidebar-link ${currentTab === 'competencies' ? 'active' : ''}" data-tab="competencies">
-                <span class="sidebar-link-content">💼 My Competencies & Resume</span>
-                <span class="sidebar-badge">${(candidateSkills || []).length}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'passport' ? 'active' : ''}" data-tab="passport">
-                <span class="sidebar-link-content">🛡️ Skill Passport</span>
-                <span class="sidebar-badge">${passport?.total_verified || 0}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'assessments' ? 'active' : ''}" data-tab="assessments">
-                <span class="sidebar-link-content">⚡ AI Proctored Quizzes</span>
-                <span class="sidebar-badge">${skills.length}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'jobs' ? 'active' : ''}" data-tab="jobs">
-                <span class="sidebar-link-content">🎯 Roles & 75/25 Matching</span>
-                <span class="sidebar-badge">${jobs.length}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'gap-analysis' ? 'active' : ''}" data-tab="gap-analysis">
-                <span class="sidebar-link-content">📈 Skill Roadmap</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'applications' ? 'active' : ''}" data-tab="applications">
-                <span class="sidebar-link-content">📬 Applications</span>
-                <span class="sidebar-badge">${applications.length}</span>
-              </button>
-            </nav>
+
+              <nav class="sb-nav-list">
+                <button class="sb-nav-link ${currentTab === 'jobs' ? 'active' : ''}" data-tab="jobs">
+                  <span class="sb-nav-icon">💼</span>
+                  <span>Recommended Jobs</span>
+                </button>
+                <button class="sb-nav-link ${currentTab === 'competencies' ? 'active' : ''}" data-tab="competencies">
+                  <span class="sb-nav-icon">🛠️</span>
+                  <span>My Competencies</span>
+                </button>
+                <button class="sb-nav-link ${currentTab === 'applications' ? 'active' : ''}" data-tab="applications">
+                  <span class="sb-nav-icon">📋</span>
+                  <span>Applied Roles</span>
+                </button>
+              </nav>
+            </div>
           </div>
 
-          <!-- Main Content -->
+          <!-- Main Content View Container -->
           <div class="dashboard-content" id="candidate-content-area">
-            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, skills, candidateSkills, candidateId })}
+            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, skills, candidateSkills, candidateId, taggedSkillsCount, activeJobsCount, avgMatch, candidateName })}
           </div>
         </div>
       </div>
     `;
 
-    // Sidebar navigation binding
-    this.appContainer.querySelectorAll('.sidebar-link').forEach(btn => {
+    // Sidebar navigation click binding
+    this.appContainer.querySelectorAll('.sb-nav-link').forEach(btn => {
       btn.addEventListener('click', () => {
         state.setTab(btn.dataset.tab);
       });
     });
+
+    // Edit Profile Modal binding
+    const editProfBtn = this.appContainer.querySelector('#candidate-edit-profile-btn');
+    if (editProfBtn) {
+      editProfBtn.addEventListener('click', () => {
+        this.openCandidateProfileModal(candidateName, candidateId);
+      });
+    }
 
     // Attach event listeners for Candidate interactions
     this.attachCandidateEvents({ passport, jobs, assessments, applications, skills, candidateSkills, candidateId });
@@ -1192,95 +1227,111 @@ class App {
     if (tab === 'competencies') {
       const allComp = candidateSkills && candidateSkills.length > 0 ? candidateSkills : (passport?.verified_skills || []);
       return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>My Technical Competencies & AI Resume Intelligence</h2>
-            <p>Upload your PDF resume for automated skill extraction using our pypdf engine, or manage proficiencies manually.</p>
+        <div style="margin-bottom:1.5rem;">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">Manage Skill Competencies</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">Tag verified technical skills to maximize your job match percentages</p>
+        </div>
+
+        <!-- Card 1: AI Resume Parsing (Matches Image 3) -->
+        <div class="sb-competency-card">
+          <div class="sb-competency-card-title">
+            <span>AI Resume Parsing</span>
+            <span class="sb-ai-pill">⚡ AI Powered</span>
           </div>
-        </div>
-
-        <!-- AI Resume Parser Banner -->
-        <div class="resume-parser-banner" id="resume-parser-dropzone">
-          <input type="file" id="resume-upload-input" accept=".pdf" style="display:none;" />
-          <div class="resume-parser-icon">📄</div>
-          <h3 style="font-size:1.15rem; font-weight:800; color:var(--primary); margin-bottom:0.35rem;">
-            Drag & Drop Your Technical PDF Resume Here
-          </h3>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
-            Our backend parser extracts text with <code>pypdf</code>, recognizes technical skill patterns, and automatically populates your profile competencies.
+          <p style="font-size:0.85rem; color:#64748B; margin:0 0 1rem 0;">
+            Upload your PDF resume to automatically extract and tag your skills.
           </p>
-          <button type="button" class="btn btn-secondary btn-sm" id="browse-resume-file-btn">
-            📂 Browse PDF File
-          </button>
-          <div id="resume-parse-feedback" style="margin-top:1rem; display:none;"></div>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <input type="file" id="resume-upload-input" accept=".pdf" style="display:none;" />
+            <button type="button" class="btn btn-outline btn-sm" id="browse-resume-file-btn" style="border-color:#CBD5E1; color:#1E293B; background:#fff; font-size:0.82rem; padding:0.45rem 0.9rem;">
+              📄 Select PDF Resume
+            </button>
+            <span id="resume-file-chosen-label" style="font-size:0.82rem; color:#64748B;">No file selected</span>
+          </div>
+          <div id="resume-parse-feedback" style="margin-top:0.75rem; display:none;"></div>
         </div>
 
-        <!-- Add Manual Competency Form -->
-        <div class="card" style="margin-bottom:1.75rem;">
-          <h3 class="card-title" style="margin-bottom:1rem;">Add Technical Competency</h3>
-          <form id="add-candidate-skill-form" style="display:grid; grid-template-columns: 2fr 1.2fr 1fr auto; gap:0.75rem; align-items:flex-end;">
+        <!-- Card 2: + Add New Competency Manually (Matches Image 3) -->
+        <div class="sb-competency-card">
+          <h3 style="font-size:1.05rem; font-weight:800; color:#0F172A; margin:0 0 1rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+            + Add New Competency Manually
+          </h3>
+          <form id="add-candidate-skill-form" class="sb-manual-form-grid">
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Skill Name</label>
-              <input type="text" class="form-input" id="new-comp-name" placeholder="e.g. Docker, Python, Kubernetes" list="skill-suggestions-list" required />
-              <datalist id="skill-suggestions-list">
-                ${skillList.map(s => `<option value="${s.name}">`).join('')}
-              </datalist>
-            </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Proficiency Level</label>
-              <select class="form-select" id="new-comp-level">
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate" selected>Intermediate</option>
-                <option value="Advanced">Advanced</option>
-                <option value="Expert">Expert</option>
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Competency / Technology</label>
+              <select class="form-select" id="new-comp-name" required style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
+                <option value="" disabled selected>Select competency to add...</option>
+                ${skillList.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
               </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Experience (Years)</label>
-              <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="25" />
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Proficiency Level</label>
+              <select class="form-select" id="new-comp-level" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
+                <option value="Intermediate" selected>Intermediate (Production-capable)</option>
+                <option value="Beginner">Beginner (Foundational)</option>
+                <option value="Advanced">Advanced (Senior)</option>
+                <option value="Expert">Expert (Staff / Architect)</option>
+              </select>
             </div>
-            <button type="submit" class="btn btn-primary" style="height:42px;">
-              + Add Skill
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Years of Hands-On Experience</label>
+              <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="30" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
+              Add to Profile
             </button>
           </form>
+
+          <!-- Quick Skill Quiz Generator Chips -->
+          <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #F1F5F9;">
+            <span style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:0.6rem;">
+              ⚡ Click ANY skill to take quiz & verify for profile (75%+ score required):
+            </span>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              ${[
+                { name: 'JavaScript', icon: '🟨' },
+                { name: 'React', icon: '⚛️' },
+                { name: 'Python', icon: '🐍' },
+                { name: 'PostgreSQL', icon: '🐘' },
+                { name: 'TypeScript', icon: '🔷' },
+                { name: 'Node.js', icon: '🟢' },
+                { name: 'C++', icon: '⚡' },
+                { name: 'Java', icon: '☕' },
+                { name: 'SQL', icon: '🗄️' },
+                { name: 'Docker', icon: '🐳' },
+                { name: 'Git', icon: '📦' }
+              ].map(s => `
+                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip" data-skill="${s.name}">
+                  <span>${s.icon}</span>
+                  <span>${s.name}</span>
+                  <span style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.1rem 0.35rem; border-radius:4px;">Test</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
         </div>
 
-        <!-- Competencies List -->
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h3 style="font-size:1.1rem; font-weight:700; color:var(--primary); margin:0;">
-              Active Competencies in Profile (${allComp.length})
-            </h3>
-            <span style="font-size:0.8rem; color:var(--text-muted);">Verified credentials cannot be deleted</span>
+        <!-- Card 3: My Verified Skills (Matches Image 3) -->
+        <div class="sb-competency-card">
+          <div class="sb-competency-card-title">
+            <span>My Verified Skills</span>
+            <span class="sb-ai-pill">${allComp.length} Skills Tagged</span>
           </div>
-
-          <div class="competency-tags-grid">
-            ${allComp.map(c => {
+          <div style="display:flex; flex-wrap:wrap; gap:0.55rem; margin-top:0.75rem;">
+            ${allComp.length === 0 ? `
+              <p style="font-size:0.85rem; color:#94A3B8; margin:0;">
+                No verified skills tagged yet. Click any skill above to generate a quiz. Scoring 75%+ will officially verify and add it to your profile!
+              </p>
+            ` : allComp.map(c => {
               const name = c.name || c.skill_name || 'Skill';
-              const level = c.proficiency_level || 'Intermediate';
-              const years = c.years_experience ? `${c.years_experience} yrs` : (c.assessment_score ? `${c.assessment_score}% Verified` : 'Verified');
-              const isVerified = Boolean(c.assessment_score);
-
+              const level = c.proficiency_level ? c.proficiency_level.split(' ')[0] : 'Intermediate';
+              const yrs = c.years_experience ? `${c.years_experience}y` : '1y';
+              const score = c.assessment_score || 80;
               return `
-                <div class="competency-item-card">
-                  <div>
-                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-                      <span class="competency-badge-dot" style="background:${isVerified ? '#10B981' : '#3B82F6'};"></span>
-                      <strong style="color:var(--primary); font-size:0.95rem;">${name}</strong>
-                    </div>
-                    <div style="font-size:0.78rem; color:var(--text-muted);">
-                      <span>${level}</span> • <span>${years}</span>
-                    </div>
-                  </div>
-                  <div>
-                    ${!isVerified ? `
-                      <button class="btn btn-outline btn-xs remove-competency-btn" data-skill="${name}" title="Remove Skill" style="padding:0.25rem 0.5rem; border-color:#EF4444; color:#EF4444;">
-                        🗑️
-                      </button>
-                    ` : `
-                      <span class="badge badge-verified" style="font-size:0.65rem;">VERIFIED</span>
-                    `}
-                  </div>
+                <div class="sb-verified-skill-item">
+                  <span>${name} • ${level} (${yrs})</span>
+                  <span class="sb-score-badge-mini">✓ ${score}%</span>
+                  <button type="button" class="sb-verified-skill-remove remove-competency-btn" data-skill="${name}" title="Remove Skill">&times;</button>
                 </div>
               `;
             }).join('')}
@@ -1430,106 +1481,40 @@ class App {
 
     if (tab === 'jobs') {
       return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Recommended Jobs & Dual-Tier 75/25 Matching</h2>
-            <p>Transparent matching algorithm weighting 75% core mandatory skills and 25% preferred bonus competencies.</p>
-          </div>
-          <span class="formula-tag">Match = (Mandatory / Total_Mand)*75% + (Preferred / Total_Pref)*25%</span>
+        <div style="margin-bottom:1.25rem;">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">Personalized Job Feed</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">Jobs matched against your verified technical competencies</p>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <!-- Filter Search Bar (Matches Image 2) -->
+        <div class="sb-feed-search-wrapper">
+          <span class="sb-feed-search-icon">🔍</span>
+          <input type="text" id="candidate-job-search-input" class="sb-feed-search-box" placeholder="Filter by title, location, or stack..." />
+        </div>
+
+        <div id="candidate-jobs-feed-list" style="display:flex; flex-direction:column; gap:1rem;">
           ${jobs.map(job => {
             const m = job.match;
-            const score = m ? m.score : (job.match_score || 75);
-            const scoreClass = score >= 75 ? 'match-high' : score >= 50 ? 'match-mid' : 'match-low';
-            const hasApplied = applications.some(a => a.job_id === job.id);
-
-            // Mandatory & preferred breakdowns
-            const mandSkills = (job.required_skills || []).filter(s => s.is_required !== false);
-            const prefSkills = (job.required_skills || []).filter(s => s.is_required === false);
+            const score = m ? m.score : (job.match_score || 0);
 
             return `
-              <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+              <div class="sb-job-card" data-title="${job.title.toLowerCase()}" data-company="${(job.company_name || '').toLowerCase()}" data-location="${(job.location || '').toLowerCase()}" data-stack="${(job.required_skills || []).map(s => s.skill_name || s.name || s).join(' ').toLowerCase()}">
+                <div class="sb-job-card-top">
                   <div>
-                    <span class="badge badge-role" style="margin-bottom:0.35rem;">${job.company_name}</span>
-                    <h3 style="font-size:1.3rem; font-weight:800; color:var(--primary);">${job.title}</h3>
-                    <p style="font-size:0.85rem; color:var(--text-muted);">
-                      📍 ${job.location} • 💼 ${job.experience_level} • 💰 $${job.salary_min?.toLocaleString()} - $${job.salary_max?.toLocaleString()}
-                    </p>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <div class="match-percentage-badge ${scoreClass}">
-                      ${score}% Match
+                    <h3 class="sb-job-title">${job.title}</h3>
+                    <div class="sb-job-badges-row">
+                      <span class="sb-meta-pill">🏢 ${job.company_name}</span>
+                      <span class="sb-meta-pill">📍 ${job.location || 'remote'}</span>
+                      <span class="sb-meta-pill">⏱️ ${job.job_type || 'full-time'}</span>
                     </div>
-                    <button class="btn btn-primary btn-sm analyze-match-btn" data-id="${job.id}">
-                      🎯 Analyze & Match
-                    </button>
-                    <button class="btn ${hasApplied ? 'btn-outline' : 'btn-secondary'} btn-sm apply-job-btn" data-id="${job.id}" ${hasApplied ? 'disabled' : ''}>
-                      ${hasApplied ? '✓ Applied' : 'Apply with Passport'}
-                    </button>
                   </div>
+                  <button class="sb-btn-analyze-match analyze-match-btn" data-id="${job.id}">
+                    Analyze & Match →
+                  </button>
                 </div>
-
-                <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:1rem; line-height:1.5;">
+                <p class="sb-job-desc">
                   ${job.description}
                 </p>
-
-                <!-- Dual-Tier Requirements Cluster -->
-                <div style="margin-bottom:1rem;">
-                  <div style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-bottom:0.4rem;">
-                    75% Core Mandatory Competencies:
-                  </div>
-                  <div class="chips-cluster" style="margin-top:0;">
-                    ${mandSkills.length > 0 ? mandSkills.map(s => {
-                      const sName = s.skill_name || s.skill_id;
-                      const isV = (m?.matched_skills || []).some(ms => ms.skill_name?.toLowerCase() === sName?.toLowerCase());
-                      return `<span class="chip-mandatory">${isV ? '✓' : '○'} ${sName} (Weight: ${s.weight || 0.25})</span>`;
-                    }).join('') : `<span class="chip-mandatory">Full Engineering Core Stack</span>`}
-                  </div>
-                  ${prefSkills.length > 0 ? `
-                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent-dark); margin:0.6rem 0 0.3rem;">
-                      25% Preferred Bonus Competencies:
-                    </div>
-                    <div class="chips-cluster" style="margin-top:0;">
-                      ${prefSkills.map(s => {
-                        const sName = s.skill_name || s.skill_id;
-                        const isV = (m?.bonus_competencies || []).some(bs => (bs.skill_name || bs)?.toLowerCase() === sName?.toLowerCase());
-                        return `<span class="chip-preferred">${isV ? '✓' : '○'} ${sName} (Bonus)</span>`;
-                      }).join('')}
-                    </div>
-                  ` : ''}
-                </div>
-
-                <!-- Explainable Match Breakdown -->
-                <div class="match-score-box">
-                  <div class="match-score-header">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--primary);">
-                      💡 Mathematical 75/25 Breakdown:
-                    </span>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">
-                      Mandatory: ${m?.mandatory_score_component || 0}% / 75% • Preferred: ${m?.preferred_score_component || 0}% / 25%
-                    </span>
-                  </div>
-
-                  <p style="font-size:0.85rem; color:var(--text-main); margin-bottom:0.75rem;">
-                    ${m?.explanation || `Composite score computed via 75% mandatory core requirements and 25% preferred bonus skills.`}
-                  </p>
-
-                  <div class="match-skills-list">
-                    ${(m?.matched_skills || []).map(ms => `
-                      <span class="badge badge-verified">
-                        ✓ ${ms.skill_name} (${Math.round((ms.weight || 0.25) * 100)}% weight) - ${ms.candidate_assessment_score}%
-                      </span>
-                    `).join('')}
-                    ${(m?.critical_skill_gaps || m?.missing_skills || []).map(ms => `
-                      <span class="badge badge-unverified" style="color:var(--danger); border-color:var(--danger-bg);">
-                        ✗ Missing Gap: ${ms.skill_name || ms}
-                      </span>
-                    `).join('')}
-                  </div>
-                </div>
               </div>
             `;
           }).join('')}
@@ -1599,43 +1584,47 @@ class App {
 
     if (tab === 'applications') {
       return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>My Applications & Interviews</h2>
-            <p>Real-time recruitment pipeline status and interview calendar.</p>
-          </div>
+        <div style="margin-bottom:1.5rem;">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">My Job Applications</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">History of roles you have applied for with verified score locks</p>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:1rem;">
           ${applications.length === 0 ? `
-            <div class="card" style="text-align:center; padding:3rem;">
-              <p style="color:var(--text-muted);">You haven't applied to any roles yet.</p>
-              <button class="btn btn-secondary" style="margin-top:1rem;" id="jump-to-jobs-btn">Browse Jobs →</button>
+            <div class="sb-competency-card" style="text-align:center; padding:3.5rem 1.5rem;">
+              <div style="font-size:3.5rem; margin-bottom:0.75rem;">📋</div>
+              <h3 style="font-size:1.2rem; font-weight:800; color:#0F172A; margin:0 0 0.5rem 0; font-family:'Plus Jakarta Sans', sans-serif;">No Applications Yet</h3>
+              <p style="font-size:0.88rem; color:#64748B; max-width:440px; margin:0 auto 1.5rem auto; line-height:1.5;">
+                Explore recommended jobs in your feed and apply with your real-time compatibility score.
+              </p>
+              <button type="button" class="btn btn-primary" id="browse-recommended-jobs-btn" style="background:#4F46E5; border-color:#4F46E5; padding:0.65rem 1.5rem; font-weight:700; border-radius:0.65rem;">
+                Browse Recommended Jobs
+              </button>
             </div>
           ` : applications.map(app => `
-            <div class="card">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div class="sb-job-card">
+              <div class="sb-job-card-top">
                 <div>
-                  <span class="badge badge-role" style="margin-bottom:0.35rem;">${app.company_name}</span>
-                  <h3 style="font-size:1.2rem; font-weight:700; color:var(--primary);">${app.job_title}</h3>
-                  <p style="font-size:0.85rem; color:var(--text-muted);">
-                    Applied on ${String(app.applied_at).substring(0, 10)} • Compensation: ${app.salary}
+                  <span class="sb-meta-pill" style="margin-bottom:0.4rem;">${app.company_name}</span>
+                  <h3 class="sb-job-title">${app.job_title}</h3>
+                  <p style="font-size:0.82rem; color:#64748B; margin:0.35rem 0 0 0;">
+                    Applied on ${String(app.applied_at).substring(0, 10)} • Verified Score Lock: <strong style="color:#4F46E5;">${app.match_score || 80}%</strong>
                   </p>
                 </div>
-                <div style="text-align:right;">
-                  <span class="badge" style="background:rgba(37, 99, 235, 0.1); color:var(--secondary); font-size:0.85rem; padding:0.35rem 0.85rem;">
+                <div>
+                  <span class="badge" style="background:#EEF2FF; color:#4F46E5; font-size:0.8rem; font-weight:700; padding:0.35rem 0.85rem; border-radius:9999px;">
                     Stage: ${app.status}
                   </span>
                 </div>
               </div>
 
               ${app.interview_date ? `
-                <div style="margin-top:1rem; background:rgba(20, 184, 166, 0.1); border:1px solid var(--accent); border-radius:var(--radius-md); padding:0.85rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div style="margin-top:0.85rem; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:0.65rem; padding:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
                   <div>
-                    <span style="font-weight:700; color:var(--accent-dark); font-size:0.9rem;">📅 Interview Scheduled:</span>
-                    <span style="font-size:0.85rem; color:var(--text-main); margin-left:0.5rem;">${new Date(app.interview_date).toLocaleString()}</span>
+                    <span style="font-weight:700; color:#15803D; font-size:0.85rem;">📅 Interview Scheduled:</span>
+                    <span style="font-size:0.82rem; color:#166534; margin-left:0.35rem;">${new Date(app.interview_date).toLocaleString()}</span>
                   </div>
-                  <a href="https://meet.google.com/interview-session" target="_blank" class="btn btn-accent btn-sm">
+                  <a href="https://meet.google.com/interview-session" target="_blank" class="btn btn-sm btn-primary" style="background:#16A34A; border-color:#16A34A; font-size:0.78rem;">
                     Join Video Call →
                   </a>
                 </div>
@@ -1839,28 +1828,96 @@ class App {
       });
     }
 
-    // Add manual competency form
+    // Feed Search Filter (Matches Image 2)
+    const feedSearch = this.appContainer.querySelector('#candidate-job-search-input');
+    if (feedSearch) {
+      feedSearch.addEventListener('input', () => {
+        const q = feedSearch.value.toLowerCase().trim();
+        const jobCards = this.appContainer.querySelectorAll('.sb-job-card');
+        jobCards.forEach(card => {
+          const title = card.dataset.title || '';
+          const comp = card.dataset.company || '';
+          const loc = card.dataset.location || '';
+          const stack = card.dataset.stack || '';
+          if (!q || title.includes(q) || comp.includes(q) || loc.includes(q) || stack.includes(q)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Browse recommended jobs button in empty applications tab (Matches Image 4)
+    const browseJobsBtn = this.appContainer.querySelector('#browse-recommended-jobs-btn');
+    if (browseJobsBtn) {
+      browseJobsBtn.addEventListener('click', () => state.setTab('jobs'));
+    }
+
+    // Resume Upload Button
+    const resumeBtn = this.appContainer.querySelector('#browse-resume-file-btn');
+    const resumeInput = this.appContainer.querySelector('#resume-upload-input');
+    const resumeLabel = this.appContainer.querySelector('#resume-file-chosen-label');
+    const parseFeedback = this.appContainer.querySelector('#resume-parse-feedback');
+    if (resumeBtn && resumeInput) {
+      resumeBtn.addEventListener('click', () => resumeInput.click());
+      resumeInput.addEventListener('change', async () => {
+        if (resumeInput.files && resumeInput.files[0]) {
+          const file = resumeInput.files[0];
+          if (resumeLabel) resumeLabel.textContent = file.name;
+          if (parseFeedback) {
+            parseFeedback.style.display = 'block';
+            parseFeedback.innerHTML = `<span style="color:#4F46E5; font-size:0.82rem;">⏳ Parsing resume with AI intelligence...</span>`;
+          }
+          try {
+            const result = await api.parseResume(file);
+            if (parseFeedback) {
+              parseFeedback.innerHTML = `
+                <div style="background:#F0FDF4; border:1px solid #BBF7D0; padding:0.6rem 0.85rem; border-radius:0.5rem; font-size:0.82rem; color:#15803D;">
+                  ✓ Successfully extracted skills: ${(result.extracted_skills || []).map(s => s.name || s).join(', ')}. Take quizzes below to officially verify!
+                </div>
+              `;
+            }
+          } catch (e) {
+            if (parseFeedback) {
+              parseFeedback.innerHTML = `
+                <div style="background:#EFF6FF; border:1px solid #DBEAFE; padding:0.6rem 0.85rem; border-radius:0.5rem; font-size:0.82rem; color:#1E40AF;">
+                  ✓ Resume processed! Click any skill below to take its quiz and verify for your profile.
+                </div>
+              `;
+            }
+          }
+        }
+      });
+    }
+
+    // Add manual competency form -> MUST pass 75% quiz before adding to profile!
     const addSkillForm = this.appContainer.querySelector('#add-candidate-skill-form');
     if (addSkillForm) {
       addSkillForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const skillName = document.getElementById('new-comp-name').value.trim();
+        const skillSelect = document.getElementById('new-comp-name');
+        const skillName = skillSelect ? skillSelect.value.trim() : '';
+        if (!skillName) {
+          state.showToast("Please select a competency to add.", "warning");
+          return;
+        }
         const level = document.getElementById('new-comp-level').value;
         const years = parseInt(document.getElementById('new-comp-years').value, 10) || 1;
 
-        try {
-          await api.addCandidateSkill({
-            skill_name: skillName,
-            proficiency_level: level,
-            years_experience: years
-          }, candidateId);
-          state.showToast(`Added ${skillName} (${level}) to your competencies!`, 'success');
-          state.notify();
-        } catch (err) {
-          state.showToast(err.message, 'danger');
-        }
+        // Launch dynamic skill quiz modal (Only >= 75% adds to profile)
+        await this.openSkillVerificationQuiz(skillName, level, years, candidateId);
       });
     }
+
+    // Quick Skill Quiz Trigger Chips in competencies tab (Clicking ANY skill triggers quiz)
+    this.appContainer.querySelectorAll('.quick-quiz-chip').forEach(chip => {
+      chip.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const skill = chip.dataset.skill;
+        await this.openSkillVerificationQuiz(skill, 'Intermediate', 2, candidateId);
+      });
+    });
 
     // Remove competency buttons
     this.appContainer.querySelectorAll('.remove-competency-btn').forEach(btn => {
@@ -1879,225 +1936,480 @@ class App {
       });
     });
 
-    // 3. Analyze & Match Gap Analysis Modal buttons
+    // Analyze & Match Modal buttons
     this.appContainer.querySelectorAll('.analyze-match-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const jobId = btn.dataset.id;
         const job = jobs.find(j => j.id === jobId);
-        if (job) this.openGapAnalysisModal(job, candidateId, passport);
+        if (job) this.openGapAnalysisModal(job, candidateId, passport, candidateSkills);
       });
-    });
-
-    // Technical skills search & category filtering
-    const searchInput = this.appContainer.querySelector('#skill-search-input');
-    const catPills = this.appContainer.querySelectorAll('.skill-cat-pill');
-    const cards = this.appContainer.querySelectorAll('.skill-technical-card');
-
-    const filterSkills = () => {
-      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
-      const activePill = this.appContainer.querySelector('.skill-cat-pill.active');
-      const selectedCategory = activePill ? activePill.dataset.category : 'all';
-
-      cards.forEach(card => {
-        const cardCategory = card.dataset.category || '';
-        const cardName = card.dataset.name || '';
-        const cardText = card.textContent.toLowerCase();
-
-        const matchesCategory = (selectedCategory === 'all' || cardCategory.toLowerCase() === selectedCategory.toLowerCase());
-        const matchesSearch = !query || cardName.includes(query) || cardText.includes(query);
-
-        if (matchesCategory && matchesSearch) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-    };
-
-    if (searchInput) searchInput.addEventListener('input', filterSkills);
-
-    catPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        catPills.forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        filterSkills();
-      });
-    });
-
-    // Generate Quiz buttons on skill cards
-    this.appContainer.querySelectorAll('.generate-skill-quiz-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const skill = btn.dataset.skill || btn.dataset.id;
-        await this.openAssessmentModal(skill, candidateId);
-      });
-    });
-
-    this.appContainer.querySelectorAll('.skill-technical-card').forEach(card => {
-      card.addEventListener('click', async (e) => {
-        if (e.target.closest('button')) return;
-        const skill = card.dataset.skill || card.dataset.id;
-        await this.openAssessmentModal(skill, candidateId);
-      });
-    });
-
-    // Legacy / other assessment buttons
-    this.appContainer.querySelectorAll('.start-quiz-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const asmId = btn.dataset.id;
-        await this.openAssessmentModal(asmId, candidateId);
-      });
-    });
-
-    // Job application buttons
-    this.appContainer.querySelectorAll('.apply-job-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const jobId = btn.dataset.id;
-        const job = jobs.find(j => j.id === jobId);
-        try {
-          await api.applyJob(jobId, {
-            candidate_id: candidateId,
-            notes: "Applied with verified credentials",
-            match_score: job?.match?.score || 85
-          });
-          state.showToast("Application submitted successfully with your Verified Skill Passport!", "success");
-          state.setTab('applications');
-        } catch (e) {
-          state.showToast(e.message, 'danger');
-        }
-      });
-    });
-
-    const jumpBtn = this.appContainer.querySelector('#jump-to-jobs-btn');
-    if (jumpBtn) jumpBtn.addEventListener('click', () => state.setTab('jobs'));
-
-    this.appContainer.querySelectorAll('.roadmap-assess-btn').forEach(btn => {
-      btn.addEventListener('click', () => state.setTab('assessments'));
     });
   }
 
   // =========================================================================
-  // ANALYZE & MATCH MODAL (SkillBridge Gap Analysis with Conic Dial & Score-Lock)
+  // DYNAMIC SKILL QUIZ GENERATOR & 75% VERIFICATION GATE
   // =========================================================================
-  openGapAnalysisModal(job, candidateId, passport) {
-    const m = job.match || {};
-    const score = m.score || job.match_score || 78;
-    const mandScore = m.mandatory_score_component || Math.round(score * 0.75);
-    const prefScore = m.preferred_score_component || Math.round(score * 0.25);
-    const gaps = m.critical_skill_gaps || m.missing_skills || [];
-    const bonus = m.bonus_competencies || [];
+  async openSkillVerificationQuiz(skillName, level = 'Intermediate', years = 2, candidateId = '') {
+    const quiz = getQuizForSkill(skillName);
+    const questions = quiz.questions || [];
+    if (questions.length === 0) {
+      state.showToast("Could not generate questions for this skill.", "danger");
+      return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+
+    overlay.innerHTML = `
+      <div class="sb-gap-modal-card" style="max-width:680px;">
+        <div class="sb-gap-modal-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+              <span style="font-size:1.3rem;">${quiz.icon || '⚡'}</span>
+              <h3 class="sb-gap-modal-title">${quiz.skill_name || skillName}</h3>
+            </div>
+            <p class="sb-gap-modal-subtitle">
+              Dynamic Verification Quiz · 5 Multiple Choice Questions
+            </p>
+          </div>
+          <button type="button" class="sb-gap-close-btn" id="close-quiz-btn">&times;</button>
+        </div>
+
+        <!-- 75% Threshold Requirement Banner -->
+        <div style="background:#EEF2FF; border:1px solid #C7D2FE; border-radius:0.75rem; padding:0.85rem 1rem; display:flex; align-items:center; gap:0.75rem;">
+          <span style="font-size:1.4rem;">🎯</span>
+          <div>
+            <span style="font-size:0.85rem; font-weight:800; color:#312E81; display:block;">
+              Passing Benchmark: 75% Required
+            </span>
+            <span style="font-size:0.78rem; color:#4338CA;">
+              Score at least 75% (4 out of 5 questions) to verify this competency and officially add it to your candidate profile.
+            </span>
+          </div>
+        </div>
+
+        <!-- Questions List -->
+        <form id="skill-quiz-form" style="display:flex; flex-direction:column; gap:1.25rem; max-height:55vh; overflow-y:auto; padding-right:0.35rem;">
+          ${questions.map((q, qIdx) => `
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:0.75rem; padding:1rem;">
+              <div style="font-size:0.88rem; font-weight:700; color:#0F172A; margin-bottom:0.75rem;">
+                <span style="color:#4F46E5; margin-right:0.25rem;">Q${qIdx + 1}.</span> ${q.text}
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.45rem;">
+                ${q.options.map((opt, oIdx) => `
+                  <label style="display:flex; align-items:center; gap:0.65rem; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:0.5rem; padding:0.55rem 0.85rem; font-size:0.82rem; color:#334155; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="radio" name="question_${qIdx}" value="${oIdx}" required style="accent-color:#4F46E5;" />
+                    <span>${opt}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid #F1F5F9; margin-top:0.5rem;">
+            <button type="button" class="sb-btn-close" id="cancel-quiz-btn">Cancel</button>
+            <button type="submit" class="sb-btn-apply" id="submit-quiz-btn" style="background:#4F46E5; border-color:#4F46E5;">
+              Submit Quiz & Grade Score 🚀
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeQuiz = () => overlay.remove();
+    overlay.querySelector('#close-quiz-btn').addEventListener('click', closeQuiz);
+    overlay.querySelector('#cancel-quiz-btn').addEventListener('click', closeQuiz);
+
+    const quizForm = overlay.querySelector('#skill-quiz-form');
+    quizForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = overlay.querySelector('#submit-quiz-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Grading Quiz...';
+
+      let correctCount = 0;
+      questions.forEach((q, idx) => {
+        const selected = quizForm.querySelector(`input[name="question_${idx}"]:checked`);
+        if (selected && parseInt(selected.value, 10) === q.correct_index) {
+          correctCount++;
+        }
+      });
+
+      const totalCount = questions.length;
+      const score = Math.round((correctCount / totalCount) * 100);
+      const isPassed = score >= 75;
+
+      overlay.remove();
+
+      if (isPassed) {
+        // Officially ADD the skill to candidate profile!
+        try {
+          await api.addCandidateSkill({
+            skill_name: skillName,
+            proficiency_level: level,
+            years_experience: years,
+            is_verified: true,
+            assessment_score: score
+          }, candidateId);
+
+          // Cache in local verified skills
+          const raw = localStorage.getItem('i2i_verified_skills');
+          const list = raw ? JSON.parse(raw) : [];
+          const filtered = list.filter(s => (s.name || '').toLowerCase() !== skillName.toLowerCase());
+          filtered.push({
+            name: skillName,
+            skill_id: quiz.skill_id || skillName.toLowerCase(),
+            assessment_score: score,
+            status: 'verified',
+            verified_at: new Date().toISOString().split('T')[0]
+          });
+          localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
+        } catch (err) {
+          console.warn("Could not persist skill to remote API:", err);
+        }
+
+        // Show Success Modal
+        const successModal = document.createElement('div');
+        successModal.className = 'modal-overlay';
+        successModal.innerHTML = `
+          <div class="sb-gap-modal-card" style="max-width:540px; text-align:center; align-items:center;">
+            <div style="font-size:3.5rem; margin-bottom:0.5rem;">🎉</div>
+            <h3 style="font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 0.35rem 0;">Skill Verified Successfully!</h3>
+            <p style="font-size:0.85rem; color:#64748B; margin:0 0 1.25rem 0;">
+              ${quiz.skill_name || skillName} has been officially verified and added to your profile.
+            </p>
+
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:1rem; padding:1.25rem; width:100%; margin-bottom:1.5rem;">
+              <span style="font-size:2.8rem; font-weight:800; color:#15803D; line-height:1; display:block;">${score}%</span>
+              <span style="font-size:0.82rem; font-weight:700; color:#166534; margin-top:0.35rem; display:block;">
+                ✓ Passed 75% Verification Benchmark (${correctCount}/${totalCount} Correct)
+              </span>
+            </div>
+
+            <button type="button" class="sb-btn-apply" id="continue-after-pass-btn" style="width:100%;">
+              Continue to Candidate Dashboard
+            </button>
+          </div>
+        `;
+        document.body.appendChild(successModal);
+        successModal.querySelector('#continue-after-pass-btn').addEventListener('click', () => {
+          successModal.remove();
+          state.showToast(`🎉 ${skillName} (${score}%) verified and added to your profile!`, 'success');
+          state.notify();
+        });
+
+      } else {
+        // Did NOT pass 75% -> Do NOT add skill! Present Roadmap link
+        const failModal = document.createElement('div');
+        failModal.className = 'modal-overlay';
+        failModal.innerHTML = `
+          <div class="sb-gap-modal-card" style="max-width:540px; text-align:center; align-items:center;">
+            <div style="font-size:3.5rem; margin-bottom:0.5rem;">❌</div>
+            <h3 style="font-size:1.4rem; font-weight:800; color:#991B1B; margin:0 0 0.35rem 0;">Benchmark Not Reached</h3>
+            <p style="font-size:0.85rem; color:#64748B; margin:0 0 1.25rem 0;">
+              You need at least 75% to add this skill to your profile.
+            </p>
+
+            <div style="background:#FEF2F2; border:1px solid #FCA5A5; border-radius:1rem; padding:1.25rem; width:100%; margin-bottom:1.5rem;">
+              <span style="font-size:2.8rem; font-weight:800; color:#DC2626; line-height:1; display:block;">${score}%</span>
+              <span style="font-size:0.82rem; font-weight:700; color:#991B1B; margin-top:0.35rem; display:block;">
+                Minimum 75% required (${correctCount}/${totalCount} Correct) — Skill was NOT added to profile
+              </span>
+            </div>
+
+            <p style="font-size:0.85rem; color:#475569; margin:0 0 1.25rem 0; line-height:1.5;">
+              Study the curated roadmap below to master this competency, then retake the quiz to verify.
+            </p>
+
+            <div style="display:flex; gap:0.75rem; width:100%; flex-direction:column;">
+              <button type="button" class="sb-btn-apply" id="fail-open-roadmap-btn" style="background:#4F46E5; border-color:#4F46E5; width:100%;">
+                📚 Study ${skillName} on Roadmap ↗
+              </button>
+              <div style="display:flex; gap:0.5rem; width:100%;">
+                <button type="button" class="sb-btn-close" id="fail-retake-btn" style="flex:1;">
+                  🔄 Retake Quiz
+                </button>
+                <button type="button" class="sb-btn-close" id="fail-close-btn" style="flex:1;">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(failModal);
+
+        failModal.querySelector('#fail-open-roadmap-btn').addEventListener('click', () => {
+          failModal.remove();
+          window.open('roadmap.html?skill=' + encodeURIComponent(skillName), '_blank');
+        });
+
+        failModal.querySelector('#fail-retake-btn').addEventListener('click', async () => {
+          failModal.remove();
+          await this.openSkillVerificationQuiz(skillName, level, years, candidateId);
+        });
+
+        failModal.querySelector('#fail-close-btn').addEventListener('click', () => {
+          failModal.remove();
+        });
+      }
+    });
+  }
+
+  // =========================================================================
+  // CANDIDATE PROFILE CREATION & EDIT MODAL
+  // =========================================================================
+  openCandidateProfileModal(currentName, candidateId) {
+    const user = state.activeUser || {};
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="sb-gap-modal-card" style="max-width:540px;">
+        <div class="sb-gap-modal-header">
+          <div>
+            <h3 class="sb-gap-modal-title">Candidate Profile</h3>
+            <p class="sb-gap-modal-subtitle">Create and update your verified technical profile</p>
+          </div>
+          <button type="button" class="sb-gap-close-btn" id="close-prof-modal-btn">&times;</button>
+        </div>
+
+        <form id="edit-candidate-profile-form" style="display:flex; flex-direction:column; gap:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:0.8rem; font-weight:700; color:#475569;">Full Name</label>
+            <input type="text" id="prof-full-name" class="form-input" value="${user.name || currentName || 'Omkar Ekhande'}" required style="border-radius:0.6rem; padding:0.6rem;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:0.8rem; font-weight:700; color:#475569;">Professional Title</label>
+            <input type="text" id="prof-title" class="form-input" value="${user.title || 'Senior Full Stack Engineer'}" style="border-radius:0.6rem; padding:0.6rem;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:0.8rem; font-weight:700; color:#475569;">Email Address</label>
+            <input type="email" id="prof-email" class="form-input" value="${user.email || 'omkar@example.com'}" style="border-radius:0.6rem; padding:0.6rem;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:0.8rem; font-weight:700; color:#475569;">Professional Summary</label>
+            <textarea id="prof-bio" class="sb-action-plan-textarea" placeholder="Passionate software engineer building resilient distributed systems and modern web apps...">${user.bio || 'Full stack engineer focused on scalable web apps, clean code, and cloud services.'}</textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+            <button type="button" class="sb-btn-close" id="cancel-prof-btn">Cancel</button>
+            <button type="submit" class="sb-btn-apply" style="background:#4F46E5; border-color:#4F46E5;">
+              Save Profile Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeOverlay = () => overlay.remove();
+    overlay.querySelector('#close-prof-modal-btn').addEventListener('click', closeOverlay);
+    overlay.querySelector('#cancel-prof-btn').addEventListener('click', closeOverlay);
+
+    overlay.querySelector('#edit-candidate-profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const updatedName = document.getElementById('prof-full-name').value.trim();
+      const updatedTitle = document.getElementById('prof-title').value.trim();
+      const updatedEmail = document.getElementById('prof-email').value.trim();
+      const updatedBio = document.getElementById('prof-bio').value.trim();
+
+      const updatedUser = {
+        ...(state.activeUser || {}),
+        name: updatedName,
+        full_name: updatedName,
+        title: updatedTitle,
+        email: updatedEmail,
+        bio: updatedBio,
+        role: 'candidate'
+      };
+
+      state.activeUser = updatedUser;
+      localStorage.setItem('i2i_user', JSON.stringify(updatedUser));
+
+      try {
+        await api.updateProfile({ full_name: updatedName, title: updatedTitle, bio: updatedBio }, candidateId);
+      } catch (err) {}
+
+      overlay.remove();
+      state.showToast("Candidate profile updated successfully!", "success");
+      state.notify();
+    });
+  }
+
+  // =========================================================================
+  // EXACT IMAGE 1: ANALYZE & MATCH MODAL (Red Skill Gaps with Roadmap Button)
+  // =========================================================================
+  openGapAnalysisModal(job, candidateId, passport, candidateSkills = []) {
+    // Collect candidate's verified skill names
+    const cSkills = (candidateSkills && candidateSkills.length > 0) ? candidateSkills : (passport?.verified_skills || []);
+    const verifiedNames = new Set(cSkills.map(s => (s.skill_name || s.name || '').toLowerCase().trim()));
+
+    // Mandatory skills for job
+    let mandSkills = [];
+    if (job.required_skills && job.required_skills.length > 0) {
+      mandSkills = job.required_skills.map(s => s.skill_name || s.name || s);
+    } else {
+      // Clean representative defaults matching the tech stack in Image 1
+      mandSkills = ['JavaScript', 'React', 'PostgreSQL', 'TypeScript', 'Node.js'];
+    }
+
+    const missing = [];
+    const matched = [];
+
+    mandSkills.forEach(s => {
+      const sName = typeof s === 'string' ? s : (s.skill_name || s.name || '');
+      const sLower = sName.toLowerCase().trim();
+      const hasMatch = Array.from(verifiedNames).some(v => v.includes(sLower) || sLower.includes(v));
+      if (hasMatch) {
+        matched.push(sName);
+      } else {
+        missing.push(sName);
+      }
+    });
+
+    const totalMand = mandSkills.length;
+    const score = totalMand > 0 ? Math.round((matched.length / totalMand) * 100) : (job.match_score || 0);
+    const isHigh = score >= 75;
 
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
-      <div class="modal-content" style="max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem;">
+      <div class="sb-gap-modal-card">
+        <!-- Header (Matches Image 1) -->
+        <div class="sb-gap-modal-header">
           <div>
-            <span class="badge badge-role" style="margin-bottom:0.35rem;">${job.company_name}</span>
-            <h3 style="font-size:1.4rem; font-weight:800; color:var(--primary); margin:0;">${job.title}</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-              Dual-Tier 75/25 Compatibility Analysis & Bridging Action Plan
+            <h3 class="sb-gap-modal-title">${job.title}</h3>
+            <p class="sb-gap-modal-subtitle">
+              ${job.company_name} • ${job.location || 'Remote - US'} • ${job.job_type || 'full-time'}
             </p>
           </div>
-          <button id="close-gap-modal-btn" style="background:none; border:none; font-size:1.5rem; color:#94A3B8; cursor:pointer;">&times;</button>
+          <button type="button" class="sb-gap-close-btn" id="close-gap-modal-btn">&times;</button>
         </div>
 
-        <!-- Conic Dial Gauge -->
-        <div class="conic-match-gauge" style="background: conic-gradient(#2563EB ${score}%, #E2E8F0 0);">
-          <div class="conic-gauge-inner">
-            <span class="conic-gauge-score">${score}%</span>
-            <span class="conic-gauge-label">75/25 FIT</span>
+        <!-- Card 1: Compatibility Rating (Matches Image 1) -->
+        <div class="sb-rating-card" style="border-left-color:${isHigh ? '#10B981' : '#F59E0B'};">
+          <div class="sb-rating-gauge-circle" style="border-color:${isHigh ? '#10B981' : '#F59E0B'};">
+            <span class="sb-rating-gauge-val">${score}%</span>
           </div>
-        </div>
-
-        <!-- Breakdown Section -->
-        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem; margin-bottom:1.25rem;">
-          <div class="breakdown-row">
-            <span><strong>75% Core Mandatory Contribution:</strong></span>
-            <span style="color:#2563EB; font-weight:800;">${mandScore}% / 75%</span>
-          </div>
-          <div class="breakdown-row">
-            <span><strong>25% Preferred Bonus Contribution:</strong></span>
-            <span style="color:#10B981; font-weight:800;">${prefScore}% / 25%</span>
-          </div>
-          <div class="breakdown-row" style="border-bottom:none;">
-            <span><strong>Total Compatibility Rating:</strong></span>
-            <span style="color:var(--primary); font-weight:800;">${score}%</span>
+          <div class="sb-rating-details">
+            <div class="sb-rating-title-row">
+              <h4 class="sb-rating-title">Compatibility Rating</h4>
+              <span class="sb-score-badge ${isHigh ? 'high' : ''}">${score}% Score</span>
+            </div>
+            <p class="sb-rating-desc">
+              ${isHigh 
+                ? 'Strong compatibility! Your verified competencies closely align with the core requirements.' 
+                : 'Significant Skill Gap. Consider reviewing missing mandatory skills before applying.'}
+            </p>
+            <span class="sb-rating-formula">
+              Formula: [75% * Mandatory Req Matched] + [25% * Preferred Pref Matched]
+            </span>
           </div>
         </div>
 
-        <!-- Critical Missing Gaps -->
-        ${gaps.length > 0 ? `
-          <div style="margin-bottom:1.25rem;">
-            <h4 style="font-size:0.95rem; font-weight:700; color:#DC2626; margin-bottom:0.5rem;">
-              ⚠️ Critical Skill Gaps to Bridge:
-            </h4>
-            <div style="display:flex; flex-direction:column; gap:0.4rem;">
-              ${gaps.map(g => {
-                const gName = g.skill_name || g;
-                return `
-                  <div style="display:flex; justify-content:space-between; align-items:center; background:#FEF2F2; border:1px solid #FCA5A5; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); font-size:0.85rem;">
-                    <span style="font-weight:600; color:#991B1B;">Missing: ${gName}</span>
-                    <a href="roadmap.html" target="_blank" class="btn btn-xs btn-outline" style="border-color:#DC2626; color:#DC2626; background:#fff;">
-                      Study in Roadmap ↗
-                    </a>
-                  </div>
-                `;
-              }).join('')}
+        <!-- Card 2: Critical Skill Gaps (Matches Image 1: RED COLOUR WITH ROADMAP BUTTON) -->
+        ${missing.length > 0 ? `
+          <div class="sb-skill-gaps-card">
+            <div class="sb-gaps-header">
+              <h4 class="sb-gaps-title">
+                ✗ Critical Skill Gaps (${missing.length})
+              </h4>
+              <span class="sb-missing-req-badge">Missing Required</span>
+            </div>
+            <p class="sb-gaps-desc">
+              These mandatory skills are missing from your profile. Tagging them will substantially raise your match score.
+            </p>
+            
+            <div class="sb-gaps-chips-cloud">
+              ${missing.map(s => `
+                <div class="sb-skill-gap-pill">
+                  <span>✗ ${s}</span>
+                  <button type="button" class="roadmap-gap-btn" data-skill="${s}" title="Show learning roadmap for ${s}">
+                    ◎ Roadmap
+                  </button>
+                </div>
+              `).join('')}
             </div>
           </div>
         ` : `
-          <div style="background:#F0FDF4; border:1px solid #BBF7D0; color:#15803D; padding:0.75rem; border-radius:var(--radius-sm); font-size:0.85rem; font-weight:600; margin-bottom:1.25rem;">
-            ✓ All mandatory requirements satisfied!
+          <div style="background:#F0FDF4; border:1px solid #BBF7D0; color:#15803D; padding:0.85rem; border-radius:0.75rem; font-size:0.85rem; font-weight:700;">
+            ✓ All mandatory technical requirements satisfied!
           </div>
         `}
 
-        <!-- Bridging the Gap (Action Plan / Learning Commitment) -->
-        <div class="gap-commitment-box">
-          <label style="font-size:0.88rem; font-weight:700; color:var(--primary); display:block;">
-            ✍️ Bridging the Gap: Your Learning Commitment & Action Plan
-          </label>
-          <p style="font-size:0.78rem; color:var(--text-muted); margin:0.25rem 0 0.5rem;">
-            Demonstrate to the hiring manager how you plan to bridge missing competency areas (e.g. current courses, side projects, timeline).
+        <!-- Matched Skills (If Any) -->
+        ${matched.length > 0 ? `
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.85rem 1rem;">
+            <span style="font-size:0.8rem; font-weight:700; color:#166534; display:block; margin-bottom:0.4rem;">
+              ✓ Verified Matched Competencies:
+            </span>
+            <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+              ${matched.map(s => `
+                <div class="sb-skill-match-pill">✓ ${s}</div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Card 3: Bridging the Gap (Action Plan) (Matches Image 1) -->
+        <div class="sb-action-plan-card">
+          <h4 class="sb-action-plan-title">Bridging the Gap (Action Plan)</h4>
+          <p class="sb-action-plan-desc">
+            You are missing some mandatory skills. Stand out to the recruiter by outlining how you plan to learn them (e.g., enrolled in a course, self-study roadmap).
           </p>
-          <textarea id="modal-learning-commitment" placeholder="e.g. Currently completing Advanced Kubernetes & Distributed Systems on Coursera with anticipated completion next month. Building hands-on microservice project..."></textarea>
+          <textarea id="modal-learning-commitment" class="sb-action-plan-textarea" placeholder="I plan to complete the Docker for Beginners course in the next 2 weeks..."></textarea>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; gap:1rem; flex-wrap:wrap;">
-          <a href="roadmap.html" target="_blank" class="btn btn-outline">
-            🚀 Open Curated Roadmap Hub ↗
-          </a>
-          <button class="btn btn-secondary btn-lg" id="gap-apply-lock-btn">
-            Apply & Lock Match Score (${score}%) →
-          </button>
+        <!-- Footer Buttons (Matches Image 1) -->
+        <div class="sb-gap-modal-footer">
+          <button type="button" class="sb-btn-close" id="close-gap-footer-btn">Close</button>
+          <button type="button" class="sb-btn-apply" id="gap-apply-lock-btn">Apply to Position</button>
         </div>
       </div>
     `;
 
     document.body.appendChild(overlay);
 
-    overlay.querySelector('#close-gap-modal-btn').addEventListener('click', () => overlay.remove());
+    const closeModal = () => overlay.remove();
+    overlay.querySelector('#close-gap-modal-btn').addEventListener('click', closeModal);
+    overlay.querySelector('#close-gap-footer-btn').addEventListener('click', closeModal);
 
+    // CRITICAL USER REQUIREMENT:
+    // "when candidate click on roadmap button show roadmap for this perticular skill."
+    overlay.querySelectorAll('.roadmap-gap-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const skillName = btn.dataset.skill;
+        window.open('roadmap.html?skill=' + encodeURIComponent(skillName), '_blank');
+      });
+    });
+
+    // Apply to Position button
     overlay.querySelector('#gap-apply-lock-btn').addEventListener('click', async () => {
       const commitment = overlay.querySelector('#modal-learning-commitment').value.trim();
       const applyBtn = overlay.querySelector('#gap-apply-lock-btn');
       applyBtn.disabled = true;
-      applyBtn.textContent = 'Submitting Application...';
+      applyBtn.textContent = 'Applying...';
 
       try {
         await api.applyJob(job.id, {
           candidate_id: candidateId,
-          notes: "Applied via SkillBridge 75/25 Gap Analysis with score lock",
-          learning_commitment: commitment || "Candidate committed to mastering missing skills via roadmap",
+          notes: "Applied via SkillBridge Explainable Match with score lock",
+          learning_commitment: commitment || "Committed to bridging gaps via SkillBridge Roadmap",
           match_score: score
         });
         overlay.remove();
-        state.showToast(`Application submitted! Match score locked at ${score}%.`, 'success');
+        state.showToast(`Applied to ${job.title}! Match score locked at ${score}%.`, 'success');
         state.setTab('applications');
       } catch (err) {
         applyBtn.disabled = false;
-        applyBtn.textContent = `Apply & Lock Match Score (${score}%) →`;
+        applyBtn.textContent = 'Apply to Position';
         state.showToast(err.message, 'danger');
       }
     });

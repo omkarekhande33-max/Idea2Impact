@@ -37,7 +37,8 @@ class StateManager {
       this.activeUser = null;
     }
 
-    this.activeTab = 'overview';
+    const savedRole = localStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || 'candidate';
+    this.activeTab = (savedRole === 'candidate') ? 'jobs' : 'overview';
     this.authMode = 'landing'; // 'landing' | 'signin' | 'role-pick' | 'register'
     this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
     this.tabSwitchCount = 0;
@@ -68,7 +69,7 @@ class StateManager {
       email: user.email,
       avatar_url: user.avatar_url
     };
-    this.activeTab = 'overview';
+    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
     this.showToast(`Signed in successfully! Entering ${role.toUpperCase()} Mode.`, 'success');
     this.notify();
   }
@@ -82,7 +83,7 @@ class StateManager {
     this.currentRole = 'candidate';
     this.authMode = 'landing';
     this.activeUser = null;
-    this.activeTab = 'overview';
+    this.activeTab = 'jobs';
     this.showToast('You have been signed out. Redirecting to home...', 'info');
     this.notify();
     setTimeout(() => {
@@ -112,7 +113,7 @@ class StateManager {
       return;
     }
     this.currentRole = role;
-    this.activeTab = 'overview';
+    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
     localStorage.setItem('i2i_role', role);
     this.notify();
   }
