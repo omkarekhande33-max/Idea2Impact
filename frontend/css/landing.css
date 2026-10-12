@@ -433,20 +433,204 @@
   color: #fff;
 }
 
-/* Responsive */
+/* Mobile Menu Elements */
+.landing-hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+
+.landing-hamburger-btn:hover {
+  background: #F8FAFC;
+  border-color: var(--border-focus);
+}
+
+.hamburger-bar {
+  width: 22px;
+  height: 2px;
+  background-color: var(--primary);
+  border-radius: 2px;
+  transition: all 250ms ease;
+  transform-origin: center;
+}
+
+.landing-hamburger-btn.open .hamburger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.landing-hamburger-btn.open .hamburger-bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.landing-hamburger-btn.open .hamburger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.landing-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 25px 35px -10px rgba(15, 23, 42, 0.12);
+  z-index: 999;
+}
+
+.landing-mobile-menu-inner {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.landing-mobile-link {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  padding: 0.6rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.landing-mobile-link:hover {
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--secondary);
+}
+
+.landing-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Responsive Breakpoints */
 @media (max-width: 768px) {
   .landing-nav-links {
     display: none;
   }
+  .landing-nav-actions {
+    display: none;
+  }
+  .landing-hamburger-btn {
+    display: flex;
+  }
+  .landing-mobile-menu.open {
+    display: block;
+    animation: mobileSlideDown 200ms ease forwards;
+  }
+  @keyframes mobileSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   .landing-hero {
-    padding: 3rem 1rem 2.5rem;
+    padding: 3rem 1.25rem 2.5rem;
+  }
+  .hero-pill {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .hero-title {
+    font-size: 2.15rem;
+    line-height: 1.2;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-btn-primary, .hero-btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem 1.25rem;
+  }
+  .hero-badges-strip {
+    gap: 0.85rem;
+    justify-content: flex-start;
+  }
+  .trust-badge-item {
+    font-size: 0.78rem;
+  }
+  .landing-personas-section {
+    padding: 3rem 1.25rem;
+  }
+  .personas-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .persona-card {
+    padding: 1.5rem;
+  }
+  .landing-cta-section {
+    padding: 3rem 1.25rem;
+  }
+  .cta-title {
+    font-size: 1.75rem;
+  }
+  .cta-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cta-buttons a {
+    width: 100%;
+  }
+  .landing-footer {
+    padding: 2rem 1.25rem;
   }
   .landing-footer-container {
     flex-direction: column;
     text-align: center;
     justify-content: center;
+    gap: 1.25rem;
   }
   .landing-footer-left, .landing-footer-links {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .landing-nav-container {
+    padding: 0 1rem;
+  }
+  .brand {
+    font-size: 1.2rem;
+  }
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+  .hero-title {
+    font-size: 1.85rem;
+  }
+  .persona-title {
+    font-size: 1.15rem;
+  }
+}
+

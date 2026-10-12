@@ -116,16 +116,34 @@ class App {
           `<li><a href="#" class="nav-link ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</a></li>`
         ).join('');
 
+        const mobileDrawerLinksHtml = links.map(l =>
+          `<li><a href="#" class="dashboard-mobile-link ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">
+            <span>${l.label}</span>
+            <span style="font-size: 0.8rem; color: #94A3B8;">→</span>
+          </a></li>`
+        ).join('');
+
+        const mobileTabsScrollHtml = links.map(l =>
+          `<button type="button" class="mobile-tab-chip ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</button>`
+        ).join('');
+
+        const quickActionLabel = state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Explore';
+        const roleEmoji = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
+
         navbar.innerHTML = `
           <div class="nav-container">
             <a href="dashboard.html" class="brand" id="brand-link" title="Dashboard Overview">
               <div class="brand-icon">I²</div>
               <span>Idea<span class="impact-text">2Impact</span></span>
             </a>
+
+            <!-- Desktop Nav Menu -->
             <ul class="nav-menu">
               ${navLinksHtml}
             </ul>
-            <div class="flex items-center gap-3">
+
+            <!-- Desktop User Actions -->
+            <div class="flex items-center gap-3 nav-actions-desktop">
               <div class="flex items-center gap-2" style="background: rgba(255,255,255,0.08); padding: 0.25rem 0.65rem 0.25rem 0.35rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.15);">
                 <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
                 <span style="font-size: 0.82rem; font-weight: 600; color: #fff;">${state.activeUser ? state.activeUser.name : 'User'}</span>
@@ -135,12 +153,65 @@ class App {
                 Sign Out
               </button>
               <button class="btn btn-primary btn-sm" id="quick-action-btn">
-                ${state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Explore'}
+                ${quickActionLabel}
               </button>
+            </div>
+
+            <!-- Mobile Controls -->
+            <div class="flex items-center gap-2 mobile-controls" style="display: none;">
+              <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.3);">
+              <button type="button" class="dashboard-mobile-toggle" id="dashboard-mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Dropdown / Drawer -->
+          <div class="dashboard-mobile-drawer" id="dashboard-mobile-drawer">
+            <div class="dashboard-mobile-drawer-content">
+              <div class="dashboard-mobile-user-card">
+                <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; font-size: 0.92rem; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${state.activeUser ? state.activeUser.name : 'User'}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${state.activeUser ? state.activeUser.email : ''}</div>
+                </div>
+                <span class="badge badge-role" style="font-size: 0.7rem;">${roleEmoji[state.currentRole] || ''} ${state.currentRole.toUpperCase()}</span>
+              </div>
+
+              <button class="btn btn-primary w-full" id="mobile-quick-action-btn" style="padding: 0.75rem; justify-content: center;">
+                ${quickActionLabel}
+              </button>
+
+              <ul class="dashboard-mobile-links">
+                ${mobileDrawerLinksHtml}
+              </ul>
+
+              <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem;">
+                <a href="index.html" class="btn btn-outline btn-sm w-full text-center" style="text-decoration:none;">Landing Page</a>
+                <a href="roadmap.html" class="btn btn-outline btn-sm w-full text-center" style="text-decoration:none;">Roadmap</a>
+                <button class="btn btn-outline btn-sm w-full" id="mobile-nav-logout-btn" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.3);">
+                  Sign Out
+                </button>
+              </div>
             </div>
           </div>
         `;
 
+        // Populate Mobile Scrollable Tab Strip
+        const scrollBar = document.getElementById('mobile-tab-scroll-bar');
+        if (scrollBar) {
+          scrollBar.innerHTML = mobileTabsScrollHtml;
+          scrollBar.querySelectorAll('.mobile-tab-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+              state.setTab(chip.dataset.tab);
+              this.renderTopBars();
+            });
+          });
+        }
+
+        // Desktop nav tab clicks
         navbar.querySelectorAll('.nav-link').forEach(link => {
           link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -149,6 +220,48 @@ class App {
           });
         });
 
+        // Mobile drawer links clicks
+        navbar.querySelectorAll('.dashboard-mobile-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            state.setTab(link.dataset.tab);
+            const drawer = navbar.querySelector('#dashboard-mobile-drawer');
+            const toggle = navbar.querySelector('#dashboard-mobile-toggle');
+            if (drawer) drawer.classList.remove('open');
+            if (toggle) { toggle.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
+            this.renderTopBars();
+          });
+        });
+
+        // Mobile Hamburger Toggle
+        const mobileToggle = navbar.querySelector('#dashboard-mobile-toggle');
+        const mobileDrawer = navbar.querySelector('#dashboard-mobile-drawer');
+        if (mobileToggle && mobileDrawer) {
+          mobileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = mobileDrawer.classList.contains('open');
+            if (isOpen) {
+              mobileDrawer.classList.remove('open');
+              mobileToggle.classList.remove('open');
+              mobileToggle.setAttribute('aria-expanded', 'false');
+            } else {
+              mobileDrawer.classList.add('open');
+              mobileToggle.classList.add('open');
+              mobileToggle.setAttribute('aria-expanded', 'true');
+            }
+          });
+
+          // Close on document click
+          document.addEventListener('click', (e) => {
+            if (!mobileDrawer.contains(e.target) && !mobileToggle.contains(e.target)) {
+              mobileDrawer.classList.remove('open');
+              mobileToggle.classList.remove('open');
+              mobileToggle.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        // Logout handlers (desktop & mobile)
         const logoutBtn = navbar.querySelector('#nav-logout-btn');
         if (logoutBtn) {
           logoutBtn.addEventListener('click', () => {
@@ -157,12 +270,33 @@ class App {
           });
         }
 
-        navbar.querySelector('#quick-action-btn').addEventListener('click', () => {
+        const mobileLogoutBtn = navbar.querySelector('#mobile-nav-logout-btn');
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener('click', () => {
+            state.logout();
+            this.renderTopBars();
+          });
+        }
+
+        // Quick action handlers (desktop & mobile)
+        const handleQuickAction = () => {
           if (state.currentRole === 'candidate') state.setTab('assessments');
           else if (state.currentRole === 'founder') state.setTab('ai-copilot');
           else if (state.currentRole === 'hr') state.setTab('create-job');
           else if (state.currentRole === 'investor') state.setTab('startups');
-        });
+        };
+
+        const quickBtn = navbar.querySelector('#quick-action-btn');
+        if (quickBtn) quickBtn.addEventListener('click', handleQuickAction);
+
+        const mobileQuickBtn = navbar.querySelector('#mobile-quick-action-btn');
+        if (mobileQuickBtn) {
+          mobileQuickBtn.addEventListener('click', () => {
+            if (mobileDrawer) mobileDrawer.classList.remove('open');
+            if (mobileToggle) mobileToggle.classList.remove('open');
+            handleQuickAction();
+          });
+        }
       }
     }
   }

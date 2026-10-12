@@ -145,6 +145,52 @@
       color: var(--info);
       border: 1px solid rgba(2, 132, 199, 0.2);
     }
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    @media (max-width: 640px) {
+      .auth-page-nav {
+        padding: 0 1rem;
+        height: 56px;
+      }
+      .brand {
+        font-size: 1.15rem;
+      }
+      .brand-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+      }
+      .back-home-link {
+        font-size: 0.78rem;
+        padding: 0.3rem 0.6rem;
+      }
+      .auth-wrapper {
+        padding: 1.25rem 0.75rem;
+      }
+      .auth-card {
+        padding: 1.5rem 1rem !important;
+        border-radius: var(--radius-md) !important;
+      }
+      .quick-demos-grid {
+        grid-template-columns: 1fr;
+      }
+      .auth-role-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+      }
+      .auth-role-big-card {
+        padding: 0.75rem 0.5rem !important;
+      }
+      .auth-role-big-desc {
+        display: none;
+      }
+      .form-row-2col {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -304,7 +350,7 @@
             <input type="text" id="reg-fullname" placeholder="e.g. Jordan Lee" required>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-row-2col">
             <div class="form-group">
               <label for="reg-username">Username</label>
               <input type="text" id="reg-username" placeholder="jordanlee" required autocomplete="username">
@@ -315,7 +361,7 @@
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-row-2col">
             <div class="form-group">
               <label for="reg-password">Password</label>
               <div class="password-input-wrapper">
