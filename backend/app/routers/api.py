@@ -1,13 +1,17 @@
 import uuid
+import io
+import re
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Query, Header, Response
+from fastapi import APIRouter, HTTPException, Query, Header, Response, File, UploadFile
 from typing import Optional, List, Dict, Any
+import pypdf
 
 from ..database import db
 from ..schemas.models import (
     LoginRequest, RegisterRequest, GoogleAuthRequest,
     ProfileCreate, ProfileUpdate, AssessmentSubmission,
     JobCreate, JobApplicationCreate, ApplicationStatusUpdate,
+    CandidateSkillCreate,
     IdeaAnalyzeRequest, StartupCreate, ProposalShareRequest,
     InvestorInterestRequest, MeetingRequest
 )
@@ -475,35 +479,41 @@ def download_passport_pdf(candidate_id: str):
 def create_job(payload: JobCreate):
     new_job = {
         "id": f"job-{str(uuid.uuid4())[:6]}",
-        "created_by": payload.created_by,
+        "created_by": payload.created_by or "hr-01",
         "company_name": payload.company_name,
         "title": payload.title,
         "description": payload.description,
-        "experience_level": payload.experience_level,
-        "salary_min": payload.salary_min,
-        "salary_max": payload.salary_max,
+        "experience_level": payload.experience_level or "Mid-Senior",
+        "salary_min": payload.salary_min or 80000,
+        "salary_max": payload.salary_max or 150000,
         "location": payload.location,
+        "employment_type": payload.employment_type or "full-time",
         "status": "Active",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     db.insert("jobs", new_job)
 
-    # Insert required skills
-    for req in payload.required_skills:
+    # Insert required skills from required_skills or skills
+    skills_list = payload.required_skills or payload.skills or []
+    for req in skills_list:
+        is_req = req.get("is_required", True)
+        default_weight = 2.0 if is_req else 1.0
         db.insert("job_required_skills", {
             "job_id": new_job["id"],
             "skill_id": req["skill_id"],
-            "is_required": req.get("is_required", True),
-            "weight": req.get("weight", 0.33)
+            "is_required": is_req,
+            "weight": req.get("weight", default_weight)
         })
 
-    db.log_audit("Job Created", payload.created_by, f"Job {payload.title} created for {payload.company_name}")
+    db.log_audit("Job Created", payload.created_by or "hr-01", f"Job {payload.title} created for {payload.company_name}")
     return new_job
 
 @router.get("/jobs")
+@router.get("/jobs/feed")
 def list_jobs(candidate_id: Optional[str] = Query(None)):
     jobs = db.find_many("jobs", lambda j: j.get("status") == "Active")
     skills_catalog = {s["id"]: s for s in db.get_table("skills")}
+    cid = candidate_id or "cand-01"
     
     results = []
     for j in jobs:
@@ -515,22 +525,72 @@ def list_jobs(candidate_id: Optional[str] = Query(None)):
                 "skill_id": r["skill_id"],
                 "name": s_data.get("name", r["skill_id"]),
                 "weight": r.get("weight", 1.0),
-                "is_required": r.get("is_required", True)
+                "is_required": r.get("is_required", True),
+                "skill": {"id": r["skill_id"], "name": s_data.get("name", r["skill_id"]), "category": s_data.get("category", "General")}
             })
         
         match_info = None
-        if candidate_id:
-            try:
-                match_info = calculate_candidate_job_match(candidate_id, j["id"])
-            except Exception:
-                match_info = None
+        try:
+            match_info = calculate_candidate_job_match(cid, j["id"])
+        except Exception:
+            match_info = None
 
         results.append({
             **j,
             "required_skills": job_skills,
+            "skills": job_skills,
             "match": match_info
         })
     return results
+
+@router.get("/jobs/my-jobs")
+def get_my_jobs(recruiter_id: Optional[str] = Query(None)):
+    rid = recruiter_id or "hr-01"
+    jobs = db.find_many("jobs", lambda j: j.get("created_by") == rid or j.get("status") == "Active")
+    skills_catalog = {s["id"]: s for s in db.get_table("skills")}
+    results = []
+    for j in jobs:
+        reqs = db.find_many("job_required_skills", lambda r: r["job_id"] == j["id"])
+        job_skills = []
+        for r in reqs:
+            s_obj = skills_catalog.get(r["skill_id"], {})
+            job_skills.append({
+                "skill_id": r["skill_id"],
+                "is_required": r.get("is_required", True),
+                "weight": r.get("weight", 1.0),
+                "skill": {"id": r["skill_id"], "name": s_obj.get("name", r["skill_id"]), "category": s_obj.get("category", "General")}
+            })
+        apps = db.find_many("job_applications", lambda a: a["job_id"] == j["id"])
+        results.append({
+            **j,
+            "skills": job_skills,
+            "applicants_count": len(apps)
+        })
+    return results
+
+@router.get("/jobs/{job_id}")
+def get_job_detail(job_id: str, candidate_id: Optional[str] = Query(None)):
+    job = db.find_one("jobs", lambda j: j["id"] == job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    cid = candidate_id or "cand-01"
+    match_data = calculate_candidate_job_match(cid, job_id)
+    skills_req = db.find_many("job_required_skills", lambda r: r["job_id"] == job_id)
+    skills_catalog = {s["id"]: s for s in db.get_table("skills")}
+    attached = []
+    for r in skills_req:
+        s_obj = skills_catalog.get(r["skill_id"], {})
+        attached.append({
+            "skill_id": r["skill_id"],
+            "is_required": r.get("is_required", True),
+            "weight": r.get("weight", 1.0),
+            "skill": {"id": r["skill_id"], "name": s_obj.get("name", r["skill_id"]), "category": s_obj.get("category", "General")}
+        })
+    return {
+        **job,
+        "skills": attached,
+        "gap_analysis": match_data
+    }
 
 @router.get("/jobs/{job_id}/matches")
 def get_job_candidate_matches(job_id: str):
@@ -550,25 +610,84 @@ def get_job_candidate_matches(job_id: str):
     return matches
 
 @router.post("/jobs/{job_id}/applications")
+@router.post("/jobs/{job_id}/apply")
 def apply_for_job(job_id: str, payload: JobApplicationCreate):
-    existing = db.find_one("job_applications", lambda a: a["job_id"] == job_id and a["candidate_id"] == payload.candidate_id)
+    cid = payload.candidate_id or "cand-01"
+    existing = db.find_one("job_applications", lambda a: a["job_id"] == job_id and a["candidate_id"] == cid)
+    
+    match_info = calculate_candidate_job_match(cid, job_id)
+    locked_score = payload.match_score if payload.match_score is not None else match_info["score"]
+
     if existing:
-        return existing
+        updates = {
+            "match_score": locked_score,
+            "notes": payload.notes or existing.get("notes", "")
+        }
+        if payload.learning_commitment:
+            updates["learning_commitment"] = payload.learning_commitment
+        updated = db.update("job_applications", lambda a: a["id"] == existing["id"], updates)
+        return updated
 
     new_app = {
         "id": f"app-{str(uuid.uuid4())[:6]}",
         "job_id": job_id,
-        "candidate_id": payload.candidate_id,
-        "status": "Applied",
+        "candidate_id": cid,
+        "status": "applied",
         "notes": payload.notes or "Candidate submitted application with Verified Skill Passport",
+        "learning_commitment": payload.learning_commitment or "",
+        "match_score": locked_score,
         "applied_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "interview_date": None
     }
     db.insert("job_applications", new_app)
-    db.log_audit("Job Application", payload.candidate_id, f"Candidate applied to Job {job_id}")
+    db.log_audit("Job Application", cid, f"Candidate applied to Job {job_id} with locked score {locked_score}%")
     return new_app
 
+@router.get("/jobs/{job_id}/candidates")
+def get_job_candidates(job_id: str):
+    apps = db.find_many("job_applications", lambda a: a["job_id"] == job_id)
+    profiles_map = {p["id"]: p for p in db.get_table("profiles")}
+    results = []
+    for a in apps:
+        cand = profiles_map.get(a["candidate_id"], {})
+        score = a.get("match_score")
+        if score is None:
+            match_info = calculate_candidate_job_match(a["candidate_id"], job_id)
+            score = match_info["score"]
+        results.append({
+            "id": a["id"],
+            "job_id": job_id,
+            "candidate_id": a["candidate_id"],
+            "match_score": score,
+            "status": a.get("status", "applied"),
+            "learning_commitment": a.get("learning_commitment", ""),
+            "notes": a.get("notes", ""),
+            "applied_at": a.get("applied_at", a.get("created_at")),
+            "created_at": a.get("created_at", a.get("applied_at")),
+            "profiles": _sanitize_profile(cand),
+            "profile": _sanitize_profile(cand)
+        })
+    results.sort(key=lambda c: c.get("match_score", 0), reverse=True)
+    return results
+
+@router.patch("/jobs/{job_id}/applications/{candidate_id}")
+def update_candidate_job_application(job_id: str, candidate_id: str, payload: Dict[str, Any]):
+    app = db.find_one("job_applications", lambda a: a["job_id"] == job_id and a["candidate_id"] == candidate_id)
+    if not app:
+        app = db.find_one("job_applications", lambda a: a["id"] == candidate_id)
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found")
+    new_status = payload.get("status", app.get("status", "applied"))
+    updates = {"status": new_status}
+    if "notes" in payload:
+        updates["notes"] = payload["notes"]
+    updated = db.update("job_applications", lambda a: a["id"] == app["id"], updates)
+    db.log_audit("Application Status Updated", app["candidate_id"], f"Job {job_id} application status set to {new_status}")
+    return updated
+
 @router.get("/applications/me")
+@router.get("/users/me/applications")
 def get_my_applications(candidate_id: Optional[str] = Query(None)):
     cid = candidate_id or "cand-01"
     apps = db.find_many("job_applications", lambda a: a["candidate_id"] == cid)
@@ -577,8 +696,15 @@ def get_my_applications(candidate_id: Optional[str] = Query(None)):
     results = []
     for a in apps:
         j = jobs_map.get(a["job_id"], {})
+        score = a.get("match_score")
+        if score is None:
+            match_info = calculate_candidate_job_match(cid, a["job_id"])
+            score = match_info["score"]
         results.append({
             **a,
+            "match_score": score,
+            "jobs": j,
+            "job": j,
             "job_title": j.get("title", "Software Role"),
             "company_name": j.get("company_name", "Technology Co"),
             "location": j.get("location", "Remote"),
@@ -588,19 +714,7 @@ def get_my_applications(candidate_id: Optional[str] = Query(None)):
 
 @router.get("/applications/job/{job_id}")
 def get_job_applications(job_id: str):
-    apps = db.find_many("job_applications", lambda a: a["job_id"] == job_id)
-    profiles_map = {p["id"]: p for p in db.get_table("profiles")}
-    
-    results = []
-    for a in apps:
-        cand = profiles_map.get(a["candidate_id"], {})
-        match_info = calculate_candidate_job_match(a["candidate_id"], job_id)
-        results.append({
-            **a,
-            "candidate": cand,
-            "match": match_info
-        })
-    return results
+    return get_job_candidates(job_id)
 
 @router.patch("/applications/{app_id}/status")
 def update_application_status(app_id: str, payload: ApplicationStatusUpdate):
@@ -613,7 +727,6 @@ def update_application_status(app_id: str, payload: ApplicationStatusUpdate):
         updates["notes"] = payload.notes
     if payload.interview_date:
         updates["interview_date"] = payload.interview_date
-        # Also auto-create a meeting record if an interview is scheduled!
         db.insert("meetings", {
             "id": f"mtg-{str(uuid.uuid4())[:6]}",
             "requester_id": "hr-01",
@@ -628,6 +741,138 @@ def update_application_status(app_id: str, payload: ApplicationStatusUpdate):
     updated = db.update("job_applications", lambda a: a["id"] == app_id, updates)
     db.log_audit("Application Stage Updated", app["candidate_id"], f"Application {app_id} stage set to {payload.status}")
     return updated
+
+# -------------------------------------------------------------
+# CANDIDATE RESUME PARSING & COMPETENCY MANAGEMENT (SkillBridge)
+# -------------------------------------------------------------
+@router.post("/resumes/parse")
+async def parse_resume(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    try:
+        content = await file.read()
+        reader = pypdf.PdfReader(io.BytesIO(content))
+        full_text = ""
+        for page in reader.pages:
+            t = page.extract_text()
+            if t:
+                full_text += t + " "
+
+        full_text_lower = full_text.lower()
+        skills = db.get_table("skills")
+        extracted_skills = []
+
+        # Synonym and alias mapping
+        skill_patterns = {
+            "sk-01": [r"\bpython\b", r"\bfastapi\b"],
+            "sk-02": [r"\bpostgres\b", r"\bpostgresql\b", r"\bsql\b", r"\bdatabase\b"],
+            "sk-03": [r"\bjavascript\b", r"\breact\b", r"\bfrontend\b", r"\btypescript\b", r"\bnode\b"],
+            "sk-04": [r"\bai\b", r"\bllm\b", r"\bmachine learning\b", r"\bdeep learning\b"],
+            "sk-05": [r"\bdocker\b", r"\bkubernetes\b", r"\bcloud\b", r"\baws\b", r"\bdevops\b"],
+            "sk-06": [r"\bsecurity\b", r"\barchitecture\b", r"\bapi\b", r"\bmicroservices\b"],
+            "sk-cpp": [r"\bc\+\+\b", r"\bcpp\b"],
+            "sk-python": [r"\bpython\b"],
+            "sk-java": [r"\bjava\b"],
+            "sk-js": [r"\bjavascript\b", r"\bjs\b"],
+            "sk-c": [r"\bc programming\b", r"\blinux c\b"],
+            "sk-html": [r"\bhtml\b", r"\bhtml5\b"],
+            "sk-css": [r"\bcss\b", r"\bcss3\b", r"\btailwind\b"],
+            "sk-react": [r"\breact\b", r"\breactjs\b"],
+            "sk-sql": [r"\bsql\b", r"\bqueries\b", r"\bmysql\b", r"\bpostgres\b"],
+            "sk-git": [r"\bgit\b", r"\bgithub\b", r"\bgitlab\b"]
+        }
+
+        matched_ids = set()
+        for s in skills:
+            sid = s["id"]
+            pats = skill_patterns.get(sid, [r"\b" + re.escape(s["name"].lower()) + r"\b"])
+            for pat in pats:
+                if re.search(pat, full_text_lower):
+                    matched_ids.add(sid)
+                    extracted_skills.append({
+                        "id": s["id"],
+                        "name": s["name"],
+                        "category": s.get("category", "Technical")
+                    })
+                    break
+
+        return {
+            "filename": file.filename,
+            "text_length": len(full_text),
+            "extracted_skills": extracted_skills
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse resume: {str(e)}")
+
+@router.get("/users/me/skills")
+@router.get("/candidate/skills")
+def get_user_skills(candidate_id: Optional[str] = Query(None)):
+    cid = candidate_id or "cand-01"
+    cand_skills = db.find_many("candidate_skills", lambda cs: cs["candidate_id"] == cid)
+    skills_catalog = {s["id"]: s for s in db.get_table("skills")}
+    results = []
+    for cs in cand_skills:
+        s_obj = skills_catalog.get(cs["skill_id"], {"id": cs["skill_id"], "name": cs["skill_id"], "category": "General"})
+        score = cs.get("assessment_score", cs.get("quiz_score"))
+        results.append({
+            "id": cs.get("id", f"cs-{cs['skill_id']}"),
+            "candidate_id": cid,
+            "skill_id": cs["skill_id"],
+            "proficiency_level": cs.get("proficiency_level", "intermediate"),
+            "years_experience": cs.get("years_experience", 1.0),
+            "quiz_score": score,
+            "assessment_score": score,
+            "is_verified": cs.get("is_verified", (score is not None and score >= 75.0)),
+            "verified_at": cs.get("verified_at"),
+            "skill": s_obj
+        })
+    return results
+
+@router.post("/users/me/skills")
+@router.post("/candidate/skills")
+def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = Query(None)):
+    cid = candidate_id or "cand-01"
+    existing = db.find_one("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == payload.skill_id)
+    
+    score = payload.quiz_score
+    is_verified = (score is not None and score >= 75.0)
+
+    data = {
+        "candidate_id": cid,
+        "skill_id": payload.skill_id,
+        "proficiency_level": payload.proficiency_level or "intermediate",
+        "years_experience": payload.years_experience or 1.0
+    }
+    if score is not None:
+        data["assessment_score"] = score
+        data["quiz_score"] = score
+        data["is_verified"] = is_verified
+        data["verified_at"] = datetime.now(timezone.utc).isoformat()
+    elif existing:
+        data["assessment_score"] = existing.get("assessment_score")
+        data["quiz_score"] = existing.get("quiz_score")
+        data["is_verified"] = existing.get("is_verified", False)
+        data["verified_at"] = existing.get("verified_at")
+
+    if existing:
+        updated = db.update("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == payload.skill_id, data)
+        return updated
+    else:
+        data["id"] = f"cs-{str(uuid.uuid4())[:6]}"
+        inserted = db.insert("candidate_skills", data)
+        return inserted
+
+@router.delete("/users/me/skills/{skill_id}")
+@router.delete("/candidate/skills/{skill_id}")
+def delete_user_skill(skill_id: str, candidate_id: Optional[str] = Query(None)):
+    cid = candidate_id or "cand-01"
+    deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"] == skill_id or cs.get("id") == skill_id))
+    if not deleted:
+        skill = db.find_one("skills", lambda s: s["id"] == skill_id or s["name"].lower() == skill_id.lower())
+        if skill:
+            deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == skill["id"])
+    return {"success": True, "message": "Competency removed from profile"}
+
 
 # -------------------------------------------------------------
 # 5. FOUNDER & AI STARTUP COPILOT (Section 10.3 & 13)

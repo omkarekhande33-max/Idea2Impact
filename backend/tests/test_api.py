@@ -121,5 +121,81 @@ class TestIdea2Impact(unittest.TestCase):
         self.assertFalse(res2["is_new_user"])
         self.assertEqual(res2["user"]["id"], res1["user"]["id"])
 
+    def test_candidate_competencies_and_dual_tier_matching(self):
+        """Tests adding competency, dual-tier matching, and applying with learning commitment."""
+        from app.routers.api import (
+            add_user_skill, get_user_skills, delete_user_skill,
+            create_job, apply_for_job, get_job_candidates, update_candidate_job_application
+        )
+        from app.schemas.models import CandidateSkillCreate, JobCreate, JobApplicationCreate
+
+        test_cand_id = "test-cand-99"
+
+        # 1. Add skills to test candidate (e.g. sk-python, sk-react)
+        add_user_skill(CandidateSkillCreate(
+            skill_id="sk-python",
+            proficiency_level="advanced",
+            years_experience=3.5,
+            quiz_score=85.0
+        ), candidate_id=test_cand_id)
+
+        add_user_skill(CandidateSkillCreate(
+            skill_id="sk-react",
+            proficiency_level="intermediate",
+            years_experience=2.0,
+            quiz_score=80.0
+        ), candidate_id=test_cand_id)
+
+        user_skills = get_user_skills(candidate_id=test_cand_id)
+        self.assertTrue(any(s["skill_id"] == "sk-python" for s in user_skills))
+        self.assertTrue(any(s["is_verified"] for s in user_skills))
+
+        # 2. Recruiter creates job with 75% mandatory and 25% preferred skills
+        new_job = create_job(JobCreate(
+            company_name="Acme Tech",
+            title="Senior Full-Stack Engineer",
+            description="Leading full stack architecture.",
+            location="Remote",
+            employment_type="full-time",
+            skills=[
+                {"skill_id": "sk-python", "is_required": True, "weight": 2.0},
+                {"skill_id": "sk-sql", "is_required": True, "weight": 2.0},
+                {"skill_id": "sk-react", "is_required": False, "weight": 1.0}
+            ]
+        ))
+        job_id = new_job["id"]
+
+        # 3. Calculate candidate match
+        match_info = calculate_candidate_job_match(test_cand_id, job_id)
+        # Meets 1 of 2 mandatory (50% of 75% = 37.5%) + 1 of 1 preferred (100% of 25% = 25%) = 62.5%
+        self.assertEqual(match_info["score"], 62.5)
+        self.assertEqual(len(match_info["critical_skill_gaps"]), 1)
+        self.assertEqual(match_info["critical_skill_gaps"][0]["skill_id"], "sk-sql")
+        self.assertEqual(len(match_info["bonus_competencies"]), 1)
+
+        # 4. Candidate applies with learning commitment
+        app = apply_for_job(job_id, JobApplicationCreate(
+            candidate_id=test_cand_id,
+            learning_commitment="Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+            notes="Ready to interview"
+        ))
+        self.assertEqual(app["match_score"], 62.5)
+        self.assertIn("PostgreSQL intensive", app["learning_commitment"])
+
+        # 5. Recruiter inspects candidate pipeline
+        candidates = get_job_candidates(job_id)
+        self.assertTrue(any(c["candidate_id"] == test_cand_id for c in candidates))
+        found = next(c for c in candidates if c["candidate_id"] == test_cand_id)
+        self.assertEqual(found["match_score"], 62.5)
+        self.assertEqual(found["learning_commitment"], "Enrolled in PostgreSQL intensive course, completing in 2 weeks.")
+
+        # 6. Recruiter updates candidate status to shortlisted
+        updated = update_candidate_job_application(job_id, test_cand_id, {"status": "shortlisted"})
+        self.assertEqual(updated["status"], "shortlisted")
+
+        # 7. Candidate removes skill
+        del_res = delete_user_skill("sk-react", candidate_id=test_cand_id)
+        self.assertTrue(del_res["success"])
+
 if __name__ == "__main__":
     unittest.main()

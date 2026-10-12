@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Curated Skill Roadmap — Idea2Impact SkillBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB",
+                        "primary-container": "#1E40AF",
+                        secondary: "#0D9488",
+                        surface: "#0B0F19",
+                        "surface-card": "#131C31",
+                        "surface-card-hover": "#1B2744",
+                        "text-main": "#F8FAFC",
+                        "text-muted": "#94A3B8",
+                        border: "rgba(255, 255, 255, 0.1)"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0B0F19; color: #F8FAFC; }
+        h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+    
+    <!-- Site Header -->
+    <header class="fixed top-0 left-0 right-0 w-full z-50 bg-[#0B0F19]/90 backdrop-blur-xl border-b border-white/10">
+        <div class="h-16 max-w-7xl mx-auto px-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <a class="flex items-center gap-2.5 group" href="index.html">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                        I²
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-base text-white tracking-tight leading-none group-hover:text-blue-400 transition-colors">Idea2Impact</span>
+                        <span class="text-[10px] text-teal-400 uppercase tracking-wider font-semibold mt-0.5">SkillBridge Learning Hub</span>
+                    </div>
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.close(); if(!window.closed) window.location.href='index.html';" class="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors flex items-center gap-1.5 border border-white/15">
+                    <span class="material-symbols-outlined text-[16px]">close</span>
+                    <span>Close Hub</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full pt-16 flex-1">
+        
+        <!-- Hero Header -->
+        <div class="w-full bg-gradient-to-br from-blue-950 via-slate-900 to-[#0B0F19] pt-12 pb-12 border-b border-white/10 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-10 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl translate-y-1/2"></div>
+            
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <a href="javascript:history.back()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    </a>
+                    <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 font-semibold text-xs tracking-wide shadow-sm flex items-center gap-1 border border-teal-500/30">
+                        <span class="material-symbols-outlined text-[14px]">auto_stories</span>
+                        Competency Remediation Blueprint
+                    </span>
+                </div>
+                
+                <h1 id="skillTitle" class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Loading Roadmap...
+                </h1>
+                <p class="text-slate-300 max-w-2xl mt-3 text-base sm:text-lg opacity-90 leading-relaxed">
+                    A curated learning path of high-yield tutorials and hands-on milestones to help you master this competency and surge your dual-tier match score for top engineering roles.
+                </p>
+                
+                <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white text-xs font-semibold">
+                        <span class="material-symbols-outlined text-[18px] text-teal-400">trending_up</span>
+                        <span>Estimated Impact: <strong class="text-teal-300">+25% Match Score Surge</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white text-xs font-semibold">
+                        <span class="material-symbols-outlined text-[18px] text-blue-400">schedule</span>
+                        <span>Duration: ~6 hours</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white text-xs font-semibold">
+                        <span class="material-symbols-outlined text-[18px] text-purple-400">verified</span>
+                        <span>Verified 75% Benchmark Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-7xl mx-auto px-6 py-10">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                        <span class="material-symbols-outlined text-[24px]">video_library</span>
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white">Recommended Video Track & Curriculum</h2>
+                        <p class="text-xs sm:text-sm text-slate-400">Step-by-step video tutorials from beginner fundamentals to production patterns.</p>
+                    </div>
+                </div>
+                <div class="hidden sm:flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-white/5 text-slate-300 text-xs font-semibold border border-white/10">
+                        6 Curated Lessons
+                    </span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="playlistContainer">
+                <div class="col-span-full py-16 flex flex-col items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-[48px] animate-spin text-blue-400">progress_activity</span>
+                    <span class="mt-4 text-sm font-semibold">Curating personalized learning track...</span>
+                </div>
+            </div>
+            
+            <!-- Assessment CTA Banner -->
+            <div class="mt-12 bg-gradient-to-r from-slate-900 to-[#131C31] border border-white/15 rounded-2xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-400 shrink-0 border border-teal-500/30 shadow-md">
+                        <span class="material-symbols-outlined text-[32px]">verified</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white">Ready to prove your skills with AI Proctoring?</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1">Take the proctored assessment to officially verify this competency, earn your badge, and stand out to recruiters.</p>
+                    </div>
+                </div>
+                <a href="index.html" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all shrink-0">
+                    <span>Take Proctored Assessment</span>
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full bg-[#070A11] border-t border-white/10 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-[11px]">
+                    I²
+                </div>
+                <span class="font-semibold text-slate-200">Idea2Impact SkillBridge System</span>
+                <span>•</span>
+                <span>Dual-Tier 75/25 Competency Engine</span>
+            </div>
+            <div>© 2026 Idea2Impact Platform. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const skillName = params.get('skill') || 'Full-Stack Architecture';
+            
+            document.getElementById('skillTitle').textContent = `Mastering ${skillName}`;
+            
+            const container = document.getElementById('playlistContainer');
+            
+            const videos = [
+                { title: `${skillName} in 100 Seconds`, duration: '1:54', channel: 'Fireship', bgGradient: 'from-blue-600 to-indigo-700' },
+                { title: `${skillName} Crash Course for Beginners`, duration: '1:24:10', channel: 'Traversy Media', bgGradient: 'from-emerald-600 to-teal-700' },
+                { title: `Advanced ${skillName} Concepts You Need to Know`, duration: '45:20', channel: 'Web Dev Simplified', bgGradient: 'from-purple-600 to-indigo-800' },
+                { title: `Building a Production Service with ${skillName}`, duration: '2:10:05', channel: 'FreeCodeCamp', bgGradient: 'from-sky-600 to-blue-800' },
+                { title: `Top 10 Technical Interview Questions on ${skillName}`, duration: '15:30', channel: 'Tech Lead Insights', bgGradient: 'from-amber-600 to-orange-700' },
+                { title: `${skillName} Architecture Patterns & Scaling`, duration: '32:15', channel: 'Software Arch Pro', bgGradient: 'from-slate-700 to-slate-900' }
+            ];
+            
+            setTimeout(() => {
+                container.innerHTML = videos.map((v, i) => `
+                    <div class="flex flex-col bg-[#131C31] rounded-2xl overflow-hidden border border-white/10 hover:border-blue-500/50 hover:shadow-xl transition-all group hover:-translate-y-1 duration-300">
+                        <div class="relative h-44 w-full bg-gradient-to-tr ${v.bgGradient} flex items-center justify-center overflow-hidden">
+                            <!-- Overlay Pattern -->
+                            <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                            
+                            <!-- Play button icon -->
+                            <span class="material-symbols-outlined text-[54px] text-white opacity-90 group-hover:scale-110 transition-transform duration-300 z-10 drop-shadow-lg">
+                                play_circle
+                            </span>
+                            
+                            <!-- Duration badge -->
+                            <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-black/70 text-white text-[11px] font-semibold backdrop-blur-md z-10 border border-white/10">
+                                <span class="material-symbols-outlined text-[13px]">schedule</span>
+                                <span>${v.duration}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5 flex flex-col flex-1 justify-between gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="text-teal-400 font-bold uppercase tracking-wider">Lesson ${i+1}</span>
+                                    <span class="text-slate-400">1.${(i * 3 + 2)}M views</span>
+                                </div>
+                                <h4 class="text-base font-bold text-white line-clamp-2 mt-1 leading-snug group-hover:text-blue-400 transition-colors">
+                                    ${v.title}
+                                </h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-slate-300 text-[11px]">
+                                        <span class="material-symbols-outlined text-[13px]">person</span>
+                                    </div>
+                                    <span class="text-xs text-slate-400 font-medium">${v.channel}</span>
+                                </div>
+                            </div>
+                            
+                            <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(v.title)}" target="_blank" class="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5 border border-white/10">
+                                <span>Watch on YouTube</span>
+                                <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            }, 300);
+        });
+    </script>
+</body>
+</html>

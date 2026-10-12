@@ -38,23 +38,33 @@ class AssessmentSubmission(BaseModel):
     answers: Dict[str, int] # question_id -> selected option index
     flags: Optional[List[str]] = Field(default_factory=list)
 
+class CandidateSkillCreate(BaseModel):
+    skill_id: str
+    proficiency_level: Optional[str] = "intermediate"
+    years_experience: Optional[float] = 1.0
+    quiz_score: Optional[float] = None
+
 class JobCreate(BaseModel):
-    created_by: str
+    created_by: Optional[str] = "hr-01"
     company_name: str
     title: str
     description: str
-    experience_level: str
-    salary_min: int
-    salary_max: int
+    experience_level: Optional[str] = "Mid-Senior"
+    salary_min: Optional[int] = 80000
+    salary_max: Optional[int] = 150000
     location: str
-    required_skills: List[Dict[str, Any]] # [{"skill_id": "sk-01", "is_required": True, "weight": 0.4}]
+    employment_type: Optional[str] = "full-time"
+    required_skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # [{"skill_id": "sk-01", "is_required": True, "weight": 2.0}]
+    skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # Alternate alias from SkillBridge
 
 class JobApplicationCreate(BaseModel):
-    candidate_id: str
+    candidate_id: Optional[str] = "cand-01"
     notes: Optional[str] = ""
+    learning_commitment: Optional[str] = ""
+    match_score: Optional[float] = None
 
 class ApplicationStatusUpdate(BaseModel):
-    status: str # "Applied", "Under Review", "Shortlisted", "Interview", "Selected", "Rejected", "Offer Sent"
+    status: str # "applied", "reviewing", "shortlisted", "rejected", "interview", "selected"
     notes: Optional[str] = None
     interview_date: Optional[str] = None
 

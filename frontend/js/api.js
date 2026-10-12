@@ -537,8 +537,108 @@ class ApiService {
         body: JSON.stringify(data)
       });
     } catch (e) {
-      return { id: `app-${Date.now().toString(36)}`, job_id: jobId, status: 'submitted' };
+      return { id: `app-${Date.now().toString(36)}`, job_id: jobId, status: 'applied', ...data };
     }
+  }
+
+  async getJobDetail(jobId, candidateId = '') {
+    try {
+      return await this.request(candidateId ? `/jobs/${jobId}?candidate_id=${candidateId}` : `/jobs/${jobId}`);
+    } catch (e) {
+      const allJobs = await this.getJobs(candidateId);
+      return allJobs.find(j => j.id === jobId) || null;
+    }
+  }
+
+  async getMyJobs(recruiterId = '') {
+    try {
+      return await this.request(recruiterId ? `/jobs/my-jobs?recruiter_id=${recruiterId}` : '/jobs/my-jobs');
+    } catch (e) {
+      return await this.getJobs();
+    }
+  }
+
+  async getJobCandidates(jobId) {
+    try {
+      return await this.request(`/jobs/${jobId}/candidates`);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  async updateCandidateApplicationStatus(jobId, candidateId, status, notes = '') {
+    try {
+      return await this.request(`/jobs/${jobId}/applications/${candidateId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, notes })
+      });
+    } catch (e) {
+      return { status, candidate_id: candidateId, job_id: jobId };
+    }
+  }
+
+  // =========================================================================
+  // CANDIDATE COMPETENCIES & AI RESUME PARSING (SkillBridge Engine)
+  // =========================================================================
+  async getCandidateSkills(candidateId = '') {
+    try {
+      return await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills');
+    } catch (e) {
+      const raw = localStorage.getItem('i2i_candidate_skills');
+      return raw ? JSON.parse(raw) : [];
+    }
+  }
+
+  async addCandidateSkill(payload, candidateId = '') {
+    try {
+      const res = await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      return res;
+    } catch (e) {
+      const list = await this.getCandidateSkills(candidateId);
+      const filtered = list.filter(s => s.skill_id !== payload.skill_id);
+      const newSkill = { id: `cs-${Date.now().toString(36)}`, ...payload, candidate_id: candidateId };
+      filtered.push(newSkill);
+      localStorage.setItem('i2i_candidate_skills', JSON.stringify(filtered));
+      return newSkill;
+    }
+  }
+
+  async removeCandidateSkill(skillId, candidateId = '') {
+    try {
+      return await this.request(candidateId ? `/candidate/skills/${skillId}?candidate_id=${candidateId}` : `/candidate/skills/${skillId}`, {
+        method: 'DELETE'
+      });
+    } catch (e) {
+      const list = await this.getCandidateSkills(candidateId);
+      const filtered = list.filter(s => s.skill_id !== skillId && s.id !== skillId);
+      localStorage.setItem('i2i_candidate_skills', JSON.stringify(filtered));
+      return { success: true };
+    }
+  }
+
+  async parseResume(file) {
+    const url = `${API_BASE}/resumes/parse`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('i2i_token');
+    const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: authHeaders,
+      body: formData
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Failed to parse resume' }));
+      throw new Error(err.detail || 'Resume upload failed');
+    }
+
+    return await response.json();
   }
 
   async getMyApplications(candidateId) {
@@ -546,7 +646,7 @@ class ApiService {
       return await this.request(`/applications/me?candidate_id=${candidateId}`);
     } catch (e) {
       return [
-        { id: 'app-01', job_title: 'Senior AI Platform Engineer', company: 'NovaTech', status: 'interviewing', applied_at: '2026-04-01' }
+        { id: 'app-01', job_title: 'Senior AI Platform Engineer', company_name: 'NovaTech', status: 'interviewing', applied_at: '2026-04-01' }
       ];
     }
   }
