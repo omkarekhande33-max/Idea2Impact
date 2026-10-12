@@ -13,14 +13,19 @@ from ..schemas.models import (
     JobCreate, JobApplicationCreate, ApplicationStatusUpdate,
     CandidateSkillCreate,
     IdeaAnalyzeRequest, StartupCreate, ProposalShareRequest,
-    InvestorInterestRequest, MeetingRequest
+    InvestorInterestRequest, MeetingRequest,
+    GeminiIdeaPromptRequest, ShareToHrRequest, ConvertRoleToJobRequest, ShareToInvestorRequest
 )
 from ..security.auth import (
     hash_password, verify_password, create_access_token, verify_access_token
 )
 from ..matching.engine import calculate_candidate_job_match
 from ..ai.copilot import analyze_startup_idea, analyze_investor_proposal
-from ..services.pdf_generator import generate_business_proposal_pdf, generate_candidate_passport_pdf
+from ..ai.gemini_architect import synthesize_startup_architecture
+from ..services.pdf_generator import (
+    generate_business_proposal_pdf, generate_candidate_passport_pdf,
+    generate_roles_specification_pdf, generate_investor_deep_pitch_pdf
+)
 
 router = APIRouter()
 
@@ -504,15 +509,20 @@ def create_job(payload: JobCreate):
         default_weight = 2.0 if is_req else 1.0
         s_name = (req.get("skill_name") or req.get("name") or req.get("skill_id") or "Skill").strip()
 
-        # Link to existing catalog skill if matching by name or substring
-        catalog_id = skills_name_map.get(s_name.lower())
-        if not catalog_id:
+        # Link to existing catalog skill: prioritize explicit skill_id if provided
+        explicit_id = req.get("skill_id")
+        catalog_id = None
+        if explicit_id and db.find_one("skills", lambda s: s["id"] == explicit_id):
+            catalog_id = explicit_id
+        elif s_name.lower() in skills_name_map:
+            catalog_id = skills_name_map[s_name.lower()]
+        elif not explicit_id:
             for s_cat_name, s_cat_id in skills_name_map.items():
-                if s_cat_name in s_name.lower() or s_name.lower() in s_cat_name:
+                if len(s_cat_name) >= 3 and (s_cat_name in s_name.lower() or s_name.lower() in s_cat_name):
                     catalog_id = s_cat_id
                     break
 
-        assigned_skill_id = catalog_id or req.get("skill_id") or f"sk-{str(uuid.uuid4())[:6]}"
+        assigned_skill_id = catalog_id or explicit_id or f"sk-{str(uuid.uuid4())[:6]}"
 
         # Ensure skill exists in database skills catalog
         if not db.find_one("skills", lambda s: s["id"] == assigned_skill_id):
@@ -1093,3 +1103,323 @@ def get_platform_stats():
         "active_jobs_count": len(jobs),
         "startups_count": len(startups)
     }
+
+# -------------------------------------------------------------
+# 8. GEMINI PRO AI CHATBOT & SHARING WORKSPACES
+# -------------------------------------------------------------
+@router.post("/chat/gemini-pro")
+def chat_gemini_pro(payload: GeminiIdeaPromptRequest):
+    """
+    Gemini Pro AI Business Architect:
+    Processes the founder's idea and generates:
+    - Step-by-Step Strategic Roadmap
+    - Job Roles Required with 75/25 Skills
+    - Investment Required & Runway Allocation
+    - Project Scope (TAM/SAM/SOM, MVP Boundaries)
+    - Deep Explanation of Project Idea
+    """
+    fid = payload.founder_id or "found-01"
+    founder_profile = db.find_one("profiles", lambda p: p["id"] == fid) or {
+        "id": fid,
+        "full_name": payload.founder_name or "Sarah Lin",
+        "email": payload.founder_email or "sarah.lin@ecotrace.ai"
+    }
+
+    # Run Gemini synthesis
+    analysis = synthesize_startup_architecture(
+        payload.idea,
+        founder_name=founder_profile.get("full_name", "Founder"),
+        startup_name=payload.startup_name
+    )
+
+    # Persist session for PDF export and retrieval
+    session_id = f"gem-{str(uuid.uuid4())[:8]}"
+    db.insert("gemini_sessions", {
+        "id": session_id,
+        "founder_id": fid,
+        "idea": payload.idea,
+        "analysis": analysis,
+        "founder": {
+            "name": founder_profile.get("full_name", "Sarah Lin"),
+            "email": founder_profile.get("email", "founder@idea2impact.io")
+        },
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
+    db.log_audit("Gemini Pro Idea Analyzed", fid, f"Generated business architecture for '{analysis.get('title')}'")
+
+    return {
+        "session_id": session_id,
+        "analysis": analysis,
+        "founder": {
+            "id": fid,
+            "name": founder_profile.get("full_name", "Sarah Lin"),
+            "email": founder_profile.get("email", "founder@idea2impact.io")
+        }
+    }
+
+@router.get("/founder/roles-pdf/{session_id}")
+def download_roles_pdf_by_session(session_id: str):
+    """Generates and downloads the Roles & Skills PDF by session ID."""
+    session = db.find_one("gemini_sessions", lambda s: s["id"] == session_id)
+    if not session:
+        # Check if it was a shared hiring request
+        hr_req = db.find_one("shared_hiring_requests", lambda r: r.get("session_id") == session_id or r.get("id") == session_id)
+        if hr_req:
+            founder_info = {"name": hr_req.get("founder_name", "Founder"), "email": hr_req.get("founder_email", "")}
+            analysis_data = {
+                "title": hr_req.get("idea_title", "Startup Venture"),
+                "industry": hr_req.get("industry", "Technology"),
+                "required_job_roles": hr_req.get("roles", [])
+            }
+            pdf_bytes = generate_roles_specification_pdf(founder_info, analysis_data)
+            return Response(
+                content=pdf_bytes,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"attachment; filename=Team_Roles_Specification.pdf"}
+            )
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    analysis = session.get("analysis", {})
+    pdf_bytes = generate_roles_specification_pdf(founder_info, analysis)
+    safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={safe_title}_Team_Roles_Spec.pdf"}
+    )
+
+@router.post("/founder/export-roles-pdf")
+def export_roles_pdf_direct(payload: Dict[str, Any]):
+    """Direct POST export for Roles & Skills PDF with JSON payload."""
+    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    analysis = payload.get("analysis", payload)
+    pdf_bytes = generate_roles_specification_pdf(founder_info, analysis)
+    safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={safe_title}_Team_Roles_Spec.pdf"}
+    )
+
+@router.get("/founder/investor-pdf/{session_id}")
+def download_investor_pdf_by_session(session_id: str):
+    """Generates and downloads the Deep Explanation & Investor Pitch PDF by session ID."""
+    session = db.find_one("gemini_sessions", lambda s: s["id"] == session_id)
+    if not session:
+        # Check if it was a shared pitch
+        pitch = db.find_one("shared_founder_pitches", lambda p: p.get("session_id") == session_id or p.get("id") == session_id)
+        if pitch:
+            founder_info = {"name": pitch.get("founder_name", "Founder"), "email": pitch.get("founder_email", "")}
+            analysis_data = {
+                "title": pitch.get("startup_name", "Startup Venture"),
+                "tagline": pitch.get("tagline", ""),
+                "industry": pitch.get("industry", "Technology"),
+                "deep_explanation": pitch.get("deep_explanation", {}),
+                "project_scope": pitch.get("project_scope", {}),
+                "investment_required": pitch.get("investment_required", {}),
+                "execution_roadmap": pitch.get("execution_roadmap", [])
+            }
+            pdf_bytes = generate_investor_deep_pitch_pdf(founder_info, analysis_data)
+            return Response(
+                content=pdf_bytes,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"attachment; filename=Venture_Proposal_Pitch.pdf"}
+            )
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    analysis = session.get("analysis", {})
+    pdf_bytes = generate_investor_deep_pitch_pdf(founder_info, analysis)
+    safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={safe_title}_Venture_Proposal.pdf"}
+    )
+
+@router.post("/founder/export-investor-pdf")
+def export_investor_pdf_direct(payload: Dict[str, Any]):
+    """Direct POST export for Deep Explanation & Investor Pitch PDF with JSON payload."""
+    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    analysis = payload.get("analysis", payload)
+    pdf_bytes = generate_investor_deep_pitch_pdf(founder_info, analysis)
+    safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={safe_title}_Venture_Proposal.pdf"}
+    )
+
+@router.post("/founder/share-to-hr")
+def share_to_hr(payload: ShareToHrRequest):
+    """
+    Founder shares the generated Job Roles & Skills specification with HR.
+    It is saved and immediately visible on the HR Dashboard!
+    """
+    fid = payload.founder_id or "found-01"
+    founder = db.find_one("profiles", lambda p: p["id"] == fid) or {
+        "full_name": "Sarah Lin",
+        "email": "sarah.lin@ecotrace.ai"
+    }
+
+    req_record = {
+        "id": f"hr-req-{str(uuid.uuid4())[:8]}",
+        "session_id": payload.session_id,
+        "founder_id": fid,
+        "founder_name": founder.get("full_name", "Sarah Lin"),
+        "founder_email": founder.get("email", "founder@idea2impact.io"),
+        "idea_title": payload.idea_title,
+        "industry": payload.industry or "Technology",
+        "roles": payload.roles,
+        "roles_count": len(payload.roles),
+        "deep_explanation": payload.deep_explanation,
+        "status": "New Request",
+        "shared_at": datetime.now(timezone.utc).isoformat(),
+        "note": payload.note or "Hiring specification shared by Founder for talent acquisition."
+    }
+
+    db.insert("shared_hiring_requests", req_record)
+    db.log_audit("Hiring Spec Shared with HR", fid, f"Founder shared {len(payload.roles)} roles for '{payload.idea_title}'")
+
+    return {
+        "success": True,
+        "message": f"Hiring specification for '{payload.idea_title}' sent to HR and now live on HR Dashboard!",
+        "request": req_record
+    }
+
+@router.get("/hr/shared-hiring-requests")
+def list_shared_hiring_requests():
+    """Fetches all hiring specifications shared by founders for the HR Dashboard."""
+    requests = db.get_table("shared_hiring_requests")
+    return sorted(requests, key=lambda r: r.get("shared_at", ""), reverse=True)
+
+@router.post("/hr/convert-request-to-job")
+def convert_request_to_job(payload: ConvertRoleToJobRequest):
+    """
+    HR 1-Click action: converts a role from the founder's specification into an active job posting!
+    """
+    req_obj = db.find_one("shared_hiring_requests", lambda r: r["id"] == payload.request_id)
+    if not req_obj:
+        raise HTTPException(status_code=404, detail="Hiring request not found")
+
+    roles = req_obj.get("roles", [])
+    idx = payload.role_index or 0
+    if idx < 0 or idx >= len(roles):
+        raise HTTPException(status_code=400, detail="Invalid role index")
+
+    target_role = roles[idx]
+
+    # Create job in jobs table
+    new_job = {
+        "id": f"job-{str(uuid.uuid4())[:6]}",
+        "created_by": payload.hr_id or "hr-01",
+        "company_name": req_obj.get("idea_title", "Portfolio Venture"),
+        "title": target_role.get("title", "Technical Role"),
+        "description": "\n".join(target_role.get("responsibilities", ["Deliver core platform functionality."])),
+        "experience_level": target_role.get("experience_level", "Senior"),
+        "salary_min": 100000,
+        "salary_max": 160000,
+        "location": "Remote / Hybrid",
+        "employment_type": "full-time",
+        "status": "Active",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    db.insert("jobs", new_job)
+
+    # Insert required skills
+    req_skills = target_role.get("required_skills", [])
+    pref_skills = target_role.get("preferred_skills", [])
+    for s in req_skills:
+        db.insert("job_required_skills", {
+            "job_id": new_job["id"],
+            "skill_id": s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}"),
+            "skill_name": s.get("name", "Technical Skill"),
+            "is_required": True,
+            "weight": s.get("weight", 0.40)
+        })
+    for s in pref_skills:
+        db.insert("job_required_skills", {
+            "job_id": new_job["id"],
+            "skill_id": s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}"),
+            "skill_name": s.get("name", "Bonus Skill"),
+            "is_required": False,
+            "weight": s.get("weight", 0.25)
+        })
+
+    # Update request status
+    req_obj["status"] = "Imported to Active Pipeline"
+    db.save()
+    db.log_audit("Role Converted to Job", payload.hr_id or "hr-01", f"Converted '{target_role.get('title')}' into active job opening")
+
+    return {
+        "success": True,
+        "message": f"Role '{target_role.get('title')}' converted into active job opening!",
+        "job": new_job
+    }
+
+@router.post("/founder/share-to-investor")
+def share_to_investor(payload: ShareToInvestorRequest):
+    """
+    Founder shares the deep project explanation & investment proposal with Investors.
+    It is saved and immediately visible on Investor / Sharks Mode!
+    """
+    fid = payload.founder_id or "found-01"
+    founder = db.find_one("profiles", lambda p: p["id"] == fid) or {
+        "full_name": "Sarah Lin",
+        "email": "sarah.lin@ecotrace.ai",
+        "avatar_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"
+    }
+
+    pitch_record = {
+        "id": f"pitch-{str(uuid.uuid4())[:8]}",
+        "session_id": payload.session_id,
+        "founder_id": fid,
+        "founder_name": founder.get("full_name", "Sarah Lin"),
+        "founder_email": founder.get("email", "founder@idea2impact.io"),
+        "founder_avatar": founder.get("avatar_url", "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"),
+        "startup_name": payload.startup_name,
+        "tagline": payload.tagline or "Autonomous innovation.",
+        "industry": payload.industry or "Technology",
+        "valuation_ask": payload.investment_required.get("total_ask", "$750,000"),
+        "stage": payload.investment_required.get("stage", "Seed Round"),
+        "runway_months": payload.investment_required.get("runway_months", 18),
+        "deep_explanation": payload.deep_explanation,
+        "project_scope": payload.project_scope,
+        "investment_required": payload.investment_required,
+        "execution_roadmap": payload.execution_roadmap,
+        "status": "In Deal Pipeline",
+        "shared_at": datetime.now(timezone.utc).isoformat(),
+        "note": payload.note or "Confidential Venture Proposal shared by Founder via Gemini Pro AI Copilot."
+    }
+
+    db.insert("shared_founder_pitches", pitch_record)
+
+    # Also register in startup_proposals for Victoria Sterling / Sharks
+    db.insert("startup_proposals", {
+        "id": f"prop-{str(uuid.uuid4())[:6]}",
+        "startup_id": pitch_record["id"],
+        "startup_name": payload.startup_name,
+        "founder_id": fid,
+        "investor_id": "inv-01",
+        "status": "Under Review",
+        "shared_at": datetime.now(timezone.utc).isoformat(),
+        "ai_summary": payload.deep_explanation.get("elevator_pitch", "High-growth venture proposal."),
+        "risk_score": "Moderate"
+    })
+
+    db.log_audit("Venture Pitch Shared with Investors", fid, f"Founder shared pitch for '{payload.startup_name}' (Ask: {pitch_record['valuation_ask']})")
+
+    return {
+        "success": True,
+        "message": f"Proposal for '{payload.startup_name}' successfully sent to Investors and now live on Shark Room!",
+        "pitch": pitch_record
+    }
+
+@router.get("/investor/shared-pitches")
+def list_shared_pitches():
+    """Fetches all proposals shared by founders for the Investor / Sharks Mode."""
+    pitches = db.get_table("shared_founder_pitches")
+    return sorted(pitches, key=lambda p: p.get("shared_at", ""), reverse=True)
+

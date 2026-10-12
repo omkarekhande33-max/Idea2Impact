@@ -28,6 +28,9 @@ class App {
   constructor() {
     this.appContainer = document.getElementById('app');
     this.currentViewData = {};
+    this.currentGeminiAnalysis = null;
+    this.currentGeminiSessionId = null;
+    this.geminiChatMessages = [];
     this.init();
   }
 
@@ -91,18 +94,21 @@ class App {
           ],
           hr: [
             { label: 'Executive Dashboard', tab: 'overview' },
+            { label: 'Founder Hiring Specs', tab: 'hiring-requests' },
             { label: 'Post 75/25 Job', tab: 'create-job' },
             { label: 'Candidate Dossier', tab: 'candidates' },
             { label: 'Pipeline Kanban', tab: 'pipeline' }
           ],
           founder: [
             { label: 'Dashboard', tab: 'overview' },
+            { label: '✦ Gemini Pro Studio', tab: 'gemini-studio' },
             { label: 'AI Copilot', tab: 'ai-copilot' },
-            { label: 'Pitch Deck', tab: 'pitch' },
+            { label: 'Pitch Deck', tab: 'proposal' },
             { label: 'Find Investors', tab: 'investors' }
           ],
           investor: [
             { label: 'Dashboard', tab: 'overview' },
+            { label: 'Shared Founder Pitches', tab: 'shared-pitches' },
             { label: 'Deal Flow', tab: 'startups' },
             { label: 'Portfolio', tab: 'portfolio' },
             { label: 'Term Sheets', tab: 'termsheets' }
@@ -3095,6 +3101,10 @@ class App {
               <button class="sidebar-link ${currentTab === 'overview' ? 'active' : ''}" data-tab="overview">
                 <span class="sidebar-link-content">📊 Startup Overview</span>
               </button>
+              <button class="sidebar-link ${currentTab === 'gemini-studio' ? 'active' : ''}" data-tab="gemini-studio">
+                <span class="sidebar-link-content" style="color:#0F766E; font-weight:700;">✦ Gemini Pro Studio</span>
+                <span class="sidebar-badge" style="background:#0F766E; color:#fff;">AI</span>
+              </button>
               <button class="sidebar-link ${currentTab === 'ai-copilot' ? 'active' : ''}" data-tab="ai-copilot">
                 <span class="sidebar-link-content">🤖 AI Startup Copilot</span>
               </button>
@@ -3140,7 +3150,12 @@ class App {
             <h2>Founder Startup Studio</h2>
             <p>Structure your business, analyze feasibility dimensions, and coordinate with investors.</p>
           </div>
-          <button class="btn btn-accent" id="jump-to-copilot-btn">🤖 Run AI Idea Analyzer</button>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="jump-to-gemini-btn" style="background:linear-gradient(135deg, #1E1B4B 0%, #0F766E 100%); border:none; display:flex; align-items:center; gap:0.4rem;">
+              <span>✦</span> Launch Gemini Pro Studio
+            </button>
+            <button class="btn btn-accent" id="jump-to-copilot-btn">🤖 Run AI Idea Analyzer</button>
+          </div>
         </div>
 
         <div class="stats-grid">
@@ -3198,6 +3213,8 @@ class App {
           </div>
         </div>
       `;
+    if (tab === 'gemini-studio') {
+      return this.renderGeminiStudio(currentStartup, founderId);
     }
 
     if (tab === 'ai-copilot') {
@@ -3499,6 +3516,11 @@ class App {
       });
     });
 
+    const jumpGemini = this.appContainer.querySelector('#jump-to-gemini-btn');
+    if (jumpGemini) {
+      jumpGemini.addEventListener('click', () => state.setTab('gemini-studio'));
+    }
+
     // Startup Job Form
     const jobForm = this.appContainer.querySelector('#startup-job-form');
     if (jobForm) {
@@ -3524,6 +3546,424 @@ class App {
           state.setTab('overview');
         } catch (err) {
           state.showToast(err.message, 'danger');
+        }
+      });
+    }
+
+    this.attachGeminiEvents(currentStartup, founderId);
+  }
+
+  renderGeminiStudio(currentStartup, founderId) {
+    return `
+      <div class="gemini-studio-wrapper">
+        <!-- Gemini Hero Banner -->
+        <div class="gemini-hero-banner">
+          <div class="gemini-sparkle-pill">✦ GEMINI 1.5 PRO AUTONOMOUS VENTURE ARCHITECT</div>
+          <h2 class="gemini-hero-title">Enter Your Idea. Build a Venture Empire.</h2>
+          <p class="gemini-hero-desc">
+            Describe your startup concept below. Gemini Pro synthesizes your 12-month execution roadmap, derives the exact hiring roles with 75/25 skills (ready to share with HR), models capital investment requirements, defines the project scope, and generates deep architectural explanations ready to pitch to investors.
+          </p>
+
+          <div class="gemini-quick-prompts">
+            <span style="font-size:0.78rem; font-weight:700; color:#5EEAD4; align-self:center; margin-right:0.25rem;">TRY QUICK IDEAS:</span>
+            <button type="button" class="gemini-prompt-chip" data-prompt="Autonomous AI agent platform that connects to enterprise ERPs and freight telematics to calculate Scope 1, 2, and 3 carbon emissions for CSRD compliance.">🌱 Carbon Accounting (CleanTech)</button>
+            <button type="button" class="gemini-prompt-chip" data-prompt="Multimodal tablet app that analyzes speech tremolo and micro-oculomotor ocular movements to screen early neurodegenerative cognitive shifts for community clinics.">🩺 Early Neurological Screening (HealthTech)</button>
+            <button type="button" class="gemini-prompt-chip" data-prompt="Embedded real-time B2B invoice factoring and cash-flow underwriting software using open banking APIs and double-entry ledger audits.">💳 Autonomous Invoice Factoring (FinTech)</button>
+            <button type="button" class="gemini-prompt-chip" data-prompt="Adaptive personalized vernacular programming platform with proctored computer vision assessments and verified skill passports.">🎓 Vernacular Developer Academy (EdTech)</button>
+            <button type="button" class="gemini-prompt-chip" data-prompt="Autonomous zero-trust security orchestration agent scanning API gateways and container workloads for misconfigurations in real-time.">🛡️ Cloud Security Telemetry (DevOps)</button>
+          </div>
+        </div>
+
+        <!-- Chat Container Card -->
+        <div class="gemini-chat-card">
+          <div class="gemini-chat-thread" id="gemini-chat-thread">
+            ${this.renderGeminiThreadHtml(currentStartup, founderId)}
+          </div>
+
+          <!-- Input Bar -->
+          <form class="gemini-input-bar" id="gemini-chat-form">
+            <textarea
+              class="gemini-input-textarea"
+              id="gemini-input-text"
+              placeholder="Describe your startup idea here (e.g. 'An autonomous AI platform that solves X for target audience Y')..."
+              rows="2"
+              required
+            ></textarea>
+            <button type="submit" class="gemini-send-btn" id="gemini-send-btn">
+              <span>✦ Generate Architecture</span>
+              <span>→</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  renderGeminiThreadHtml(currentStartup, founderId) {
+    if (!this.currentGeminiAnalysis) {
+      return `
+        <div class="gemini-msg ai">
+          <div class="gemini-avatar ai-avatar">✦</div>
+          <div class="gemini-bubble">
+            <div style="font-size:1.1rem; font-weight:800; color:var(--primary); margin-bottom:0.35rem;">
+              Welcome to Gemini Pro Venture Architect, ${state.activeUser ? state.activeUser.name : 'Founder'}!
+            </div>
+            <p style="font-size:0.92rem; color:var(--text-main); line-height:1.6; margin-bottom:0.85rem;">
+              Enter your startup or business idea in the input bar below (or choose a suggestion chip above). 
+              Gemini Pro will generate a complete venture blueprint:
+            </p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.65rem; font-size:0.84rem; background:#F8FAFC; padding:0.85rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+              <div>🗺️ <b>Step-by-step roadmap</b> to build the business</div>
+              <div>💼 <b>Job roles & skills in PDF</b> + "Share to HR"</div>
+              <div>💰 <b>Investment required & runway</b></div>
+              <div>🎯 <b>Project scope & TAM / SAM / SOM</b></div>
+              <div>📑 <b>Deep project explanation</b> + "Share to Investor"</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const a = this.currentGeminiAnalysis;
+    const deep = a.deep_explanation || {};
+    const scope = a.project_scope || {};
+    const invest = a.investment_required || {};
+    const roadmap = a.execution_roadmap || [];
+    const roles = a.required_job_roles || [];
+    const sessionId = this.currentGeminiSessionId || 'default';
+
+    return `
+      <!-- User Prompt Bubble -->
+      <div class="gemini-msg user">
+        <div class="gemini-avatar user-avatar">👤</div>
+        <div class="gemini-bubble">
+          <strong>Startup Idea:</strong> ${this.lastUserIdea || 'Autonomous enterprise workflow platform'}
+        </div>
+      </div>
+
+      <!-- AI Synthesis Response Bubble -->
+      <div class="gemini-msg ai">
+        <div class="gemini-avatar ai-avatar">✦</div>
+        <div class="gemini-bubble">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+            <div>
+              <span class="gemini-sparkle-pill" style="font-size:0.72rem; padding:0.25rem 0.65rem;">
+                ✦ GEMINI 1.5 PRO VENTURE BLUEPRINT COMPLETE
+              </span>
+              <h3 style="font-size:1.65rem; font-weight:800; color:var(--primary); margin-top:0.25rem;">${a.title}</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted);">${a.industry} • ${a.tagline}</p>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge" style="background:#EEF2FF; color:#4338CA; font-weight:700;">
+                Target: ${invest.total_ask || '$750,000'} (${invest.stage || 'Seed'})
+              </span>
+            </div>
+          </div>
+
+          <!-- 1. Deep Explanation of Project Idea -->
+          <div class="gemini-section-header">
+            <span>📑</span> 1. Deep Project Explanation & Thesis
+          </div>
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1rem;">
+            <p style="font-size:0.92rem; color:var(--text-main); line-height:1.65; margin-bottom:0.75rem;">
+              <strong>Elevator Pitch:</strong> ${deep.elevator_pitch || a.tagline}
+            </p>
+            <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
+              <strong>Core Value Proposition:</strong> ${deep.core_value_prop || '10x productivity improvement over legacy tools.'}
+            </p>
+            <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
+              <strong>Architectural Foundation:</strong> ${deep.architectural_thesis || 'Scalable modern microservices.'}
+            </p>
+            <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
+              <strong>Monetization Model:</strong> ${deep.monetization_strategy || 'Tiered B2B SaaS.'}
+            </p>
+            <p style="font-size:0.9rem; color:#0F766E; line-height:1.6; font-weight:600;">
+              <strong>Defensibility Moat:</strong> ${deep.defensibility_moat || 'Proprietary data ingestion & network effects.'}
+            </p>
+          </div>
+
+          <!-- 2. Step-by-Step Execution Roadmap -->
+          <div class="gemini-section-header">
+            <span>🗺️</span> 2. Step-by-Step Execution Roadmap to Success
+          </div>
+          <div class="gemini-roadmap-timeline">
+            ${roadmap.map(phase => `
+              <div class="gemini-phase-card">
+                <div class="gemini-phase-top">
+                  <div class="gemini-phase-title">${phase.phase_name}</div>
+                  <span class="gemini-phase-timeline-badge">${phase.timeline}</span>
+                </div>
+                <p style="font-size:0.88rem; color:var(--text-main); margin-bottom:0.4rem; font-weight:600;">
+                  🎯 Objective: ${phase.objective}
+                </p>
+                ${(phase.deliverables || []).map(d => `
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-left:0.5rem;">• ${d}</div>
+                `).join('')}
+                <div>
+                  <span class="gemini-phase-kpi">🏆 Target KPI: ${phase.kpi || 'Deliverable complete'}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 3. Job Roles Required & Skills in PDF -->
+          <div class="gemini-section-header">
+            <span>💼</span> 3. Job Roles Required & 75/25 Skill Profiles (${roles.length} Roles)
+          </div>
+          <div class="gemini-roles-grid">
+            ${roles.map(r => `
+              <div class="gemini-role-card">
+                <div>
+                  <div class="gemini-role-top">
+                    <div class="gemini-role-title">${r.title}</div>
+                    <span class="gemini-role-prio">${r.hiring_priority || 'Phase 1'}</span>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
+                    Dept: <strong>${r.department || 'Engineering'}</strong> • Level: <strong>${r.experience_level || 'Senior'}</strong>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--secondary); font-weight:700; margin-bottom:0.5rem;">
+                    💰 Target Salary: ${r.salary_range || '$120k - $150k'}
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-main); margin-bottom:0.5rem;">
+                    ${(r.responsibilities || []).slice(0, 2).map(resp => `<div>• ${resp}</div>`).join('')}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem; text-transform:uppercase;">
+                    Required 75/25 Skills:
+                  </div>
+                  <div class="gemini-skills-pills">
+                    ${(r.required_skills || []).map(s => `
+                      <span class="gemini-skill-tag mandatory" title="Mandatory 75% Tier">${s.name} (${Math.round((s.weight || 0.4)*100)}%)</span>
+                    `).join('')}
+                    ${(r.preferred_skills || []).map(s => `
+                      <span class="gemini-skill-tag" title="Preferred 25% Tier">${s.name}</span>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 4. Investment Required & Fund Allocation Breakdown -->
+          <div class="gemini-section-header">
+            <span>💰</span> 4. Investment Required & Financial Framework
+          </div>
+          <div class="gemini-investment-grid">
+            <div class="gemini-invest-card">
+              <p>Total Capital Ask</p>
+              <h4>${invest.total_ask || '$750,000'}</h4>
+              <span style="font-size:0.75rem; color:#166534; font-weight:700;">${invest.stage || 'Seed Round'}</span>
+            </div>
+            <div class="gemini-invest-card">
+              <p>Runway Target</p>
+              <h4>${invest.runway_months || 18} Months</h4>
+              <span style="font-size:0.75rem; color:var(--text-muted);">To Breakeven / Next Round</span>
+            </div>
+            <div class="gemini-invest-card">
+              <p>Target Valuation</p>
+              <h4 style="font-size:1.1rem; color:var(--primary);">${invest.valuation_range || '$4.5M - $6M'}</h4>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Post-Money Benchmark</span>
+            </div>
+          </div>
+
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem; margin-bottom:1rem;">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem;">
+              Capital Allocation Breakdown:
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.65rem;">
+              ${(invest.use_of_funds || []).map(f => `
+                <div style="background:#fff; border:1px solid var(--border); padding:0.65rem 0.85rem; border-radius:var(--radius-sm);">
+                  <div style="font-size:0.8rem; font-weight:700; color:var(--primary);">${f.category}</div>
+                  <div style="font-size:1rem; font-weight:800; color:#2563EB;">${f.amount}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${f.purpose}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 5. Project Scope & Market Sizing -->
+          <div class="gemini-section-header">
+            <span>🎯</span> 5. Project Scope & Market Sizing (TAM/SAM/SOM)
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
+            <div style="background:#EEF2FF; border:1px solid #C7D2FE; padding:0.85rem; border-radius:var(--radius-md); text-align:center;">
+              <span style="font-size:0.75rem; color:#4338CA; font-weight:700; text-transform:uppercase;">TAM (Total Addressable)</span>
+              <div style="font-size:1.4rem; font-weight:800; color:#1E1B4B; margin-top:0.25rem;">${scope.tam || '$22.0B'}</div>
+            </div>
+            <div style="background:#ECFDF5; border:1px solid #A7F3D0; padding:0.85rem; border-radius:var(--radius-md); text-align:center;">
+              <span style="font-size:0.75rem; color:#065F46; font-weight:700; text-transform:uppercase;">SAM (Serviceable Available)</span>
+              <div style="font-size:1.4rem; font-weight:800; color:#064E3B; margin-top:0.25rem;">${scope.sam || '$5.4B'}</div>
+            </div>
+            <div style="background:#FFFBEB; border:1px solid #FDE68A; padding:0.85rem; border-radius:var(--radius-md); text-align:center;">
+              <span style="font-size:0.75rem; color:#92400E; font-weight:700; text-transform:uppercase;">SOM (36-Month Obtainable)</span>
+              <div style="font-size:1.4rem; font-weight:800; color:#78350F; margin-top:0.25rem;">${scope.som || '$240M'}</div>
+            </div>
+          </div>
+
+          <!-- ACTION HUB (Share to HR & Share to Investor) -->
+          <div class="gemini-action-hub">
+            <div>
+              <div class="gemini-action-hub-title">
+                <span>⚡</span> Executive Export & Platform Distribution Hub
+              </div>
+              <p style="font-size:0.8rem; color:#475569; margin-top:0.25rem;">
+                Instantly export formal PDF blueprints or push them directly to HR & Investor dashboards.
+              </p>
+            </div>
+
+            <div class="gemini-action-hub-buttons">
+              <!-- Job Roles PDF & Share to HR -->
+              <a href="${api.getRolesPdfUrl(sessionId)}" target="_blank" class="btn btn-outline btn-sm" id="download-roles-pdf-btn" download>
+                📄 Roles PDF
+              </a>
+              <button type="button" class="gemini-btn-hr" id="share-to-hr-btn">
+                <span>💼 Share to HR</span>
+              </button>
+
+              <!-- Investor Proposal PDF & Share to Investor -->
+              <a href="${api.getInvestorPitchPdfUrl(sessionId)}" target="_blank" class="btn btn-outline btn-sm" id="download-investor-pdf-btn" download>
+                📄 Pitch PDF
+              </a>
+              <button type="button" class="gemini-btn-investor" id="share-to-investor-btn">
+                <span>🦈 Share to Investor</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  attachGeminiEvents(currentStartup, founderId) {
+    const chatForm = this.appContainer.querySelector('#gemini-chat-form');
+    const inputText = this.appContainer.querySelector('#gemini-input-text');
+    const sendBtn = this.appContainer.querySelector('#gemini-send-btn');
+    const chatThread = this.appContainer.querySelector('#gemini-chat-thread');
+
+    // Quick prompt chips
+    this.appContainer.querySelectorAll('.gemini-prompt-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (inputText) {
+          inputText.value = chip.dataset.prompt;
+          if (chatForm) chatForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    });
+
+    // Form submit
+    if (chatForm && inputText) {
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idea = inputText.value.trim();
+        if (!idea) return;
+
+        this.lastUserIdea = idea;
+        if (sendBtn) {
+          sendBtn.disabled = true;
+          sendBtn.innerHTML = '<span>✦ Thinking...</span>';
+        }
+
+        // Show temporary thinking state
+        if (chatThread) {
+          chatThread.innerHTML = `
+            <div class="gemini-msg user">
+              <div class="gemini-avatar user-avatar">👤</div>
+              <div class="gemini-bubble"><strong>Startup Idea:</strong> ${idea}</div>
+            </div>
+            <div class="gemini-msg ai">
+              <div class="gemini-avatar ai-avatar">✦</div>
+              <div class="gemini-bubble">
+                <div style="display:flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--primary);">
+                  <div style="font-size:1.2rem;">✦</div>
+                  <span>Gemini Pro is synthesizing 12-month execution roadmap, extracting required hiring roles, and generating investor decks...</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        try {
+          const res = await api.chatGeminiPro({
+            idea: idea,
+            founder_id: founderId,
+            founder_name: state.activeUser ? state.activeUser.name : 'Sarah Lin',
+            startup_name: currentStartup ? currentStartup.name : null
+          });
+
+          this.currentGeminiAnalysis = res.analysis;
+          this.currentGeminiSessionId = res.session_id;
+
+          // Re-render thread with results
+          if (chatThread) {
+            chatThread.innerHTML = this.renderGeminiThreadHtml(currentStartup, founderId);
+            this.attachGeminiActionButtons(currentStartup, founderId);
+          }
+          state.showToast("✦ Gemini Pro Venture Architecture complete!", "success");
+        } catch (err) {
+          state.showToast(err.message, "danger");
+        } finally {
+          if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<span>✦ Generate Architecture</span> <span>→</span>';
+          }
+        }
+      });
+    }
+
+    this.attachGeminiActionButtons(currentStartup, founderId);
+  }
+
+  attachGeminiActionButtons(currentStartup, founderId) {
+    // Share to HR button
+    const shareHrBtn = this.appContainer.querySelector('#share-to-hr-btn');
+    if (shareHrBtn && this.currentGeminiAnalysis) {
+      shareHrBtn.addEventListener('click', async () => {
+        shareHrBtn.disabled = true;
+        shareHrBtn.innerHTML = '<span>⏳ Sending to HR...</span>';
+        try {
+          await api.shareToHr({
+            session_id: this.currentGeminiSessionId,
+            founder_id: founderId,
+            idea_title: this.currentGeminiAnalysis.title,
+            industry: this.currentGeminiAnalysis.industry,
+            roles: this.currentGeminiAnalysis.required_job_roles,
+            deep_explanation: this.currentGeminiAnalysis.deep_explanation
+          });
+          shareHrBtn.outerHTML = '<span class="gemini-shared-pill">✓ Sent to HR Dashboard</span>';
+          state.showToast("Hiring role specification sent to HR and now live on HR Dashboard!", "success");
+        } catch (e) {
+          shareHrBtn.disabled = false;
+          shareHrBtn.innerHTML = '<span>💼 Share to HR</span>';
+          state.showToast(e.message, "danger");
+        }
+      });
+    }
+
+    // Share to Investor button
+    const shareInvBtn = this.appContainer.querySelector('#share-to-investor-btn');
+    if (shareInvBtn && this.currentGeminiAnalysis) {
+      shareInvBtn.addEventListener('click', async () => {
+        shareInvBtn.disabled = true;
+        shareInvBtn.innerHTML = '<span>⏳ Sending to Investors...</span>';
+        try {
+          await api.shareToInvestor({
+            session_id: this.currentGeminiSessionId,
+            founder_id: founderId,
+            startup_name: this.currentGeminiAnalysis.title,
+            tagline: this.currentGeminiAnalysis.tagline,
+            industry: this.currentGeminiAnalysis.industry,
+            deep_explanation: this.currentGeminiAnalysis.deep_explanation,
+            project_scope: this.currentGeminiAnalysis.project_scope,
+            investment_required: this.currentGeminiAnalysis.investment_required,
+            execution_roadmap: this.currentGeminiAnalysis.execution_roadmap
+          });
+          shareInvBtn.outerHTML = '<span class="gemini-shared-pill">✓ Visible in Shark Room</span>';
+          state.showToast("Proposal sent to Investors and now live on Shark Room!", "success");
+        } catch (e) {
+          shareInvBtn.disabled = false;
+          shareInvBtn.innerHTML = '<span>🦈 Share to Investor</span>';
+          state.showToast(e.message, "danger");
         }
       });
     }
@@ -3651,11 +4091,13 @@ class App {
     let jobs = [];
     let candidates = [];
     let applications = [];
+    let sharedHiringRequests = [];
 
     try {
-      [jobs, candidates] = await Promise.all([
+      [jobs, candidates, sharedHiringRequests] = await Promise.all([
         api.getMyJobs(hrId).catch(() => api.getJobs()),
-        api.getProfiles('candidate')
+        api.getProfiles('candidate'),
+        api.getSharedHiringRequests().catch(() => [])
       ]);
       if (jobs.length > 0) {
         applications = await api.request(`/applications/job/${jobs[0].id}`).catch(() => []);
@@ -3686,6 +4128,10 @@ class App {
               <button class="sidebar-link ${currentTab === 'overview' ? 'active' : ''}" data-tab="overview">
                 <span class="sidebar-link-content">📊 Overview & 75/25 KPIs</span>
               </button>
+              <button class="sidebar-link ${currentTab === 'hiring-requests' ? 'active' : ''}" data-tab="hiring-requests">
+                <span class="sidebar-link-content">📥 Founder Hiring Specs</span>
+                <span class="sidebar-badge">${sharedHiringRequests.length}</span>
+              </button>
               <button class="sidebar-link ${currentTab === 'create-job' ? 'active' : ''}" data-tab="create-job">
                 <span class="sidebar-link-content">⚙️ Post 75/25 Weighted Job</span>
               </button>
@@ -3705,7 +4151,7 @@ class App {
 
           <!-- Main Content -->
           <div class="dashboard-content" id="hr-content-area">
-            ${this.renderHrTabContent(currentTab, { jobs, candidates, applications, hrId })}
+            ${this.renderHrTabContent(currentTab, { jobs, candidates, applications, sharedHiringRequests, hrId })}
           </div>
         </div>
       </div>
@@ -3715,11 +4161,11 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachHrEvents({ jobs, candidates, hrId });
+    this.attachHrEvents({ jobs, candidates, sharedHiringRequests, hrId });
   }
 
   renderHrTabContent(tab, data) {
-    const { jobs, candidates, applications, hrId } = data;
+    const { jobs, candidates, applications, sharedHiringRequests, hrId } = data;
 
     if (tab === 'overview') {
       const avgMatchScore = 84;
@@ -4117,11 +4563,143 @@ class App {
       `;
     }
 
+    if (tab === 'hiring-requests') {
+      return `
+        <div class="dashboard-header">
+          <div class="dashboard-title">
+            <h2>📥 Founder Hiring Specifications & 75/25 Roles</h2>
+            <p>Role specifications and 75/25 competency requirements sent directly by Founders via Gemini Pro AI Architect.</p>
+          </div>
+          <button class="btn btn-primary" id="hr-top-create-from-spec-btn">⚙️ Post Custom 75/25 Job</button>
+        </div>
+
+        ${(!sharedHiringRequests || sharedHiringRequests.length === 0) ? `
+          <div class="card" style="text-align:center; padding:3.5rem 2rem;">
+            <div style="font-size:3rem; margin-bottom:1rem;">📥</div>
+            <h3 style="font-size:1.3rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">No Founder Hiring Specs Received Yet</h3>
+            <p style="color:var(--text-muted); max-width:550px; margin:0 auto 1.5rem; line-height:1.6;">
+              When a founder enters their startup idea in <b>Gemini Pro Studio</b> and clicks <b>"Share to HR"</b>, their full role breakdown with 75% core and 25% secondary skills and official PDF specification will appear here for 1-click recruiting.
+            </p>
+            <button class="btn btn-primary" onclick="state.setRole('founder'); state.setTab('gemini-studio');">
+              🚀 Open Founder Gemini Studio to Share a Spec →
+            </button>
+          </div>
+        ` : `
+          <div style="display:flex; flex-direction:column; gap:1.75rem;">
+            ${sharedHiringRequests.map(req => {
+              const roles = req.roles || [];
+              const deep = req.deep_explanation || {};
+              const sessionId = req.session_id || 'demo';
+              const pdfUrl = api.getRolesPdfUrl(sessionId);
+
+              return `
+                <div class="hr-hiring-request-card">
+                  <!-- Header Strip -->
+                  <div class="hr-req-top">
+                    <div style="display:flex; align-items:center; gap:0.85rem;">
+                      <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150" alt="${req.founder_name || 'Founder'}" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;">
+                      <div>
+                        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                          <h4 style="font-size:1.1rem; font-weight:800; color:var(--primary); margin:0;">${req.founder_name || 'Founder'}</h4>
+                          <span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:0.72rem; font-weight:700;">${req.industry || 'Technology'}</span>
+                          <span class="badge badge-verified" style="font-size:0.7rem;">${req.status || 'New Request'}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+                          ✉️ <a href="mailto:${req.founder_email || 'founder@idea2impact.dev'}" style="color:var(--secondary); text-decoration:none;">${req.founder_email || 'founder@idea2impact.dev'}</a>
+                          • Shared: ${new Date(req.shared_at || Date.now()).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <a href="${pdfUrl}" target="_blank" class="btn btn-outline btn-sm" download style="color:#2563EB; border-color:#93C5FD; background:#EFF6FF; font-weight:700;">
+                      📄 Download Official 75/25 Roles PDF
+                    </a>
+                  </div>
+
+                  <!-- Venture Title & Objective -->
+                  <div>
+                    <h3 style="font-size:1.35rem; font-weight:800; color:var(--primary);">${req.idea_title || req.startup_name || 'Portfolio Startup'}</h3>
+                    <div style="background:#F8FAFC; border-left:3px solid #2563EB; border-radius:var(--radius-sm); padding:0.65rem 0.85rem; margin-top:0.4rem; font-size:0.85rem; color:var(--text-main);">
+                      <b>Venture Context:</b> ${deep.elevator_pitch || deep.core_value_prop || req.idea_summary || 'Autonomous technology platform created via Gemini Pro.'}
+                    </div>
+                  </div>
+
+                  <!-- Required Roles List -->
+                  <div>
+                    <div style="font-size:0.88rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem;">
+                      💼 Required Job Roles (${roles.length}):
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                      ${roles.map((r, idx) => `
+                        <div style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.15rem; display:flex; flex-direction:column; gap:0.75rem;">
+                          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+                            <div>
+                              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                                <h4 style="font-size:1.1rem; font-weight:700; color:var(--primary); margin:0;">${r.title}</h4>
+                                <span class="badge" style="background:#F1F5F9; color:#475569; font-size:0.72rem;">${r.experience_level || 'Senior'}</span>
+                                <span class="badge" style="background:#FEF3C7; color:#B45309; font-size:0.72rem;">${r.hiring_priority || 'Immediate'}</span>
+                              </div>
+                              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+                                Department: <b>${r.department || 'Engineering'}</b> • Est. Salary: <b>${r.salary_range || '$120,000 - $150,000'}</b>
+                              </div>
+                            </div>
+
+                            <button type="button" class="btn btn-primary btn-sm convert-role-btn" data-req-id="${req.id}" data-role-index="${idx}" data-title="${r.title}">
+                              ⚡ 1-Click Post Job to Pipeline
+                            </button>
+                          </div>
+
+                          <!-- Responsibilities -->
+                          ${r.responsibilities && r.responsibilities.length > 0 ? `
+                            <ul style="font-size:0.82rem; color:var(--text-main); margin:0; padding-left:1.25rem; display:flex; flex-direction:column; gap:0.25rem;">
+                              ${r.responsibilities.map(res => `<li>${res}</li>`).join('')}
+                            </ul>
+                          ` : ''}
+
+                          <!-- 75/25 Dual-Tier Skills -->
+                          <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.65rem 0.85rem; border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:0.5rem;">
+                            <div>
+                              <span style="font-size:0.75rem; font-weight:800; color:#166534; text-transform:uppercase;">75% Core Mandatory Skills:</span>
+                              <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.25rem;">
+                                ${(r.required_skills || []).map(s => `
+                                  <span class="badge badge-verified" style="font-size:0.72rem;">
+                                    ${s.name} ${s.weight ? '(' + Math.round(s.weight * 100) + '%)' : ''}
+                                  </span>
+                                `).join('')}
+                              </div>
+                            </div>
+
+                            ${r.preferred_skills && r.preferred_skills.length > 0 ? `
+                              <div>
+                                <span style="font-size:0.75rem; font-weight:800; color:#475569; text-transform:uppercase;">25% Preferred Secondary Bonus Skills:</span>
+                                <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.25rem;">
+                                  ${r.preferred_skills.map(s => `
+                                    <span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:0.72rem;">
+                                      ${s.name}
+                                    </span>
+                                  `).join('')}
+                                </div>
+                              </div>
+                            ` : ''}
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      `;
+    }
+
     return '';
   }
 
   async attachHrEvents(data) {
-    const { jobs, hrId } = data;
+    const { jobs, hrId, sharedHiringRequests } = data;
 
     // Navigation buttons
     const topPostBtn = this.appContainer.querySelector('#hr-top-post-btn');
@@ -4129,6 +4707,35 @@ class App {
 
     const quickPostBtn = this.appContainer.querySelector('#hr-create-job-quick-btn');
     if (quickPostBtn) quickPostBtn.addEventListener('click', () => state.setTab('create-job'));
+
+    const createFromSpecBtn = this.appContainer.querySelector('#hr-top-create-from-spec-btn');
+    if (createFromSpecBtn) createFromSpecBtn.addEventListener('click', () => state.setTab('create-job'));
+
+    // Convert role button handler (1-Click Post Job to Pipeline)
+    this.appContainer.querySelectorAll('.convert-role-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const reqId = btn.dataset.reqId;
+        const roleIndex = parseInt(btn.dataset.roleIndex, 10);
+        const roleTitle = btn.dataset.title;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Publishing to Pipeline...</span>';
+        try {
+          const res = await api.convertSharedRoleToJob({
+            request_id: reqId,
+            role_index: roleIndex,
+            hr_id: hrId
+          });
+          btn.innerHTML = '<span>✅ Active in Pipeline</span>';
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-outline');
+          state.showToast(`🎉 "${roleTitle}" successfully posted to active candidate pipeline!`, 'success');
+        } catch (err) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>⚡ 1-Click Post Job to Pipeline</span>';
+          state.showToast(err.message, 'danger');
+        }
+      });
+    });
 
     // Inspect Dossier buttons from overview
     this.appContainer.querySelectorAll('.inspect-dossier-btn').forEach(btn => {
@@ -4651,12 +5258,14 @@ class App {
     let startups = [];
     let interests = [];
     let meetings = [];
+    let sharedPitches = [];
 
     try {
-      [startups, interests, meetings] = await Promise.all([
+      [startups, interests, meetings, sharedPitches] = await Promise.all([
         api.getStartups(),
         api.getInvestorInterests(investorId),
-        api.getMeetings(investorId)
+        api.getMeetings(investorId),
+        api.getSharedPitches().catch(() => [])
       ]);
     } catch (e) {
       console.warn("Investor fetch error", e);
@@ -4684,6 +5293,10 @@ class App {
               <button class="sidebar-link ${currentTab === 'overview' ? 'active' : ''}" data-tab="overview">
                 <span class="sidebar-link-content">📊 Deal Flow Overview</span>
               </button>
+              <button class="sidebar-link ${currentTab === 'shared-pitches' ? 'active' : ''}" data-tab="shared-pitches">
+                <span class="sidebar-link-content">🦈 Shared Founder Pitches</span>
+                <span class="sidebar-badge">${sharedPitches.length}</span>
+              </button>
               <button class="sidebar-link ${currentTab === 'startups' ? 'active' : ''}" data-tab="startups">
                 <span class="sidebar-link-content">🔍 Discover Startups</span>
                 <span class="sidebar-badge">${startups.length}</span>
@@ -4704,7 +5317,7 @@ class App {
 
           <!-- Main Content -->
           <div class="dashboard-content" id="investor-content-area">
-            ${this.renderInvestorTabContent(currentTab, { startups, interests, meetings, investorId })}
+            ${this.renderInvestorTabContent(currentTab, { startups, interests, meetings, sharedPitches, investorId })}
           </div>
         </div>
       </div>
@@ -4714,11 +5327,11 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachInvestorEvents({ startups, investorId });
+    this.attachInvestorEvents({ startups, sharedPitches, investorId });
   }
 
   renderInvestorTabContent(tab, data) {
-    const { startups, interests, meetings, investorId } = data;
+    const { startups, interests, meetings, sharedPitches, investorId } = data;
 
     if (tab === 'overview') {
       return `
@@ -4899,14 +5512,189 @@ class App {
       `;
     }
 
+    if (tab === 'shared-pitches') {
+      return `
+        <div class="dashboard-header">
+          <div class="dashboard-title">
+            <h2>🦈 Shared Founder Pitches & Deep Investment Blueprints</h2>
+            <p>Live venture proposals shared directly by Founders via Gemini Pro AI Architect with comprehensive roadmap, valuation metrics, and founder dossier.</p>
+          </div>
+          <span class="badge badge-risk-mod" style="font-weight:700;">Active Syndicate Pipeline (${(sharedPitches || []).length} Proposals)</span>
+        </div>
+
+        ${(!sharedPitches || sharedPitches.length === 0) ? `
+          <div class="card" style="text-align:center; padding:3.5rem 2rem;">
+            <div style="font-size:3rem; margin-bottom:1rem;">🦈</div>
+            <h3 style="font-size:1.3rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">No Founder Proposals Received Yet</h3>
+            <p style="color:var(--text-muted); max-width:550px; margin:0 auto 1.5rem; line-height:1.6;">
+              When founders generate an execution roadmap and deep explanation in <b>Gemini Pro Studio</b> and click <b>"Share to Investor"</b>, their full investment dossier with founder details and direct PDF downloads will appear here in real-time.
+            </p>
+            <button class="btn btn-primary" onclick="state.setRole('founder'); state.setTab('gemini-studio');">
+              🚀 Open Founder Gemini Studio to Share a Venture Proposal →
+            </button>
+          </div>
+        ` : `
+          <div style="display:flex; flex-direction:column; gap:1.75rem;">
+            ${sharedPitches.map(p => {
+              const deep = p.deep_explanation || {};
+              const scope = p.project_scope || {};
+              const invest = p.investment_required || {};
+              const roadmap = p.execution_roadmap || [];
+              const sessionId = p.session_id || 'demo';
+              const pdfUrl = api.getInvestorPitchPdfUrl(sessionId);
+
+              return `
+                <div class="investor-pitch-card">
+                  <!-- Founder Identity Strip -->
+                  <div class="investor-pitch-founder-strip">
+                    <img src="${p.founder_avatar || 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150'}" alt="${p.founder_name || 'Founder'}" style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid #F59E0B; box-shadow:0 2px 8px rgba(245,158,11,0.25);">
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                        <h4 style="font-size:1.1rem; font-weight:800; color:var(--primary); margin:0;">${p.founder_name || 'Founder'}</h4>
+                        <span class="badge" style="background:rgba(245,158,11,0.15); color:#B45309; font-size:0.72rem; font-weight:700;">STAGE: ${(p.stage || 'Seed').toUpperCase()}</span>
+                        <span class="badge badge-verified" style="font-size:0.7rem;">${p.status || 'In Deal Pipeline'}</span>
+                      </div>
+                      <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+                        ✉️ <a href="mailto:${p.founder_email || 'founder@idea2impact.dev'}" style="color:var(--secondary); text-decoration:none;">${p.founder_email || 'founder@idea2impact.dev'}</a>
+                        • Shared: ${new Date(p.shared_at || Date.now()).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}
+                      </div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:1.5rem; font-weight:800; color:#B45309; letter-spacing:-0.5px;">${p.valuation_ask || '$750,000'}</div>
+                      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Target Runway: ${p.runway_months || 18} Months</span>
+                    </div>
+                  </div>
+
+                  <!-- Venture Heading -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+                      <div>
+                        <span class="badge" style="background:#EFF6FF; color:#1D4ED8; margin-bottom:0.35rem; font-size:0.75rem;">${p.industry || 'Technology'}</span>
+                        <h3 style="font-size:1.45rem; font-weight:800; color:var(--primary);">${p.startup_name}</h3>
+                      </div>
+                      <a href="${pdfUrl}" target="_blank" class="btn btn-outline btn-sm" download style="color:#B45309; border-color:#FCD34D; background:#FEF3C7; font-weight:700;">
+                        📄 Download Executive Investor PDF
+                      </a>
+                    </div>
+                    <p style="font-size:0.92rem; color:var(--text-main); font-style:italic; margin-top:0.35rem; line-height:1.5;">
+                      "${p.tagline || deep.elevator_pitch || 'Autonomous venture proposal.'}"
+                    </p>
+                  </div>
+
+                  <!-- Deep Explanation Grid -->
+                  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+                    <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem;">
+                      <div style="font-size:0.8rem; font-weight:800; color:#2563EB; text-transform:uppercase; margin-bottom:0.35rem;">💡 Elevator Pitch & Value Prop</div>
+                      <p style="font-size:0.85rem; color:var(--text-main); line-height:1.55; margin:0;">
+                        ${deep.core_value_prop || deep.elevator_pitch || 'Accelerates business execution by resolving mission-critical industry bottlenecks.'}
+                      </p>
+                    </div>
+
+                    <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem;">
+                      <div style="font-size:0.8rem; font-weight:800; color:#059669; text-transform:uppercase; margin-bottom:0.35rem;">🛡️ Proprietary Defensibility Moat</div>
+                      <p style="font-size:0.85rem; color:var(--text-main); line-height:1.55; margin:0;">
+                        ${deep.defensibility_moat || 'Proprietary workflows, continuous telemetry loops, and network gravity.'}
+                      </p>
+                    </div>
+
+                    <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem;">
+                      <div style="font-size:0.8rem; font-weight:800; color:#D97706; text-transform:uppercase; margin-bottom:0.35rem;">💰 Monetization Engine</div>
+                      <p style="font-size:0.85rem; color:var(--text-main); line-height:1.55; margin:0;">
+                        ${deep.monetization_strategy || 'Tiered recurring B2B subscriptions with enterprise usage expansion.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Market Scope & TAM / SAM / SOM -->
+                  <div style="background:#F1F5F9; border-radius:var(--radius-md); padding:1rem; border:1px solid #E2E8F0;">
+                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem;">📊 Addressable Market Sizing (Scope Analysis)</div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem; text-align:center;">
+                      <div style="background:#fff; padding:0.65rem; border-radius:var(--radius-sm); border:1px solid #CBD5E1;">
+                        <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">TAM (Total Market)</span>
+                        <div style="font-size:1.15rem; font-weight:800; color:var(--primary);">${scope.tam || '$22.0B'}</div>
+                      </div>
+                      <div style="background:#fff; padding:0.65rem; border-radius:var(--radius-sm); border:1px solid #CBD5E1;">
+                        <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">SAM (Serviceable)</span>
+                        <div style="font-size:1.15rem; font-weight:800; color:#2563EB;">${scope.sam || '$5.4B'}</div>
+                      </div>
+                      <div style="background:#fff; padding:0.65rem; border-radius:var(--radius-sm); border:1px solid #CBD5E1;">
+                        <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">SOM (Obtainable)</span>
+                        <div style="font-size:1.15rem; font-weight:800; color:#059669;">${scope.som || '$240M'}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 12-Month Execution Roadmap Timeline Strip -->
+                  ${roadmap && roadmap.length > 0 ? `
+                    <div style="border-top:1px solid var(--border); padding-top:0.85rem;">
+                      <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:0.65rem;">🗺️ 12-Month Execution Roadmap Milestones:</div>
+                      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.65rem;">
+                        ${roadmap.map(phase => `
+                          <div style="background:#FFFFFF; border:1px solid var(--border); border-left:3px solid #2563EB; border-radius:var(--radius-sm); padding:0.65rem 0.85rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                              <strong style="font-size:0.8rem; color:var(--primary);">${phase.phase_name || ('Phase ' + phase.phase_number)}</strong>
+                              <span style="font-size:0.7rem; color:var(--text-muted);">${phase.timeline || ''}</span>
+                            </div>
+                            <p style="font-size:0.75rem; color:var(--text-main); margin:0.25rem 0 0; line-height:1.4;">
+                              <b>KPI:</b> ${phase.kpi || phase.objective || ''}
+                            </p>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Action Footer -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem; flex-wrap:wrap; gap:0.75rem;">
+                    <div style="font-size:0.82rem; color:var(--text-muted);">
+                      💼 Founder: <b>${p.founder_name || 'Founder'}</b> (${p.founder_email || 'Contact Direct'})
+                    </div>
+                    <button class="btn btn-accent share-pitch-interest-btn" data-pitch-id="${p.id}" data-startup="${p.startup_name}" data-founder="${p.founder_name || 'Founder'}">
+                      🦈 Express Shark Interest / Term Sheet →
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      `;
+    }
+
     return '';
   }
 
   attachInvestorEvents(data) {
-    const { investorId } = data;
+    const { investorId, sharedPitches } = data;
 
     const topDiscBtn = this.appContainer.querySelector('#inv-top-discover-btn');
     if (topDiscBtn) topDiscBtn.addEventListener('click', () => state.setTab('startups'));
+
+    // Express Shark Interest on Shared Founder Pitches
+    this.appContainer.querySelectorAll('.share-pitch-interest-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const pitchId = btn.dataset.pitchId;
+        const stpName = btn.dataset.startup;
+        const founderName = btn.dataset.founder;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Requesting Terms...</span>';
+        try {
+          await api.expressInterest({
+            investor_id: investorId,
+            startup_id: pitchId,
+            note: `Shark Syndicate Interest: Apex Frontier Ventures requested lead terms & pitch call with founder ${founderName} for ${stpName}.`
+          });
+          btn.innerHTML = '<span>✅ Term Sheet Discussion Requested</span>';
+          btn.classList.remove('btn-accent');
+          btn.classList.add('btn-outline');
+          state.showToast(`🦈 Expressed Shark Interest to ${founderName}! Added to your syndicate portfolio.`, 'success');
+        } catch (err) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🦈 Express Shark Interest / Term Sheet →</span>';
+          state.showToast(err.message, 'danger');
+        }
+      });
+    });
 
     // Due diligence trigger
     this.appContainer.querySelectorAll('.run-diligence-btn').forEach(btn => {

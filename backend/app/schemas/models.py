@@ -78,6 +78,40 @@ class IdeaAnalyzeRequest(BaseModel):
     known_costs: Optional[str] = ""
     funding_assumptions: Optional[str] = ""
 
+class GeminiIdeaPromptRequest(BaseModel):
+    idea: str
+    founder_id: Optional[str] = "found-01"
+    founder_name: Optional[str] = None
+    founder_email: Optional[str] = None
+    startup_name: Optional[str] = None
+    history: Optional[List[Dict[str, Any]]] = None
+
+class ShareToHrRequest(BaseModel):
+    session_id: Optional[str] = None
+    founder_id: Optional[str] = "found-01"
+    idea_title: str
+    industry: Optional[str] = "Technology"
+    roles: List[Dict[str, Any]]
+    deep_explanation: Optional[Dict[str, Any]] = None
+    note: Optional[str] = "Hiring requirements specification shared by Founder for recruitment."
+
+class ConvertRoleToJobRequest(BaseModel):
+    request_id: str
+    role_index: Optional[int] = 0
+    hr_id: Optional[str] = "hr-01"
+
+class ShareToInvestorRequest(BaseModel):
+    session_id: Optional[str] = None
+    founder_id: Optional[str] = "found-01"
+    startup_name: str
+    tagline: Optional[str] = None
+    industry: Optional[str] = "Technology"
+    deep_explanation: Dict[str, Any]
+    project_scope: Dict[str, Any]
+    investment_required: Dict[str, Any]
+    execution_roadmap: List[Dict[str, Any]]
+    note: Optional[str] = "Confidential Venture Proposal shared by Founder via Gemini Pro."
+
 class StartupCreate(BaseModel):
     founder_id: str
     name: str
@@ -90,8 +124,17 @@ class StartupCreate(BaseModel):
 
 class ProposalShareRequest(BaseModel):
     founder_id: str
-    investor_id: str
-    startup_id: str
+    investor_id: Optional[str] = "inv-01"
+    startup_id: Optional[str] = None
+    startup_name: Optional[str] = None
+    tagline: Optional[str] = None
+    industry: Optional[str] = None
+    valuation_ask: Optional[str] = None
+    pitch: Optional[str] = None
+    blueprint: Optional[Dict[str, Any]] = None
+    founder_name: Optional[str] = None
+    founder_email: Optional[str] = None
+    founder_avatar: Optional[str] = None
 
 class InvestorInterestRequest(BaseModel):
     investor_id: str
