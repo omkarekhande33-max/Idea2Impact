@@ -150,6 +150,66 @@ export const SKILLS_CATALOG = [
     question_count: 5,
     passing_score: 75.0,
     description: "Branching workflows, rebasing vs merging, conflict resolution, cherry-picking, HEAD management, and git stash."
+  },
+  {
+    id: "sk-ts",
+    slug: "typescript",
+    name: "TypeScript",
+    full_name: "TypeScript & Static Type Systems",
+    category: "Languages",
+    icon: "🔷",
+    color: "#3178C6",
+    bg: "rgba(49, 120, 198, 0.12)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Generics, Union & Intersection types, Mapped types, conditional types, Discriminated Unions, and TS compiler options."
+  },
+  {
+    id: "sk-node",
+    slug: "nodejs",
+    name: "Node.js",
+    full_name: "Node.js & Server-side Runtimes",
+    category: "Web & Frontend",
+    icon: "🟢",
+    color: "#339933",
+    bg: "rgba(51, 153, 51, 0.12)",
+    level: "Intermediate",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Event Loop phases, libuv thread pool, Streams API, Buffers, Worker Threads, and clustering architectures."
+  },
+  {
+    id: "sk-docker",
+    slug: "docker",
+    name: "Docker",
+    full_name: "Docker & Container Virtualization",
+    category: "Databases & Tools",
+    icon: "🐳",
+    color: "#2496ED",
+    bg: "rgba(36, 150, 237, 0.12)",
+    level: "Intermediate",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Container images, Dockerfiles, layer caching, multi-stage builds, bridge networking, volumes, and orchestration."
+  },
+  {
+    id: "sk-pg",
+    slug: "postgresql",
+    name: "PostgreSQL",
+    full_name: "PostgreSQL Enterprise RDBMS",
+    category: "Databases & Tools",
+    icon: "🐘",
+    color: "#4169E1",
+    bg: "rgba(65, 105, 225, 0.12)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "ACID transactions, MVCC concurrency, B-Tree and GIN indexing, EXPLAIN ANALYZE tuning, and JSONB indexing."
   }
 ];
 
@@ -853,21 +913,364 @@ export const QUIZ_BANKS = {
         explanation: "git stash saves dirty working directory state to a local stack and reverts back to HEAD; use 'git stash pop' to restore changes."
       }
     ]
+  },
+  typescript: {
+    id: "asm-ts",
+    skill_id: "sk-ts",
+    title: "TypeScript Static Typing & Generics Quiz",
+    skill_name: "TypeScript",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "ts_q1",
+        text: "What is the crucial type-safety difference between 'unknown' and 'any' in TypeScript?",
+        options: [
+          "'unknown' is only allowed in interfaces, while 'any' is for classes",
+          "'unknown' forces you to perform type narrowing or assertion before operating on it, whereas 'any' disables type checking completely",
+          "'any' can only accept primitive types, while 'unknown' accepts objects",
+          "There is no difference in runtime or compiler behavior"
+        ],
+        correct_index: 1,
+        explanation: "'unknown' is the type-safe counterpart of 'any'; anything is assignable to 'unknown', but 'unknown' isn't assignable to anything else without type narrowing."
+      },
+      {
+        id: "ts_q2",
+        text: "What is a 'Discriminated Union' in TypeScript?",
+        options: [
+          "A union type where each member shares a common literal property that TypeScript can use to narrow the type",
+          "A union that excludes null and undefined automatically",
+          "A feature reserved only for database models",
+          "A union type that only permits symbol keys"
+        ],
+        correct_index: 0,
+        explanation: "A discriminated union uses a shared discriminant property (e.g., kind: 'circle' | 'square') so switch statements or ifs can narrow down the exact variant."
+      },
+      {
+        id: "ts_q3",
+        text: "What does the 'keyof' type operator produce when applied to a type T?",
+        options: [
+          "An array containing runtime property names",
+          "A string or numeric literal union of all known, public keys of T",
+          "The count of fields inside T",
+          "A boolean indicating if T has keys"
+        ],
+        correct_index: 1,
+        explanation: "The 'keyof' operator takes an object type and produces a string or numeric literal union of its keys (e.g. keyof { x: number; y: number } is 'x' | 'y')."
+      },
+      {
+        id: "ts_q4",
+        text: "In generic functions like 'function getProperty<T, K extends keyof T>(obj: T, key: K)', what does 'K extends keyof T' ensure?",
+        options: [
+          "That K is a subtype of object",
+          "That key is guaranteed to be a valid existing property name on object obj",
+          "That obj is immutable",
+          "That the return value is a Promise"
+        ],
+        correct_index: 1,
+        explanation: "'K extends keyof T' constrains K to only valid keys of type T, preventing access to non-existent properties at compile time."
+      },
+      {
+        id: "ts_q5",
+        text: "What does the 'readonly' modifier do when placed on an interface property?",
+        options: [
+          "Prevents the property from being reassigned after initial object creation",
+          "Encrypts the property in browser memory",
+          "Prevents the property from being serialized to JSON",
+          "Makes the property optional"
+        ],
+        correct_index: 0,
+        explanation: "Properties marked as readonly can only be assigned during initialization or construction; subsequent mutations cause compiler errors."
+      }
+    ]
+  },
+  nodejs: {
+    id: "asm-node",
+    skill_id: "sk-node",
+    title: "Node.js Architecture & Asynchronous Runtimes Quiz",
+    skill_name: "Node.js",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "node_q1",
+        text: "When does 'process.nextTick(callback)' execute relative to the Node.js event loop?",
+        options: [
+          "In the next iteration of the poll phase",
+          "Immediately after the current operation finishes, before the event loop advances to the next phase",
+          "After all setTimeout and setInterval callbacks execute",
+          "On a background worker thread"
+        ],
+        correct_index: 1,
+        explanation: "process.nextTick queue is processed immediately after the current operation finishes, resolving before the event loop transitions to any other phase."
+      },
+      {
+        id: "node_q2",
+        text: "Why are Node.js Streams preferable to 'fs.readFile' when handling large files?",
+        options: [
+          "Streams encrypt file data on the fly",
+          "Streams process data chunk-by-chunk without loading the entire file into memory, preventing Out-Of-Memory crashes",
+          "Streams convert files directly to SQL queries",
+          "fs.readFile cannot read files larger than 10KB"
+        ],
+        correct_index: 1,
+        explanation: "Streams process data sequentially in small chunks (buffers), providing high memory efficiency and backpressure handling for massive payloads."
+      },
+      {
+        id: "node_q3",
+        text: "What is the primary role of the 'Buffer' class in Node.js?",
+        options: [
+          "To format JSON responses for Express",
+          "To allocate raw binary memory outside the V8 heap for efficient I/O operations",
+          "To store user session cookies in browser cache",
+          "To speed up CSS styling"
+        ],
+        correct_index: 1,
+        explanation: "Buffer provides fixed-size, raw binary memory allocations outside the V8 JavaScript heap, essential for network protocols and file system operations."
+      },
+      {
+        id: "node_q4",
+        text: "What is the difference between the 'cluster' module and 'worker_threads' in Node.js?",
+        options: [
+          "'cluster' spawns separate OS processes with isolated memory to scale across CPU cores; 'worker_threads' run in the same process sharing memory for CPU-intensive tasks",
+          "'cluster' is for frontend, 'worker_threads' is for backend",
+          "'worker_threads' cannot access memory",
+          "They are identical aliases"
+        ],
+        correct_index: 0,
+        explanation: "cluster forks independent processes sharing a server port (multi-process); worker_threads enables multi-threaded JavaScript within a single process."
+      },
+      {
+        id: "node_q5",
+        text: "What pattern is standard in Node.js for managing custom event subscribers and emitters?",
+        options: [
+          "Observer pattern implemented via 'EventEmitter'",
+          "Redux store dispatching",
+          "MVC Controller routing",
+          "Two-way data binding"
+        ],
+        correct_index: 0,
+        explanation: "Node.js core relies heavily on the EventEmitter class (events module) to publish events and attach asynchronous listener handlers."
+      }
+    ]
+  },
+  docker: {
+    id: "asm-docker",
+    skill_id: "sk-docker",
+    title: "Docker Containerization & DevOps Quiz",
+    skill_name: "Docker",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "dock_q1",
+        text: "In a Dockerfile, what is the primary difference between 'CMD' and 'ENTRYPOINT'?",
+        options: [
+          "'ENTRYPOINT' defines the default executable that always runs, while 'CMD' provides default arguments that can be easily overridden at runtime",
+          "'CMD' runs during 'docker build', while 'ENTRYPOINT' runs during 'docker run'",
+          "'CMD' is only used for Windows containers",
+          "There is no difference"
+        ],
+        correct_index: 0,
+        explanation: "ENTRYPOINT specifies the immutable command container executable; CMD provides default arguments that are easily replaced by command-line parameters."
+      },
+      {
+        id: "dock_q2",
+        text: "Why should you order Dockerfile instructions from least-frequently changed to most-frequently changed?",
+        options: [
+          "To make the Dockerfile easier to read for coworkers",
+          "To maximize layer cache reuse and dramatically speed up build times",
+          "To decrease network latency of the container",
+          "Because Docker fails if package installs are listed first"
+        ],
+        correct_index: 1,
+        explanation: "Docker caches each instruction layer; placing invariant steps (e.g. system dependencies) first ensures modified application code doesn't invalidate earlier cached layers."
+      },
+      {
+        id: "dock_q3",
+        text: "What is the core advantage of Multi-Stage Docker builds?",
+        options: [
+          "They allow running multiple web servers on one port",
+          "They drastically reduce final production image size by copying only build artifacts into a lean runtime base, excluding compilers and dev tools",
+          "They enable hot-reloading in production",
+          "They eliminate the need for Dockerfiles"
+        ],
+        correct_index: 1,
+        explanation: "Multi-stage builds use separate stages (e.g., builder and runner) so heavy SDKs and intermediate build tools aren't shipped in the lean final release image."
+      },
+      {
+        id: "dock_q4",
+        text: "How do Docker Named Volumes differ from Bind Mounts?",
+        options: [
+          "Named Volumes are managed completely by Docker within the host storage engine and are isolated from host filesystem structure, whereas Bind Mounts map directly to host directory paths",
+          "Bind mounts cannot persist data when a container stops",
+          "Named volumes are slower than bind mounts",
+          "Volumes only work on Linux"
+        ],
+        correct_index: 0,
+        explanation: "Named volumes are managed natively by Docker under /var/lib/docker/volumes/, ensuring portability and security, while bind mounts tie to specific host directory paths."
+      },
+      {
+        id: "dock_q5",
+        text: "What is the default networking mode for containers launched on a single Docker host?",
+        options: [
+          "Host network",
+          "Bridge network",
+          "Overlay network",
+          "None"
+        ],
+        correct_index: 1,
+        explanation: "The default is the bridge driver, creating a private internal network interface (docker0) that translates traffic via NAT to the host network."
+      }
+    ]
+  },
+  postgresql: {
+    id: "asm-pg",
+    skill_id: "sk-pg",
+    title: "PostgreSQL Advanced Architecture & Query Tuning Quiz",
+    skill_name: "PostgreSQL",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "pg_q1",
+        text: "How does PostgreSQL's Multi-Version Concurrency Control (MVCC) ensure high read/write concurrency?",
+        options: [
+          "By acquiring exclusive table-level locks on every read",
+          "By keeping multiple row versions so readers never block writers and writers never block readers",
+          "By caching all tables in Redis RAM",
+          "By preventing concurrent transactions"
+        ],
+        correct_index: 1,
+        explanation: "MVCC uses transaction IDs (xmin/xmax) to present a consistent snapshot of data to each transaction, so reads don't lock writes and writes don't block reads."
+      },
+      {
+        id: "pg_q2",
+        text: "What is the performance advantage of using 'JSONB' over 'JSON' in PostgreSQL?",
+        options: [
+          "JSONB validates syntax but discards data",
+          "JSONB parses text into decomposed binary format that supports indexing (e.g. GIN indexes) and fast lookup, whereas JSON stores raw textual representation",
+          "JSON is faster to query than JSONB",
+          "JSONB only supports numbers"
+        ],
+        correct_index: 1,
+        explanation: "JSONB is stored in a decomposed binary format which is slightly slower to insert but significantly faster to query and supports GIN indexing on nested keys."
+      },
+      {
+        id: "pg_q3",
+        text: "When should you use a Generalized Inverted Index (GIN) instead of a standard B-Tree index?",
+        options: [
+          "For exact equality lookups on auto-increment integer IDs",
+          "When indexing composite elements containing multiple values, such as arrays, full-text search tsvectors, or JSONB keys",
+          "Only for primary keys",
+          "When table has fewer than 100 rows"
+        ],
+        correct_index: 1,
+        explanation: "GIN indexes map elements inside compound items (like words in documents or keys in JSONB/arrays) to the rows containing them, perfect for containment (@>) queries."
+      },
+      {
+        id: "pg_q4",
+        text: "What does 'EXPLAIN ANALYZE <query>' do in PostgreSQL?",
+        options: [
+          "Only generates an estimated execution plan without running the query",
+          "Actually executes the query and reports both planner estimated costs and real-world execution times and row counts per plan node",
+          "Automatically optimizes and rewrites the query code",
+          "Rolls back the transaction immediately"
+        ],
+        correct_index: 1,
+        explanation: "EXPLAIN ANALYZE executes the SQL statement, allowing database engineers to compare the optimizer's estimated startup and total costs with actual measured execution times."
+      },
+      {
+        id: "pg_q5",
+        text: "Why is an external connection pooler like PgBouncer often recommended in production PostgreSQL setups?",
+        options: [
+          "Because PostgreSQL forks a new OS process per connection, which consumes memory and limits scalability under hundreds of concurrent clients",
+          "Because PostgreSQL does not support TCP connections",
+          "To encrypt passwords in transit",
+          "To convert SQL to NoSQL"
+        ],
+        correct_index: 0,
+        explanation: "PostgreSQL uses a process-per-connection architecture where each client connection consumes significant RAM (~10MB+) and process overhead; poolers maintain a small pool of persistent backend connections."
+      }
+    ]
   }
 };
 
 export function getQuizForSkill(skillIdentifier) {
   if (!skillIdentifier) return QUIZ_BANKS.cpp;
-  const key = skillIdentifier.toLowerCase().replace('sk-', '').replace('asm-', '').trim();
+  let key = skillIdentifier.toLowerCase().replace('sk-', '').replace('asm-', '').trim();
+  
+  // Normalization aliases
+  if (key === 'js' || key === 'javascript') key = 'js';
+  if (key === 'ts' || key === 'typescript') key = 'typescript';
+  if (key === 'node' || key === 'node.js' || key === 'nodejs') key = 'nodejs';
+  if (key === 'pg' || key === 'postgres' || key === 'postgresql') key = 'postgresql';
+  if (key === 'c++' || key === 'cpp') key = 'cpp';
+
   if (QUIZ_BANKS[key]) {
     return QUIZ_BANKS[key];
   }
   // Try matching by name or substring
   for (const [k, quiz] of Object.entries(QUIZ_BANKS)) {
-    if (k.includes(key) || key.includes(k) || quiz.skill_name.toLowerCase().includes(key)) {
+    if (k.includes(key) || key.includes(k) || (quiz.skill_name && quiz.skill_name.toLowerCase().includes(key))) {
       return quiz;
     }
   }
   // Fallback to C++ or Python
   return QUIZ_BANKS.cpp;
+}
+
+export function getQuizForSkills(skillIdentifiers) {
+  if (!Array.isArray(skillIdentifiers)) {
+    skillIdentifiers = [skillIdentifiers];
+  }
+  const cleanSkills = skillIdentifiers.filter(Boolean);
+  if (cleanSkills.length === 0) cleanSkills.push('cpp');
+
+  if (cleanSkills.length === 1) {
+    const single = getQuizForSkill(cleanSkills[0]);
+    return {
+      ...single,
+      skills: [single.skill_name || cleanSkills[0]],
+      questions: (single.questions || []).map((q, idx) => ({
+        ...q,
+        skill_name: single.skill_name || cleanSkills[0],
+        skill_id: single.skill_id || cleanSkills[0]
+      }))
+    };
+  }
+
+  // Multi-skill assessment: combine questions from all selected skills!
+  let combinedQuestions = [];
+  const skillNames = [];
+  const skillDetails = [];
+
+  cleanSkills.forEach(s => {
+    const qb = getQuizForSkill(s);
+    if (qb && qb.questions && qb.questions.length > 0) {
+      const name = qb.skill_name || s;
+      skillNames.push(name);
+      skillDetails.push({ name, skill_id: qb.skill_id, questionsCount: qb.questions.length });
+      qb.questions.forEach((q, idx) => {
+        combinedQuestions.push({
+          ...q,
+          id: `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}_${q.id || idx}`,
+          skill_name: name,
+          skill_id: qb.skill_id || s,
+          skill_icon: qb.icon || '⚡'
+        });
+      });
+    }
+  });
+
+  return {
+    id: `asm-multi-${Date.now().toString(36)}`,
+    title: `Multi-Competency Proctored Assessment (${skillNames.join(', ')})`,
+    skill_name: skillNames.join(' + '),
+    skills: skillNames,
+    skillDetails,
+    duration_minutes: Math.max(15, Math.min(45, skillNames.length * 8)),
+    passing_score: 75.0,
+    questions: combinedQuestions
+  };
 }

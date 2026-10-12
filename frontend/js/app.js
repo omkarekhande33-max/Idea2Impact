@@ -1,6 +1,6 @@
 import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
-import { SKILLS_CATALOG, getQuizForSkill } from './quizData.js';
+import { SKILLS_CATALOG, getQuizForSkill, getQuizForSkills } from './quizData.js';
 // Acoustic Warning Alarm for Anti-Cheat Proctoring
 function playAcousticAlarm() {
   try {
@@ -1251,15 +1251,26 @@ class App {
           <div id="resume-parse-feedback" style="margin-top:0.75rem; display:none;"></div>
         </div>
 
-        <!-- Card 2: + Add New Competency Manually (Matches Image 3) -->
+        <!-- Card 2: + Add New Competency Manually (Supports 1 or more skills) -->
         <div class="sb-competency-card">
-          <h3 style="font-size:1.05rem; font-weight:800; color:#0F172A; margin:0 0 1rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
-            + Add New Competency Manually
-          </h3>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.85rem;">
+            <div>
+              <h3 style="font-size:1.05rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+                + Add Technical Competencies & Skills
+              </h3>
+              <p style="font-size:0.82rem; color:#64748B; margin:0;">
+                Select one or more skills to take an AI camera-proctored verification test (75%+ required to officially verify for profile).
+              </p>
+            </div>
+            <span class="sb-ai-pill" style="background:#EEF2FF; color:#4338CA; border:1px solid #C7D2FE;">
+              📹 Proctored Camera & Anti-Cheat AI
+            </span>
+          </div>
+
           <form id="add-candidate-skill-form" class="sb-manual-form-grid">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Competency / Technology</label>
-              <select class="form-select" id="new-comp-name" required style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
+              <select class="form-select" id="new-comp-name" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
                 <option value="" disabled selected>Select competency to add...</option>
                 ${skillList.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
               </select>
@@ -1277,17 +1288,42 @@ class App {
               <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Years of Hands-On Experience</label>
               <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="30" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;" />
             </div>
-            <button type="submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
+            <button type="submit" id="btn-add-profile-submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
               Add to Profile
             </button>
           </form>
 
+          <!-- Selected Skills Multi-Selection Basket -->
+          <div id="selected-skills-basket" style="margin-top:0.85rem; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:0.75rem; padding:0.75rem 0.95rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="font-size:0.78rem; font-weight:800; color:#334155; text-transform:uppercase; letter-spacing:0.5px;">
+                  Selected Skills to Add & Verify (<span id="selected-skills-count">0</span>):
+                </span>
+                <span style="font-size:0.72rem; color:#64748B;">(Click chips or pick from dropdown)</span>
+              </div>
+              <button type="button" id="clear-selected-skills-btn" style="background:none; border:none; color:#64748B; font-size:0.72rem; cursor:pointer; text-decoration:underline;">
+                Clear All
+              </button>
+            </div>
+            <div id="selected-skills-tags-list" style="display:flex; flex-wrap:wrap; gap:0.45rem; min-height:28px; align-items:center;">
+              <span id="selected-skills-empty-hint" style="font-size:0.78rem; color:#94A3B8; font-style:italic;">
+                No skills selected yet. Select from the dropdown or click any skill badge below to add one or more skills.
+              </span>
+            </div>
+          </div>
+
           <!-- Quick Skill Quiz Generator Chips -->
-          <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #F1F5F9;">
-            <span style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:0.6rem;">
-              ⚡ Click ANY skill to take quiz & verify for profile (75%+ score required):
-            </span>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+          <div style="margin-top:1.15rem; padding-top:0.95rem; border-top:1px solid #F1F5F9;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.4rem;">
+              <span style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px;">
+                ⚡ CLICK ANY SKILL TO TAKE QUIZ & VERIFY FOR PROFILE (75%+ SCORE REQUIRED):
+              </span>
+              <span style="font-size:0.72rem; color:#4F46E5; font-weight:600;">
+                Click badge to add to selection · Click 'Test' for instant quiz
+              </span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="quick-skills-chips-container">
               ${[
                 { name: 'JavaScript', icon: '🟨' },
                 { name: 'React', icon: '⚛️' },
@@ -1301,10 +1337,11 @@ class App {
                 { name: 'Docker', icon: '🐳' },
                 { name: 'Git', icon: '📦' }
               ].map(s => `
-                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip" data-skill="${s.name}">
+                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip" data-skill="${s.name}" title="Click to add ${s.name} to selection">
                   <span>${s.icon}</span>
                   <span>${s.name}</span>
-                  <span style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.1rem 0.35rem; border-radius:4px;">Test</span>
+                  <span class="sb-chip-check" style="display:none; color:#10B981; font-weight:800; font-size:0.8rem;">✓</span>
+                  <span class="direct-test-pill" data-direct-skill="${s.name}" style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.1rem 0.35rem; border-radius:4px; margin-left:0.2rem;">Test</span>
                 </button>
               `).join('')}
             </div>
@@ -1819,31 +1856,125 @@ class App {
       });
     }
 
-    // Add manual competency form -> MUST pass 75% quiz before adding to profile!
+    // Multi-Skill Selection State & Event Handlers
+    const selectedSkills = [];
+
+    const updateSkillsBasket = () => {
+      const container = document.getElementById('selected-skills-tags-list');
+      const countLabel = document.getElementById('selected-skills-count');
+      const submitBtn = document.getElementById('btn-add-profile-submit');
+
+      if (countLabel) countLabel.textContent = selectedSkills.length;
+      if (!container) return;
+
+      if (selectedSkills.length === 0) {
+        container.innerHTML = `<span id="selected-skills-empty-hint" style="font-size:0.78rem; color:#94A3B8; font-style:italic;">No skills selected yet. Select from the dropdown or click any skill badge below to add one or more skills.</span>`;
+        if (submitBtn) submitBtn.innerHTML = `<span>Add to Profile</span>`;
+      } else {
+        container.innerHTML = selectedSkills.map(skill => `
+          <span class="sb-skill-tag-pill">
+            <span>${skill}</span>
+            <button type="button" class="sb-skill-tag-remove" data-remove-skill="${skill}" title="Remove ${skill}">&times;</button>
+          </span>
+        `).join('');
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `<span>Add & Take Proctored Test (${selectedSkills.length} Skill${selectedSkills.length > 1 ? 's' : ''}) 🚀</span>`;
+        }
+
+        container.querySelectorAll('.sb-skill-tag-remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const skillToRemove = btn.dataset.removeSkill;
+            const idx = selectedSkills.indexOf(skillToRemove);
+            if (idx !== -1) selectedSkills.splice(idx, 1);
+            syncChipStyles();
+            updateSkillsBasket();
+          });
+        });
+      }
+    };
+
+    const syncChipStyles = () => {
+      this.appContainer.querySelectorAll('.quick-quiz-chip').forEach(chip => {
+        const sName = chip.dataset.skill;
+        const isSel = selectedSkills.includes(sName);
+        chip.classList.toggle('selected', isSel);
+        const checkEl = chip.querySelector('.sb-chip-check');
+        if (checkEl) checkEl.style.display = isSel ? 'inline' : 'none';
+      });
+    };
+
+    // Dropdown change adds to selected skills
+    const compSelect = document.getElementById('new-comp-name');
+    if (compSelect) {
+      compSelect.addEventListener('change', () => {
+        const val = compSelect.value.trim();
+        if (val && !selectedSkills.includes(val)) {
+          selectedSkills.push(val);
+          updateSkillsBasket();
+          syncChipStyles();
+          compSelect.value = '';
+        }
+      });
+    }
+
+    // Clear all button
+    const clearBtn = document.getElementById('clear-selected-skills-btn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        selectedSkills.length = 0;
+        updateSkillsBasket();
+        syncChipStyles();
+      });
+    }
+
+    // Add manual competency form -> MUST pass 75% proctored quiz before adding to profile!
     const addSkillForm = this.appContainer.querySelector('#add-candidate-skill-form');
     if (addSkillForm) {
       addSkillForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const skillSelect = document.getElementById('new-comp-name');
-        const skillName = skillSelect ? skillSelect.value.trim() : '';
-        if (!skillName) {
-          state.showToast("Please select a competency to add.", "warning");
+        const fallbackSkill = skillSelect ? skillSelect.value.trim() : '';
+        if (selectedSkills.length === 0 && fallbackSkill) {
+          selectedSkills.push(fallbackSkill);
+        }
+
+        if (selectedSkills.length === 0) {
+          state.showToast("Please select one or more competencies to add and verify.", "warning");
           return;
         }
+
         const level = document.getElementById('new-comp-level').value;
         const years = parseInt(document.getElementById('new-comp-years').value, 10) || 1;
 
-        // Launch dynamic skill quiz modal (Only >= 75% adds to profile)
-        await this.openSkillVerificationQuiz(skillName, level, years, candidateId);
+        // Launch camera-proctored verification assessment for selected skills
+        await this.openAssessmentModal([...selectedSkills], candidateId, { level, years });
       });
     }
 
-    // Quick Skill Quiz Trigger Chips in competencies tab (Clicking ANY skill triggers quiz)
+    // Quick Skill Quiz Trigger Chips in competencies tab (Clicking toggles or tests)
     this.appContainer.querySelectorAll('.quick-quiz-chip').forEach(chip => {
       chip.addEventListener('click', async (e) => {
         e.preventDefault();
         const skill = chip.dataset.skill;
-        await this.openSkillVerificationQuiz(skill, 'Intermediate', 2, candidateId);
+
+        // If clicked directly on the "Test" sub-pill, launch instant single-skill assessment!
+        if (e.target.closest('.direct-test-pill')) {
+          await this.openAssessmentModal(skill, candidateId, { level: 'Intermediate', years: 2 });
+          return;
+        }
+
+        // Otherwise toggle selection in the basket
+        const idx = selectedSkills.indexOf(skill);
+        if (idx === -1) {
+          selectedSkills.push(skill);
+          state.showToast(`Added ${skill} to test selection (${selectedSkills.length} selected)`, 'info');
+        } else {
+          selectedSkills.splice(idx, 1);
+        }
+        updateSkillsBasket();
+        syncChipStyles();
       });
     });
 
@@ -1878,211 +2009,7 @@ class App {
   // DYNAMIC SKILL QUIZ GENERATOR & 75% VERIFICATION GATE
   // =========================================================================
   async openSkillVerificationQuiz(skillName, level = 'Intermediate', years = 2, candidateId = '') {
-    const quiz = getQuizForSkill(skillName);
-    const questions = quiz.questions || [];
-    if (questions.length === 0) {
-      state.showToast("Could not generate questions for this skill.", "danger");
-      return;
-    }
-
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-
-    overlay.innerHTML = `
-      <div class="sb-gap-modal-card" style="max-width:680px;">
-        <div class="sb-gap-modal-header">
-          <div>
-            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-              <span style="font-size:1.3rem;">${quiz.icon || '⚡'}</span>
-              <h3 class="sb-gap-modal-title">${quiz.skill_name || skillName}</h3>
-            </div>
-            <p class="sb-gap-modal-subtitle">
-              Dynamic Verification Quiz · 5 Multiple Choice Questions
-            </p>
-          </div>
-          <button type="button" class="sb-gap-close-btn" id="close-quiz-btn">&times;</button>
-        </div>
-
-        <!-- 75% Threshold Requirement Banner -->
-        <div style="background:#EEF2FF; border:1px solid #C7D2FE; border-radius:0.75rem; padding:0.85rem 1rem; display:flex; align-items:center; gap:0.75rem;">
-          <span style="font-size:1.4rem;">🎯</span>
-          <div>
-            <span style="font-size:0.85rem; font-weight:800; color:#312E81; display:block;">
-              Passing Benchmark: 75% Required
-            </span>
-            <span style="font-size:0.78rem; color:#4338CA;">
-              Score at least 75% (4 out of 5 questions) to verify this competency and officially add it to your candidate profile.
-            </span>
-          </div>
-        </div>
-
-        <!-- Questions List -->
-        <form id="skill-quiz-form" style="display:flex; flex-direction:column; gap:1.25rem; max-height:55vh; overflow-y:auto; padding-right:0.35rem;">
-          ${questions.map((q, qIdx) => `
-            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:0.75rem; padding:1rem;">
-              <div style="font-size:0.88rem; font-weight:700; color:#0F172A; margin-bottom:0.75rem;">
-                <span style="color:#4F46E5; margin-right:0.25rem;">Q${qIdx + 1}.</span> ${q.text}
-              </div>
-              <div style="display:flex; flex-direction:column; gap:0.45rem;">
-                ${q.options.map((opt, oIdx) => `
-                  <label style="display:flex; align-items:center; gap:0.65rem; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:0.5rem; padding:0.55rem 0.85rem; font-size:0.82rem; color:#334155; cursor:pointer; transition:all 0.15s ease;">
-                    <input type="radio" name="question_${qIdx}" value="${oIdx}" required style="accent-color:#4F46E5;" />
-                    <span>${opt}</span>
-                  </label>
-                `).join('')}
-              </div>
-            </div>
-          `).join('')}
-
-          <div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid #F1F5F9; margin-top:0.5rem;">
-            <button type="button" class="sb-btn-close" id="cancel-quiz-btn">Cancel</button>
-            <button type="submit" class="sb-btn-apply" id="submit-quiz-btn" style="background:#4F46E5; border-color:#4F46E5;">
-              Submit Quiz & Grade Score 🚀
-            </button>
-          </div>
-        </form>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    const closeQuiz = () => overlay.remove();
-    overlay.querySelector('#close-quiz-btn').addEventListener('click', closeQuiz);
-    overlay.querySelector('#cancel-quiz-btn').addEventListener('click', closeQuiz);
-
-    const quizForm = overlay.querySelector('#skill-quiz-form');
-    quizForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const submitBtn = overlay.querySelector('#submit-quiz-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Grading Quiz...';
-
-      let correctCount = 0;
-      questions.forEach((q, idx) => {
-        const selected = quizForm.querySelector(`input[name="question_${idx}"]:checked`);
-        if (selected && parseInt(selected.value, 10) === q.correct_index) {
-          correctCount++;
-        }
-      });
-
-      const totalCount = questions.length;
-      const score = Math.round((correctCount / totalCount) * 100);
-      const isPassed = score >= 75;
-
-      overlay.remove();
-
-      if (isPassed) {
-        // Officially ADD the skill to candidate profile!
-        try {
-          await api.addCandidateSkill({
-            skill_name: skillName,
-            proficiency_level: level,
-            years_experience: years,
-            is_verified: true,
-            assessment_score: score
-          }, candidateId);
-
-          // Cache in local verified skills
-          const raw = localStorage.getItem('i2i_verified_skills');
-          const list = raw ? JSON.parse(raw) : [];
-          const filtered = list.filter(s => (s.name || '').toLowerCase() !== skillName.toLowerCase());
-          filtered.push({
-            name: skillName,
-            skill_id: quiz.skill_id || skillName.toLowerCase(),
-            assessment_score: score,
-            status: 'verified',
-            verified_at: new Date().toISOString().split('T')[0]
-          });
-          localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
-        } catch (err) {
-          console.warn("Could not persist skill to remote API:", err);
-        }
-
-        // Show Success Modal
-        const successModal = document.createElement('div');
-        successModal.className = 'modal-overlay';
-        successModal.innerHTML = `
-          <div class="sb-gap-modal-card" style="max-width:540px; text-align:center; align-items:center;">
-            <div style="font-size:3.5rem; margin-bottom:0.5rem;">🎉</div>
-            <h3 style="font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 0.35rem 0;">Skill Verified Successfully!</h3>
-            <p style="font-size:0.85rem; color:#64748B; margin:0 0 1.25rem 0;">
-              ${quiz.skill_name || skillName} has been officially verified and added to your profile.
-            </p>
-
-            <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:1rem; padding:1.25rem; width:100%; margin-bottom:1.5rem;">
-              <span style="font-size:2.8rem; font-weight:800; color:#15803D; line-height:1; display:block;">${score}%</span>
-              <span style="font-size:0.82rem; font-weight:700; color:#166534; margin-top:0.35rem; display:block;">
-                ✓ Passed 75% Verification Benchmark (${correctCount}/${totalCount} Correct)
-              </span>
-            </div>
-
-            <button type="button" class="sb-btn-apply" id="continue-after-pass-btn" style="width:100%;">
-              Continue to Candidate Dashboard
-            </button>
-          </div>
-        `;
-        document.body.appendChild(successModal);
-        successModal.querySelector('#continue-after-pass-btn').addEventListener('click', () => {
-          successModal.remove();
-          state.showToast(`🎉 ${skillName} (${score}%) verified and added to your profile!`, 'success');
-          state.notify();
-        });
-
-      } else {
-        // Did NOT pass 75% -> Do NOT add skill! Present Roadmap link
-        const failModal = document.createElement('div');
-        failModal.className = 'modal-overlay';
-        failModal.innerHTML = `
-          <div class="sb-gap-modal-card" style="max-width:540px; text-align:center; align-items:center;">
-            <div style="font-size:3.5rem; margin-bottom:0.5rem;">❌</div>
-            <h3 style="font-size:1.4rem; font-weight:800; color:#991B1B; margin:0 0 0.35rem 0;">Benchmark Not Reached</h3>
-            <p style="font-size:0.85rem; color:#64748B; margin:0 0 1.25rem 0;">
-              You need at least 75% to add this skill to your profile.
-            </p>
-
-            <div style="background:#FEF2F2; border:1px solid #FCA5A5; border-radius:1rem; padding:1.25rem; width:100%; margin-bottom:1.5rem;">
-              <span style="font-size:2.8rem; font-weight:800; color:#DC2626; line-height:1; display:block;">${score}%</span>
-              <span style="font-size:0.82rem; font-weight:700; color:#991B1B; margin-top:0.35rem; display:block;">
-                Minimum 75% required (${correctCount}/${totalCount} Correct) — Skill was NOT added to profile
-              </span>
-            </div>
-
-            <p style="font-size:0.85rem; color:#475569; margin:0 0 1.25rem 0; line-height:1.5;">
-              Study the curated roadmap below to master this competency, then retake the quiz to verify.
-            </p>
-
-            <div style="display:flex; gap:0.75rem; width:100%; flex-direction:column;">
-              <button type="button" class="sb-btn-apply" id="fail-open-roadmap-btn" style="background:#4F46E5; border-color:#4F46E5; width:100%;">
-                📚 Study ${skillName} on Roadmap ↗
-              </button>
-              <div style="display:flex; gap:0.5rem; width:100%;">
-                <button type="button" class="sb-btn-close" id="fail-retake-btn" style="flex:1;">
-                  🔄 Retake Quiz
-                </button>
-                <button type="button" class="sb-btn-close" id="fail-close-btn" style="flex:1;">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(failModal);
-
-        failModal.querySelector('#fail-open-roadmap-btn').addEventListener('click', () => {
-          failModal.remove();
-          window.open('roadmap.html?skill=' + encodeURIComponent(skillName), '_blank');
-        });
-
-        failModal.querySelector('#fail-retake-btn').addEventListener('click', async () => {
-          failModal.remove();
-          await this.openSkillVerificationQuiz(skillName, level, years, candidateId);
-        });
-
-        failModal.querySelector('#fail-close-btn').addEventListener('click', () => {
-          failModal.remove();
-        });
-      }
-    });
+    await this.openAssessmentModal(skillName, candidateId, { level, years });
   }
 
   // =========================================================================
@@ -2346,20 +2273,27 @@ class App {
   // =========================================================================
   // INTERACTIVE ASSESSMENT QUIZ MODAL WITH AI PROCTORING & INTEGRITY TRACKING
   // =========================================================================
-  async openAssessmentModal(assessmentId, candidateId) {
+  async openAssessmentModal(assessmentIdOrSkills, candidateId, options = {}) {
     let asm = null;
-    try {
-      asm = await api.getAssessment(assessmentId);
-    } catch (e) {
-      console.warn("Could not load assessment from API, using fallback catalog", e);
+    let testedSkillNames = [];
+
+    if (Array.isArray(assessmentIdOrSkills)) {
+      asm = getQuizForSkills(assessmentIdOrSkills);
+      testedSkillNames = asm.skills || assessmentIdOrSkills;
+    } else if (typeof assessmentIdOrSkills === 'string') {
+      try {
+        asm = await api.getAssessment(assessmentIdOrSkills);
+      } catch (e) {
+        console.warn("Could not load assessment from API, using fallback catalog", e);
+      }
+      if (!asm || !asm.questions || asm.questions.length === 0) {
+        asm = getQuizForSkills([assessmentIdOrSkills]);
+      }
+      testedSkillNames = asm.skills || [asm.skill_name || assessmentIdOrSkills];
     }
 
     if (!asm || !asm.questions || asm.questions.length === 0) {
-      asm = getQuizForSkill(assessmentId);
-    }
-
-    if (!asm || !asm.questions || asm.questions.length === 0) {
-      state.showToast("Could not generate quiz for this skill", "danger");
+      state.showToast("Could not generate quiz for selected skills", "danger");
       return;
     }
 
@@ -2371,6 +2305,7 @@ class App {
     let cocoModel = null;
     let detectionInterval = null;
     let simulatedCanvasInterval = null;
+    let isTerminated = false;
 
     // Start exam session & integrity monitor
     state.startExam();
@@ -2387,7 +2322,12 @@ class App {
           <span class="proctor-live-status">
             <span class="proctor-rec-dot"></span> LIVE AI PROCTORING
           </span>
-          <h3 style="font-size:1.15rem; font-weight:800; color:#F8FAFC; margin:0;">${asm.title}</h3>
+          <div>
+            <h3 style="font-size:1.15rem; font-weight:800; color:#F8FAFC; margin:0;">${asm.title}</h3>
+            ${testedSkillNames.length > 1 ? `
+              <span style="font-size:0.75rem; color:#93C5FD;">Skills: ${testedSkillNames.join(' · ')}</span>
+            ` : ''}
+          </div>
           <span style="font-size:0.75rem; background:#1E293B; color:#94A3B8; padding:0.25rem 0.55rem; border-radius:4px; font-weight:600;">
             🎯 75% BENCHMARK TO PASS
           </span>
@@ -2398,7 +2338,7 @@ class App {
             <span id="exam-timer" style="font-family:var(--font-mono); font-size:1.25rem; font-weight:800; color:#38BDF8;">15:00</span>
           </div>
           <div style="background:rgba(239, 68, 68, 0.2); border:1px solid #EF4444; color:#FCA5A5; font-size:0.8rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:4px;">
-            ⚠️ Violations: <span id="proctor-violations-count">0</span>
+            ⚠️ Violations: <span id="proctor-violations-count">0</span> / 3
           </div>
           <button id="cancel-exam-btn" class="btn btn-xs btn-outline" style="border-color:#475569; color:#94A3B8;">
             Exit Exam &times;
@@ -2409,7 +2349,7 @@ class App {
       <!-- Flashing Proctor Alarm Banner -->
       <div id="proctor-alarm-banner" class="proctor-alarm-banner" style="display:none; margin:0.75rem 1.5rem 0;">
         <span class="material-symbols-outlined">warning</span>
-        <span id="proctor-alarm-text">PROCTORING ALERT: SECONDARY DEVICE DETECTED</span>
+        <span id="proctor-alarm-text">PROCTORING ALERT: SUSPICIOUS ACTIVITY DETECTED</span>
       </div>
 
       <!-- Main Proctor Layout -->
@@ -2450,7 +2390,7 @@ class App {
           <div>
             <div style="font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
               <span>Vision Monitor</span>
-              <span style="font-size:0.7rem; color:#60A5FA;">COCO-SSD</span>
+              <span style="font-size:0.7rem; color:#60A5FA;">COCO-SSD AI</span>
             </div>
             <div class="proctor-webcam-container">
               <video id="proctor-webcam-video" autoplay playsinline muted class="proctor-webcam-video"></video>
@@ -2460,12 +2400,13 @@ class App {
           </div>
 
           <div>
-            <div style="font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem;">
-              Question Palette
+            <div style="font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
+              <span>Question Palette</span>
+              <span style="font-size:0.72rem; color:#94A3B8;">${questions.length} Questions</span>
             </div>
             <div class="proctor-palette-grid" id="proctor-palette-container">
-              ${questions.map((_, idx) => `
-                <button type="button" class="proctor-palette-btn ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+              ${questions.map((q, idx) => `
+                <button type="button" class="proctor-palette-btn ${idx === 0 ? 'active' : ''}" data-idx="${idx}" title="${q.skill_name || 'Question'} ${idx + 1}">
                   ${idx + 1}
                 </button>
               `).join('')}
@@ -2473,18 +2414,18 @@ class App {
           </div>
 
           <div style="margin-top:auto; background:#1E293B; border:1px solid #334155; border-radius:var(--radius-md); padding:0.9rem;">
-            <div style="font-size:0.78rem; font-weight:700; color:#CBD5E1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem;">
+            <div style="font-size:0.78rem; font-weight:700; color:#CBD5E1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">
               Security Simulation Bench
             </div>
             <p style="font-size:0.72rem; color:#94A3B8; margin-bottom:0.6rem; line-height:1.4;">
-              Demonstrate anti-cheat features & acoustic warning alerts:
+              Demonstrate camera anti-cheat & mobile auto-submit behavior:
             </p>
             <div style="display:flex; flex-direction:column; gap:0.4rem;">
-              <button type="button" class="btn btn-xs" id="sim-phone-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left;">
-                📱 Simulate Phone Detection
+              <button type="button" class="btn btn-xs" id="sim-phone-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
+                📱 Simulate Phone Detection (Auto-Submit)
               </button>
               <button type="button" class="btn btn-xs" id="sim-tab-btn" style="background:#334155; color:#E2E8F0; border:1px solid #475569; width:100%; text-align:left;">
-                🪟 Simulate Tab Switch
+                🪟 Simulate Tab Switch Violation
               </button>
               <button type="button" class="btn btn-xs" id="sim-sound-btn" style="background:#334155; color:#E2E8F0; border:1px solid #475569; width:100%; text-align:left;">
                 🔊 Test Acoustic Warning Alarm
@@ -2497,8 +2438,49 @@ class App {
 
     document.body.appendChild(overlay);
 
-    // Audio & Alarm Helper
-    const triggerViolation = (reason) => {
+    // =========================================================================
+    // CRITICAL: AUTO-SUBMIT TEST ON VIOLATION (MOBILE PHONE OR 3 TAB SWITCHES)
+    // =========================================================================
+    const autoSubmitDueToViolation = async (violationType, reasonText, confidence = 94) => {
+      if (isTerminated) return;
+      isTerminated = true;
+
+      // 1. Acoustic warning alarm
+      playAcousticAlarm();
+
+      // 2. Cleanup resources immediately
+      cleanupExam();
+
+      // 3. Close the exam wrapper
+      overlay.remove();
+
+      // 4. Submit disqualified exam attempt to API/localStorage
+      try {
+        await api.submitAssessment(asm.id, {
+          candidate_id: candidateId,
+          answers: answers,
+          flags: [
+            `malpractice_violation: ${violationType}`,
+            `reason: ${reasonText}`,
+            'disqualified_score: 0'
+          ]
+        });
+      } catch (err) {
+        console.warn("Could not record violation attempt to API", err);
+      }
+
+      // 5. Present prominent Malpractice Auto-Submit Message Modal!
+      this.showMalpracticeAutoSubmitModal({
+        violationType,
+        reasonText,
+        confidence,
+        skills: testedSkillNames
+      });
+    };
+
+    // Suspicious Activity / Tab Switch Handler
+    const triggerSuspiciousActivity = (reason) => {
+      if (isTerminated) return;
       violationsCount += 1;
       const countEl = overlay.querySelector('#proctor-violations-count');
       if (countEl) countEl.textContent = violationsCount;
@@ -2508,12 +2490,26 @@ class App {
       const banner = overlay.querySelector('#proctor-alarm-banner');
       const text = overlay.querySelector('#proctor-alarm-text');
       if (banner && text) {
-        text.textContent = `PROCTOR ALERT: ${reason}`;
+        text.textContent = `SUSPICIOUS ACTIVITY: ${reason} (Violation ${violationsCount} of 3)`;
         banner.style.display = 'flex';
         clearTimeout(banner._hideTimeout);
         banner._hideTimeout = setTimeout(() => {
           banner.style.display = 'none';
-        }, 4000);
+        }, 5000);
+      }
+
+      overlay.classList.add('violation-flash');
+      setTimeout(() => overlay.classList.remove('violation-flash'), 650);
+
+      state.showToast(`⚠️ Suspicious activity detected: ${reason} (Violation ${violationsCount}/3)`, 'warning');
+
+      // Autosubmit if 3 tab switches / blurs occur!
+      if (violationsCount >= 3) {
+        autoSubmitDueToViolation(
+          "EXCESSIVE_TAB_SWITCHING",
+          "Multiple tab switching / window focus loss violations detected (3 of 3 strikes reached).",
+          100
+        );
       }
     };
 
@@ -2548,10 +2544,15 @@ class App {
       const formattedPrompt = (q.text || q.prompt || '').replace(/`([^`]+)`/g, '<code style="background:#374151; color:#60A5FA; padding:0.15rem 0.4rem; border-radius:4px; font-family:var(--font-mono); font-size:0.9rem;">$1</code>');
 
       qContainer.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-          <span style="background:#2563EB; color:#FFF; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:4px;">
-            QUESTION ${currentQIndex + 1}
-          </span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="background:#2563EB; color:#FFF; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:4px;">
+              ${q.skill_name ? `${q.skill_name} · ` : ''}QUESTION ${currentQIndex + 1}
+            </span>
+            <span style="background:rgba(59, 130, 246, 0.15); color:#60A5FA; font-size:0.72rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(59,130,246,0.3);">
+              Proctored Item
+            </span>
+          </div>
           <span style="font-size:0.75rem; color:#94A3B8;">Multiple Choice Single Option</span>
         </div>
         <p style="font-size:1.05rem; font-weight:700; color:#F8FAFC; line-height:1.5; margin-bottom:1.5rem;">
@@ -2621,11 +2622,11 @@ class App {
 
     // Tab Switch / Blur Monitor
     const onWindowBlur = () => {
-      triggerViolation("WINDOW FOCUS LOST / TAB SWITCH DETECTED");
+      triggerSuspiciousActivity("WINDOW FOCUS LOST / ALT-TAB DETECTED");
     };
     const onVisibilityChange = () => {
       if (document.hidden) {
-        triggerViolation("BACKGROUND TAB DETECTED / LOSS OF VISIBILITY");
+        triggerSuspiciousActivity("BROWSER TAB SWITCH DETECTED");
       }
     };
     window.addEventListener('blur', onWindowBlur);
@@ -2640,18 +2641,18 @@ class App {
       try {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           videoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 320 }, height: { ideal: 240 } },
+            video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
             audio: false
           });
           videoEl.srcObject = videoStream;
           await videoEl.play();
-          if (statusPill) statusPill.textContent = "🟢 Camera Live • Loading COCO-SSD...";
+          if (statusPill) statusPill.textContent = "🟢 Camera Live • AI Proctor Active";
         } else {
           throw new Error("Camera API not available");
         }
       } catch (camErr) {
         console.warn("Webcam access unavailable, launching simulated camera feed", camErr);
-        if (statusPill) statusPill.textContent = "🟡 Emulated Camera Feed Active";
+        if (statusPill) statusPill.textContent = "🟡 Emulated Camera Radar Active";
 
         // Animated scanline radar on canvas
         const ctx = canvasEl.getContext('2d');
@@ -2675,14 +2676,14 @@ class App {
         }, 50);
       }
 
-      // Load COCO-SSD if available
+      // Load COCO-SSD model & detect mobile phones
       try {
         if (window.cocoSsd) {
           cocoModel = await window.cocoSsd.load();
           if (statusPill) statusPill.textContent = "🟢 Vision Active • Scanning for Devices";
 
           detectionInterval = setInterval(async () => {
-            if (!cocoModel || !videoEl || videoEl.readyState < 2) return;
+            if (!cocoModel || !videoEl || videoEl.readyState < 2 || isTerminated) return;
             try {
               const predictions = await cocoModel.detect(videoEl);
               const ctx = canvasEl.getContext('2d');
@@ -2694,25 +2695,34 @@ class App {
                 const label = p.class.toLowerCase();
                 const [x, y, w, h] = p.bbox;
 
-                if (['cell phone', 'remote', 'laptop', 'book', 'tablet'].includes(label)) {
+                if (['cell phone', 'phone', 'mobile'].includes(label)) {
+                  // DRAW HIGHLIGHT BOX AROUND DETECTED PHONE
                   ctx.strokeStyle = '#EF4444';
-                  ctx.lineWidth = 3;
+                  ctx.lineWidth = 4;
                   ctx.strokeRect(x, y, w, h);
-                  ctx.fillStyle = '#EF4444';
+                  ctx.fillStyle = '#DC2626';
+                  ctx.fillRect(x, Math.max(0, y - 24), Math.max(w, 220), 24);
+                  ctx.fillStyle = '#FFFFFF';
                   ctx.font = 'bold 12px sans-serif';
-                  ctx.fillText(`VIOLATION: ${label.toUpperCase()} (${Math.round(p.score * 100)}%)`, x, y > 15 ? y - 5 : 15);
+                  ctx.fillText(`🚨 CELL PHONE DETECTED (${Math.round(p.score * 100)}%)`, x + 6, Math.max(16, y - 7));
 
-                  triggerViolation(`SECONDARY DEVICE DETECTED: ${label.toUpperCase()}`);
+                  // AUTOSUBMIT THE TEST IMMEDIATELY WHEN MOBILE IS DETECTED!
+                  autoSubmitDueToViolation(
+                    "MOBILE_PHONE_DETECTED",
+                    "Unauthorized mobile device detected in camera feed by AI vision engine.",
+                    Math.round(p.score * 100)
+                  );
+                  return;
                 }
               }
             } catch (err) {
               console.warn("COCO-SSD detection frame error", err);
             }
-          }, 1500);
+          }, 800);
         }
       } catch (modelErr) {
         console.warn("Could not load COCO-SSD model", modelErr);
-        if (statusPill) statusPill.textContent = "🟢 Heuristic Vision Guard Active";
+        if (statusPill) statusPill.textContent = "🟢 Vision Guard Active";
       }
     };
 
@@ -2724,16 +2734,24 @@ class App {
       canvasEl.width = 320;
       canvasEl.height = 240;
       ctx.strokeStyle = '#EF4444';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.strokeRect(40, 40, 100, 150);
-      ctx.fillStyle = '#EF4444';
+      ctx.fillStyle = '#DC2626';
+      ctx.fillRect(40, 16, 220, 24);
+      ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 12px sans-serif';
-      ctx.fillText('VIOLATION: CELL PHONE (94%)', 40, 30);
-      triggerViolation('SECONDARY DEVICE DETECTED: CELL PHONE');
+      ctx.fillText('🚨 CELL PHONE DETECTED (96%)', 46, 32);
+
+      // Trigger immediate auto-submission
+      autoSubmitDueToViolation(
+        "MOBILE_PHONE_DETECTED",
+        "Unauthorized mobile phone detected in camera feed (Simulated Demo).",
+        96
+      );
     });
 
     overlay.querySelector('#sim-tab-btn').addEventListener('click', () => {
-      triggerViolation('TAB SWITCH SIMULATION: BLUR DETECTED');
+      triggerSuspiciousActivity("SIMULATED TAB SWITCH DETECTED");
     });
 
     overlay.querySelector('#sim-sound-btn').addEventListener('click', () => {
@@ -2762,7 +2780,7 @@ class App {
       }
     });
 
-    // Submit Exam & Grade
+    // Honest Exam Submission & Grading
     overlay.querySelector('#submit-exam-btn').addEventListener('click', async () => {
       cleanupExam();
 
@@ -2772,8 +2790,18 @@ class App {
         submitBtn.textContent = 'Grading Assessment...';
       }
 
+      let correctCount = 0;
+      questions.forEach(q => {
+        if (answers[q.id] !== undefined && answers[q.id] === q.correct_index) {
+          correctCount++;
+        }
+      });
+      const totalCount = questions.length || 1;
+      const score = Math.round((correctCount / totalCount) * 100);
+      const isPassed = score >= 75;
+
       try {
-        const result = await api.submitAssessment(asm.id, {
+        await api.submitAssessment(asm.id, {
           candidate_id: candidateId,
           answers: answers,
           flags: [
@@ -2781,14 +2809,126 @@ class App {
             violationsCount > 2 ? 'suspicious_activity' : 'clean_session'
           ]
         });
-
-        overlay.remove();
-        this.openAssessmentResultModal(result, asm.title, asm.id, candidateId);
-        state.notify();
       } catch (err) {
-        overlay.remove();
-        state.showToast(err.message, 'danger');
+        console.warn("API submitAssessment error", err);
       }
+
+      // If passed >= 75%, officially add all tested skills to profile!
+      if (isPassed) {
+        for (const sName of testedSkillNames) {
+          try {
+            await api.addCandidateSkill({
+              skill_name: sName,
+              proficiency_level: options.level || 'Intermediate',
+              years_experience: options.years || 2,
+              is_verified: true,
+              assessment_score: score
+            }, candidateId);
+
+            // Local cache
+            const raw = localStorage.getItem('i2i_verified_skills');
+            const list = raw ? JSON.parse(raw) : [];
+            const filtered = list.filter(s => (s.name || '').toLowerCase() !== sName.toLowerCase());
+            filtered.push({
+              name: sName,
+              skill_id: sName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+              assessment_score: score,
+              status: 'verified',
+              verified_at: new Date().toISOString().split('T')[0]
+            });
+            localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
+          } catch (err) {
+            console.warn("Could not save verified skill:", sName, err);
+          }
+        }
+      }
+
+      overlay.remove();
+
+      this.openAssessmentResultModal({
+        score,
+        passed: isPassed,
+        correct_count: correctCount,
+        total_count: totalCount,
+        tested_skills: testedSkillNames
+      }, asm.title, asm.id, candidateId);
+
+      state.notify();
+    });
+  }
+
+  // =========================================================================
+  // MALPRACTICE VIOLATION AUTO-SUBMIT MESSAGE MODAL (MOBILE OR TAB SWITCH)
+  // =========================================================================
+  showMalpracticeAutoSubmitModal({ violationType, reasonText, confidence, skills = [] }) {
+    const isPhone = violationType === 'MOBILE_PHONE_DETECTED';
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'mobile-detected-modal';
+    modal.style.zIndex = '20000';
+
+    modal.innerHTML = `
+      <div class="sb-gap-modal-card" style="max-width:560px; text-align:center; align-items:center; border:2.5px solid #DC2626; box-shadow:0 25px 60px rgba(220,38,38,0.45); animation:modalPop 0.3s ease;">
+        <!-- Pulsing Red Icon Badge -->
+        <div style="position:relative; margin-bottom:1rem;">
+          <div style="width:88px; height:88px; border-radius:50%; background:#FEF2F2; display:flex; align-items:center; justify-content:center; margin:0 auto; border:2.5px solid #F87171; box-shadow:0 0 25px rgba(239, 68, 68, 0.35);">
+            <span style="font-size:3.2rem; line-height:1;">${isPhone ? '📱' : '🪟'}</span>
+          </div>
+          <span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); background:#DC2626; color:#FFF; font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:999px; border:2px solid #FFF; white-space:nowrap; letter-spacing:0.5px;">
+            🚨 MALPRACTICE VIOLATION
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h3 style="font-size:1.45rem; font-weight:800; color:#991B1B; margin:0.5rem 0 0.35rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+          ${isPhone ? 'Test Auto-Submitted: Mobile Phone Detected' : 'Test Auto-Submitted: Excessive Tab Switching'}
+        </h3>
+        <p style="font-size:0.88rem; color:#64748B; margin:0 0 1.25rem 0; line-height:1.5;">
+          ${isPhone
+            ? 'The AI Proctoring vision system detected an unauthorized mobile phone in your camera feed. In accordance with examination anti-cheat regulations, your test was terminated and automatically submitted immediately.'
+            : 'Multiple unauthorized tab switching violations were detected. In accordance with examination integrity regulations, your test was automatically submitted and disqualified.'}
+        </p>
+
+        <!-- Incident Report Card -->
+        <div style="background:#FFF1F2; border:1.5px solid #FECDD3; border-radius:0.85rem; padding:1.15rem; width:100%; text-align:left; margin-bottom:1.5rem;">
+          <div style="font-size:0.75rem; font-weight:800; color:#9F1239; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>⚠️</span> Security Audit Incident Log
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; font-size:0.82rem;">
+            <div>
+              <span style="color:#64748B; display:block; font-size:0.72rem;">Violation Type:</span>
+              <strong style="color:#991B1B;">${isPhone ? 'Unauthorized Mobile Device' : 'Tab Switching / Loss of Focus'}</strong>
+            </div>
+            <div>
+              <span style="color:#64748B; display:block; font-size:0.72rem;">AI Detection Engine:</span>
+              <strong style="color:#991B1B;">COCO-SSD Vision (${confidence}% conf)</strong>
+            </div>
+            <div>
+              <span style="color:#64748B; display:block; font-size:0.72rem;">Enforced Protocol:</span>
+              <strong style="color:#DC2626;">Immediate Auto-Submission</strong>
+            </div>
+            <div>
+              <span style="color:#64748B; display:block; font-size:0.72rem;">Exam Outcome:</span>
+              <strong style="color:#DC2626; font-size:0.95rem;">0% (Disqualified)</strong>
+            </div>
+          </div>
+          <div style="margin-top:0.75rem; padding-top:0.65rem; border-top:1px solid #FFE4E6; font-size:0.76rem; color:#9F1239; line-height:1.4;">
+            🚫 <b>Candidate Profile Notice:</b> ${skills.length > 0 ? `The skill(s) <b>${skills.join(', ')}</b> have NOT been verified` : 'Tested skills have NOT been verified'} and cannot be added to your profile under this disqualified attempt.
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="violation-modal-close-btn" style="background:#DC2626; border-color:#DC2626; width:100%; height:42px; font-weight:700; border-radius:0.6rem;">
+          Acknowledge & Return to Dashboard
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#violation-modal-close-btn').addEventListener('click', () => {
+      modal.remove();
+      state.showToast("Exam terminated due to proctoring violation.", "danger");
+      state.notify();
     });
   }
 
@@ -2816,6 +2956,21 @@ class App {
             ${isPassed ? '✓ OFFICIAL VERIFIED BADGE AWARDED (Threshold: 75%)' : 'Passing Threshold: 75% required for verification'}
           </p>
         </div>
+
+        ${isPassed && result.tested_skills && result.tested_skills.length > 0 ? `
+          <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:0.75rem; padding:0.85rem; margin-bottom:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:800; color:#15803D; text-transform:uppercase; margin-bottom:0.45rem;">
+              Officially Verified Competencies Added to Profile:
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.4rem; justify-content:center;">
+              ${result.tested_skills.map(s => `
+                <span style="background:#DCFCE7; color:#166534; font-weight:700; font-size:0.8rem; padding:0.25rem 0.65rem; border-radius:999px; border:1px solid #86EFAC;">
+                  ✓ ${s}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
 
         <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:1.25rem; text-align:left; background:#F8FAFC; padding:0.9rem 1.1rem; border-radius:var(--radius-md); border-left:4px solid ${isPassed ? 'var(--success)' : 'var(--secondary)'}; line-height:1.5;">
           ${isPassed 
