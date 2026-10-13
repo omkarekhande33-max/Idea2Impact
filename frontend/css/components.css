@@ -3005,6 +3005,289 @@
 }
 
 /* =========================================================================
+   ✦ IDEA INTELLIGENCE BAR — Startup Overview Quick Analyzer
+   ========================================================================= */
+.idea-bar-wrapper {
+  background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 60%, #042F2E 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem 1.5rem;
+  margin-top: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(94, 234, 212, 0.18);
+  box-shadow: 0 8px 32px rgba(15, 118, 110, 0.18), 0 0 0 1px rgba(94,234,212,0.06);
+}
+.idea-bar-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(94,234,212,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.idea-bar-header { margin-bottom: 1.1rem; }
+
+.idea-bar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5EEAD4;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  margin-bottom: 0.55rem;
+}
+
+.idea-bar-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.3rem;
+  line-height: 1.25;
+}
+
+.idea-bar-subtitle {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Input row */
+.idea-bar-form { display: flex; flex-direction: column; gap: 0.65rem; }
+
+.idea-bar-input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.idea-bar-textarea {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(94,234,212,0.2);
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  resize: none;
+  font-family: var(--font-sans, inherit);
+  line-height: 1.55;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.idea-bar-textarea::placeholder { color: rgba(255,255,255,0.35); }
+.idea-bar-textarea:focus {
+  outline: none;
+  border-color: rgba(94,234,212,0.55);
+  box-shadow: 0 0 0 3px rgba(94,234,212,0.1);
+}
+
+.idea-bar-submit-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.7rem 1.35rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  white-space: nowrap;
+  align-self: stretch;
+}
+.idea-bar-submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.idea-bar-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.idea-bar-submit-icon { font-size: 1rem; animation: ideaSparkle 1.8s ease-in-out infinite; }
+
+@keyframes ideaSparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.88); }
+}
+
+/* Chip strip */
+.idea-bar-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.idea-bar-chip-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #5EEAD4;
+  letter-spacing: 0.04em;
+}
+.idea-bar-chip {
+  background: rgba(94,234,212,0.1);
+  color: rgba(255,255,255,0.82);
+  border: 1px solid rgba(94,234,212,0.2);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+}
+.idea-bar-chip:hover {
+  background: rgba(94,234,212,0.2);
+  border-color: rgba(94,234,212,0.45);
+  transform: translateY(-1px);
+}
+
+/* Results container */
+.idea-bar-results { margin-top: 1.1rem; }
+
+/* Thinking state */
+.idea-bar-thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(94,234,212,0.18);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+.idea-bar-thinking-icon {
+  font-size: 1.4rem;
+  color: #5EEAD4;
+  animation: ideaSparkle 1.1s ease-in-out infinite;
+}
+
+/* Result card */
+.idea-bar-result-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(94,234,212,0.22);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  animation: ideaFadeIn 0.35s ease;
+}
+@keyframes ideaFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.idea-bar-result-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+.idea-bar-result-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #5EEAD4;
+  letter-spacing: 0.08em;
+  background: rgba(94,234,212,0.12);
+  border: 1px solid rgba(94,234,212,0.25);
+  border-radius: 999px;
+  padding: 0.22rem 0.65rem;
+}
+.idea-bar-result-industry {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+}
+.idea-bar-result-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.3rem;
+}
+.idea-bar-result-tagline {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.idea-bar-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+.idea-bar-result-item {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem;
+}
+.idea-bar-result-item-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+.idea-bar-result-item-value {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.5;
+}
+.idea-bar-result-item-value.idea-bar-highlight {
+  font-weight: 700;
+  color: #5EEAD4;
+}
+
+.idea-bar-result-footer {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.idea-bar-deeper-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.idea-bar-deeper-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.idea-bar-clear-btn {
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+}
+.idea-bar-clear-btn:hover { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.3); }
+
+.idea-bar-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.1rem;
+  color: #FCA5A5;
+  font-size: 0.88rem;
+}
+
+/* =========================================================================
    GEMINI PRO AI BUSINESS ARCHITECT & SHARING SUITE
    ========================================================================= */
 .gemini-studio-wrapper {

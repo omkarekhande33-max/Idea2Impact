@@ -3194,6 +3194,43 @@ class App {
         </div>
       </div>
 
+      <!-- ✦ Idea Intelligence Bar -->
+      <div class="idea-bar-wrapper">
+        <div class="idea-bar-header">
+          <div>
+            <div class="idea-bar-pill">✦ GEMINI PRO IDEA ANALYZER</div>
+            <h3 class="idea-bar-title">What's your startup idea?</h3>
+            <p class="idea-bar-subtitle">Describe your concept and get an instant AI-powered feasibility snapshot — pitch, moat, market size &amp; funding estimate.</p>
+          </div>
+        </div>
+
+        <form class="idea-bar-form" id="overview-idea-form" autocomplete="off">
+          <div class="idea-bar-input-row">
+            <textarea
+              class="idea-bar-textarea"
+              id="overview-idea-input"
+              placeholder="e.g. 'An AI platform that automates freight carbon tracking for CSRD compliance across global supply chains...'"
+              rows="2"
+              required
+            ></textarea>
+            <button type="submit" class="idea-bar-submit-btn" id="overview-idea-submit-btn">
+              <span class="idea-bar-submit-icon">✦</span>
+              <span class="idea-bar-submit-text">Analyze</span>
+            </button>
+          </div>
+          <div class="idea-bar-chips">
+            <span class="idea-bar-chip-label">Quick ideas:</span>
+            <button type="button" class="idea-bar-chip" data-prompt="AI carbon accounting for CSRD-compliant supply chain reporting.">🌱 CleanTech</button>
+            <button type="button" class="idea-bar-chip" data-prompt="FinTech platform for embedded invoice factoring using open banking APIs.">💳 FinTech</button>
+            <button type="button" class="idea-bar-chip" data-prompt="Adaptive vernacular coding academy with proctored skill passports.">🎓 EdTech</button>
+            <button type="button" class="idea-bar-chip" data-prompt="Zero-trust autonomous cloud security telemetry for container workloads.">🛡️ CyberSec</button>
+          </div>
+        </form>
+
+        <!-- Quick Results Panel (hidden until submit) -->
+        <div class="idea-bar-results" id="overview-idea-results" style="display:none;"></div>
+      </div>
+
         <div class="card" style="margin-top:0.5rem;">
           <div class="card-header">
             <div>
@@ -3289,6 +3326,144 @@ class App {
     const jumpGemini = this.appContainer.querySelector('#jump-to-gemini-btn');
     if (jumpGemini) {
       jumpGemini.addEventListener('click', () => state.setTab('gemini-studio'));
+    }
+
+    // ✦ Overview Idea Intelligence Bar
+    const overviewIdeaForm = this.appContainer.querySelector('#overview-idea-form');
+    const overviewIdeaInput = this.appContainer.querySelector('#overview-idea-input');
+    const overviewIdeaResults = this.appContainer.querySelector('#overview-idea-results');
+    const overviewSubmitBtn = this.appContainer.querySelector('#overview-idea-submit-btn');
+
+    // Quick prompt chips
+    this.appContainer.querySelectorAll('.idea-bar-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (overviewIdeaInput) {
+          overviewIdeaInput.value = chip.dataset.prompt;
+          overviewIdeaInput.focus();
+        }
+      });
+    });
+
+    if (overviewIdeaForm && overviewIdeaInput && overviewIdeaResults) {
+      overviewIdeaForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idea = overviewIdeaInput.value.trim();
+        if (!idea) return;
+
+        // Show thinking state
+        overviewIdeaResults.style.display = 'block';
+        overviewIdeaResults.innerHTML = `
+          <div class="idea-bar-thinking">
+            <div class="idea-bar-thinking-icon">✦</div>
+            <div>
+              <div style="font-weight:700; color:var(--primary); font-size:0.95rem;">Gemini Pro is analyzing your idea...</div>
+              <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">Synthesizing market landscape, investment model &amp; feasibility score</div>
+            </div>
+          </div>
+        `;
+        if (overviewSubmitBtn) {
+          overviewSubmitBtn.disabled = true;
+          overviewSubmitBtn.querySelector('.idea-bar-submit-text').textContent = 'Analyzing...';
+        }
+
+        try {
+          const res = await api.chatGeminiPro({
+            idea: idea,
+            founder_id: founderId,
+            founder_name: state.activeUser ? state.activeUser.name : 'Founder',
+            startup_name: currentStartup ? currentStartup.name : null
+          });
+
+          const a = res.analysis || {};
+          const deep = a.deep_explanation || {};
+          const scope = a.project_scope || {};
+          const invest = a.investment_required || {};
+          const sourceTag = a.source === 'Gemini Pro (Google AI Live)' ? 
+            '✦ Live Gemini Pro Response' : '✦ Gemini Pro Synthesis';
+
+          overviewIdeaResults.innerHTML = `
+            <div class="idea-bar-result-card">
+              <div class="idea-bar-result-topbar">
+                <span class="idea-bar-result-pill">${sourceTag}</span>
+                <span class="idea-bar-result-industry">${a.industry || 'AI Enterprise SaaS'}</span>
+              </div>
+              <h4 class="idea-bar-result-title">${a.title || idea.substring(0, 60)}</h4>
+              <p class="idea-bar-result-tagline">${a.tagline || deep.elevator_pitch || 'Transforming the industry with AI-first automation.'}</p>
+
+              <div class="idea-bar-result-grid">
+                <div class="idea-bar-result-item">
+                  <div class="idea-bar-result-item-label">🎯 Elevator Pitch</div>
+                  <div class="idea-bar-result-item-value">${deep.elevator_pitch || a.tagline || 'AI-powered solution for enterprise automation.'}</div>
+                </div>
+                <div class="idea-bar-result-item">
+                  <div class="idea-bar-result-item-label">🛡️ Defensibility Moat</div>
+                  <div class="idea-bar-result-item-value">${deep.defensibility_moat || 'Data gravity and network effects.'}</div>
+                </div>
+                <div class="idea-bar-result-item">
+                  <div class="idea-bar-result-item-label">📈 Market Size (TAM)</div>
+                  <div class="idea-bar-result-item-value idea-bar-highlight">${scope.tam || '$22B'} TAM · ${scope.sam || '$5.4B'} SAM</div>
+                </div>
+                <div class="idea-bar-result-item">
+                  <div class="idea-bar-result-item-label">💰 Funding Target</div>
+                  <div class="idea-bar-result-item-value idea-bar-highlight">${invest.total_ask || '$750,000'} · ${invest.stage || 'Seed'} · ${invest.runway_months || 18}mo runway</div>
+                </div>
+              </div>
+
+              <div class="idea-bar-result-footer">
+                <button type="button" class="idea-bar-deeper-btn" id="overview-go-deeper-btn">
+                  ✦ Go Deeper in Gemini Pro Studio →
+                </button>
+                <button type="button" class="idea-bar-clear-btn" id="overview-clear-btn">
+                  Clear
+                </button>
+              </div>
+            </div>
+          `;
+
+          // Store for Gemini tab transfer
+          this._overviewIdeaText = idea;
+
+          // Go Deeper button
+          const goDeeper = overviewIdeaResults.querySelector('#overview-go-deeper-btn');
+          if (goDeeper) {
+            goDeeper.addEventListener('click', () => {
+              state.setTab('gemini-studio');
+              // Pre-fill gemini input after tab switch with a small delay
+              setTimeout(() => {
+                const geminiInput = this.appContainer.querySelector('#gemini-input-text');
+                if (geminiInput && this._overviewIdeaText) {
+                  geminiInput.value = this._overviewIdeaText;
+                }
+              }, 200);
+            });
+          }
+
+          // Clear button
+          const clearBtn = overviewIdeaResults.querySelector('#overview-clear-btn');
+          if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+              overviewIdeaResults.style.display = 'none';
+              overviewIdeaResults.innerHTML = '';
+              overviewIdeaInput.value = '';
+            });
+          }
+
+          state.showToast('✦ Gemini idea analysis ready!', 'success');
+        } catch (err) {
+          overviewIdeaResults.innerHTML = `
+            <div class="idea-bar-error">
+              <span>⚠️</span>
+              <span>${err.message || 'Analysis failed. Please try again.'}</span>
+            </div>
+          `;
+          state.showToast(err.message, 'danger');
+        } finally {
+          if (overviewSubmitBtn) {
+            overviewSubmitBtn.disabled = false;
+            overviewSubmitBtn.querySelector('.idea-bar-submit-text').textContent = 'Analyze';
+          }
+        }
+      });
     }
 
     // Startup Job Form
