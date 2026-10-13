@@ -483,7 +483,7 @@ def download_passport_pdf(candidate_id: str):
 # -------------------------------------------------------------
 @router.post("/jobs")
 def create_job(payload: JobCreate):
-    new_job = {
+    new_job: Dict[str, Any] = {
         "id": f"job-{str(uuid.uuid4())[:6]}",
         "created_by": payload.created_by or "hr-01",
         "company_name": payload.company_name,
@@ -1312,7 +1312,7 @@ def convert_request_to_job(payload: ConvertRoleToJobRequest):
     target_role = roles[idx]
 
     # Create job in jobs table
-    new_job = {
+    new_job: Dict[str, Any] = {
         "id": f"job-{str(uuid.uuid4())[:6]}",
         "created_by": payload.hr_id or "hr-01",
         "company_name": req_obj.get("idea_title", "Portfolio Venture"),

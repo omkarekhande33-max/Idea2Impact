@@ -3213,6 +3213,8 @@ class App {
           </div>
         </div>
       `;
+    }
+
     if (tab === 'gemini-studio') {
       return this.renderGeminiStudio(currentStartup, founderId);
     }
