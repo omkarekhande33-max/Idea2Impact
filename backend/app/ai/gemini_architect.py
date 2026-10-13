@@ -412,6 +412,80 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
             }
         ]
 
+    elif any(k in idea_lower for k in ["secur", "cyber", "zero-trust", "cloud", "container", "telemetry", "devops", "auth", "infra"]):
+        domain = "CyberSecurity & Cloud Infrastructure"
+        derived_title = custom_name or "CloudSentinel Telemetry"
+        tagline = "Autonomous zero-trust telemetry and real-time container workload security orchestration."
+        ask = "$1,100,000"
+        stage = "Seed Round"
+        tam, sam, som = "$28.5B", "$6.8B", "$310M"
+        tech_stack = "Asynchronous FastAPI microservices, eBPF kernel telemetry ingestion, PostgreSQL with strict RLS, container runtime scanning, and automated SIEM webhook dispatch."
+        roles = [
+            {
+                "role_id": "role-01",
+                "title": "Founding Cloud Security & Systems Architect",
+                "department": "Engineering / Security",
+                "experience_level": "Senior (5+ years)",
+                "salary_range": "$140,000 - $175,000",
+                "hiring_priority": "Immediate (Phase 1)",
+                "responsibilities": [
+                    "Architect real-time eBPF and container runtime telemetry ingestion agents.",
+                    "Implement zero-trust policy enforcement across multi-cloud Kubernetes clusters.",
+                    "Design high-throughput anomaly detection pipelines for containerized workloads."
+                ],
+                "required_skills": [
+                    {"skill_id": "sk-06", "name": "System Architecture & Security", "weight": 0.40, "category": "Security", "is_required": True},
+                    {"skill_id": "sk-05", "name": "Cloud Deployment & Docker", "weight": 0.35, "category": "DevOps", "is_required": True},
+                    {"skill_id": "sk-01", "name": "Python & FastAPI", "weight": 0.25, "category": "Backend", "is_required": True}
+                ],
+                "preferred_skills": [
+                    {"skill_id": "sk-02", "name": "PostgreSQL & Database Design", "weight": 0.60, "category": "Database", "is_required": False},
+                    {"skill_id": "sk-04", "name": "AI & LLM Integration", "weight": 0.40, "category": "AI / ML", "is_required": False}
+                ]
+            },
+            {
+                "role_id": "role-02",
+                "title": "Lead Telemetry & Distributed Systems Engineer",
+                "department": "Engineering / Infrastructure",
+                "experience_level": "Senior (4+ years)",
+                "salary_range": "$130,000 - $160,000",
+                "hiring_priority": "Month 1 (Phase 1)",
+                "responsibilities": [
+                    "Build low-overhead observability daemons with sub-millisecond event processing.",
+                    "Design distributed event streaming pipelines and real-time threat alert dispatch.",
+                    "Ensure seamless integration with enterprise SIEM solutions (Splunk, Datadog)."
+                ],
+                "required_skills": [
+                    {"skill_id": "sk-01", "name": "Python & FastAPI", "weight": 0.40, "category": "Backend", "is_required": True},
+                    {"skill_id": "sk-05", "name": "Cloud Deployment & Docker", "weight": 0.35, "category": "DevOps", "is_required": True},
+                    {"skill_id": "sk-02", "name": "PostgreSQL & Database Design", "weight": 0.25, "category": "Database", "is_required": True}
+                ],
+                "preferred_skills": [
+                    {"skill_id": "sk-03", "name": "Modern JavaScript & Frontend", "weight": 1.0, "category": "Frontend", "is_required": False}
+                ]
+            },
+            {
+                "role_id": "role-03",
+                "title": "DevSecOps Evangelist & Enterprise Solutions Lead",
+                "department": "Solutions / Growth",
+                "experience_level": "Mid-Senior (3+ years)",
+                "salary_range": "$100,000 - $130,000 + Equity",
+                "hiring_priority": "Month 3 (Phase 2)",
+                "responsibilities": [
+                    "Drive technical evaluations and zero-trust proofs of concept with enterprise CISOs.",
+                    "Develop infrastructure-as-code deployment templates (Terraform, Helm charts).",
+                    "Lead customer onboarding and architect compliance mapping for SOC2 & ISO 27001."
+                ],
+                "required_skills": [
+                    {"skill_id": "sk-06", "name": "System Architecture & Security", "weight": 0.50, "category": "Security", "is_required": True},
+                    {"skill_id": "sk-05", "name": "Cloud Deployment & Docker", "weight": 0.50, "category": "DevOps", "is_required": True}
+                ],
+                "preferred_skills": [
+                    {"skill_id": "sk-saas-01", "name": "Product-Led Growth (PLG) Strategy", "weight": 1.0, "category": "Growth", "is_required": False}
+                ]
+            }
+        ]
+
     else:
         # Default AI-Powered Enterprise SaaS / Workflow Automation
         domain = "Enterprise AI & Autonomous Software"

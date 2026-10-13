@@ -401,7 +401,7 @@
       "username": "google_user_cc342e",
       "full_name": "Google Innovator",
       "email": "google_user_cc342e@gmail.com",
-      "password_hash": "",
+      "password_hash": "pbkdf2_sha256$100000$a543458ec31f202034c10d27144a26ed$65dc78bcec1b01a3fdfa61b325f2faa0ab26c80bff751abe2970459862959042",
       "role": "investor",
       "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
       "bio": "Joined via Google Authentication",
@@ -3910,6 +3910,17 @@
       "shared_at": "2026-10-13T03:29:43.977640+00:00",
       "ai_summary": "PulseAI Diagnostic is purpose-built to solve core bottlenecks in HealthTech & Clinical AI. Based on the thesis: 'AI-powered medical triage platform for rural health clinics with low connectivity.', it introduces an autonomous AI workflow engine that eliminates manual friction, cuts operational overhead by 70%, and provides verifiable data transparency.",
       "risk_score": "Moderate"
+    },
+    {
+      "id": "prop-baf078",
+      "startup_id": "pitch-dec52fa9",
+      "startup_name": "CloudSentinel Telemetry",
+      "founder_id": "found-01",
+      "investor_id": "inv-01",
+      "status": "Under Review",
+      "shared_at": "2026-10-13T04:29:20.392535+00:00",
+      "ai_summary": "Zero-trust platform.",
+      "risk_score": "Moderate"
     }
   ],
   "investor_interests": [
@@ -4784,6 +4795,34 @@
       "user_id": "found-01",
       "details": "Founder shared pitch for 'PulseAI Diagnostic' (Ask: $850,000)",
       "timestamp": "2026-10-13T03:29:44.005851+00:00"
+    },
+    {
+      "id": "log-86125d3a",
+      "event": "Gemini Pro Idea Analyzed",
+      "user_id": "found-01",
+      "details": "Generated business architecture for 'Nexura Intelligence'",
+      "timestamp": "2026-10-13T04:27:45.076613+00:00"
+    },
+    {
+      "id": "log-b8ae1523",
+      "event": "Gemini Pro Idea Analyzed",
+      "user_id": "found-01",
+      "details": "Generated business architecture for 'CloudSentinel Telemetry'",
+      "timestamp": "2026-10-13T04:29:08.714466+00:00"
+    },
+    {
+      "id": "log-d92ee73a",
+      "event": "Hiring Spec Shared with HR",
+      "user_id": "found-01",
+      "details": "Founder shared 1 roles for 'CloudSentinel Telemetry'",
+      "timestamp": "2026-10-13T04:29:20.319827+00:00"
+    },
+    {
+      "id": "log-44c24703",
+      "event": "Venture Pitch Shared with Investors",
+      "user_id": "found-01",
+      "details": "Founder shared pitch for 'CloudSentinel Telemetry' (Ask: ,100,000)",
+      "timestamp": "2026-10-13T04:29:20.422715+00:00"
     }
   ],
   "match_results": [
@@ -9481,6 +9520,572 @@
         "email": "sarah.lin@ecotrace.ai"
       },
       "created_at": "2026-10-13T03:29:43.580548+00:00"
+    },
+    {
+      "id": "gem-5f787414",
+      "founder_id": "found-01",
+      "idea": "Zero-trust autonomous cloud security telemetry for container workloads",
+      "analysis": {
+        "title": "Nexura Intelligence",
+        "tagline": "Autonomous agent orchestration for high-velocity enterprise teams.",
+        "industry": "Enterprise AI & Autonomous Software",
+        "source": "Gemini Pro Startup Intelligence (Built-in)",
+        "generated_at": "2026-10-13T04:27:45.036592+00:00",
+        "deep_explanation": {
+          "elevator_pitch": "Nexura Intelligence is purpose-built to solve core bottlenecks in Enterprise AI & Autonomous Software. Based on the thesis: 'Zero-trust autonomous cloud security telemetry for container workloads', it introduces an autonomous AI workflow engine that eliminates manual friction, cuts operational overhead by 70%, and provides verifiable data transparency.",
+          "architectural_thesis": "The software architecture utilizes FastAPI asynchronous microservices, PostgreSQL with Row Level Security (RLS), multi-agent LLM routing, and modern responsive JavaScript web clients. High availability is achieved through stateless API containers, microsecond relational reads, and asynchronous task execution.",
+          "core_value_prop": "Replaces fragmented legacy spreadsheets and disconnected point solutions with a unified, end-to-end autonomous intelligent platform offering instant time-to-value within 48 hours.",
+          "monetization_strategy": "B2B SaaS tiered subscription model with Starter ($499/mo), Professional ($1,999/mo), and Enterprise Custom ($5,000+/mo with custom SLAs and white-glove onboarding).",
+          "defensibility_moat": "High data gravity through continuous workflow ingestion, proprietary model calibration, and sticky multi-stakeholder network effects that create high switching costs."
+        },
+        "project_scope": {
+          "tam": "$22.0B",
+          "sam": "$5.4B",
+          "som": "$240M",
+          "mvp_features": [
+            "Core autonomous ingestion pipeline connecting existing customer workflows.",
+            "Real-time analytics dashboard with interactive data visualizers.",
+            "Automated PDF report and proposal generation engine.",
+            "Role-based authentication with strict data isolation and audit logging."
+          ],
+          "phase2_features": [
+            "Multi-agent predictive simulation and automated scenario forecasting.",
+            "Native two-way ERP and enterprise software integrations (SAP, Salesforce, Slack).",
+            "Advanced collaborative team workspaces with approval hierarchies."
+          ],
+          "target_icp": [
+            "Mid-to-large enterprise department leads, VP of Technology, and Chief Operating Officers.",
+            "High-growth startups and scaling businesses seeking operational leverage."
+          ],
+          "risks_and_mitigations": [
+            {
+              "risk": "Customer onboarding friction and sales cycle length.",
+              "mitigation": "Offer frictionless product-led pilot trials (POCs) demonstrating value within 7 days."
+            },
+            {
+              "risk": "Data privacy and security compliance mandates.",
+              "mitigation": "Enforce SOC2 Type II, encrypted credential storage, and Row Level Security."
+            },
+            {
+              "risk": "Talent acquisition bottlenecks for specialized engineers.",
+              "mitigation": "Leverage Idea2Impact Verified Skill Passports for fast pre-vetted hiring."
+            }
+          ]
+        },
+        "investment_required": {
+          "total_ask": "$750,000",
+          "stage": "Seed Round",
+          "runway_months": 18,
+          "valuation_range": "$3,375k - $4,500k Post-Money",
+          "use_of_funds": [
+            {
+              "category": "Engineering & AI R&D (45%)",
+              "percentage": "45%",
+              "amount": "$337,500",
+              "purpose": "Hiring core founding engineers, building resilient data architecture, and proprietary model fine-tuning."
+            },
+            {
+              "category": "GTM, Sales & Growth Marketing (25%)",
+              "percentage": "25%",
+              "amount": "$187,500",
+              "purpose": "Founder-led sales acceleration, product marketing, content generation, and pilot customer acquisition."
+            },
+            {
+              "category": "Operations, Legal & Compliance (15%)",
+              "percentage": "15%",
+              "amount": "$112,500",
+              "purpose": "Corporate governance, IP protection, customer contracts, and security audits (SOC2/GDPR)."
+            },
+            {
+              "category": "Cloud Infrastructure, Inference & Security (15%)",
+              "percentage": "15%",
+              "amount": "$112,500",
+              "purpose": "FastAPI hosting, managed PostgreSQL clusters, LLM token credits, and DDoS protection."
+            }
+          ],
+          "key_milestones_unlocked": [
+            "Deploy production MVP and secure first 10 paying enterprise pilot accounts.",
+            "Reach $50,000 Monthly Recurring Revenue (MRR) with < 1.5% monthly customer churn.",
+            "Position company for institutional Series A round with 4x valuation expansion."
+          ]
+        },
+        "execution_roadmap": [
+          {
+            "phase_number": 1,
+            "phase_name": "Phase 1: Validation & MVP Build",
+            "timeline": "Month 1 - 2 (Days 1 - 60)",
+            "objective": "Build core production prototype and validate problem-solution fit with 3 anchor design partners.",
+            "deliverables": [
+              "Complete FastAPI backend, database schema, and responsive UI components.",
+              "Deploy secure alpha staging environment with proctored telemetry.",
+              "Secure 3 letters of intent (LOIs) from target enterprise buyers."
+            ],
+            "kpi": "Functional MVP deployed with 3 committed pilot partners."
+          },
+          {
+            "phase_number": 2,
+            "phase_name": "Phase 2: Alpha Launch & Early Customer Retention",
+            "timeline": "Month 3 - 5 (Days 61 - 150)",
+            "objective": "Convert alpha design partners into paying pilot customers and measure weekly active retention.",
+            "deliverables": [
+              "Deploy automated ReportLab PDF export engines and sharing portals.",
+              "Incorporate customer feedback loops to eliminate daily workflow friction.",
+              "Achieve sub-500ms API response latency and 99.9% system availability."
+            ],
+            "kpi": "$15k MRR achieved with > 70% weekly active retention."
+          },
+          {
+            "phase_number": 3,
+            "phase_name": "Phase 3: Product-Market Fit & Monetization Scale",
+            "timeline": "Month 6 - 8 (Days 151 - 240)",
+            "objective": "Solidify repeatable sales playbook, formalize pricing tiers, and accelerate word-of-mouth referral loops.",
+            "deliverables": [
+              "Publish 3 in-depth enterprise case studies demonstrating 10x ROI.",
+              "Roll out self-service tier with automated credit card checkout and team licensing.",
+              "Initiate automated candidate sourcing via Idea2Impact SkillBridge."
+            ],
+            "kpi": "$45k MRR with LTV:CAC ratio exceeding 3.5x."
+          },
+          {
+            "phase_number": 4,
+            "phase_name": "Phase 4: Growth Engine, Team Expansion & Scale",
+            "timeline": "Month 9 - 12 (Days 241 - 365)",
+            "objective": "Scale dedicated sales team, expand enterprise compliance integrations, and prepare Series A data room.",
+            "deliverables": [
+              "Complete SOC2 Type II compliance audit certification.",
+              "Expand technical team with 3 verified engineers sourced through Idea2Impact.",
+              "Open Series A round discussions with top-tier venture funds."
+            ],
+            "kpi": "$100k+ MRR ($1.2M ARR run rate) and term sheet signed."
+          }
+        ],
+        "required_job_roles": [
+          {
+            "role_id": "role-01",
+            "title": "Founding AI / ML Systems Engineer",
+            "department": "Engineering / AI",
+            "experience_level": "Senior (4+ years)",
+            "salary_range": "$125,000 - $160,000",
+            "hiring_priority": "Immediate (Phase 1)",
+            "responsibilities": [
+              "Architect low-latency LLM agent pipelines with structured JSON output enforcement.",
+              "Implement vector search, semantic embeddings, and hybrid retrieval caches.",
+              "Optimize cloud compute costs through aggressive prompt compression and model quantization."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-04",
+                "name": "AI & LLM Integration",
+                "weight": 0.4,
+                "category": "AI / ML",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-01",
+                "name": "Python & FastAPI",
+                "weight": 0.35,
+                "category": "Backend",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-02",
+                "name": "PostgreSQL & Database Design",
+                "weight": 0.25,
+                "category": "Database",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-05",
+                "name": "Cloud Deployment & Docker",
+                "weight": 0.6,
+                "category": "DevOps",
+                "is_required": false
+              },
+              {
+                "skill_id": "sk-06",
+                "name": "System Architecture & Security",
+                "weight": 0.4,
+                "category": "Security",
+                "is_required": false
+              }
+            ]
+          },
+          {
+            "role_id": "role-02",
+            "title": "Lead Full-Stack Web Application Architect",
+            "department": "Engineering / Product",
+            "experience_level": "Senior (4+ years)",
+            "salary_range": "$120,000 - $150,000",
+            "hiring_priority": "Month 1 (Phase 1)",
+            "responsibilities": [
+              "Build intuitive, ultra-fast collaborative interfaces using modern ES Modules and CSS Grid.",
+              "Implement real-time reactive state management and optimistic UI updates.",
+              "Ensure bulletproof API synchronization and client-side offline fallbacks."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-03",
+                "name": "Modern JavaScript & Frontend",
+                "weight": 0.45,
+                "category": "Frontend",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-01",
+                "name": "Python & FastAPI",
+                "weight": 0.35,
+                "category": "Backend",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-02",
+                "name": "PostgreSQL & Database Design",
+                "weight": 0.2,
+                "category": "Database",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-05",
+                "name": "Cloud Deployment & Docker",
+                "weight": 1.0,
+                "category": "DevOps",
+                "is_required": false
+              }
+            ]
+          },
+          {
+            "role_id": "role-03",
+            "title": "Founding Head of Growth & Product Marketing",
+            "department": "Growth / Marketing",
+            "experience_level": "Mid-Senior (3+ years)",
+            "salary_range": "$95,000 - $125,000 + Equity",
+            "hiring_priority": "Month 3 (Phase 2)",
+            "responsibilities": [
+              "Drive product-led growth (PLG) self-serve onboarding funnels.",
+              "Craft technical case studies, competitive battlecards, and sales demos.",
+              "Execute outbound pipeline targeting mid-market heads of engineering and operations."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-saas-01",
+                "name": "Product-Led Growth (PLG) Strategy",
+                "weight": 0.5,
+                "category": "Growth",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-saas-02",
+                "name": "Developer & Enterprise Content Marketing",
+                "weight": 0.5,
+                "category": "Marketing",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-saas-03",
+                "name": "Inbound Lead Analytics & HubSpot",
+                "weight": 1.0,
+                "category": "Tools",
+                "is_required": false
+              }
+            ]
+          }
+        ],
+        "chat_reply": "### ✦ Gemini Pro Startup Blueprint: **Nexura Intelligence**\n\n**Industry:** Enterprise AI & Autonomous Software | **Funding Target:** $750,000 (Seed Round)\n\n> **Executive Thesis:** Autonomous agent orchestration for high-velocity enterprise teams.\n\nI have synthesized a complete, investor-ready execution roadmap, hiring specification, and financial framework to make **Nexura Intelligence** an extraordinary success:\n\n1. **🗺️ 12-Month Phased Roadmap:** Outlined 4 actionable execution phases (MVP Build → Alpha Pilots → PMF → Series A Scaling).\n2. **💼 Team Requirements:** Identified **3 critical founding roles** with exact 75/25 verified skill weights, salary benchmarks, and hiring priorities.\n3. **💰 Capital Architecture:** Calculated **$750,000 total investment** with an 18-month runway and clear capital allocation (45% R&D, 25% GTM, 15% Ops, 15% Infra).\n4. **🎯 Market Scope:** Sized the market at **$22.0B TAM / $5.4B SAM / $240M SOM** with clear MVP guardrails and defensibility moats.\n\nUse the buttons below to **export official PDFs** and seamlessly **share this specification to HR** or **pitch accredited Sharks & Investors**!"
+      },
+      "founder": {
+        "name": "Sarah Lin",
+        "email": "sarah.lin@ecotrace.ai"
+      },
+      "created_at": "2026-10-13T04:27:45.041634+00:00"
+    },
+    {
+      "id": "gem-7885d7e9",
+      "founder_id": "found-01",
+      "idea": "Zero-trust autonomous cloud security telemetry for container workloads",
+      "analysis": {
+        "title": "CloudSentinel Telemetry",
+        "tagline": "Autonomous zero-trust telemetry and real-time container workload security orchestration.",
+        "industry": "CyberSecurity & Cloud Infrastructure",
+        "source": "Gemini Pro Startup Intelligence (Built-in)",
+        "generated_at": "2026-10-13T04:29:08.689449+00:00",
+        "deep_explanation": {
+          "elevator_pitch": "CloudSentinel Telemetry is purpose-built to solve core bottlenecks in CyberSecurity & Cloud Infrastructure. Based on the thesis: 'Zero-trust autonomous cloud security telemetry for container workloads', it introduces an autonomous AI workflow engine that eliminates manual friction, cuts operational overhead by 70%, and provides verifiable data transparency.",
+          "architectural_thesis": "The software architecture utilizes Asynchronous FastAPI microservices, eBPF kernel telemetry ingestion, PostgreSQL with strict RLS, container runtime scanning, and automated SIEM webhook dispatch. High availability is achieved through stateless API containers, microsecond relational reads, and asynchronous task execution.",
+          "core_value_prop": "Replaces fragmented legacy spreadsheets and disconnected point solutions with a unified, end-to-end autonomous intelligent platform offering instant time-to-value within 48 hours.",
+          "monetization_strategy": "B2B SaaS tiered subscription model with Starter ($499/mo), Professional ($1,999/mo), and Enterprise Custom ($5,000+/mo with custom SLAs and white-glove onboarding).",
+          "defensibility_moat": "High data gravity through continuous workflow ingestion, proprietary model calibration, and sticky multi-stakeholder network effects that create high switching costs."
+        },
+        "project_scope": {
+          "tam": "$28.5B",
+          "sam": "$6.8B",
+          "som": "$310M",
+          "mvp_features": [
+            "Core autonomous ingestion pipeline connecting existing customer workflows.",
+            "Real-time analytics dashboard with interactive data visualizers.",
+            "Automated PDF report and proposal generation engine.",
+            "Role-based authentication with strict data isolation and audit logging."
+          ],
+          "phase2_features": [
+            "Multi-agent predictive simulation and automated scenario forecasting.",
+            "Native two-way ERP and enterprise software integrations (SAP, Salesforce, Slack).",
+            "Advanced collaborative team workspaces with approval hierarchies."
+          ],
+          "target_icp": [
+            "Mid-to-large enterprise department leads, VP of Technology, and Chief Operating Officers.",
+            "High-growth startups and scaling businesses seeking operational leverage."
+          ],
+          "risks_and_mitigations": [
+            {
+              "risk": "Customer onboarding friction and sales cycle length.",
+              "mitigation": "Offer frictionless product-led pilot trials (POCs) demonstrating value within 7 days."
+            },
+            {
+              "risk": "Data privacy and security compliance mandates.",
+              "mitigation": "Enforce SOC2 Type II, encrypted credential storage, and Row Level Security."
+            },
+            {
+              "risk": "Talent acquisition bottlenecks for specialized engineers.",
+              "mitigation": "Leverage Idea2Impact Verified Skill Passports for fast pre-vetted hiring."
+            }
+          ]
+        },
+        "investment_required": {
+          "total_ask": "$1,100,000",
+          "stage": "Seed Round",
+          "runway_months": 18,
+          "valuation_range": "$4,950k - $6,600k Post-Money",
+          "use_of_funds": [
+            {
+              "category": "Engineering & AI R&D (45%)",
+              "percentage": "45%",
+              "amount": "$495,000",
+              "purpose": "Hiring core founding engineers, building resilient data architecture, and proprietary model fine-tuning."
+            },
+            {
+              "category": "GTM, Sales & Growth Marketing (25%)",
+              "percentage": "25%",
+              "amount": "$275,000",
+              "purpose": "Founder-led sales acceleration, product marketing, content generation, and pilot customer acquisition."
+            },
+            {
+              "category": "Operations, Legal & Compliance (15%)",
+              "percentage": "15%",
+              "amount": "$165,000",
+              "purpose": "Corporate governance, IP protection, customer contracts, and security audits (SOC2/GDPR)."
+            },
+            {
+              "category": "Cloud Infrastructure, Inference & Security (15%)",
+              "percentage": "15%",
+              "amount": "$165,000",
+              "purpose": "FastAPI hosting, managed PostgreSQL clusters, LLM token credits, and DDoS protection."
+            }
+          ],
+          "key_milestones_unlocked": [
+            "Deploy production MVP and secure first 10 paying enterprise pilot accounts.",
+            "Reach $50,000 Monthly Recurring Revenue (MRR) with < 1.5% monthly customer churn.",
+            "Position company for institutional Series A round with 4x valuation expansion."
+          ]
+        },
+        "execution_roadmap": [
+          {
+            "phase_number": 1,
+            "phase_name": "Phase 1: Validation & MVP Build",
+            "timeline": "Month 1 - 2 (Days 1 - 60)",
+            "objective": "Build core production prototype and validate problem-solution fit with 3 anchor design partners.",
+            "deliverables": [
+              "Complete FastAPI backend, database schema, and responsive UI components.",
+              "Deploy secure alpha staging environment with proctored telemetry.",
+              "Secure 3 letters of intent (LOIs) from target enterprise buyers."
+            ],
+            "kpi": "Functional MVP deployed with 3 committed pilot partners."
+          },
+          {
+            "phase_number": 2,
+            "phase_name": "Phase 2: Alpha Launch & Early Customer Retention",
+            "timeline": "Month 3 - 5 (Days 61 - 150)",
+            "objective": "Convert alpha design partners into paying pilot customers and measure weekly active retention.",
+            "deliverables": [
+              "Deploy automated ReportLab PDF export engines and sharing portals.",
+              "Incorporate customer feedback loops to eliminate daily workflow friction.",
+              "Achieve sub-500ms API response latency and 99.9% system availability."
+            ],
+            "kpi": "$15k MRR achieved with > 70% weekly active retention."
+          },
+          {
+            "phase_number": 3,
+            "phase_name": "Phase 3: Product-Market Fit & Monetization Scale",
+            "timeline": "Month 6 - 8 (Days 151 - 240)",
+            "objective": "Solidify repeatable sales playbook, formalize pricing tiers, and accelerate word-of-mouth referral loops.",
+            "deliverables": [
+              "Publish 3 in-depth enterprise case studies demonstrating 10x ROI.",
+              "Roll out self-service tier with automated credit card checkout and team licensing.",
+              "Initiate automated candidate sourcing via Idea2Impact SkillBridge."
+            ],
+            "kpi": "$45k MRR with LTV:CAC ratio exceeding 3.5x."
+          },
+          {
+            "phase_number": 4,
+            "phase_name": "Phase 4: Growth Engine, Team Expansion & Scale",
+            "timeline": "Month 9 - 12 (Days 241 - 365)",
+            "objective": "Scale dedicated sales team, expand enterprise compliance integrations, and prepare Series A data room.",
+            "deliverables": [
+              "Complete SOC2 Type II compliance audit certification.",
+              "Expand technical team with 3 verified engineers sourced through Idea2Impact.",
+              "Open Series A round discussions with top-tier venture funds."
+            ],
+            "kpi": "$100k+ MRR ($1.2M ARR run rate) and term sheet signed."
+          }
+        ],
+        "required_job_roles": [
+          {
+            "role_id": "role-01",
+            "title": "Founding Cloud Security & Systems Architect",
+            "department": "Engineering / Security",
+            "experience_level": "Senior (5+ years)",
+            "salary_range": "$140,000 - $175,000",
+            "hiring_priority": "Immediate (Phase 1)",
+            "responsibilities": [
+              "Architect real-time eBPF and container runtime telemetry ingestion agents.",
+              "Implement zero-trust policy enforcement across multi-cloud Kubernetes clusters.",
+              "Design high-throughput anomaly detection pipelines for containerized workloads."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-06",
+                "name": "System Architecture & Security",
+                "weight": 0.4,
+                "category": "Security",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-05",
+                "name": "Cloud Deployment & Docker",
+                "weight": 0.35,
+                "category": "DevOps",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-01",
+                "name": "Python & FastAPI",
+                "weight": 0.25,
+                "category": "Backend",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-02",
+                "name": "PostgreSQL & Database Design",
+                "weight": 0.6,
+                "category": "Database",
+                "is_required": false
+              },
+              {
+                "skill_id": "sk-04",
+                "name": "AI & LLM Integration",
+                "weight": 0.4,
+                "category": "AI / ML",
+                "is_required": false
+              }
+            ]
+          },
+          {
+            "role_id": "role-02",
+            "title": "Lead Telemetry & Distributed Systems Engineer",
+            "department": "Engineering / Infrastructure",
+            "experience_level": "Senior (4+ years)",
+            "salary_range": "$130,000 - $160,000",
+            "hiring_priority": "Month 1 (Phase 1)",
+            "responsibilities": [
+              "Build low-overhead observability daemons with sub-millisecond event processing.",
+              "Design distributed event streaming pipelines and real-time threat alert dispatch.",
+              "Ensure seamless integration with enterprise SIEM solutions (Splunk, Datadog)."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-01",
+                "name": "Python & FastAPI",
+                "weight": 0.4,
+                "category": "Backend",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-05",
+                "name": "Cloud Deployment & Docker",
+                "weight": 0.35,
+                "category": "DevOps",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-02",
+                "name": "PostgreSQL & Database Design",
+                "weight": 0.25,
+                "category": "Database",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-03",
+                "name": "Modern JavaScript & Frontend",
+                "weight": 1.0,
+                "category": "Frontend",
+                "is_required": false
+              }
+            ]
+          },
+          {
+            "role_id": "role-03",
+            "title": "DevSecOps Evangelist & Enterprise Solutions Lead",
+            "department": "Solutions / Growth",
+            "experience_level": "Mid-Senior (3+ years)",
+            "salary_range": "$100,000 - $130,000 + Equity",
+            "hiring_priority": "Month 3 (Phase 2)",
+            "responsibilities": [
+              "Drive technical evaluations and zero-trust proofs of concept with enterprise CISOs.",
+              "Develop infrastructure-as-code deployment templates (Terraform, Helm charts).",
+              "Lead customer onboarding and architect compliance mapping for SOC2 & ISO 27001."
+            ],
+            "required_skills": [
+              {
+                "skill_id": "sk-06",
+                "name": "System Architecture & Security",
+                "weight": 0.5,
+                "category": "Security",
+                "is_required": true
+              },
+              {
+                "skill_id": "sk-05",
+                "name": "Cloud Deployment & Docker",
+                "weight": 0.5,
+                "category": "DevOps",
+                "is_required": true
+              }
+            ],
+            "preferred_skills": [
+              {
+                "skill_id": "sk-saas-01",
+                "name": "Product-Led Growth (PLG) Strategy",
+                "weight": 1.0,
+                "category": "Growth",
+                "is_required": false
+              }
+            ]
+          }
+        ],
+        "chat_reply": "### ✦ Gemini Pro Startup Blueprint: **CloudSentinel Telemetry**\n\n**Industry:** CyberSecurity & Cloud Infrastructure | **Funding Target:** $1,100,000 (Seed Round)\n\n> **Executive Thesis:** Autonomous zero-trust telemetry and real-time container workload security orchestration.\n\nI have synthesized a complete, investor-ready execution roadmap, hiring specification, and financial framework to make **CloudSentinel Telemetry** an extraordinary success:\n\n1. **🗺️ 12-Month Phased Roadmap:** Outlined 4 actionable execution phases (MVP Build → Alpha Pilots → PMF → Series A Scaling).\n2. **💼 Team Requirements:** Identified **3 critical founding roles** with exact 75/25 verified skill weights, salary benchmarks, and hiring priorities.\n3. **💰 Capital Architecture:** Calculated **$1,100,000 total investment** with an 18-month runway and clear capital allocation (45% R&D, 25% GTM, 15% Ops, 15% Infra).\n4. **🎯 Market Scope:** Sized the market at **$28.5B TAM / $6.8B SAM / $310M SOM** with clear MVP guardrails and defensibility moats.\n\nUse the buttons below to **export official PDFs** and seamlessly **share this specification to HR** or **pitch accredited Sharks & Investors**!"
+      },
+      "founder": {
+        "name": "Sarah Lin",
+        "email": "sarah.lin@ecotrace.ai"
+      },
+      "created_at": "2026-10-13T04:29:08.689449+00:00"
     }
   ],
   "shared_hiring_requests": [
@@ -10240,6 +10845,28 @@
       "status": "Imported to Active Pipeline",
       "shared_at": "2026-10-13T03:29:43.722637+00:00",
       "note": "Hiring requirements specification shared by Founder for recruitment."
+    },
+    {
+      "id": "hr-req-d553bbe2",
+      "session_id": "gem-test-1",
+      "founder_id": "found-01",
+      "founder_name": "Sarah Lin",
+      "founder_email": "sarah.lin@ecotrace.ai",
+      "idea_title": "CloudSentinel Telemetry",
+      "industry": "CyberSecurity & Cloud Infrastructure",
+      "roles": [
+        {
+          "title": "Founding Cloud Security Architect",
+          "department": "Engineering"
+        }
+      ],
+      "roles_count": 1,
+      "deep_explanation": {
+        "elevator_pitch": "Zero-trust cloud container telemetry platform."
+      },
+      "status": "New Request",
+      "shared_at": "2026-10-13T04:29:20.290545+00:00",
+      "note": "Hiring requirements specification shared by Founder for recruitment."
     }
   ],
   "shared_founder_pitches": [
@@ -10966,6 +11593,33 @@
       ],
       "status": "In Deal Pipeline",
       "shared_at": "2026-10-13T03:29:43.949122+00:00",
+      "note": "Confidential Venture Proposal shared by Founder via Gemini Pro."
+    },
+    {
+      "id": "pitch-dec52fa9",
+      "session_id": "gem-test-1",
+      "founder_id": "found-01",
+      "founder_name": "Sarah Lin",
+      "founder_email": "sarah.lin@ecotrace.ai",
+      "founder_avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+      "startup_name": "CloudSentinel Telemetry",
+      "tagline": "Autonomous zero-trust telemetry",
+      "industry": "CyberSecurity",
+      "valuation_ask": ",100,000",
+      "stage": "Seed Round",
+      "runway_months": 18,
+      "deep_explanation": {
+        "elevator_pitch": "Zero-trust platform."
+      },
+      "project_scope": {
+        "tam": ".5B"
+      },
+      "investment_required": {
+        "total_ask": ",100,000"
+      },
+      "execution_roadmap": [],
+      "status": "In Deal Pipeline",
+      "shared_at": "2026-10-13T04:29:20.360298+00:00",
       "note": "Confidential Venture Proposal shared by Founder via Gemini Pro."
     }
   ]

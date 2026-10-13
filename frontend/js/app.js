@@ -3371,18 +3371,21 @@ class App {
             idea: idea,
             founder_id: founderId,
             founder_name: state.activeUser ? state.activeUser.name : 'Founder',
-            startup_name: currentStartup ? currentStartup.name : null
+            startup_name: null
           });
 
           const a = res.analysis || {};
           const deep = a.deep_explanation || {};
           const scope = a.project_scope || {};
           const invest = a.investment_required || {};
+          const roles = a.required_job_roles || [];
+          const sessionId = res.session_id || `gem-${Date.now().toString(36)}`;
           const sourceTag = a.source === 'Gemini Pro (Google AI Live)' ? 
             '✦ Live Gemini Pro Response' : '✦ Gemini Pro Synthesis';
 
           overviewIdeaResults.innerHTML = `
             <div class="idea-bar-result-card">
+              <!-- Result Topbar -->
               <div class="idea-bar-result-topbar">
                 <span class="idea-bar-result-pill">${sourceTag}</span>
                 <span class="idea-bar-result-industry">${a.industry || 'AI Enterprise SaaS'}</span>
@@ -3390,32 +3393,112 @@ class App {
               <h4 class="idea-bar-result-title">${a.title || idea.substring(0, 60)}</h4>
               <p class="idea-bar-result-tagline">${a.tagline || deep.elevator_pitch || 'Transforming the industry with AI-first automation.'}</p>
 
+              <!-- Quick Market & Financial Highlights -->
               <div class="idea-bar-result-grid">
                 <div class="idea-bar-result-item">
-                  <div class="idea-bar-result-item-label">🎯 Elevator Pitch</div>
-                  <div class="idea-bar-result-item-value">${deep.elevator_pitch || a.tagline || 'AI-powered solution for enterprise automation.'}</div>
-                </div>
-                <div class="idea-bar-result-item">
-                  <div class="idea-bar-result-item-label">🛡️ Defensibility Moat</div>
-                  <div class="idea-bar-result-item-value">${deep.defensibility_moat || 'Data gravity and network effects.'}</div>
-                </div>
-                <div class="idea-bar-result-item">
-                  <div class="idea-bar-result-item-label">📈 Market Size (TAM)</div>
+                  <div class="idea-bar-result-item-label">📈 Market Size (TAM/SAM)</div>
                   <div class="idea-bar-result-item-value idea-bar-highlight">${scope.tam || '$22B'} TAM · ${scope.sam || '$5.4B'} SAM</div>
                 </div>
                 <div class="idea-bar-result-item">
-                  <div class="idea-bar-result-item-label">💰 Funding Target</div>
+                  <div class="idea-bar-result-item-label">💰 Funding Target & Stage</div>
                   <div class="idea-bar-result-item-value idea-bar-highlight">${invest.total_ask || '$750,000'} · ${invest.stage || 'Seed'} · ${invest.runway_months || 18}mo runway</div>
                 </div>
               </div>
 
-              <div class="idea-bar-result-footer">
-                <button type="button" class="idea-bar-deeper-btn" id="overview-go-deeper-btn">
-                  ✦ Go Deeper in Gemini Pro Studio →
-                </button>
-                <button type="button" class="idea-bar-clear-btn" id="overview-clear-btn">
-                  Clear
-                </button>
+              <!-- 1. Explanation of His Idea -->
+              <div class="idea-explanation-section" style="margin-top:1.1rem;">
+                <div class="idea-section-heading">
+                  <span>📑</span> Explanation of Idea & Architectural Thesis
+                </div>
+                <div class="idea-explanation-card">
+                  <div class="idea-exp-row">
+                    <div class="idea-exp-label">🎯 Elevator Pitch & Vision:</div>
+                    <div class="idea-exp-text">${deep.elevator_pitch || a.tagline || 'AI-powered continuous intelligence platform.'}</div>
+                  </div>
+                  <div class="idea-exp-row">
+                    <div class="idea-exp-label">💡 Core Value Proposition:</div>
+                    <div class="idea-exp-text">${deep.core_value_prop || 'Replaces fragmented manual spreadsheets and slow legacy software with automated real-time orchestration.'}</div>
+                  </div>
+                  <div class="idea-exp-row">
+                    <div class="idea-exp-label">⚙️ Architectural Foundation:</div>
+                    <div class="idea-exp-text">${deep.architectural_thesis || 'High-performance asynchronous microservices with verified real-time telemetry pipelines.'}</div>
+                  </div>
+                  <div class="idea-exp-row">
+                    <div class="idea-exp-label">💳 Monetization Strategy:</div>
+                    <div class="idea-exp-text">${deep.monetization_strategy || 'Tiered B2B SaaS recurring subscriptions with enterprise onboarding.'}</div>
+                  </div>
+                  <div class="idea-exp-row">
+                    <div class="idea-exp-label">🛡️ Defensibility Moat:</div>
+                    <div class="idea-exp-text">${deep.defensibility_moat || 'Proprietary workflow telemetry data gravity and sticky multi-stakeholder network effects.'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Required Job Roles with Requirements -->
+              <div class="idea-roles-section" style="margin-top:1.25rem;">
+                <div class="idea-section-heading">
+                  <span>💼</span> Required Job Roles & 75/25 Skill Requirements (${roles.length} Key Roles)
+                </div>
+                <div class="idea-roles-grid">
+                  ${roles.map(r => `
+                    <div class="idea-role-card">
+                      <div>
+                        <div class="idea-role-top">
+                          <div>
+                            <div class="idea-role-title">${r.title}</div>
+                            <div class="idea-role-sub">Dept: <strong>${r.department || 'Engineering'}</strong> • Level: <strong>${r.experience_level || 'Senior'}</strong></div>
+                          </div>
+                          <span class="idea-role-priority">${r.hiring_priority || 'Phase 1'}</span>
+                        </div>
+                        <div class="idea-role-salary" style="margin:0.4rem 0;">
+                          💰 Target Comp: <strong>${r.salary_range || '$120,000 - $150,000'}</strong>
+                        </div>
+                        <div class="idea-role-resp">
+                          ${(r.responsibilities || []).slice(0, 2).map(resp => `<div>• ${resp}</div>`).join('')}
+                        </div>
+                      </div>
+                      <div class="idea-skills-wrapper">
+                        <div class="idea-skills-label">Required 75/25 Skills:</div>
+                        <div class="idea-skills-tags">
+                          ${(r.required_skills || []).map(s => `
+                            <span class="idea-skill-pill mandatory" title="Mandatory 75% Tier">${s.name} (${Math.round((s.weight || 0.4)*100)}%)</span>
+                          `).join('')}
+                          ${(r.preferred_skills || []).map(s => `
+                            <span class="idea-skill-pill preferred" title="Preferred 25% Tier">${s.name}</span>
+                          `).join('')}
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- 3. Share Action Hub (Share to HR & Share to Investor) -->
+              <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(94,234,212,0.18); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+                <div style="font-size:0.82rem; color:rgba(255,255,255,0.7);">
+                  <strong style="color:#5EEAD4;">⚡ 1-Click Platform Distribution:</strong> Share job roles with HR or send pitch to Investors.
+                </div>
+                <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+                  <!-- Share to HR Button -->
+                  <button type="button" class="gemini-btn-hr" id="overview-share-hr-btn" style="padding:0.6rem 1.25rem;">
+                    <span>💼 Share to HR</span>
+                  </button>
+
+                  <!-- Share to Investor Button -->
+                  <button type="button" class="gemini-btn-investor" id="overview-share-investor-btn" style="padding:0.6rem 1.25rem; background:linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);">
+                    <span>🦈 Share to Investor</span>
+                  </button>
+
+                  <!-- Go Deeper in Gemini Studio -->
+                  <button type="button" class="idea-bar-deeper-btn" id="overview-go-deeper-btn" style="padding:0.6rem 1.15rem;">
+                    <span>✦ Open in Gemini Studio →</span>
+                  </button>
+
+                  <!-- Clear -->
+                  <button type="button" class="idea-bar-clear-btn" id="overview-clear-btn">
+                    Clear
+                  </button>
+                </div>
               </div>
             </div>
           `;
@@ -3423,12 +3506,64 @@ class App {
           // Store for Gemini tab transfer
           this._overviewIdeaText = idea;
 
-          // Go Deeper button
+          // Wire: Share to HR button
+          const shareHrBtn = overviewIdeaResults.querySelector('#overview-share-hr-btn');
+          if (shareHrBtn) {
+            shareHrBtn.addEventListener('click', async () => {
+              shareHrBtn.disabled = true;
+              shareHrBtn.innerHTML = '<span>⏳ Sending to HR...</span>';
+              try {
+                await api.shareToHr({
+                  session_id: sessionId,
+                  founder_id: founderId,
+                  idea_title: a.title,
+                  industry: a.industry,
+                  roles: roles,
+                  deep_explanation: deep
+                });
+                shareHrBtn.outerHTML = '<span class="gemini-shared-pill">✓ Sent to HR Dashboard</span>';
+                state.showToast(`Job role specifications for "${a.title}" sent to HR Dashboard!`, 'success');
+              } catch (e) {
+                shareHrBtn.disabled = false;
+                shareHrBtn.innerHTML = '<span>💼 Share to HR</span>';
+                state.showToast(e.message, 'danger');
+              }
+            });
+          }
+
+          // Wire: Share to Investor button
+          const shareInvBtn = overviewIdeaResults.querySelector('#overview-share-investor-btn');
+          if (shareInvBtn) {
+            shareInvBtn.addEventListener('click', async () => {
+              shareInvBtn.disabled = true;
+              shareInvBtn.innerHTML = '<span>⏳ Sending to Investors...</span>';
+              try {
+                await api.shareToInvestor({
+                  session_id: sessionId,
+                  founder_id: founderId,
+                  startup_name: a.title,
+                  tagline: a.tagline,
+                  industry: a.industry,
+                  deep_explanation: deep,
+                  project_scope: scope,
+                  investment_required: invest,
+                  execution_roadmap: a.execution_roadmap || []
+                });
+                shareInvBtn.outerHTML = '<span class="gemini-shared-pill">✓ Visible in Shark Room</span>';
+                state.showToast(`Idea explanation and venture proposal for "${a.title}" shared with Investors!`, 'success');
+              } catch (e) {
+                shareInvBtn.disabled = false;
+                shareInvBtn.innerHTML = '<span>🦈 Share to Investor</span>';
+                state.showToast(e.message, 'danger');
+              }
+            });
+          }
+
+          // Wire: Go Deeper button
           const goDeeper = overviewIdeaResults.querySelector('#overview-go-deeper-btn');
           if (goDeeper) {
             goDeeper.addEventListener('click', () => {
               state.setTab('gemini-studio');
-              // Pre-fill gemini input after tab switch with a small delay
               setTimeout(() => {
                 const geminiInput = this.appContainer.querySelector('#gemini-input-text');
                 if (geminiInput && this._overviewIdeaText) {
@@ -3438,7 +3573,7 @@ class App {
             });
           }
 
-          // Clear button
+          // Wire: Clear button
           const clearBtn = overviewIdeaResults.querySelector('#overview-clear-btn');
           if (clearBtn) {
             clearBtn.addEventListener('click', () => {
