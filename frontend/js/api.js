@@ -57,7 +57,28 @@ function saveLocalUser(user) {
 }
 
 class ApiService {
-  async request(endpoint, options = {}, timeoutMs = 4000) {
+  constructor() {
+    this._backendOfflineUntil = 0;
+  }
+
+  isBackendOffline() {
+    return Date.now() < this._backendOfflineUntil;
+  }
+
+  markBackendOffline(cooldownMs = 12000) {
+    this._backendOfflineUntil = Date.now() + cooldownMs;
+  }
+
+  markBackendOnline() {
+    this._backendOfflineUntil = 0;
+  }
+
+  async request(endpoint, options = {}, timeoutMs = 1200) {
+    // Fast Circuit Breaker: If backend is known to be offline, fail fast to local engine in 0ms
+    if (this.isBackendOffline()) {
+      throw new Error('Backend offline, using local engine');
+    }
+
     const url = `${API_BASE}${endpoint}`;
     const token = localStorage.getItem('i2i_token');
     const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -81,9 +102,21 @@ class ApiService {
         const err = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(err.detail || 'Network request failed');
       }
+      this.markBackendOnline();
       return await response.json();
     } catch (error) {
       clearTimeout(timer);
+      // Trip offline circuit breaker if connection was refused, aborted, or network unreachable
+      const isNetError = error.name === 'AbortError' ||
+        (error.message && (
+          error.message.includes('fetch') ||
+          error.message.includes('Network') ||
+          error.message.includes('Failed') ||
+          error.message.includes('abort')
+        ));
+      if (isNetError) {
+        this.markBackendOffline(12000);
+      }
       console.warn(`API call ${endpoint} error:`, error.message);
       throw error;
     }
@@ -797,8 +830,16 @@ class ApiService {
 
   async getStartups() {
     try {
-      return await this.request('/startups');
+      const res = await this.request('/startups');
+      if (res && res.length) {
+        try { localStorage.setItem('i2i_cached_startups', JSON.stringify(res)); } catch (err) {}
+      }
+      return res;
     } catch (e) {
+      try {
+        const cached = localStorage.getItem('i2i_cached_startups');
+        if (cached) return JSON.parse(cached);
+      } catch (err) {}
       return [
         {
           id: 'stp-01',

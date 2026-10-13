@@ -24,6 +24,34 @@ function playAcousticAlarm() {
   }
 }
 
+// Dynamic Lazy Loader for Computer Vision Proctoring (loads only when exam webcam starts)
+let cocoScriptLoadingPromise = null;
+async function getOrLoadCocoSsd() {
+  if (window.cocoSsd) return window.cocoSsd;
+  if (!cocoScriptLoadingPromise) {
+    cocoScriptLoadingPromise = new Promise((resolve) => {
+      const loadCoco = () => {
+        const s2 = document.createElement('script');
+        s2.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js';
+        s2.onload = () => resolve(window.cocoSsd || null);
+        s2.onerror = () => resolve(null);
+        document.body.appendChild(s2);
+      };
+
+      if (!window.tf) {
+        const s1 = document.createElement('script');
+        s1.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js';
+        s1.onload = loadCoco;
+        s1.onerror = () => resolve(null);
+        document.body.appendChild(s1);
+      } else {
+        loadCoco();
+      }
+    });
+  }
+  return cocoScriptLoadingPromise;
+}
+
 class App {
   constructor() {
     this.appContainer = document.getElementById('app');
@@ -35,11 +63,9 @@ class App {
   }
 
   async init() {
-    // Setup Top Navigation & Role Bar
-    this.renderTopBars();
     // Subscribe to state changes
     state.subscribe(() => this.renderCurrentView());
-    // Initial Render
+    // Initial Render (renders top bars and active view)
     await this.renderCurrentView();
   }
 
@@ -100,11 +126,8 @@ class App {
             { label: 'Pipeline Kanban', tab: 'pipeline' }
           ],
           founder: [
-            { label: 'Dashboard', tab: 'overview' },
-            { label: '✦ Gemini Pro Studio', tab: 'gemini-studio' },
-            { label: 'AI Copilot', tab: 'ai-copilot' },
-            { label: 'Pitch Deck', tab: 'proposal' },
-            { label: 'Find Investors', tab: 'investors' }
+            { label: 'Startup Overview', tab: 'overview' },
+            { label: '✦ Google Gemini Pro', tab: 'gemini-studio' }
           ],
           investor: [
             { label: 'Dashboard', tab: 'overview' },
@@ -130,7 +153,7 @@ class App {
           `<button type="button" class="mobile-tab-chip ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</button>`
         ).join('');
 
-        const quickActionLabel = state.currentRole === 'founder' ? '+ Analyze Idea' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Explore';
+        const quickActionLabel = state.currentRole === 'founder' ? '✦ Launch Gemini Pro' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🔍 Deal Flow' : 'Explore';
         const roleEmoji = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
 
         navbar.innerHTML = `
@@ -284,7 +307,7 @@ class App {
         // Quick action handlers (desktop & mobile)
         const handleQuickAction = () => {
           if (state.currentRole === 'candidate') state.setTab('assessments');
-          else if (state.currentRole === 'founder') state.setTab('ai-copilot');
+          else if (state.currentRole === 'founder') state.setTab('gemini-studio');
           else if (state.currentRole === 'hr') state.setTab('create-job');
           else if (state.currentRole === 'investor') state.setTab('startups');
         };
@@ -2685,10 +2708,11 @@ class App {
         }, 50);
       }
 
-      // Load COCO-SSD model & detect mobile phones
+      // Load COCO-SSD model & detect mobile phones (lazy-loaded on-demand)
       try {
-        if (window.cocoSsd) {
-          cocoModel = await window.cocoSsd.load();
+        const cocoSsdLib = await getOrLoadCocoSsd();
+        if (cocoSsdLib) {
+          cocoModel = await cocoSsdLib.load();
           if (statusPill) statusPill.textContent = "🟢 Vision Active • Scanning for Devices";
 
           detectionInterval = setInterval(async () => {
@@ -3058,27 +3082,29 @@ class App {
   async renderFounderDashboard() {
     const founderId = state.activeUser.id;
     let startups = [];
-    let investors = [];
-    let meetings = [];
 
     try {
-      [startups, investors, meetings] = await Promise.all([
-        api.getStartups(),
-        api.getProfiles('investor'),
-        api.getMeetings(founderId)
-      ]);
+      startups = await api.getStartups();
     } catch (e) {
       console.warn("Founder data fetch error", e);
     }
 
-    const currentTab = state.activeTab;
+    let currentTab = state.activeTab;
+    // Founder mode only supports Startup Overview and Google Gemini Pro
+    if (currentTab !== 'overview' && currentTab !== 'gemini-studio') {
+      currentTab = 'overview';
+      state.activeTab = 'overview';
+    }
+
     const currentStartup = startups[0] || {
       id: "stp-01",
       name: "EcoTrace AI",
       tagline: "Autonomous carbon accounting and ESG supply-chain intelligence.",
       stage: "Seed",
       readiness_score: 92.5,
-      valuation_ask: "$1,200,000 for 12% equity"
+      valuation_ask: "$1,200,000 for 12% equity",
+      industry: "Climate Tech / AI",
+      pitch: "EcoTrace AI replaces manual consultant audits with automated continuous telemetry connecting ERP data directly to carbon disclosure reports."
     };
 
     this.appContainer.innerHTML = `
@@ -3102,32 +3128,15 @@ class App {
                 <span class="sidebar-link-content">📊 Startup Overview</span>
               </button>
               <button class="sidebar-link ${currentTab === 'gemini-studio' ? 'active' : ''}" data-tab="gemini-studio">
-                <span class="sidebar-link-content" style="color:#0F766E; font-weight:700;">✦ Gemini Pro Studio</span>
+                <span class="sidebar-link-content" style="color:#0F766E; font-weight:700;">✦ Google Gemini Pro</span>
                 <span class="sidebar-badge" style="background:#0F766E; color:#fff;">AI</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'ai-copilot' ? 'active' : ''}" data-tab="ai-copilot">
-                <span class="sidebar-link-content">🤖 AI Startup Copilot</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'proposal' ? 'active' : ''}" data-tab="proposal">
-                <span class="sidebar-link-content">📑 Business Proposal & PDF</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'investors' ? 'active' : ''}" data-tab="investors">
-                <span class="sidebar-link-content">🦈 Investor Discovery</span>
-                <span class="sidebar-badge">${investors.length}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'hire' ? 'active' : ''}" data-tab="hire">
-                <span class="sidebar-link-content">💼 Team Requirements</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'meetings' ? 'active' : ''}" data-tab="meetings">
-                <span class="sidebar-link-content">📅 Pitch Meetings</span>
-                <span class="sidebar-badge">${meetings.length}</span>
               </button>
             </nav>
           </div>
 
           <!-- Main Content -->
           <div class="dashboard-content" id="founder-content-area">
-            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, investors, meetings, founderId })}
+            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, founderId })}
           </div>
         </div>
       </div>
@@ -3141,46 +3150,49 @@ class App {
   }
 
   renderFounderTabContent(tab, data) {
-    const { currentStartup, investors, meetings, founderId } = data;
+    const { currentStartup, founderId } = data;
 
-    if (tab === 'overview') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Founder Startup Studio</h2>
-            <p>Structure your business, analyze feasibility dimensions, and coordinate with investors.</p>
-          </div>
-          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-            <button class="btn btn-primary" id="jump-to-gemini-btn" style="background:linear-gradient(135deg, #1E1B4B 0%, #0F766E 100%); border:none; display:flex; align-items:center; gap:0.4rem;">
-              <span>✦</span> Launch Gemini Pro Studio
-            </button>
-            <button class="btn btn-accent" id="jump-to-copilot-btn">🤖 Run AI Idea Analyzer</button>
+    if (tab === 'gemini-studio') {
+      return this.renderGeminiStudio(currentStartup, founderId);
+    }
+
+    // Default tab: 'overview'
+    return `
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <h2>Founder Startup Studio</h2>
+          <p>Structure your business, analyze feasibility dimensions, and coordinate with investors.</p>
+        </div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="jump-to-gemini-btn" style="background:linear-gradient(135deg, #1E1B4B 0%, #0F766E 100%); border:none; display:flex; align-items:center; gap:0.4rem;">
+            <span>✦</span> Launch Google Gemini Pro
+          </button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon teal">📈</div>
+          <div class="stat-info">
+            <h3>${currentStartup.readiness_score || 92.5}%</h3>
+            <p>Founder Readiness Score</p>
           </div>
         </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon teal">📈</div>
-            <div class="stat-info">
-              <h3>${currentStartup.readiness_score || 92.5}%</h3>
-              <p>Founder Readiness Score</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon blue">💰</div>
-            <div class="stat-info">
-              <h3 style="font-size:1.15rem;">${currentStartup.valuation_ask || '$1.2M Seed'}</h3>
-              <p>Funding Target</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon navy">🦈</div>
-            <div class="stat-info">
-              <h3>${investors.length}</h3>
-              <p>Target Investors</p>
-            </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">💰</div>
+          <div class="stat-info">
+            <h3 style="font-size:1.15rem;">${currentStartup.valuation_ask || '$1.2M Seed'}</h3>
+            <p>Funding Target</p>
           </div>
         </div>
+        <div class="stat-card">
+          <div class="stat-icon navy">🦈</div>
+          <div class="stat-info">
+            <h3>12</h3>
+            <p>Target Investors</p>
+          </div>
+        </div>
+      </div>
 
         <div class="card" style="margin-top:0.5rem;">
           <div class="card-header">
@@ -3213,250 +3225,6 @@ class App {
           </div>
         </div>
       `;
-    }
-
-    if (tab === 'gemini-studio') {
-      return this.renderGeminiStudio(currentStartup, founderId);
-    }
-
-    if (tab === 'ai-copilot') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>AI Startup Copilot & Idea Analyzer</h2>
-            <p>Generate structured business breakdowns, competitive positioning, and feasibility scores.</p>
-          </div>
-        </div>
-
-        <div class="card" style="margin-bottom:1.5rem;">
-          <form id="ai-idea-form">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-              <div class="form-group">
-                <label class="form-label">Startup / Idea Title</label>
-                <input type="text" class="form-input" id="idea-title" value="EcoTrace AI" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Industry Sector</label>
-                <input type="text" class="form-input" id="idea-industry" value="CleanTech / Enterprise AI" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Core Problem Statement</label>
-              <textarea class="form-textarea" id="idea-problem" required>Enterprises spend months and hundreds of thousands of dollars on manual sustainability consulting with outdated spreadsheets that fail modern SEC and CSRD ESG compliance mandates.</textarea>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Proposed Solution Mechanism</label>
-              <textarea class="form-textarea" id="idea-solution" required>An automated AI agent ingestion pipeline that connects directly to ERPs (SAP, NetSuite) and supply telemetry to calculate precise Scope 1, 2, and 3 emission metrics in real-time.</textarea>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-              <div class="form-group">
-                <label class="form-label">Target Customers / ICP</label>
-                <input type="text" class="form-input" id="idea-customers" value="Mid-to-large enterprise manufacturers, logistics operators, and consumer brands." required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Business Model & Pricing</label>
-                <input type="text" class="form-input" id="idea-model" value="B2B SaaS subscription tiered by supplier count ($24k - $96k ARR)." required />
-              </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-              <div class="form-group">
-                <label class="form-label">Cost Drivers</label>
-                <input type="text" class="form-input" id="idea-costs" value="Cloud hosting, LLM inference API tokens, and engineering talent." />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Funding Assumptions & Ask</label>
-                <input type="text" class="form-input" id="idea-funding" value="$1,200,000 Seed Round for 18-month runway to reach $1M ARR." />
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg" id="run-copilot-btn" style="width:100%; margin-top:0.5rem;">
-              ✨ Run AI Startup Copilot Analysis
-            </button>
-          </form>
-        </div>
-
-        <div id="ai-results-container"></div>
-      `;
-    }
-
-    if (tab === 'proposal') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Business Proposal & ReportLab Export</h2>
-            <p>Generate and share complete formal investment proposals with accredited funds.</p>
-          </div>
-          <a href="${api.getProposalPdfUrl(currentStartup.id)}" target="_blank" class="btn btn-secondary btn-lg" download>
-            📄 Download Official Proposal PDF
-          </a>
-        </div>
-
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
-            <div>
-              <span class="badge badge-role">STAGE: ${currentStartup.stage}</span>
-              <h2 style="font-size:1.6rem; font-weight:800; color:var(--primary); margin-top:0.25rem;">${currentStartup.name}</h2>
-              <p style="color:var(--text-muted); font-size:0.9rem;">${currentStartup.tagline}</p>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:1.3rem; font-weight:800; color:var(--secondary);">${currentStartup.valuation_ask}</div>
-              <span style="font-size:0.8rem; color:var(--accent);">Confidential Pitch Draft</span>
-            </div>
-          </div>
-
-          <div style="display:flex; flex-direction:column; gap:1.25rem;">
-            <div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary); margin-bottom:0.25rem;">1. Executive Summary</h4>
-              <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6;">${currentStartup.pitch}</p>
-            </div>
-            <div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary); margin-bottom:0.25rem;">2. Target Market & Feasibility</h4>
-              <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6;">
-                $18.4 Billion global climate accounting software market by 2030, accelerated by SEC Climate Disclosures and EU CSRD directives.
-              </p>
-            </div>
-            <div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary); margin-bottom:0.25rem;">3. Technical Architecture</h4>
-              <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6;">
-                FastAPI asynchronous microservices, PostgreSQL with Row Level Security (RLS), and LLM agent prompt pipelines for automated emission factor mapping.
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    if (tab === 'investors') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Investor Discovery & Pitch Sharing</h2>
-            <p>Connect with accredited venture capital firms and angel syndicates.</p>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
-          ${investors.map(inv => `
-            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-                  <img src="${inv.avatar_url}" style="width:44px; height:44px; border-radius:var(--radius-full);" alt="Investor"/>
-                  <div>
-                    <h3 style="font-size:1.05rem; font-weight:700; color:var(--primary);">${inv.full_name}</h3>
-                    <p style="font-size:0.8rem; color:var(--text-muted);">${inv.bio}</p>
-                  </div>
-                </div>
-                <div style="font-size:0.82rem; color:var(--text-main); margin-bottom:1rem;">
-                  <div>🎯 <b>Mandate:</b> AI, CleanTech, Enterprise SaaS</div>
-                  <div>💰 <b>Ticket Size:</b> $100,000 - $1,000,000</div>
-                </div>
-              </div>
-              <button class="btn btn-secondary w-full share-proposal-btn" data-investor="${inv.id}">
-                📤 Share Private Proposal →
-              </button>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    if (tab === 'hire') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Startup Job Requirement Generator</h2>
-            <p>Draft technical roles and push them directly into the recruitment pipeline.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <form id="startup-job-form">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-              <div class="form-group">
-                <label class="form-label">Job Title</label>
-                <input type="text" class="form-input" id="st-job-title" value="Founding Full-Stack Platform Engineer" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Experience Level</label>
-                <select class="form-select" id="st-job-exp">
-                  <option>Mid-Level (2+ years)</option>
-                  <option selected>Senior (4+ years)</option>
-                  <option>Lead / Architect</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-              <div class="form-group">
-                <label class="form-label">Min Salary ($)</label>
-                <input type="number" class="form-input" id="st-job-min" value="120000" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Max Salary ($)</label>
-                <input type="number" class="form-input" id="st-job-max" value="150000" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Required Skills</label>
-              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                <label class="badge badge-verified" style="padding:0.4rem 0.8rem; cursor:pointer;">
-                  <input type="checkbox" checked /> Python & FastAPI (Weight: 0.4)
-                </label>
-                <label class="badge badge-verified" style="padding:0.4rem 0.8rem; cursor:pointer;">
-                  <input type="checkbox" checked /> PostgreSQL & Database Design (Weight: 0.35)
-                </label>
-                <label class="badge badge-verified" style="padding:0.4rem 0.8rem; cursor:pointer;">
-                  <input type="checkbox" checked /> Modern JavaScript & Frontend (Weight: 0.25)
-                </label>
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:1rem;">
-              🚀 Publish Requirement to Talent Pool
-            </button>
-          </form>
-        </div>
-      `;
-    }
-
-    if (tab === 'meetings') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Pitch Meetings & Investor Calls</h2>
-            <p>Confirmed pitch sessions and due diligence syncs.</p>
-          </div>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:1rem;">
-          ${meetings.length === 0 ? `
-            <div class="card" style="text-align:center; padding:3rem;">
-              <p style="color:var(--text-muted);">No pitch meetings scheduled yet.</p>
-            </div>
-          ` : meetings.map(m => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-              <div>
-                <span class="badge" style="background:var(--success-bg); color:var(--success); margin-bottom:0.35rem;">${m.status}</span>
-                <h3 style="font-size:1.15rem; font-weight:700; color:var(--primary);">${m.meeting_type}</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted);">
-                  📅 ${new Date(m.scheduled_at).toLocaleString()} • Agenda: ${m.agenda}
-                </p>
-              </div>
-              <a href="${m.meeting_link}" target="_blank" class="btn btn-secondary">
-                Join Call Room →
-              </a>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    return '';
   }
 
   attachFounderEvents(data) {

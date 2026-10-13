@@ -119,7 +119,11 @@ class StateManager {
   }
 
   setTab(tab) {
-    this.activeTab = tab;
+    if (this.currentRole === 'founder' && !['overview', 'gemini-studio'].includes(tab)) {
+      this.activeTab = 'overview';
+    } else {
+      this.activeTab = tab;
+    }
     this.notify();
   }
 
