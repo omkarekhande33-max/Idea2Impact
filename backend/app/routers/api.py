@@ -427,7 +427,10 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
                     break
 
         correct = q.get("correct_index")
-        is_correct = (chosen is not None and chosen == correct)
+        try:
+            is_correct = (chosen is not None and correct is not None and int(chosen) == int(correct))
+        except (ValueError, TypeError):
+            is_correct = (chosen is not None and chosen == correct)
         if is_correct:
             correct_count += 1
         feedback.append({

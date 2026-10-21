@@ -1,6 +1,6 @@
 import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
-import { SKILLS_CATALOG, getQuizForSkill, getQuizForSkills } from './quizData.js';
+import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill, getQuizForSkills } from './quizData.js';
 // Acoustic Warning Alarm for Anti-Cheat Proctoring
 function playAcousticAlarm() {
   try {
@@ -2664,9 +2664,9 @@ class App {
         </p>
         <div style="display:flex; flex-direction:column; gap:0.75rem;">
           ${q.options.map((opt, optIdx) => {
-            const isSelected = answers[q.id] === optIdx;
+            const isSelected = answers[q.id] === optIdx || answers[String(currentQIndex)] === optIdx;
             return `
-              <label class="proctor-opt-label" style="display:flex; align-items:center; gap:0.85rem; padding:0.9rem 1.15rem; background:${isSelected ? 'rgba(37, 99, 235, 0.2)' : '#1F2937'}; border:1.5px solid ${isSelected ? '#3B82F6' : '#374151'}; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms ease;">
+              <label class="proctor-opt-label" data-opt-idx="${optIdx}" style="display:flex; align-items:center; gap:0.85rem; padding:0.9rem 1.15rem; background:${isSelected ? 'rgba(37, 99, 235, 0.2)' : '#1F2937'}; border:1.5px solid ${isSelected ? '#3B82F6' : '#374151'}; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms ease;">
                 <input type="radio" name="active_q_opt" value="${optIdx}" ${isSelected ? 'checked' : ''} style="width:18px; height:18px; accent-color:#2563EB; cursor:pointer;" />
                 <span style="font-size:0.95rem; color:${isSelected ? '#93C5FD' : '#E2E8F0'}; line-height:1.4;">${opt}</span>
               </label>
@@ -2675,12 +2675,28 @@ class App {
         </div>
       `;
 
-      // Bind Radio Click
+      // Bind Radio Click & Option Selection
       qContainer.querySelectorAll('input[name="active_q_opt"]').forEach(input => {
         input.addEventListener('change', (e) => {
           const val = parseInt(e.target.value, 10);
           answers[q.id] = val;
+          answers[String(currentQIndex)] = val;
+          answers[`q${currentQIndex + 1}`] = val;
           renderActiveQuestion();
+        });
+      });
+      qContainer.querySelectorAll('.proctor-opt-label').forEach((lbl, idx) => {
+        lbl.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const radio = lbl.querySelector('input[type="radio"]');
+            if (radio && !radio.checked) {
+              radio.checked = true;
+              answers[q.id] = idx;
+              answers[String(currentQIndex)] = idx;
+              answers[`q${currentQIndex + 1}`] = idx;
+              renderActiveQuestion();
+            }
+          }
         });
       });
     };
@@ -2895,20 +2911,13 @@ class App {
         submitBtn.textContent = 'Grading Assessment...';
       }
 
-      let correctCount = 0;
-      questions.forEach(q => {
-        if (answers[q.id] !== undefined && answers[q.id] === q.correct_index) {
-          correctCount++;
-        }
-      });
-      const totalCount = questions.length || 1;
-      const score = Math.round((correctCount / totalCount) * 100);
-      const isPassed = score >= 75;
-
+      let submissionResult = null;
       try {
-        await api.submitAssessment(asm.id, {
+        submissionResult = await api.submitAssessment(asm.id, {
           candidate_id: candidateId,
           answers: answers,
+          tested_skills: testedSkillNames,
+          questions: questions,
           flags: [
             `total_violations: ${violationsCount}`,
             violationsCount > 2 ? 'suspicious_activity' : 'clean_session'
@@ -2916,6 +2925,45 @@ class App {
         });
       } catch (err) {
         console.warn("API submitAssessment error", err);
+      }
+
+      // Determine final score, pass status, and feedback
+      let score = 0;
+      let isPassed = false;
+      let correctCount = 0;
+      let totalCount = questions.length || 1;
+      let feedback = [];
+
+      if (submissionResult && typeof submissionResult.score === 'number') {
+        score = Math.round(submissionResult.score);
+        isPassed = submissionResult.passed !== undefined ? submissionResult.passed : (score >= 75);
+        totalCount = submissionResult.total_count || totalCount;
+        correctCount = submissionResult.correct_count !== undefined 
+          ? submissionResult.correct_count 
+          : Math.round((score / 100) * totalCount);
+        feedback = submissionResult.feedback || [];
+      } else {
+        // Direct local grading fallback against quiz catalog if API threw an error
+        const quiz = getQuizForSkill(asm.id);
+        const refQuestions = (quiz && quiz.questions) ? quiz.questions : questions;
+        totalCount = refQuestions.length || 1;
+        refQuestions.forEach((q, idx) => {
+          const qid = q.id || `q_${idx}`;
+          const correctIdx = q.correct_index;
+          let chosen = answers[qid] !== undefined ? answers[qid] : answers[String(idx)];
+          if (chosen === undefined) chosen = answers[`q${idx + 1}`];
+          const isCorrect = (chosen !== undefined && chosen !== null && correctIdx !== undefined && Number(chosen) === Number(correctIdx));
+          if (isCorrect) correctCount++;
+          feedback.push({
+            question_id: qid,
+            is_correct: isCorrect,
+            correct_option: correctIdx,
+            chosen_option: chosen,
+            explanation: q.explanation || ''
+          });
+        });
+        score = Math.round((correctCount / totalCount) * 100);
+        isPassed = score >= 75;
       }
 
       // If passed >= 75%, officially add all tested skills to profile!
@@ -2983,7 +3031,8 @@ class App {
         passed: isPassed,
         correct_count: correctCount,
         total_count: totalCount,
-        tested_skills: testedSkillNames
+        tested_skills: testedSkillNames,
+        feedback: feedback
       }, asm.title, asm.id, candidateId);
 
       state.notify();

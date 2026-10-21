@@ -418,32 +418,75 @@ class ApiService {
       });
     } catch (e) {
       console.info('Backend unreachable, grading assessment locally');
+      // Build master question bank index for accurate scoring
+      const allQuestions = {};
+      if (typeof QUIZ_BANKS === 'object' && QUIZ_BANKS) {
+        for (const bank of Object.values(QUIZ_BANKS)) {
+          if (bank && Array.isArray(bank.questions)) {
+            bank.questions.forEach(q => {
+              allQuestions[q.id] = q;
+              allQuestions[q.id.toLowerCase()] = q;
+              if (q.text) allQuestions[q.text.trim().toLowerCase()] = q;
+            });
+          }
+        }
+      }
+
       const quiz = getQuizForSkill(id);
+      const targetQuestions = (data.questions && Array.isArray(data.questions) && data.questions.length > 0)
+        ? data.questions
+        : (quiz && quiz.questions ? quiz.questions : []);
       const answers = data.answers || {};
       let correctCount = 0;
       const feedback = [];
-      quiz.questions.forEach(q => {
-        const chosen = answers[q.id];
-        const isCorrect = (chosen === q.correct_index);
+
+      targetQuestions.forEach((q, idx) => {
+        const qid = q.id || `q_${idx}`;
+        const refQuestion = allQuestions[qid] || allQuestions[qid.toLowerCase()] || (q.text && allQuestions[q.text.trim().toLowerCase()]) || q;
+        const correctIndex = refQuestion.correct_index !== undefined ? refQuestion.correct_index : q.correct_index;
+
+        let chosen = undefined;
+        if (answers[qid] !== undefined) chosen = answers[qid];
+        else if (answers[String(idx)] !== undefined) chosen = answers[String(idx)];
+        else if (answers[idx] !== undefined) chosen = answers[idx];
+        else if (answers[`q${idx + 1}`] !== undefined) chosen = answers[`q${idx + 1}`];
+        else {
+          for (const [ansK, ansV] of Object.entries(answers)) {
+            if (ansK.endsWith(qid) || qid.endsWith(ansK)) {
+              chosen = ansV;
+              break;
+            }
+          }
+        }
+
+        const isCorrect = (chosen !== undefined && chosen !== null && correctIndex !== undefined && Number(chosen) === Number(correctIndex));
         if (isCorrect) correctCount++;
+
         feedback.push({
-          question_id: q.id,
+          question_id: qid,
           is_correct: isCorrect,
-          correct_option: q.correct_index,
-          explanation: q.explanation || ''
+          correct_option: correctIndex,
+          chosen_option: chosen,
+          explanation: refQuestion.explanation || q.explanation || ''
         });
       });
-      const score = Math.round((correctCount / quiz.questions.length) * 100);
-      const passed = score >= quiz.passing_score;
+
+      const totalCount = targetQuestions.length || 1;
+      const score = Math.round((correctCount / totalCount) * 100);
+      const passedThreshold = (quiz && quiz.passing_score) || 75.0;
+      const passed = score >= passedThreshold;
+
       result = {
         attempt_id: `att-${Date.now().toString(36)}`,
         score: score,
         passed: passed,
-        passing_threshold: quiz.passing_score,
+        correct_count: correctCount,
+        total_count: totalCount,
+        passing_threshold: passedThreshold,
         feedback: feedback,
         verified: passed,
-        skill_name: quiz.skill_name || 'Technical Skill',
-        skill_id: quiz.skill_id
+        skill_name: (quiz && quiz.skill_name) || (data.tested_skills && data.tested_skills[0]) || 'Technical Skill',
+        skill_id: (quiz && quiz.skill_id) || id
       };
     }
 

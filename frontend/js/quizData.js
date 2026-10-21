@@ -1711,10 +1711,10 @@ export function getQuizForSkill(skillIdentifier) {
   let key = skillIdentifier.toLowerCase().replace('sk-', '').replace('asm-', '').trim();
   
   // High-priority exact & substring aliases for critical skill gap competencies
-  if (key.includes('fastapi') || (key.includes('python') && (key.includes('&') || key.includes('api') || key.includes('fast')))) {
+  if (key === '01' || key === '1' || key === 'asm-01' || key === 'sk-01' || key === 'python_fastapi' || key.includes('fastapi') || (key.includes('python') && (key.includes('&') || key.includes('api') || key.includes('fast')))) {
     return QUIZ_BANKS.python_fastapi;
   }
-  if (key.includes('database design') || (key.includes('postgre') && (key.includes('&') || key.includes('design') || key.includes('database')))) {
+  if (key === '02' || key === '2' || key === 'asm-02' || key === 'sk-02' || key === 'postgresql_design' || key.includes('database design') || (key.includes('postgre') && (key.includes('&') || key.includes('design') || key.includes('database')))) {
     return QUIZ_BANKS.postgresql_design;
   }
   if (key.includes('distributed') || key.includes('dist-sys')) {
