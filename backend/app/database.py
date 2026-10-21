@@ -244,57 +244,69 @@ INITIAL_DATA = {
         {
             "id": "asm-01",
             "skill_id": "sk-01",
-            "title": "Python & FastAPI Backend Assessment",
+            "title": "Python & FastAPI Production Services Assessment",
             "passing_score": 75.0,
             "duration_minutes": 15,
             "questions": [
                 {
-                    "id": "q1",
-                    "text": "In FastAPI, how do you specify that an endpoint handler should run asynchronously without blocking the event loop?",
+                    "id": "pyd_q1",
+                    "text": "In FastAPI, how does declaring an endpoint handler with 'async def' differ from declaring it with standard synchronous 'def'?",
                     "options": [
-                        "Use the @async_route decorator",
-                        "Define the handler function with 'async def'",
-                        "Wrap the return value in asyncio.Future()",
-                        "Set background_task=True in router configuration"
+                        "'async def' forces FastAPI to spin up a new OS thread per request, whereas 'def' uses a single thread",
+                        "'async def' routes run directly on the event loop (must never block), whereas 'def' routes are dispatched to an external worker threadpool",
+                        "'def' routes cannot use Pydantic models or dependency injection",
+                        "'async def' disables CORS and request validation for higher performance"
                     ],
                     "correct_index": 1,
-                    "explanation": "Declaring endpoint functions with 'async def' allows FastAPI to execute them cooperatively on the asyncio event loop."
+                    "explanation": "FastAPI executes 'async def' functions cooperatively on the main asyncio event loop, while standard 'def' functions are offloaded to an external AnyIO threadpool to prevent blocking the event loop."
                 },
                 {
-                    "id": "q2",
-                    "text": "What does Pydantic BaseModel primarily provide when used in FastAPI request bodies?",
+                    "id": "pyd_q2",
+                    "text": "What is the primary role of FastAPI's 'Depends()' dependency injection system?",
                     "options": [
-                        "Database connection pooling",
-                        "Data validation, parsing, and automated OpenAPI documentation schema generation",
-                        "Automatic SQL query generation and ORM mapping",
-                        "Client-side cookie storage encryption"
+                        "To automatically generate database migration scripts and ORM tables",
+                        "To declare shared logic (auth, database sessions, query parameters) that FastAPI resolves hierarchically before executing the route handler",
+                        "To inject JavaScript client-side bundles into HTML templates",
+                        "To measure CPU and memory usage of individual HTTP endpoints"
                     ],
                     "correct_index": 1,
-                    "explanation": "Pydantic performs runtime data type validation, sanitization, and produces OpenAPI/Swagger schemas."
+                    "explanation": "Depends() enables clean modular architectures where dependencies (such as auth token verification or database sessions) are instantiated, validated, and yield-cleaned automatically per request."
                 },
                 {
-                    "id": "q3",
-                    "text": "Which dependency injection tool in FastAPI is used to share authentication, database sessions, and permissions across routes?",
+                    "id": "pyd_q3",
+                    "text": "In Pydantic v2 / FastAPI, what is the recommended way to validate that a string field conforms to a valid email format?",
                     "options": [
-                        "fastapi.Depends",
-                        "fastapi.Inject",
-                        "fastapi.Provide",
-                        "fastapi.Autowired"
-                    ],
-                    "correct_index": 0,
-                    "explanation": "Depends() is FastAPI's standard mechanism for dependency declaration and hierarchical resolution."
-                },
-                {
-                    "id": "q4",
-                    "text": "How should long-running CPU-intensive or slow operations be handled without starving FastAPI async requests?",
-                    "options": [
-                        "Execute them synchronously in the main async function",
-                        "Offload them to BackgroundTasks, Celery worker, or run in a thread pool via run_in_executor",
-                        "Increase the OS thread stack size",
-                        "Set async_timeout to 0"
+                        "Use a regular expression directly inside every route handler with re.match()",
+                        "Declare the field using Pydantic's EmailStr type",
+                        "Cast the incoming payload to a Python dictionary and check for '@' manually",
+                        "Enable the --verify-emails flag in the Uvicorn command line"
                     ],
                     "correct_index": 1,
-                    "explanation": "Blocking operations block the GIL and asyncio loop unless dispatched to worker threads or external task queues."
+                    "explanation": "Pydantic provides EmailStr (backed by email-validator), which automatically performs RFC-compliant email syntax validation during request parsing."
+                },
+                {
+                    "id": "pyd_q4",
+                    "text": "How should an asynchronous FastAPI service execute a lightweight task (like sending an email or audit logging) after returning the HTTP response?",
+                    "options": [
+                        "Use time.sleep() inside the route before the return statement",
+                        "Add a parameter of type BackgroundTasks and call background_tasks.add_task(func, *args)",
+                        "Fork a new child process with os.fork()",
+                        "Block the client response with an infinite while loop"
+                    ],
+                    "correct_index": 1,
+                    "explanation": "FastAPI's BackgroundTasks allows route handlers to schedule callables that run after the response has been sent to the client, preventing latency spikes for the caller."
+                },
+                {
+                    "id": "pyd_q5",
+                    "text": "When building high-throughput FastAPI services with async database drivers, why must you NEVER execute synchronous blocking I/O (e.g. requests.get or time.sleep)?",
+                    "options": [
+                        "FastAPI will throw a SyntaxError at compile time",
+                        "Blocking the single event loop thread stops ALL concurrent async requests from being processed until the blocking call finishes",
+                        "It permanently disables database connection pooling",
+                        "It causes the ASGI server to drop SSL certificates"
+                    ],
+                    "correct_index": 1,
+                    "explanation": "Because asyncio relies on cooperative multitasking on a single thread, any blocking synchronous call stops the entire event loop, freezing all concurrent requests."
                 }
             ]
         },

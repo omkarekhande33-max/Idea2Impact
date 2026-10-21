@@ -1,5 +1,5 @@
 // Idea2Impact - Client API Module with Dual-Engine (FastAPI Backend + Resilient Local Fallback)
-import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill } from './quizData.js';
+import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill, getQuizForSkills } from './quizData.js';
 
 function resolveApiBase() {
   try {

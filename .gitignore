@@ -90,3 +90,12 @@ backend/typing_extensions.py
 backend/uvicorn/
 backend/uvicorn*/
 backend/__pycache__/
+
+# Temporary migration scripts, scratch dumps & test runners
+extract_quiz.py
+parse_quiz_clean.py
+parse_quiz_json.py
+quiz_banks.json
+sync_data_store.py
+temp_quiz_body.js
+test_*.py

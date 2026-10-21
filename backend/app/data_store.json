@@ -538,28 +538,52 @@
       "created_at": "2026-10-21T11:55:27.957733+00:00"
     },
     {
-      "id": "foun-26564e",
-      "username": "tester_f4c4dc",
+      "id": "foun-35fdad",
+      "username": "tester_289218",
       "full_name": "Test Developer",
-      "email": "tester_f4c4dc@test.io",
-      "password_hash": "pbkdf2_sha256$100000$b2b44be6196c856cd4565d5389333de1$1a5329ff4ea6a39448ff93a2c753de819f458e41c29ba13f5c336a846f6880ca",
+      "email": "tester_289218@test.io",
+      "password_hash": "pbkdf2_sha256$100000$7c141f51979be1eba4db70ca6051348b$f125191c4badefd54a0358f892f5260fdb550878aaf0c33c5f8022b3d6504965",
       "role": "founder",
       "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
       "bio": "",
       "auth_provider": "local",
-      "created_at": "2026-10-21T12:06:22.471966+00:00"
+      "created_at": "2026-10-21T13:16:53.830902+00:00"
     },
     {
-      "id": "inve-f3e081",
-      "username": "google_user_b96d38",
+      "id": "inve-63a682",
+      "username": "google_user_d8e9fa",
       "full_name": "Google Innovator",
-      "email": "google_user_b96d38@gmail.com",
-      "password_hash": "",
+      "email": "google_user_d8e9fa@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$0a316736dfd015eb4ab00eab314eb316$b8b08a75e8ad5b8fe9fa7c73bb03fc9e049e13079b722f00201b332a34f9988e",
       "role": "investor",
       "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
       "bio": "Joined via Google Authentication",
       "auth_provider": "google",
-      "created_at": "2026-10-21T12:06:22.957762+00:00"
+      "created_at": "2026-10-21T13:16:54.258975+00:00"
+    },
+    {
+      "id": "foun-070ed7",
+      "username": "tester_0d5680",
+      "full_name": "Test Developer",
+      "email": "tester_0d5680@test.io",
+      "password_hash": "pbkdf2_sha256$100000$94d0a03abe0060a37eb4535f78d28d86$e6ea875e10804a309642f858587947a7014eb81348131516bafd6a0f57e9f606",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T13:22:36.173242+00:00"
+    },
+    {
+      "id": "inve-be1a57",
+      "username": "google_user_4401ad",
+      "full_name": "Google Innovator",
+      "email": "google_user_4401ad@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$486a4349a30e27b2fb2acafbfebdace3$34c756e84a83c4f44d25751abf5c0628cbcc29e384a4c480b85ba852c2bd8daf",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T13:22:36.792515+00:00"
     }
   ],
   "candidate_profiles": [
@@ -759,12 +783,20 @@
       "id": "foun-6b200e53"
     },
     {
-      "founder_id": "foun-26564e",
+      "founder_id": "foun-35fdad",
       "company_name": "New Venture",
       "industry": "Technology",
       "stage": "Idea",
       "pitch_deck_url": "",
-      "id": "foun-55b8441a"
+      "id": "foun-5a3e04de"
+    },
+    {
+      "founder_id": "foun-070ed7",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-2adc9bff"
     }
   ],
   "hr_profiles": [
@@ -1046,7 +1078,7 @@
       "id": "inve-b43f9a32"
     },
     {
-      "investor_id": "inve-f3e081",
+      "investor_id": "inve-63a682",
       "fund_name": "Angel Syndicate",
       "preferred_stages": [
         "Seed"
@@ -1057,7 +1089,21 @@
       ],
       "min_ticket": 50000,
       "max_ticket": 250000,
-      "id": "inve-eade51e4"
+      "id": "inve-d2fd6ad8"
+    },
+    {
+      "investor_id": "inve-be1a57",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-e34fc6c0"
     }
   ],
   "skills": [
@@ -1284,9 +1330,9 @@
     {
       "candidate_id": "cand-01",
       "skill_id": "sk-01",
-      "assessment_score": 92.0,
+      "assessment_score": 100.0,
       "is_verified": true,
-      "verified_at": "2026-02-14T15:20:00Z"
+      "verified_at": "2026-10-21T13:23:07.023241+00:00"
     },
     {
       "candidate_id": "cand-01",
@@ -1347,7 +1393,7 @@
       "assessment_score": 85.0,
       "quiz_score": 85.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.617856+00:00",
+      "verified_at": "2026-10-21T13:22:36.347343+00:00",
       "id": "cs-2ed3f7",
       "skill_name": "Python"
     },
@@ -1396,7 +1442,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.860340+00:00",
+      "verified_at": "2026-10-21T13:22:36.657905+00:00",
       "id": "cs-b10d40"
     },
     {
@@ -1408,7 +1454,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.874399+00:00",
+      "verified_at": "2026-10-21T13:22:36.677021+00:00",
       "id": "cs-538b13"
     },
     {
@@ -1420,7 +1466,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.895374+00:00",
+      "verified_at": "2026-10-21T13:22:36.696598+00:00",
       "id": "cs-2ce672"
     },
     {
@@ -1432,7 +1478,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.909463+00:00",
+      "verified_at": "2026-10-21T13:22:36.722721+00:00",
       "id": "cs-1d27d2"
     },
     {
@@ -1444,7 +1490,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.923123+00:00",
+      "verified_at": "2026-10-21T13:22:36.743203+00:00",
       "id": "cs-17bd83"
     },
     {
@@ -1456,7 +1502,7 @@
       "assessment_score": 88.0,
       "quiz_score": 88.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T12:06:22.943920+00:00",
+      "verified_at": "2026-10-21T13:22:36.763397+00:00",
       "id": "cs-ba367c"
     }
   ],
@@ -1464,114 +1510,138 @@
     {
       "id": "asm-01",
       "skill_id": "sk-01",
-      "title": "Python & FastAPI Backend Assessment",
+      "title": "Python & FastAPI Production Services Assessment",
       "passing_score": 75.0,
       "duration_minutes": 15,
       "questions": [
         {
-          "id": "q1",
-          "text": "In FastAPI, how do you specify that an endpoint handler should run asynchronously without blocking the event loop?",
+          "id": "pyd_q1",
+          "text": "In FastAPI, how does declaring an endpoint handler with 'async def' differ from declaring it with standard synchronous 'def'?",
           "options": [
-            "Use the @async_route decorator",
-            "Define the handler function with 'async def'",
-            "Wrap the return value in asyncio.Future()",
-            "Set background_task=True in router configuration"
+            "'async def' forces FastAPI to spin up a new OS thread per request, whereas 'def' uses a single thread",
+            "'async def' routes run directly on the event loop (must never block), whereas 'def' routes are dispatched to an external worker threadpool",
+            "'def' routes cannot use Pydantic models or dependency injection",
+            "'async def' disables CORS and request validation for higher performance"
           ],
           "correct_index": 1,
-          "explanation": "Declaring endpoint functions with 'async def' allows FastAPI to execute them cooperatively on the asyncio event loop."
+          "explanation": "FastAPI executes 'async def' functions cooperatively on the main asyncio event loop, while standard 'def' functions are offloaded to an external AnyIO threadpool to prevent blocking the event loop."
         },
         {
-          "id": "q2",
-          "text": "What does Pydantic BaseModel primarily provide when used in FastAPI request bodies?",
+          "id": "pyd_q2",
+          "text": "What is the primary role of FastAPI's 'Depends()' dependency injection system?",
           "options": [
-            "Database connection pooling",
-            "Data validation, parsing, and automated OpenAPI documentation schema generation",
-            "Automatic SQL query generation and ORM mapping",
-            "Client-side cookie storage encryption"
+            "To automatically generate database migration scripts and ORM tables",
+            "To declare shared logic (auth, database sessions, query parameters) that FastAPI resolves hierarchically before executing the route handler",
+            "To inject JavaScript client-side bundles into HTML templates",
+            "To measure CPU and memory usage of individual HTTP endpoints"
           ],
           "correct_index": 1,
-          "explanation": "Pydantic performs runtime data type validation, sanitization, and produces OpenAPI/Swagger schemas."
+          "explanation": "Depends() enables clean modular architectures where dependencies (such as auth token verification or database sessions) are instantiated, validated, and yield-cleaned automatically per request."
         },
         {
-          "id": "q3",
-          "text": "Which dependency injection tool in FastAPI is used to share authentication, database sessions, and permissions across routes?",
+          "id": "pyd_q3",
+          "text": "In Pydantic v2 / FastAPI, what is the recommended way to validate that a string field conforms to a valid email format?",
           "options": [
-            "fastapi.Depends",
-            "fastapi.Inject",
-            "fastapi.Provide",
-            "fastapi.Autowired"
-          ],
-          "correct_index": 0,
-          "explanation": "Depends() is FastAPI's standard mechanism for dependency declaration and hierarchical resolution."
-        },
-        {
-          "id": "q4",
-          "text": "How should long-running CPU-intensive or slow operations be handled without starving FastAPI async requests?",
-          "options": [
-            "Execute them synchronously in the main async function",
-            "Offload them to BackgroundTasks, Celery worker, or run in a thread pool via run_in_executor",
-            "Increase the OS thread stack size",
-            "Set async_timeout to 0"
+            "Use a regular expression directly inside every route handler with re.match()",
+            "Declare the field using Pydantic's EmailStr type",
+            "Cast the incoming payload to a Python dictionary and check for '@' manually",
+            "Enable the --verify-emails flag in the Uvicorn command line"
           ],
           "correct_index": 1,
-          "explanation": "Blocking operations block the GIL and asyncio loop unless dispatched to worker threads or external task queues."
+          "explanation": "Pydantic provides EmailStr (backed by email-validator), which automatically performs RFC-compliant email syntax validation during request parsing."
+        },
+        {
+          "id": "pyd_q4",
+          "text": "How should an asynchronous FastAPI service execute a lightweight task (like sending an email or audit logging) after returning the HTTP response?",
+          "options": [
+            "Use time.sleep() inside the route before the return statement",
+            "Add a parameter of type BackgroundTasks and call background_tasks.add_task(func, *args)",
+            "Fork a new child process with os.fork()",
+            "Block the client response with an infinite while loop"
+          ],
+          "correct_index": 1,
+          "explanation": "FastAPI's BackgroundTasks allows route handlers to schedule callables that run after the response has been sent to the client, preventing latency spikes for the caller."
+        },
+        {
+          "id": "pyd_q5",
+          "text": "When building high-throughput FastAPI services with async database drivers, why must you NEVER execute synchronous blocking I/O (e.g. requests.get or time.sleep)?",
+          "options": [
+            "FastAPI will throw a SyntaxError at compile time",
+            "Blocking the single event loop thread stops ALL concurrent async requests from being processed until the blocking call finishes",
+            "It permanently disables database connection pooling",
+            "It causes the ASGI server to drop SSL certificates"
+          ],
+          "correct_index": 1,
+          "explanation": "Because asyncio relies on cooperative multitasking on a single thread, any blocking synchronous call stops the entire event loop, freezing all concurrent requests."
         }
       ]
     },
     {
       "id": "asm-02",
       "skill_id": "sk-02",
-      "title": "PostgreSQL & Relational Design Assessment",
+      "title": "PostgreSQL & Database Design Technical Assessment",
       "passing_score": 75.0,
       "duration_minutes": 15,
       "questions": [
         {
-          "id": "q1",
-          "text": "What is the primary architectural purpose of Row Level Security (RLS) in PostgreSQL?",
+          "id": "pgd_q1",
+          "text": "What defines a relational database schema adhering strictly to Third Normal Form (3NF)?",
           "options": [
-            "Compressing table rows on disk to save storage",
-            "Restricting which rows a database user or session can select, update, or delete based on SQL policies",
-            "Creating read-only replicas across multiple geographical regions",
-            "Automatically converting JSON fields into B-Trees"
+            "Every column must be indexed and encrypted with AES-256",
+            "The table is in 2NF, and every non-key attribute is non-transitively dependent on the primary key (no transitive dependencies)",
+            "All data must be stored in a single denormalized wide table for maximum read performance",
+            "The table must contain at least two foreign keys and an auto-incrementing integer"
           ],
           "correct_index": 1,
-          "explanation": "RLS applies security filters directly in the database engine, preventing unauthorized row leakage regardless of application flaws."
+          "explanation": "3NF requires 2NF plus the rule that non-key columns must depend solely on the primary key ('the key, the whole key, and nothing but the key, so help me Codd'), eliminating transitive dependencies."
         },
         {
-          "id": "q2",
-          "text": "When establishing a relationship where each Job Listing requires multiple skills with custom weights, which relational pattern is ideal?",
+          "id": "pgd_q2",
+          "text": "When querying JSONB documents containing arrays in PostgreSQL, which index type provides optimal lookup performance for containment queries (@>)?",
           "options": [
-            "A single CSV column in the jobs table",
-            "A junction / associative table (job_required_skills) with foreign keys to jobs and skills",
-            "Duplicate job rows for every single skill",
-            "Store unindexed text blobs"
+            "B-Tree index",
+            "GIN (Generalized Inverted Index)",
+            "Hash index",
+            "BRIN (Block Range Index)"
           ],
           "correct_index": 1,
-          "explanation": "An associative table allows clean Many-to-Many mappings, relational integrity, indexing, and per-skill metadata such as weight."
+          "explanation": "GIN indexes decompose composite values (like JSONB keys, tags, or arrays) into individual elements, making them ideal for search and containment operators (@>, ?, ?&)."
         },
         {
-          "id": "q3",
-          "text": "What type of index is most effective in PostgreSQL for high-speed lookup on an exact UUID primary key?",
+          "id": "pgd_q3",
+          "text": "How does PostgreSQL's Multi-Version Concurrency Control (MVCC) ensure that read operations do not block write operations and vice-versa?",
           "options": [
-            "B-Tree index (default)",
-            "GIN full-text index",
-            "BRIN index",
-            "Spatial R-Tree index"
+            "By taking an exclusive table-level lock on every SELECT statement",
+            "By writing new versions of rows (tuples) with xmin/xmax transaction visibility IDs rather than overwriting existing data in-place",
+            "By serializing all client connections into a single FIFO queue",
+            "By storing uncommitted changes strictly in client browser cookies"
+          ],
+          "correct_index": 1,
+          "explanation": "Under MVCC, each transaction sees a consistent snapshot of data. Updates write a new tuple with the current transaction ID (xmin), while old tuples remain visible to earlier concurrent snapshots until vacuumed."
+        },
+        {
+          "id": "pgd_q4",
+          "text": "What is the critical distinction between running 'EXPLAIN' versus 'EXPLAIN ANALYZE' on a slow SQL query in PostgreSQL?",
+          "options": [
+            "'EXPLAIN' shows the planner's estimated cost without running the query, whereas 'EXPLAIN ANALYZE' executes the query to return actual execution times and row counts",
+            "'EXPLAIN ANALYZE' only checks syntax and does not access the database",
+            "'EXPLAIN' automatically rewrites your SQL query to add missing indexes",
+            "'EXPLAIN ANALYZE' is only supported on SQLite databases"
           ],
           "correct_index": 0,
-          "explanation": "B-Tree indexes provide logarithmic O(log N) lookups and are the default standard index for equality lookups."
+          "explanation": "'EXPLAIN' produces estimated costs generated by the query planner. 'EXPLAIN ANALYZE' actually runs the statement, displaying real millisecond timings, buffer hits, and actual rows processed."
         },
         {
-          "id": "q4",
-          "text": "What is the consequence of adding 'ON DELETE CASCADE' to a foreign key constraint from job_applications to candidates?",
+          "id": "pgd_q5",
+          "text": "Why should production PostgreSQL installations facing thousands of concurrent client connections use a connection pooler like PgBouncer?",
           "options": [
-            "Candidate deletion will fail if applications exist",
-            "Deleting the candidate profile automatically purges all related application records",
-            "The foreign key is converted into a loose pointer",
-            "Candidate records become anonymous"
+            "PostgreSQL lacks native support for TCP networking",
+            "PostgreSQL forks a dedicated OS process per client connection (~10MB+ RAM and context switching overhead), which can exhaust server resources without a pooler",
+            "PgBouncer automatically compiles SQL into C++ binaries for 10x faster execution",
+            "PgBouncer is required to enable foreign key constraints"
           ],
           "correct_index": 1,
-          "explanation": "ON DELETE CASCADE propagates the delete operation to dependent child rows automatically."
+          "explanation": "PostgreSQL's process-per-connection model incurs significant memory and CPU context-switching overhead; PgBouncer multiplexes thousands of incoming client requests into a small pool of warm server backends."
         }
       ]
     },
@@ -2654,6 +2724,420 @@
           "explanation": "Circuit Breakers trip open during downstream failure, avoiding cascading thread exhaustion."
         }
       ]
+    },
+    {
+      "id": "asm-ts",
+      "skill_id": "sk-ts",
+      "title": "TypeScript Static Typing & Generics Quiz",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "ts_q1",
+          "text": "What is the crucial type-safety difference between 'unknown' and 'any' in TypeScript?",
+          "options": [
+            "'unknown' is only allowed in interfaces, while 'any' is for classes",
+            "'unknown' forces you to perform type narrowing or assertion before operating on it, whereas 'any' disables type checking completely",
+            "'any' can only accept primitive types, while 'unknown' accepts objects",
+            "There is no difference in runtime or compiler behavior"
+          ],
+          "correct_index": 1,
+          "explanation": "'unknown' is the type-safe counterpart of 'any'; anything is assignable to 'unknown', but 'unknown' isn't assignable to anything else without type narrowing."
+        },
+        {
+          "id": "ts_q2",
+          "text": "What is a 'Discriminated Union' in TypeScript?",
+          "options": [
+            "A union type where each member shares a common literal property that TypeScript can use to narrow the type",
+            "A union that excludes null and undefined automatically",
+            "A feature reserved only for database models",
+            "A union type that only permits symbol keys"
+          ],
+          "correct_index": 0,
+          "explanation": "A discriminated union uses a shared discriminant property (e.g., kind: 'circle' | 'square') so switch statements or ifs can narrow down the exact variant."
+        },
+        {
+          "id": "ts_q3",
+          "text": "What does the 'keyof' type operator produce when applied to a type T?",
+          "options": [
+            "An array containing runtime property names",
+            "A string or numeric literal union of all known, public keys of T",
+            "The count of fields inside T",
+            "A boolean indicating if T has keys"
+          ],
+          "correct_index": 1,
+          "explanation": "The 'keyof' operator takes an object type and produces a string or numeric literal union of its keys (e.g. keyof { x: number; y: number } is 'x' | 'y')."
+        },
+        {
+          "id": "ts_q4",
+          "text": "In generic functions like 'function getProperty<T, K extends keyof T>(obj: T, key: K)', what does 'K extends keyof T' ensure?",
+          "options": [
+            "That K is a subtype of object",
+            "That key is guaranteed to be a valid existing property name on object obj",
+            "That obj is immutable",
+            "That the return value is a Promise"
+          ],
+          "correct_index": 1,
+          "explanation": "'K extends keyof T' constrains K to only valid keys of type T, preventing access to non-existent properties at compile time."
+        },
+        {
+          "id": "ts_q5",
+          "text": "What does the 'readonly' modifier do when placed on an interface property?",
+          "options": [
+            "Prevents the property from being reassigned after initial object creation",
+            "Encrypts the property in browser memory",
+            "Prevents the property from being serialized to JSON",
+            "Makes the property optional"
+          ],
+          "correct_index": 0,
+          "explanation": "Properties marked as readonly can only be assigned during initialization or construction; subsequent mutations cause compiler errors."
+        }
+      ]
+    },
+    {
+      "id": "asm-node",
+      "skill_id": "sk-node",
+      "title": "Node.js Architecture & Asynchronous Runtimes Quiz",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "node_q1",
+          "text": "When does 'process.nextTick(callback)' execute relative to the Node.js event loop?",
+          "options": [
+            "In the next iteration of the poll phase",
+            "Immediately after the current operation finishes, before the event loop advances to the next phase",
+            "After all setTimeout and setInterval callbacks execute",
+            "On a background worker thread"
+          ],
+          "correct_index": 1,
+          "explanation": "process.nextTick queue is processed immediately after the current operation finishes, resolving before the event loop transitions to any other phase."
+        },
+        {
+          "id": "node_q2",
+          "text": "Why are Node.js Streams preferable to 'fs.readFile' when handling large files?",
+          "options": [
+            "Streams encrypt file data on the fly",
+            "Streams process data chunk-by-chunk without loading the entire file into memory, preventing Out-Of-Memory crashes",
+            "Streams convert files directly to SQL queries",
+            "fs.readFile cannot read files larger than 10KB"
+          ],
+          "correct_index": 1,
+          "explanation": "Streams process data sequentially in small chunks (buffers), providing high memory efficiency and backpressure handling for massive payloads."
+        },
+        {
+          "id": "node_q3",
+          "text": "What is the primary role of the 'Buffer' class in Node.js?",
+          "options": [
+            "To format JSON responses for Express",
+            "To allocate raw binary memory outside the V8 heap for efficient I/O operations",
+            "To store user session cookies in browser cache",
+            "To speed up CSS styling"
+          ],
+          "correct_index": 1,
+          "explanation": "Buffer provides fixed-size, raw binary memory allocations outside the V8 JavaScript heap, essential for network protocols and file system operations."
+        },
+        {
+          "id": "node_q4",
+          "text": "What is the difference between the 'cluster' module and 'worker_threads' in Node.js?",
+          "options": [
+            "'cluster' spawns separate OS processes with isolated memory to scale across CPU cores; 'worker_threads' run in the same process sharing memory for CPU-intensive tasks",
+            "'cluster' is for frontend, 'worker_threads' is for backend",
+            "'worker_threads' cannot access memory",
+            "They are identical aliases"
+          ],
+          "correct_index": 0,
+          "explanation": "cluster forks independent processes sharing a server port (multi-process); worker_threads enables multi-threaded JavaScript within a single process."
+        },
+        {
+          "id": "node_q5",
+          "text": "What pattern is standard in Node.js for managing custom event subscribers and emitters?",
+          "options": [
+            "Observer pattern implemented via 'EventEmitter'",
+            "Redux store dispatching",
+            "MVC Controller routing",
+            "Two-way data binding"
+          ],
+          "correct_index": 0,
+          "explanation": "Node.js core relies heavily on the EventEmitter class (events module) to publish events and attach asynchronous listener handlers."
+        }
+      ]
+    },
+    {
+      "id": "asm-docker",
+      "skill_id": "sk-docker",
+      "title": "Docker Containerization & DevOps Quiz",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "dock_q1",
+          "text": "In a Dockerfile, what is the primary difference between 'CMD' and 'ENTRYPOINT'?",
+          "options": [
+            "'ENTRYPOINT' defines the default executable that always runs, while 'CMD' provides default arguments that can be easily overridden at runtime",
+            "'CMD' runs during 'docker build', while 'ENTRYPOINT' runs during 'docker run'",
+            "'CMD' is only used for Windows containers",
+            "There is no difference"
+          ],
+          "correct_index": 0,
+          "explanation": "ENTRYPOINT specifies the immutable command container executable; CMD provides default arguments that are easily replaced by command-line parameters."
+        },
+        {
+          "id": "dock_q2",
+          "text": "Why should you order Dockerfile instructions from least-frequently changed to most-frequently changed?",
+          "options": [
+            "To make the Dockerfile easier to read for coworkers",
+            "To maximize layer cache reuse and dramatically speed up build times",
+            "To decrease network latency of the container",
+            "Because Docker fails if package installs are listed first"
+          ],
+          "correct_index": 1,
+          "explanation": "Docker caches each instruction layer; placing invariant steps (e.g. system dependencies) first ensures modified application code doesn't invalidate earlier cached layers."
+        },
+        {
+          "id": "dock_q3",
+          "text": "What is the core advantage of Multi-Stage Docker builds?",
+          "options": [
+            "They allow running multiple web servers on one port",
+            "They drastically reduce final production image size by copying only build artifacts into a lean runtime base, excluding compilers and dev tools",
+            "They enable hot-reloading in production",
+            "They eliminate the need for Dockerfiles"
+          ],
+          "correct_index": 1,
+          "explanation": "Multi-stage builds use separate stages (e.g., builder and runner) so heavy SDKs and intermediate build tools aren't shipped in the lean final release image."
+        },
+        {
+          "id": "dock_q4",
+          "text": "How do Docker Named Volumes differ from Bind Mounts?",
+          "options": [
+            "Named Volumes are managed completely by Docker within the host storage engine and are isolated from host filesystem structure, whereas Bind Mounts map directly to host directory paths",
+            "Bind mounts cannot persist data when a container stops",
+            "Named volumes are slower than bind mounts",
+            "Volumes only work on Linux"
+          ],
+          "correct_index": 0,
+          "explanation": "Named volumes are managed natively by Docker under /var/lib/docker/volumes/, ensuring portability and security, while bind mounts tie to specific host directory paths."
+        },
+        {
+          "id": "dock_q5",
+          "text": "What is the default networking mode for containers launched on a single Docker host?",
+          "options": [
+            "Host network",
+            "Bridge network",
+            "Overlay network",
+            "None"
+          ],
+          "correct_index": 1,
+          "explanation": "The default is the bridge driver, creating a private internal network interface (docker0) that translates traffic via NAT to the host network."
+        }
+      ]
+    },
+    {
+      "id": "asm-pg",
+      "skill_id": "sk-pg",
+      "title": "PostgreSQL Advanced Architecture & Query Tuning Quiz",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "pg_q1",
+          "text": "How does PostgreSQL's Multi-Version Concurrency Control (MVCC) ensure high read/write concurrency?",
+          "options": [
+            "By acquiring exclusive table-level locks on every read",
+            "By keeping multiple row versions so readers never block writers and writers never block readers",
+            "By caching all tables in Redis RAM",
+            "By preventing concurrent transactions"
+          ],
+          "correct_index": 1,
+          "explanation": "MVCC uses transaction IDs (xmin/xmax) to present a consistent snapshot of data to each transaction, so reads don't lock writes and writes don't block reads."
+        },
+        {
+          "id": "pg_q2",
+          "text": "What is the performance advantage of using 'JSONB' over 'JSON' in PostgreSQL?",
+          "options": [
+            "JSONB validates syntax but discards data",
+            "JSONB parses text into decomposed binary format that supports indexing (e.g. GIN indexes) and fast lookup, whereas JSON stores raw textual representation",
+            "JSON is faster to query than JSONB",
+            "JSONB only supports numbers"
+          ],
+          "correct_index": 1,
+          "explanation": "JSONB is stored in a decomposed binary format which is slightly slower to insert but significantly faster to query and supports GIN indexing on nested keys."
+        },
+        {
+          "id": "pg_q3",
+          "text": "When should you use a Generalized Inverted Index (GIN) instead of a standard B-Tree index?",
+          "options": [
+            "For exact equality lookups on auto-increment integer IDs",
+            "When indexing composite elements containing multiple values, such as arrays, full-text search tsvectors, or JSONB keys",
+            "Only for primary keys",
+            "When table has fewer than 100 rows"
+          ],
+          "correct_index": 1,
+          "explanation": "GIN indexes map elements inside compound items (like words in documents or keys in JSONB/arrays) to the rows containing them, perfect for containment (@>) queries."
+        },
+        {
+          "id": "pg_q4",
+          "text": "What does 'EXPLAIN ANALYZE <query>' do in PostgreSQL?",
+          "options": [
+            "Only generates an estimated execution plan without running the query",
+            "Actually executes the query and reports both planner estimated costs and real-world execution times and row counts per plan node",
+            "Automatically optimizes and rewrites the query code",
+            "Rolls back the transaction immediately"
+          ],
+          "correct_index": 1,
+          "explanation": "EXPLAIN ANALYZE executes the SQL statement, allowing database engineers to compare the optimizer's estimated startup and total costs with actual measured execution times."
+        },
+        {
+          "id": "pg_q5",
+          "text": "Why is an external connection pooler like PgBouncer often recommended in production PostgreSQL setups?",
+          "options": [
+            "Because PostgreSQL forks a new OS process per connection, which consumes memory and limits scalability under hundreds of concurrent clients",
+            "Because PostgreSQL does not support TCP connections",
+            "To encrypt passwords in transit",
+            "To convert SQL to NoSQL"
+          ],
+          "correct_index": 0,
+          "explanation": "PostgreSQL uses a process-per-connection architecture where each client connection consumes significant RAM (~10MB+) and process overhead; poolers maintain a small pool of persistent backend connections."
+        }
+      ]
+    },
+    {
+      "id": "asm-python-fastapi",
+      "skill_id": "sk-python-fastapi",
+      "title": "Python & FastAPI Production Services Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "pyd_q1",
+          "text": "In FastAPI, how does declaring an endpoint handler with 'async def' differ from declaring it with standard synchronous 'def'?",
+          "options": [
+            "'async def' forces FastAPI to spin up a new OS thread per request, whereas 'def' uses a single thread",
+            "'async def' routes run directly on the event loop (must never block), whereas 'def' routes are dispatched to an external worker threadpool",
+            "'def' routes cannot use Pydantic models or dependency injection",
+            "'async def' disables CORS and request validation for higher performance"
+          ],
+          "correct_index": 1,
+          "explanation": "FastAPI executes 'async def' functions cooperatively on the main asyncio event loop, while standard 'def' functions are offloaded to an external AnyIO threadpool to prevent blocking the event loop."
+        },
+        {
+          "id": "pyd_q2",
+          "text": "What is the primary role of FastAPI's 'Depends()' dependency injection system?",
+          "options": [
+            "To automatically generate database migration scripts and ORM tables",
+            "To declare shared logic (auth, database sessions, query parameters) that FastAPI resolves hierarchically before executing the route handler",
+            "To inject JavaScript client-side bundles into HTML templates",
+            "To measure CPU and memory usage of individual HTTP endpoints"
+          ],
+          "correct_index": 1,
+          "explanation": "Depends() enables clean modular architectures where dependencies (such as auth token verification or database sessions) are instantiated, validated, and yield-cleaned automatically per request."
+        },
+        {
+          "id": "pyd_q3",
+          "text": "In Pydantic v2 / FastAPI, what is the recommended way to validate that a string field conforms to a valid email format?",
+          "options": [
+            "Use a regular expression directly inside every route handler with re.match()",
+            "Declare the field using Pydantic's EmailStr type",
+            "Cast the incoming payload to a Python dictionary and check for '@' manually",
+            "Enable the --verify-emails flag in the Uvicorn command line"
+          ],
+          "correct_index": 1,
+          "explanation": "Pydantic provides EmailStr (backed by email-validator), which automatically performs RFC-compliant email syntax validation during request parsing."
+        },
+        {
+          "id": "pyd_q4",
+          "text": "How should an asynchronous FastAPI service execute a lightweight task (like sending an email or audit logging) after returning the HTTP response?",
+          "options": [
+            "Use time.sleep() inside the route before the return statement",
+            "Add a parameter of type BackgroundTasks and call background_tasks.add_task(func, *args)",
+            "Fork a new child process with os.fork()",
+            "Block the client response with an infinite while loop"
+          ],
+          "correct_index": 1,
+          "explanation": "FastAPI's BackgroundTasks allows route handlers to schedule callables that run after the response has been sent to the client, preventing latency spikes for the caller."
+        },
+        {
+          "id": "pyd_q5",
+          "text": "When building high-throughput FastAPI services with async database drivers, why must you NEVER execute synchronous blocking I/O (e.g. requests.get or time.sleep)?",
+          "options": [
+            "FastAPI will throw a SyntaxError at compile time",
+            "Blocking the single event loop thread stops ALL concurrent async requests from being processed until the blocking call finishes",
+            "It permanently disables database connection pooling",
+            "It causes the ASGI server to drop SSL certificates"
+          ],
+          "correct_index": 1,
+          "explanation": "Because asyncio relies on cooperative multitasking on a single thread, any blocking synchronous call stops the entire event loop, freezing all concurrent requests."
+        }
+      ]
+    },
+    {
+      "id": "asm-postgresql-design",
+      "skill_id": "sk-postgres-design",
+      "title": "PostgreSQL & Database Design Technical Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "pgd_q1",
+          "text": "What defines a relational database schema adhering strictly to Third Normal Form (3NF)?",
+          "options": [
+            "Every column must be indexed and encrypted with AES-256",
+            "The table is in 2NF, and every non-key attribute is non-transitively dependent on the primary key (no transitive dependencies)",
+            "All data must be stored in a single denormalized wide table for maximum read performance",
+            "The table must contain at least two foreign keys and an auto-incrementing integer"
+          ],
+          "correct_index": 1,
+          "explanation": "3NF requires 2NF plus the rule that non-key columns must depend solely on the primary key ('the key, the whole key, and nothing but the key, so help me Codd'), eliminating transitive dependencies."
+        },
+        {
+          "id": "pgd_q2",
+          "text": "When querying JSONB documents containing arrays in PostgreSQL, which index type provides optimal lookup performance for containment queries (@>)?",
+          "options": [
+            "B-Tree index",
+            "GIN (Generalized Inverted Index)",
+            "Hash index",
+            "BRIN (Block Range Index)"
+          ],
+          "correct_index": 1,
+          "explanation": "GIN indexes decompose composite values (like JSONB keys, tags, or arrays) into individual elements, making them ideal for search and containment operators (@>, ?, ?&)."
+        },
+        {
+          "id": "pgd_q3",
+          "text": "How does PostgreSQL's Multi-Version Concurrency Control (MVCC) ensure that read operations do not block write operations and vice-versa?",
+          "options": [
+            "By taking an exclusive table-level lock on every SELECT statement",
+            "By writing new versions of rows (tuples) with xmin/xmax transaction visibility IDs rather than overwriting existing data in-place",
+            "By serializing all client connections into a single FIFO queue",
+            "By storing uncommitted changes strictly in client browser cookies"
+          ],
+          "correct_index": 1,
+          "explanation": "Under MVCC, each transaction sees a consistent snapshot of data. Updates write a new tuple with the current transaction ID (xmin), while old tuples remain visible to earlier concurrent snapshots until vacuumed."
+        },
+        {
+          "id": "pgd_q4",
+          "text": "What is the critical distinction between running 'EXPLAIN' versus 'EXPLAIN ANALYZE' on a slow SQL query in PostgreSQL?",
+          "options": [
+            "'EXPLAIN' shows the planner's estimated cost without running the query, whereas 'EXPLAIN ANALYZE' executes the query to return actual execution times and row counts",
+            "'EXPLAIN ANALYZE' only checks syntax and does not access the database",
+            "'EXPLAIN' automatically rewrites your SQL query to add missing indexes",
+            "'EXPLAIN ANALYZE' is only supported on SQLite databases"
+          ],
+          "correct_index": 0,
+          "explanation": "'EXPLAIN' produces estimated costs generated by the query planner. 'EXPLAIN ANALYZE' actually runs the statement, displaying real millisecond timings, buffer hits, and actual rows processed."
+        },
+        {
+          "id": "pgd_q5",
+          "text": "Why should production PostgreSQL installations facing thousands of concurrent client connections use a connection pooler like PgBouncer?",
+          "options": [
+            "PostgreSQL lacks native support for TCP networking",
+            "PostgreSQL forks a dedicated OS process per client connection (~10MB+ RAM and context switching overhead), which can exhaust server resources without a pooler",
+            "PgBouncer automatically compiles SQL into C++ binaries for 10x faster execution",
+            "PgBouncer is required to enable foreign key constraints"
+          ],
+          "correct_index": 1,
+          "explanation": "PostgreSQL's process-per-connection model incurs significant memory and CPU context-switching overhead; PgBouncer multiplexes thousands of incoming client requests into a small pool of warm server backends."
+        }
+      ]
     }
   ],
   "assessment_attempts": [
@@ -2714,6 +3198,116 @@
         "clean_session"
       ],
       "completed_at": "2026-10-11T12:19:56.962508+00:00"
+    },
+    {
+      "id": "att-ce38fd84",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T12:52:24.256375+00:00"
+    },
+    {
+      "id": "att-2f8ff504",
+      "candidate_id": "cand-01",
+      "assessment_id": "python-fastapi",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T12:52:24.311042+00:00"
+    },
+    {
+      "id": "att-ff4fa78c",
+      "candidate_id": "cand-01",
+      "assessment_id": "Python & FastAPI",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T12:52:24.359617+00:00"
+    },
+    {
+      "id": "att-51d720fb",
+      "candidate_id": "cand-01",
+      "assessment_id": "sk-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T12:52:24.412347+00:00"
+    },
+    {
+      "id": "att-0911f717",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:06.749612+00:00"
+    },
+    {
+      "id": "att-f143bcaf",
+      "candidate_id": "cand-01",
+      "assessment_id": "sk-python-fastapi",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:06.800688+00:00"
+    },
+    {
+      "id": "att-2a9cbd2a",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-python-fastapi",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:06.851362+00:00"
+    },
+    {
+      "id": "att-1eac9549",
+      "candidate_id": "cand-01",
+      "assessment_id": "python-fastapi",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:06.903950+00:00"
+    },
+    {
+      "id": "att-981bba18",
+      "candidate_id": "cand-01",
+      "assessment_id": "Python & FastAPI",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:06.954217+00:00"
+    },
+    {
+      "id": "att-d43c48d7",
+      "candidate_id": "cand-01",
+      "assessment_id": "sk-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T13:23:07.006773+00:00"
     }
   ],
   "jobs": [
@@ -4395,7 +4989,7 @@
       ]
     },
     {
-      "id": "job-833c25",
+      "id": "job-8a341e",
       "created_by": "hr-01",
       "company_name": "Acme Tech",
       "title": "Senior Full-Stack Engineer",
@@ -4406,15 +5000,15 @@
       "location": "Remote",
       "employment_type": "full-time",
       "status": "Active",
-      "created_at": "2026-10-21T12:06:22.665856+00:00",
+      "created_at": "2026-10-21T13:16:53.973971+00:00",
       "required_skills": [
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-python",
           "skill_name": "sk-python",
           "is_required": true,
           "weight": 2.0,
-          "id": "job_-49aac404",
+          "id": "job_-9d27e45d",
           "name": "sk-python",
           "skill": {
             "id": "sk-python",
@@ -4423,12 +5017,12 @@
           }
         },
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
           "is_required": true,
           "weight": 2.0,
-          "id": "job_-014b923b",
+          "id": "job_-28c3fb26",
           "name": "sk-sql",
           "skill": {
             "id": "sk-sql",
@@ -4437,12 +5031,12 @@
           }
         },
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-react",
           "skill_name": "sk-react",
           "is_required": false,
           "weight": 1.0,
-          "id": "job_-e328bcfd",
+          "id": "job_-9aa3bbcd",
           "name": "sk-react",
           "skill": {
             "id": "sk-react",
@@ -4453,12 +5047,12 @@
       ],
       "skills": [
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-python",
           "skill_name": "sk-python",
           "is_required": true,
           "weight": 2.0,
-          "id": "job_-49aac404",
+          "id": "job_-9d27e45d",
           "name": "sk-python",
           "skill": {
             "id": "sk-python",
@@ -4467,12 +5061,12 @@
           }
         },
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
           "is_required": true,
           "weight": 2.0,
-          "id": "job_-014b923b",
+          "id": "job_-28c3fb26",
           "name": "sk-sql",
           "skill": {
             "id": "sk-sql",
@@ -4481,12 +5075,114 @@
           }
         },
         {
-          "job_id": "job-833c25",
+          "job_id": "job-8a341e",
           "skill_id": "sk-react",
           "skill_name": "sk-react",
           "is_required": false,
           "weight": 1.0,
-          "id": "job_-e328bcfd",
+          "id": "job_-9aa3bbcd",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-497f03",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T13:22:36.388436+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-8478b887",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-6b2cd0ab",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-cf886e76",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-8478b887",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-6b2cd0ab",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-497f03",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-cf886e76",
           "name": "sk-react",
           "skill": {
             "id": "sk-react",
@@ -5131,28 +5827,52 @@
       "id": "job_-6dc8e7d3"
     },
     {
-      "job_id": "job-833c25",
+      "job_id": "job-8a341e",
       "skill_id": "sk-python",
       "skill_name": "sk-python",
       "is_required": true,
       "weight": 2.0,
-      "id": "job_-49aac404"
+      "id": "job_-9d27e45d"
     },
     {
-      "job_id": "job-833c25",
+      "job_id": "job-8a341e",
       "skill_id": "sk-sql",
       "skill_name": "sk-sql",
       "is_required": true,
       "weight": 2.0,
-      "id": "job_-014b923b"
+      "id": "job_-28c3fb26"
     },
     {
-      "job_id": "job-833c25",
+      "job_id": "job-8a341e",
       "skill_id": "sk-react",
       "skill_name": "sk-react",
       "is_required": false,
       "weight": 1.0,
-      "id": "job_-e328bcfd"
+      "id": "job_-9aa3bbcd"
+    },
+    {
+      "job_id": "job-497f03",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-8478b887"
+    },
+    {
+      "job_id": "job-497f03",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-6b2cd0ab"
+    },
+    {
+      "job_id": "job-497f03",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-cf886e76"
     }
   ],
   "job_applications": [
@@ -5319,15 +6039,27 @@
       "interview_date": null
     },
     {
-      "id": "app-4cff85",
-      "job_id": "job-833c25",
+      "id": "app-4ee618",
+      "job_id": "job-8a341e",
       "candidate_id": "test-cand-99",
       "status": "shortlisted",
       "notes": "Ready to interview",
       "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
       "match_score": 62.5,
-      "applied_at": "2026-10-21T12:06:22.783981+00:00",
-      "created_at": "2026-10-21T12:06:22.783981+00:00",
+      "applied_at": "2026-10-21T13:16:54.085393+00:00",
+      "created_at": "2026-10-21T13:16:54.085393+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-053589",
+      "job_id": "job-497f03",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T13:22:36.562393+00:00",
+      "created_at": "2026-10-21T13:22:36.562393+00:00",
       "interview_date": null
     }
   ],
@@ -6633,60 +7365,186 @@
       "timestamp": "2026-10-21T11:55:28.003915+00:00"
     },
     {
-      "id": "log-489f9aa0",
+      "id": "log-48e35dbc",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Backend Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T12:52:24.290507+00:00"
+    },
+    {
+      "id": "log-95ae60ce",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Backend Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T12:52:24.341160+00:00"
+    },
+    {
+      "id": "log-2f785498",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Backend Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T12:52:24.388175+00:00"
+    },
+    {
+      "id": "log-d19afea3",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Backend Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T12:52:24.436280+00:00"
+    },
+    {
+      "id": "log-31a75384",
       "event": "User Login",
       "user_id": "cand-01",
       "details": "User alexrivera logged in successfully",
-      "timestamp": "2026-10-21T12:06:22.388279+00:00"
+      "timestamp": "2026-10-21T13:16:53.767337+00:00"
     },
     {
-      "id": "log-08660de5",
+      "id": "log-f8c9e108",
       "event": "Account Registered",
-      "user_id": "foun-26564e",
-      "details": "User tester_f4c4dc registered as founder",
-      "timestamp": "2026-10-21T12:06:22.515993+00:00"
+      "user_id": "foun-35fdad",
+      "details": "User tester_289218 registered as founder",
+      "timestamp": "2026-10-21T13:16:53.862395+00:00"
     },
     {
-      "id": "log-5ca5b0dd",
+      "id": "log-e671dfc7",
       "event": "User Login",
-      "user_id": "foun-26564e",
-      "details": "User tester_f4c4dc logged in successfully",
-      "timestamp": "2026-10-21T12:06:22.582495+00:00"
+      "user_id": "foun-35fdad",
+      "details": "User tester_289218 logged in successfully",
+      "timestamp": "2026-10-21T13:16:53.925973+00:00"
     },
     {
-      "id": "log-99eb9755",
+      "id": "log-8300c8bc",
       "event": "Job Created",
       "user_id": "hr-01",
       "details": "Job Senior Full-Stack Engineer created for Acme Tech",
-      "timestamp": "2026-10-21T12:06:22.728759+00:00"
+      "timestamp": "2026-10-21T13:16:54.037935+00:00"
     },
     {
-      "id": "log-c41f40fc",
+      "id": "log-6f038aa1",
       "event": "Job Application",
       "user_id": "test-cand-99",
-      "details": "Candidate applied to Job job-833c25 with locked score 62.5%",
-      "timestamp": "2026-10-21T12:06:22.798087+00:00"
+      "details": "Candidate applied to Job job-8a341e with locked score 62.5%",
+      "timestamp": "2026-10-21T13:16:54.099398+00:00"
     },
     {
-      "id": "log-2a3a4aaf",
+      "id": "log-2d944c4a",
       "event": "Application Status Updated",
       "user_id": "test-cand-99",
-      "details": "Job job-833c25 application status set to shortlisted",
-      "timestamp": "2026-10-21T12:06:22.825539+00:00"
+      "details": "Job job-8a341e application status set to shortlisted",
+      "timestamp": "2026-10-21T13:16:54.132911+00:00"
     },
     {
-      "id": "log-d812dd13",
+      "id": "log-da437e96",
       "event": "Google Signup",
-      "user_id": "inve-f3e081",
+      "user_id": "inve-63a682",
       "details": "New user Google Innovator created via Google",
-      "timestamp": "2026-10-21T12:06:22.992130+00:00"
+      "timestamp": "2026-10-21T13:16:54.282517+00:00"
     },
     {
-      "id": "log-1cfaf02b",
+      "id": "log-fa63139d",
       "event": "Google Login",
-      "user_id": "inve-f3e081",
+      "user_id": "inve-63a682",
       "details": "User Google Innovator logged in via Google",
-      "timestamp": "2026-10-21T12:06:23.006410+00:00"
+      "timestamp": "2026-10-21T13:16:54.305719+00:00"
+    },
+    {
+      "id": "log-116f08f5",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T13:22:36.090276+00:00"
+    },
+    {
+      "id": "log-4d75ef1a",
+      "event": "Account Registered",
+      "user_id": "foun-070ed7",
+      "details": "User tester_0d5680 registered as founder",
+      "timestamp": "2026-10-21T13:22:36.222473+00:00"
+    },
+    {
+      "id": "log-2dde6377",
+      "event": "User Login",
+      "user_id": "foun-070ed7",
+      "details": "User tester_0d5680 logged in successfully",
+      "timestamp": "2026-10-21T13:22:36.327063+00:00"
+    },
+    {
+      "id": "log-a7cfd30c",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T13:22:36.479425+00:00"
+    },
+    {
+      "id": "log-ddb5c216",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-497f03 with locked score 62.5%",
+      "timestamp": "2026-10-21T13:22:36.578512+00:00"
+    },
+    {
+      "id": "log-038fefce",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-497f03 application status set to shortlisted",
+      "timestamp": "2026-10-21T13:22:36.619982+00:00"
+    },
+    {
+      "id": "log-cd7d023d",
+      "event": "Google Signup",
+      "user_id": "inve-be1a57",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T13:22:36.833584+00:00"
+    },
+    {
+      "id": "log-77bae7b5",
+      "event": "Google Login",
+      "user_id": "inve-be1a57",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T13:22:36.868273+00:00"
+    },
+    {
+      "id": "log-a5e63dc9",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:06.779916+00:00"
+    },
+    {
+      "id": "log-68f8248e",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:06.828520+00:00"
+    },
+    {
+      "id": "log-11891eda",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:06.883992+00:00"
+    },
+    {
+      "id": "log-b5ddae0b",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:06.932662+00:00"
+    },
+    {
+      "id": "log-3008b67a",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:06.981159+00:00"
+    },
+    {
+      "id": "log-e97c5de4",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T13:23:07.036789+00:00"
     }
   ],
   "match_results": [
@@ -6707,9 +7565,9 @@
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T12:52:24.422658+00:00"
         },
         {
           "skill_id": "sk-02",
@@ -10448,7 +11306,7 @@
     },
     {
       "candidate_id": "test-cand-99",
-      "job_id": "job-833c25",
+      "job_id": "job-8a341e",
       "score": 62.5,
       "match_score_percentage": 62.5,
       "mandatory_score_component": 37.5,
@@ -10468,7 +11326,7 @@
           "proficiency_level": "advanced",
           "candidate_assessment_score": 85.0,
           "is_verified": true,
-          "verified_at": "2026-10-21T12:06:22.617856+00:00"
+          "verified_at": "2026-10-21T13:16:53.942074+00:00"
         }
       ],
       "critical_skill_gaps": [
@@ -10504,7 +11362,7 @@
           "proficiency_level": "intermediate",
           "candidate_assessment_score": 80.0,
           "is_verified": true,
-          "verified_at": "2026-10-21T12:06:22.645708+00:00"
+          "verified_at": "2026-10-21T13:16:53.954869+00:00"
         }
       ],
       "missing_skills": [
@@ -10534,7 +11392,97 @@
       ],
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
-      "id": "matc-8de4873d"
+      "id": "matc-ee3ccc17"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-497f03",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T13:22:36.347343+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T13:22:36.367629+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-ec11bc7f"
     }
   ],
   "gemini_sessions": [

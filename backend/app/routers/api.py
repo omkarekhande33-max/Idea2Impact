@@ -299,15 +299,73 @@ def list_assessments(skill_id: Optional[str] = Query(None)):
         })
     return results
 
+ASSESSMENT_ALIASES = {
+    "sk-python-fastapi": "asm-01",
+    "asm-python-fastapi": "asm-01",
+    "python-fastapi": "asm-01",
+    "sk-postgres-design": "asm-02",
+    "asm-postgres-design": "asm-02",
+    "postgres-design": "asm-02",
+    "postgresql-database-design": "asm-02",
+    "sk-dist-sys": "asm-distributed-systems",
+    "dist-sys": "asm-distributed-systems",
+    "sk-docker-k8s": "asm-docker-kubernetes",
+    "docker-k8s": "asm-docker-kubernetes",
+    "sk-redis": "asm-redis-caching",
+    "sk-cloud-arch": "asm-cloud-architecture",
+    "cloud-arch": "asm-cloud-architecture",
+}
+
+def _resolve_assessment(assessment_id: str):
+    aid = assessment_id.lower().strip()
+    clean_aid = aid.replace("asm-", "").replace("sk-", "")
+
+    # Direct alias lookup
+    if aid in ASSESSMENT_ALIASES:
+        target_id = ASSESSMENT_ALIASES[aid]
+        asm = db.find_one("assessments", lambda a: a["id"] == target_id)
+        if asm:
+            return asm
+    if clean_aid in ASSESSMENT_ALIASES:
+        target_id = ASSESSMENT_ALIASES[clean_aid]
+        asm = db.find_one("assessments", lambda a: a["id"] == target_id)
+        if asm:
+            return asm
+
+    # 1. Exact match on id or skill_id
+    asm = db.find_one("assessments", lambda a: a["id"].lower() == aid or a["skill_id"].lower() == aid)
+    if asm:
+        return asm
+
+    # 2. Match without asm- / sk- prefix
+    asm = db.find_one("assessments", lambda a: a["id"].lower().replace("asm-", "") == clean_aid or a["skill_id"].lower().replace("sk-", "") == clean_aid)
+    if asm:
+        return asm
+
+    # 3. Match via skills table (id, slug, name)
+    skill = db.find_one("skills", lambda s: (
+        s["id"].lower() == aid or
+        s["id"].lower().replace("sk-", "") == clean_aid or
+        s.get("slug", "").lower() == aid or
+        s.get("slug", "").lower() == clean_aid or
+        aid in s["name"].lower() or
+        s["name"].lower() in aid or
+        clean_aid in s["name"].lower() or
+        clean_aid.replace("-", " ") in s["name"].lower() or
+        s["name"].lower() in clean_aid.replace("-", " ")
+    ))
+    if skill:
+        asm = db.find_one("assessments", lambda a: a["skill_id"] == skill["id"] or a["skill_id"].lower().replace("sk-", "") == skill["id"].lower().replace("sk-", ""))
+        if asm:
+            return asm
+
+    # 4. Partial title match on assessment
+    asm = db.find_one("assessments", lambda a: clean_aid in a["title"].lower() or aid in a["title"].lower())
+    return asm
+
 @router.get("/assessments/{assessment_id}")
 def get_assessment(assessment_id: str):
-    aid = assessment_id.lower().strip()
-    asm = db.find_one("assessments", lambda a: a["id"].lower() == aid or a["skill_id"].lower() == aid)
-    if not asm:
-        # Check matching skill slug
-        skill = db.find_one("skills", lambda s: s.get("slug", "").lower() == aid or s["id"].lower() == aid or aid in s["name"].lower())
-        if skill:
-            asm = db.find_one("assessments", lambda a: a["skill_id"] == skill["id"])
+    asm = _resolve_assessment(assessment_id)
     if not asm:
         raise HTTPException(status_code=404, detail="Assessment not found")
     
@@ -335,12 +393,7 @@ def get_assessment_by_skill(skill_id: str):
 
 @router.post("/assessments/{assessment_id}/attempts")
 def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
-    aid = assessment_id.lower().strip()
-    asm = db.find_one("assessments", lambda a: a["id"].lower() == aid or a["skill_id"].lower() == aid)
-    if not asm:
-        skill = db.find_one("skills", lambda s: s.get("slug", "").lower() == aid or s["id"].lower() == aid or aid in s["name"].lower())
-        if skill:
-            asm = db.find_one("assessments", lambda a: a["skill_id"] == skill["id"])
+    asm = _resolve_assessment(assessment_id)
     if not asm:
         raise HTTPException(status_code=404, detail="Assessment not found")
 
@@ -352,17 +405,36 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
     correct_count = 0
     feedback = []
 
-    for q in questions:
+    for idx, q in enumerate(questions):
         qid = q["id"]
-        chosen = payload.answers.get(qid)
+        chosen = None
+        # Flexible answer resolution:
+        # Check direct key, index key, prefixed key, or suffix key
+        if qid in payload.answers:
+            chosen = payload.answers[qid]
+        elif str(idx) in payload.answers:
+            chosen = payload.answers[str(idx)]
+        elif f"q{idx+1}" in payload.answers:
+            chosen = payload.answers[f"q{idx+1}"]
+        elif f"pyd_q{idx+1}" in payload.answers:
+            chosen = payload.answers[f"pyd_q{idx+1}"]
+        elif f"pg_q{idx+1}" in payload.answers or f"pgd_q{idx+1}" in payload.answers:
+            chosen = payload.answers.get(f"pg_q{idx+1}") or payload.answers.get(f"pgd_q{idx+1}")
+        else:
+            for ans_k, ans_v in payload.answers.items():
+                if ans_k.endswith(qid) or qid.endswith(ans_k):
+                    chosen = ans_v
+                    break
+
         correct = q.get("correct_index")
-        is_correct = (chosen == correct)
+        is_correct = (chosen is not None and chosen == correct)
         if is_correct:
             correct_count += 1
         feedback.append({
             "question_id": qid,
             "is_correct": is_correct,
             "correct_option": correct,
+            "chosen_option": chosen,
             "explanation": q.get("explanation", "")
         })
 
@@ -383,7 +455,7 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
     # If score >= 75%, mark skill as verified!
     skill_id = asm["skill_id"]
     if passed:
-        existing_skill = db.find_one("candidate_skills", lambda cs: cs["candidate_id"] == payload.candidate_id and cs["skill_id"] == skill_id)
+        existing_skill = db.find_one("candidate_skills", lambda cs: cs["candidate_id"] == payload.candidate_id and (cs["skill_id"] == skill_id or cs["skill_id"].lower() == skill_id.lower()))
         if existing_skill:
             db.update("candidate_skills", lambda cs: cs["id"] == existing_skill["id"] if "id" in existing_skill else (cs["candidate_id"] == payload.candidate_id and cs["skill_id"] == skill_id), {
                 "assessment_score": score,
@@ -403,12 +475,14 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
         db.log_audit("Skill Assessment Failed", payload.candidate_id, f"Candidate scored {score}% on {asm['title']} (Threshold: 75%).")
 
     skill_obj = db.find_one("skills", lambda s: s["id"] == skill_id)
-    skill_name = skill_obj["name"] if skill_obj else asm["title"].replace(" Technical Quiz", "")
+    skill_name = skill_obj["name"] if skill_obj else asm["title"].replace(" Technical Quiz", "").replace(" Assessment", "")
 
     return {
         "attempt_id": attempt["id"],
         "score": score,
         "passed": passed,
+        "correct_count": correct_count,
+        "total_count": total_q,
         "passing_threshold": asm.get("passing_score", 75.0),
         "feedback": feedback,
         "verified": passed,
