@@ -581,27 +581,154 @@ class ApiService {
       serverJobs = [];
     }
 
-    // Merge with any custom jobs saved to localStorage
+    const defaultJobs = [
+      { id: 'job-01', title: 'Senior AI Platform Engineer', company: 'NovaTech Systems', company_name: 'NovaTech Systems', location: 'Remote / San Francisco', salary_range: '$160,000 - $195,000', salary_min: 160000, salary_max: 195000, employment_type: 'Full-time', job_type: 'Full-time', match_score: 94, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.4 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.35 }, { skill_name: 'Cloud Deployment & Docker', is_required: false, weight: 0.25 }], status: 'Active' },
+      { id: 'job-02', title: 'Lead Full-Stack Architect', company: 'EcoTrace AI', company_name: 'EcoTrace AI', location: 'Hybrid / New York', salary_range: '$150,000 - $185,000', salary_min: 150000, salary_max: 185000, employment_type: 'Full-time', job_type: 'Full-time', match_score: 89, required_skills: [{ skill_name: 'Modern JavaScript & Frontend', is_required: true, weight: 0.5 }, { skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }], status: 'Active' },
+      { id: 'job-03', title: 'Backend Distributed Systems Engineer', company: 'Aether Cloud', company_name: 'Aether Cloud', location: 'Remote', salary_range: '$140,000 - $175,000', salary_min: 140000, salary_max: 175000, employment_type: 'Full-time', job_type: 'Full-time', match_score: 82, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.5 }], status: 'Active' }
+    ];
+
+    let localJobs = [];
     try {
       const localJobsRaw = localStorage.getItem('i2i_custom_jobs');
-      const localJobs = localJobsRaw ? JSON.parse(localJobsRaw) : [];
-      const jobMap = new Map();
-      [...localJobs, ...serverJobs].forEach(j => {
-        if (j && j.id && !jobMap.has(j.id)) {
+      localJobs = localJobsRaw ? JSON.parse(localJobsRaw) : [];
+    } catch (err) {
+      localJobs = [];
+    }
+
+    // Unified map: merge serverJobs and localJobs cleanly
+    const jobMap = new Map();
+
+    // 1. Add server jobs first (they contain authoritative backend match calculations)
+    if (Array.isArray(serverJobs)) {
+      serverJobs.forEach(j => {
+        if (j && j.id) {
+          j.company = j.company || j.company_name || 'Enterprise Partner';
+          j.company_name = j.company_name || j.company;
+          j.job_type = j.job_type || j.employment_type || 'Full-time';
+          j.employment_type = j.employment_type || j.job_type;
           j.required_skills = j.required_skills || j.skills || [];
           j.skills = j.skills || j.required_skills;
           jobMap.set(j.id, j);
         }
       });
-      const combined = Array.from(jobMap.values());
-      if (combined.length > 0) return combined;
-    } catch (err) {}
+    }
 
-    return serverJobs.length > 0 ? serverJobs : [
-      { id: 'job-01', title: 'Senior AI Platform Engineer', company: 'NovaTech', location: 'Remote / San Francisco', salary_range: '$160,000 - $195,000', match_score: 94, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.4 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.35 }, { skill_name: 'Cloud Deployment & Docker', is_required: false, weight: 0.25 }], status: 'Active' },
-      { id: 'job-02', title: 'Lead Full-Stack Architect', company: 'EcoTrace AI', location: 'Hybrid / New York', salary_range: '$150,000 - $185,000', match_score: 89, required_skills: [{ skill_name: 'Modern JavaScript & Frontend', is_required: true, weight: 0.5 }, { skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }], status: 'Active' },
-      { id: 'job-03', title: 'Backend Distributed Systems Engineer', company: 'Aether Cloud', location: 'Remote', salary_range: '$140,000 - $175,000', match_score: 82, required_skills: [{ skill_name: 'Python & FastAPI', is_required: true, weight: 0.5 }, { skill_name: 'PostgreSQL & Database Design', is_required: true, weight: 0.5 }], status: 'Active' }
-    ];
+    // 2. Merge local custom jobs (ensuring newly created HR jobs appear even if server is offline or lagging)
+    if (Array.isArray(localJobs)) {
+      localJobs.forEach(j => {
+        if (j && j.id) {
+          const existing = jobMap.get(j.id);
+          if (existing) {
+            // Keep server match if present, augment any fields
+            jobMap.set(j.id, {
+              ...j,
+              ...existing,
+              match: existing.match || j.match,
+              company: existing.company || j.company || j.company_name,
+              company_name: existing.company_name || j.company_name || j.company,
+              job_type: existing.job_type || j.job_type || j.employment_type || 'Full-time',
+              employment_type: existing.employment_type || j.employment_type || j.job_type || 'Full-time'
+            });
+          } else {
+            j.company = j.company || j.company_name || 'Enterprise Partner';
+            j.company_name = j.company_name || j.company;
+            j.job_type = j.job_type || j.employment_type || 'Full-time';
+            j.employment_type = j.employment_type || j.job_type;
+            j.required_skills = j.required_skills || j.skills || [];
+            j.skills = j.skills || j.required_skills;
+            jobMap.set(j.id, j);
+          }
+        }
+      });
+    }
+
+    // 3. Fallback defaults if no jobs exist
+    if (jobMap.size === 0) {
+      defaultJobs.forEach(j => jobMap.set(j.id, j));
+    }
+
+    const allJobs = Array.from(jobMap.values());
+
+    // 4. Ensure every job has an explainable 75/25 match object for the candidate
+    let verifiedSkillNames = new Set(['python & fastapi', 'postgresql & database design', 'modern javascript & frontend', 'c++', 'docker & kubernetes']);
+    try {
+      const vRaw = localStorage.getItem('i2i_verified_skills');
+      if (vRaw) {
+        const vList = JSON.parse(vRaw);
+        vList.forEach(s => {
+          const name = (s.name || s.skill_name || '').toLowerCase().trim();
+          if (name) verifiedSkillNames.add(name);
+        });
+      }
+    } catch (e) {}
+
+    allJobs.forEach(job => {
+      if (!job.match || typeof job.match.score === 'undefined') {
+        const reqSkills = (job.required_skills || []).map(s => {
+          if (typeof s === 'string') return { name: s, is_required: true, weight: 1.0 };
+          return {
+            name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Skill',
+            is_required: s.is_required !== false,
+            weight: Number(s.weight || 1.0)
+          };
+        });
+
+        const mandatory = reqSkills.filter(s => s.is_required);
+        const preferred = reqSkills.filter(s => !s.is_required);
+
+        const matchedMand = mandatory.filter(s => {
+          const sLower = s.name.toLowerCase();
+          return Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
+        });
+        const matchedPref = preferred.filter(s => {
+          const sLower = s.name.toLowerCase();
+          return Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
+        });
+
+        const mandRatio = mandatory.length > 0 ? (matchedMand.length / mandatory.length) : 1.0;
+        const prefRatio = preferred.length > 0 ? (matchedPref.length / preferred.length) : 1.0;
+
+        let calcScore = 0;
+        if (preferred.length > 0) {
+          calcScore = Math.round((mandRatio * 75) + (prefRatio * 25));
+        } else {
+          calcScore = Math.round(mandRatio * 100);
+        }
+
+        const missingSkills = reqSkills.filter(s => {
+          const sLower = s.name.toLowerCase();
+          return !Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
+        });
+
+        job.match = {
+          candidate_id: candidateId || 'cand-01',
+          job_id: job.id,
+          score: calcScore,
+          match_score_percentage: calcScore,
+          matched_skills: [...matchedMand, ...matchedPref].map(s => ({ skill_name: s.name, is_required: s.is_required })),
+          critical_skill_gaps: missingSkills.filter(s => s.is_required).map(s => ({ skill_name: s.name, is_required: true })),
+          bonus_competencies: matchedPref.map(s => ({ skill_name: s.name, is_required: false })),
+          missing_skills: missingSkills.map(s => ({ skill_name: s.name, is_required: s.is_required })),
+          learning_roadmap: missingSkills.map(s => ({
+            skill_name: s.name,
+            urgency: s.is_required ? 'High' : 'Bonus / Low',
+            suggested_resource: `Complete the ${s.name} specialized track & project labs.`,
+            practice_project: `Develop a testable feature implementing ${s.name} architecture.`,
+            assessment_cta: `Take the ${s.name} verification assessment to qualify.`
+          }))
+        };
+        job.match_score = calcScore;
+      }
+    });
+
+    // Sort newest first so HR's newly created job appears at the very top of Candidate feed!
+    allJobs.sort((a, b) => {
+      const da = new Date(a.created_at || 0).getTime();
+      const db = new Date(b.created_at || 0).getTime();
+      return db - da;
+    });
+
+    return allJobs;
   }
 
   async createJob(data) {
@@ -621,8 +748,17 @@ class ApiService {
     }
 
     if (created) {
-      created.required_skills = created.required_skills || data.required_skills || [];
+      created.company = created.company || created.company_name || data.company_name || 'Enterprise Partner';
+      created.company_name = created.company_name || created.company;
+      created.employment_type = created.employment_type || data.employment_type || 'Full-time';
+      created.job_type = created.job_type || created.employment_type;
+      created.salary_min = created.salary_min || data.salary_min || 120000;
+      created.salary_max = created.salary_max || data.salary_max || 160000;
+      created.salary_range = created.salary_range || `$${created.salary_min.toLocaleString()} - $${created.salary_max.toLocaleString()}`;
+      created.location = created.location || data.location || 'Remote / Hybrid';
+      created.required_skills = created.required_skills || data.required_skills || data.skills || [];
       created.skills = created.skills || created.required_skills;
+      created.is_new = true;
 
       // Persist to local custom jobs cache
       try {
@@ -631,6 +767,11 @@ class ApiService {
         const filtered = list.filter(j => j.id !== created.id);
         filtered.unshift(created);
         localStorage.setItem('i2i_custom_jobs', JSON.stringify(filtered));
+
+        // Dispatch instant cross-tab / cross-view sync event
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('i2i_jobs_updated', { detail: created }));
+        }
       } catch (err) {
         console.warn('Could not save custom job to localStorage', err);
       }
@@ -1286,14 +1427,70 @@ class ApiService {
   }
 
   async convertSharedRoleToJob(data) {
+    let res = null;
     try {
-      return await this.request('/hr/convert-request-to-job', {
+      res = await this.request('/hr/convert-request-to-job', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     } catch (e) {
-      return { success: true, message: "Role converted to job opening!" };
+      console.warn("Backend convertSharedRoleToJob error, building fallback job", e);
     }
+
+    let newJob = res?.job;
+    if (!newJob) {
+      try {
+        const reqs = JSON.parse(localStorage.getItem('i2i_shared_hiring_requests') || '[]');
+        const reqObj = reqs.find(r => r.id === data.request_id);
+        const roles = reqObj?.roles || [];
+        const role = roles[data.role_index || 0] || {};
+        newJob = {
+          id: `job-${Date.now().toString(36)}`,
+          created_by: data.hr_id || 'hr-01',
+          company_name: reqObj?.idea_title || "Venture Startup",
+          company: reqObj?.idea_title || "Venture Startup",
+          title: role.title || "Founding Engineer",
+          description: Array.isArray(role.responsibilities) ? role.responsibilities.join('\n') : (role.responsibilities || "Deliver core architecture"),
+          experience_level: role.experience_level || "Senior (4+ years)",
+          salary_min: 120000,
+          salary_max: 175000,
+          salary_range: "$120,000 - $175,000",
+          location: "Remote / Hybrid",
+          employment_type: "Full-time",
+          job_type: "Full-time",
+          status: "Active",
+          created_at: new Date().toISOString(),
+          is_new: true,
+          required_skills: [
+            ...(role.required_skills || []).map(s => ({ skill_name: s.name || s, name: s.name || s, is_required: true, weight: s.weight || 0.4 })),
+            ...(role.preferred_skills || []).map(s => ({ skill_name: s.name || s, name: s.name || s, is_required: false, weight: s.weight || 0.25 }))
+          ]
+        };
+      } catch (err) {}
+    }
+
+    if (newJob) {
+      newJob.is_new = true;
+      newJob.company = newJob.company || newJob.company_name;
+      newJob.company_name = newJob.company_name || newJob.company;
+      newJob.job_type = newJob.job_type || newJob.employment_type || 'Full-time';
+      newJob.employment_type = newJob.employment_type || newJob.job_type;
+      newJob.salary_range = newJob.salary_range || (newJob.salary_min ? `$${newJob.salary_min.toLocaleString()} - $${newJob.salary_max.toLocaleString()}` : "$120,000 - $175,000");
+
+      try {
+        const raw = localStorage.getItem('i2i_custom_jobs');
+        const list = raw ? JSON.parse(raw) : [];
+        const filtered = list.filter(j => j.id !== newJob.id);
+        filtered.unshift(newJob);
+        localStorage.setItem('i2i_custom_jobs', JSON.stringify(filtered));
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('i2i_jobs_updated', { detail: newJob }));
+        }
+      } catch (e) {}
+    }
+
+    return res || { success: true, message: "Role converted to active job opening!", job: newJob };
   }
 
   async shareToInvestor(data) {

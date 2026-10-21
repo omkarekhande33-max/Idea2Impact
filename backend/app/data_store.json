@@ -1332,7 +1332,7 @@
       "skill_id": "sk-01",
       "assessment_score": 100.0,
       "is_verified": true,
-      "verified_at": "2026-10-21T13:23:07.023241+00:00"
+      "verified_at": "2026-10-21T15:17:55.686818+00:00"
     },
     {
       "candidate_id": "cand-01",
@@ -3308,6 +3308,17 @@
         "clean_session"
       ],
       "completed_at": "2026-10-21T13:23:07.006773+00:00"
+    },
+    {
+      "id": "att-4c328f7f",
+      "candidate_id": "cand-01",
+      "assessment_id": "asm-01",
+      "score": 100.0,
+      "passed": true,
+      "flags": [
+        "clean_session"
+      ],
+      "completed_at": "2026-10-21T15:17:55.668416+00:00"
     }
   ],
   "jobs": [
@@ -5191,6 +5202,671 @@
           }
         }
       ]
+    },
+    {
+      "id": "job-fa7afd",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "title": "Senior DevOps & Reliability Engineer (Live Test)",
+      "description": "Responsible for managing scalable Kubernetes clusters and CI/CD pipelines.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 140000,
+      "salary_max": 185000,
+      "location": "San Francisco, CA / Hybrid",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T16:58:05.808082+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-fa7afd",
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-33f3c8c1",
+          "name": "Cloud Deployment & Docker",
+          "skill": {
+            "id": "sk-05",
+            "name": "Cloud Deployment & Docker",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-fa7afd",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-c0725bc5",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-fa7afd",
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-33f3c8c1",
+          "name": "Cloud Deployment & Docker",
+          "skill": {
+            "id": "sk-05",
+            "name": "Cloud Deployment & Docker",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-fa7afd",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-c0725bc5",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-25fae1",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "title": "Principal Distributed Architecture Lead",
+      "description": "Lead end-to-end distributed system resiliency, FastAPI microservices, and database clustering.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 155000,
+      "salary_max": 210000,
+      "location": "San Francisco, CA / Hybrid",
+      "employment_type": "Full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T17:13:27.256896+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-25fae1",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-e5fc8a03",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25fae1",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-b2ae8829",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-25fae1",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-e5fc8a03",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25fae1",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-b2ae8829",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-116db6",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "company": "NovaTech Systems",
+      "title": "Principal Distributed Architecture Lead",
+      "description": "Lead end-to-end distributed system resiliency, FastAPI microservices, and database clustering.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 155000,
+      "salary_max": 210000,
+      "salary_range": "$155,000 - $210,000",
+      "location": "San Francisco, CA / Hybrid",
+      "employment_type": "Full-time",
+      "job_type": "Full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T17:19:26.213831+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-116db6",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-6d05da8d",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-116db6",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-96ba3a9c",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-116db6",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-6d05da8d",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-116db6",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-96ba3a9c",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ],
+      "match": {
+        "candidate_id": "cand-01",
+        "job_id": "job-116db6",
+        "score": 100.0,
+        "match_score_percentage": 100.0,
+        "mandatory_score_component": 75.0,
+        "preferred_score_component": 25.0,
+        "matched_skills": [
+          {
+            "skill_id": "sk-01",
+            "skill_name": "Python & FastAPI",
+            "skill": {
+              "id": "sk-01",
+              "name": "Python & FastAPI",
+              "category": "Backend & Systems"
+            },
+            "category": "Backend & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 100.0,
+            "is_verified": true,
+            "verified_at": "2026-10-21T15:17:55.686818+00:00"
+          }
+        ],
+        "critical_skill_gaps": [],
+        "bonus_competencies": [
+          {
+            "skill_id": "sk-02",
+            "skill_name": "PostgreSQL & Database Design",
+            "skill": {
+              "id": "sk-02",
+              "name": "PostgreSQL & Database Design",
+              "category": "Databases & Tools"
+            },
+            "category": "Databases & Tools",
+            "is_required": false,
+            "weight": 0.25,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 88.0,
+            "is_verified": true,
+            "verified_at": "2026-02-15T10:15:00Z"
+          }
+        ],
+        "missing_skills": [],
+        "missing_preferred_skills": [],
+        "matched_count": 1,
+        "total_required_count": 1,
+        "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+        "formula_breakdown": "75% Mandatory + 25% Preferred",
+        "learning_roadmap": [],
+        "is_strong_fit": true,
+        "algorithm_version": "v4.2-dual-tier-75-25",
+        "id": "matc-31e45d28"
+      }
+    },
+    {
+      "id": "job-12cf0e",
+      "created_by": "hr-01",
+      "company_name": "PulseAI Diagnostic",
+      "title": "Lead Clinical AI & Biomedical Data Scientist",
+      "description": "Train and validate clinically grounded NLP models on anonymized health records.\nEnsure HIPAA and FDA software as medical device (SaMD) algorithmic rigor.\nCollaborate with advisory physicians on sensitivity and specificity benchmarks.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 100000,
+      "salary_max": 160000,
+      "location": "Remote / Hybrid",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T17:20:02.874504+00:00"
+    },
+    {
+      "id": "job-f95fd7",
+      "created_by": "hr-01",
+      "company_name": "PulseAI Diagnostic",
+      "title": "Lead Clinical AI & Biomedical Data Scientist",
+      "description": "Train and validate clinically grounded NLP models on anonymized health records.\nEnsure HIPAA and FDA software as medical device (SaMD) algorithmic rigor.\nCollaborate with advisory physicians on sensitivity and specificity benchmarks.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 100000,
+      "salary_max": 160000,
+      "location": "Remote / Hybrid",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T17:21:40.667577+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "is_required": true,
+          "weight": 0.45,
+          "id": "job_-65403981",
+          "name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.35,
+          "id": "job_-5128f4de",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": true,
+          "weight": 0.2,
+          "id": "job_-c0665762",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-0a605f9b",
+          "name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "is_required": true,
+          "weight": 0.45,
+          "id": "job_-65403981",
+          "name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.35,
+          "id": "job_-5128f4de",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": true,
+          "weight": 0.2,
+          "id": "job_-c0665762",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-f95fd7",
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-0a605f9b",
+          "name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Technical"
+          }
+        }
+      ],
+      "company": "PulseAI Diagnostic",
+      "job_type": "full-time",
+      "salary_range": "$100,000 - $160,000",
+      "match": {
+        "candidate_id": "cand-01",
+        "job_id": "job-f95fd7",
+        "score": 66.2,
+        "match_score_percentage": 66.2,
+        "mandatory_score_component": 41.2,
+        "preferred_score_component": 25.0,
+        "matched_skills": [
+          {
+            "skill_id": "sk-01",
+            "skill_name": "Python & FastAPI",
+            "skill": {
+              "id": "sk-01",
+              "name": "Python & FastAPI",
+              "category": "Backend & Systems"
+            },
+            "category": "Backend & Systems",
+            "is_required": true,
+            "weight": 0.35,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 100.0,
+            "is_verified": true,
+            "verified_at": "2026-10-21T15:17:55.686818+00:00"
+          },
+          {
+            "skill_id": "sk-02",
+            "skill_name": "PostgreSQL & Database Design",
+            "skill": {
+              "id": "sk-02",
+              "name": "PostgreSQL & Database Design",
+              "category": "Databases & Tools"
+            },
+            "category": "Databases & Tools",
+            "is_required": true,
+            "weight": 0.2,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 88.0,
+            "is_verified": true,
+            "verified_at": "2026-02-15T10:15:00Z"
+          }
+        ],
+        "critical_skill_gaps": [
+          {
+            "skill_id": "sk-04",
+            "skill_name": "AI & LLM Integration",
+            "skill": {
+              "id": "sk-04",
+              "name": "AI & LLM Integration",
+              "category": "AI / ML"
+            },
+            "category": "AI / ML",
+            "is_required": true,
+            "weight": 0.45,
+            "proficiency_level": "none",
+            "candidate_assessment_score": 0.0,
+            "is_verified": false,
+            "verified_at": null
+          }
+        ],
+        "bonus_competencies": [
+          {
+            "skill_id": "sk-06",
+            "skill_name": "System Architecture & Security",
+            "skill": {
+              "id": "sk-06",
+              "name": "System Architecture & Security",
+              "category": "Architecture"
+            },
+            "category": "Architecture",
+            "is_required": false,
+            "weight": 1.0,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 94.0,
+            "is_verified": true,
+            "verified_at": "2026-02-17T16:00:00Z"
+          }
+        ],
+        "missing_skills": [
+          {
+            "skill_id": "sk-04",
+            "skill_name": "AI & LLM Integration",
+            "category": "AI / ML",
+            "is_required": true,
+            "weight": 0.45,
+            "status": "Not Verified"
+          }
+        ],
+        "missing_preferred_skills": [],
+        "matched_count": 2,
+        "total_required_count": 3,
+        "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+        "formula_breakdown": "75% Mandatory + 25% Preferred",
+        "learning_roadmap": [
+          {
+            "skill_name": "AI & LLM Integration",
+            "urgency": "High",
+            "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+            "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+            "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+            "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+          }
+        ],
+        "is_strong_fit": false,
+        "algorithm_version": "v4.2-dual-tier-75-25",
+        "id": "matc-fb254a84"
+      }
+    },
+    {
+      "id": "job-fa2355",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "company": "NovaTech Systems",
+      "title": "Principal Distributed Architecture Lead",
+      "description": "Lead end-to-end distributed system resiliency, FastAPI microservices, and database clustering.",
+      "experience_level": "Senior (4+ years)",
+      "salary_min": 155000,
+      "salary_max": 210000,
+      "salary_range": "$155,000 - $210,000",
+      "location": "San Francisco, CA / Hybrid",
+      "employment_type": "Full-time",
+      "job_type": "Full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T17:21:53.245924+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-fa2355",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-62ffe605",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-fa2355",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-02b5e9e0",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-fa2355",
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-62ffe605",
+          "name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-fa2355",
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "is_required": false,
+          "weight": 0.25,
+          "id": "job_-02b5e9e0",
+          "name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Technical"
+          }
+        }
+      ],
+      "match": {
+        "candidate_id": "cand-01",
+        "job_id": "job-fa2355",
+        "score": 100.0,
+        "match_score_percentage": 100.0,
+        "mandatory_score_component": 75.0,
+        "preferred_score_component": 25.0,
+        "matched_skills": [
+          {
+            "skill_id": "sk-01",
+            "skill_name": "Python & FastAPI",
+            "skill": {
+              "id": "sk-01",
+              "name": "Python & FastAPI",
+              "category": "Backend & Systems"
+            },
+            "category": "Backend & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 100.0,
+            "is_verified": true,
+            "verified_at": "2026-10-21T15:17:55.686818+00:00"
+          }
+        ],
+        "critical_skill_gaps": [],
+        "bonus_competencies": [
+          {
+            "skill_id": "sk-02",
+            "skill_name": "PostgreSQL & Database Design",
+            "skill": {
+              "id": "sk-02",
+              "name": "PostgreSQL & Database Design",
+              "category": "Databases & Tools"
+            },
+            "category": "Databases & Tools",
+            "is_required": false,
+            "weight": 0.25,
+            "proficiency_level": "intermediate",
+            "candidate_assessment_score": 88.0,
+            "is_verified": true,
+            "verified_at": "2026-02-15T10:15:00Z"
+          }
+        ],
+        "missing_skills": [],
+        "missing_preferred_skills": [],
+        "matched_count": 1,
+        "total_required_count": 1,
+        "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+        "formula_breakdown": "75% Mandatory + 25% Preferred",
+        "learning_roadmap": [],
+        "is_strong_fit": true,
+        "algorithm_version": "v4.2-dual-tier-75-25",
+        "id": "matc-586e00b7"
+      }
     }
   ],
   "job_required_skills": [
@@ -5873,6 +6549,102 @@
       "is_required": false,
       "weight": 1.0,
       "id": "job_-cf886e76"
+    },
+    {
+      "job_id": "job-fa7afd",
+      "skill_id": "sk-05",
+      "skill_name": "Cloud Deployment & Docker",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-33f3c8c1"
+    },
+    {
+      "job_id": "job-fa7afd",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "is_required": false,
+      "weight": 0.25,
+      "id": "job_-c0725bc5"
+    },
+    {
+      "job_id": "job-25fae1",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-e5fc8a03"
+    },
+    {
+      "job_id": "job-25fae1",
+      "skill_id": "sk-02",
+      "skill_name": "PostgreSQL & Database Design",
+      "is_required": false,
+      "weight": 0.25,
+      "id": "job_-b2ae8829"
+    },
+    {
+      "job_id": "job-116db6",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-6d05da8d"
+    },
+    {
+      "job_id": "job-116db6",
+      "skill_id": "sk-02",
+      "skill_name": "PostgreSQL & Database Design",
+      "is_required": false,
+      "weight": 0.25,
+      "id": "job_-96ba3a9c"
+    },
+    {
+      "job_id": "job-f95fd7",
+      "skill_id": "sk-04",
+      "skill_name": "AI & LLM Integration",
+      "is_required": true,
+      "weight": 0.45,
+      "id": "job_-65403981"
+    },
+    {
+      "job_id": "job-f95fd7",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "is_required": true,
+      "weight": 0.35,
+      "id": "job_-5128f4de"
+    },
+    {
+      "job_id": "job-f95fd7",
+      "skill_id": "sk-02",
+      "skill_name": "PostgreSQL & Database Design",
+      "is_required": true,
+      "weight": 0.2,
+      "id": "job_-c0665762"
+    },
+    {
+      "job_id": "job-f95fd7",
+      "skill_id": "sk-06",
+      "skill_name": "System Architecture & Security",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-0a605f9b"
+    },
+    {
+      "job_id": "job-fa2355",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-62ffe605"
+    },
+    {
+      "job_id": "job-fa2355",
+      "skill_id": "sk-02",
+      "skill_name": "PostgreSQL & Database Design",
+      "is_required": false,
+      "weight": 0.25,
+      "id": "job_-02b5e9e0"
     }
   ],
   "job_applications": [
@@ -7545,6 +8317,48 @@
       "user_id": "cand-01",
       "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
       "timestamp": "2026-10-21T13:23:07.036789+00:00"
+    },
+    {
+      "id": "log-495f16e1",
+      "event": "Skill Verified",
+      "user_id": "cand-01",
+      "details": "Candidate passed Python & FastAPI Production Services Assessment with 100.0%. Badge granted.",
+      "timestamp": "2026-10-21T15:17:55.705145+00:00"
+    },
+    {
+      "id": "log-3f1ab216",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior DevOps & Reliability Engineer (Live Test) created for NovaTech Systems",
+      "timestamp": "2026-10-21T16:58:05.870336+00:00"
+    },
+    {
+      "id": "log-a5abf844",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Principal Distributed Architecture Lead created for NovaTech Systems",
+      "timestamp": "2026-10-21T17:13:27.319448+00:00"
+    },
+    {
+      "id": "log-9395929e",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Principal Distributed Architecture Lead created for NovaTech Systems",
+      "timestamp": "2026-10-21T17:19:26.394496+00:00"
+    },
+    {
+      "id": "log-b971cc93",
+      "event": "Role Converted to Job",
+      "user_id": "hr-01",
+      "details": "Converted 'Lead Clinical AI & Biomedical Data Scientist' into active job opening",
+      "timestamp": "2026-10-21T17:21:40.930211+00:00"
+    },
+    {
+      "id": "log-37d1ccf7",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Principal Distributed Architecture Lead created for NovaTech Systems",
+      "timestamp": "2026-10-21T17:21:53.438473+00:00"
     }
   ],
   "match_results": [
@@ -7567,7 +8381,7 @@
           "proficiency_level": "intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-10-21T12:52:24.422658+00:00"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         },
         {
           "skill_id": "sk-02",
@@ -7734,15 +8548,15 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         },
         {
           "skill_id": "sk-05",
@@ -7851,15 +8665,15 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": false,
           "weight": 0.4,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "missing_preferred_skills": [],
@@ -8061,9 +8875,9 @@
           "is_required": true,
           "weight": 2.0,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "critical_skill_gaps": [
@@ -8167,9 +8981,9 @@
           "is_required": true,
           "weight": 2.0,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "critical_skill_gaps": [
@@ -8710,15 +9524,15 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 25.0,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         },
         {
           "skill_id": "sk-02",
@@ -8726,9 +9540,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 25.0,
           "proficiency_level": "intermediate",
@@ -8776,9 +9590,9 @@
           "skill": {
             "id": "sk-1aed70",
             "name": "Distributed Systems",
-            "category": "Technical"
+            "category": "General"
           },
-          "category": "Technical",
+          "category": "General",
           "is_required": true,
           "weight": 25.0,
           "proficiency_level": "none",
@@ -8792,7 +9606,7 @@
         {
           "skill_id": "sk-1aed70",
           "skill_name": "Distributed Systems",
-          "category": "Technical",
+          "category": "General",
           "is_required": true,
           "weight": 25.0,
           "status": "Not Verified"
@@ -9537,15 +10351,15 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.375,
           "proficiency_level": "intermediate",
-          "candidate_assessment_score": 92.0,
+          "candidate_assessment_score": 100.0,
           "is_verified": true,
-          "verified_at": "2026-02-14T15:20:00Z"
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
         },
         {
           "skill_id": "sk-02",
@@ -9553,9 +10367,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.375,
           "proficiency_level": "intermediate",
@@ -11483,6 +12297,2572 @@
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-ec11bc7f"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-497f03",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-89e12cca"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-8a341e",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-f5039e12"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-05e10c",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-1eac3e67"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-8474cf",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-e9d8f14e"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-8ebe95",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-bb0be7ce"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-109dcf",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-fd70756a"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-25bcdf",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-3f4ebd71"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-ad840f",
+      "score": 66.2,
+      "match_score_percentage": 66.2,
+      "mandatory_score_component": 41.2,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-de8884bd"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-6e8155",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-6cfca189"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-d13268",
+      "score": 73.8,
+      "match_score_percentage": 73.8,
+      "mandatory_score_component": 48.8,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.4,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "skill": {
+            "id": "sk-05",
+            "name": "Cloud Deployment & Docker",
+            "category": "DevOps"
+          },
+          "category": "DevOps",
+          "is_required": false,
+          "weight": 0.6,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 90.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 0.4,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.35,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.65 of 1.0 weighted points), yielding a 73.8% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: Cloud Deployment & Docker, System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-9d000456"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-967e0b",
+      "score": 66.2,
+      "match_score_percentage": 66.2,
+      "mandatory_score_component": 41.2,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-21796d38"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-9f9d50",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-56a3881d"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-ba5219",
+      "score": 66.2,
+      "match_score_percentage": 66.2,
+      "mandatory_score_component": 41.2,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-f825de40"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-1cd069",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-acac0858"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-a13c28",
+      "score": 66.2,
+      "match_score_percentage": 66.2,
+      "mandatory_score_component": 41.2,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-8f4ba0ee"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-fe469e",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-efa8b5e6"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-95d198",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-41a0c34d"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-ab5e64",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "sk-react",
+          "category": "Languages",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-c",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-c",
+            "name": "sk-react",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-b86a767d"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-a7f7bf",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "sk-react",
+          "category": "Languages",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-c",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-c",
+            "name": "sk-react",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-python",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
+          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-python"
+        },
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        },
+        {
+          "skill_name": "sk-react",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore sk-react concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add sk-react integration into your existing projects.",
+          "assessment_cta": "Verify sk-react for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=sk-react"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-95e7cc36"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-fa7afd",
+      "score": 100.0,
+      "match_score_percentage": 100.0,
+      "mandatory_score_component": 75.0,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "skill": {
+            "id": "sk-05",
+            "name": "Cloud Deployment & Docker",
+            "category": "DevOps"
+          },
+          "category": "DevOps",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 90.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "critical_skill_gaps": [],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": false,
+          "weight": 0.25,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "missing_skills": [],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: Python & FastAPI.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-dd88ae04"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-25fae1",
+      "score": 100.0,
+      "match_score_percentage": 100.0,
+      "mandatory_score_component": 75.0,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "missing_skills": [],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-0a789c1e"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-116db6",
+      "score": 100.0,
+      "match_score_percentage": 100.0,
+      "mandatory_score_component": 75.0,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "missing_skills": [],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-31e45d28"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-f95fd7",
+      "score": 66.2,
+      "match_score_percentage": 66.2,
+      "mandatory_score_component": 41.2,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "skill": {
+            "id": "sk-06",
+            "name": "System Architecture & Security",
+            "category": "Architecture"
+          },
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 94.0,
+          "is_verified": true,
+          "verified_at": "2026-02-17T16:00:00Z"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "AI & LLM Integration",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified AI & LLM Integration interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
+          "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-fb254a84"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-fa2355",
+      "score": 100.0,
+      "match_score_percentage": 100.0,
+      "mandatory_score_component": 75.0,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-02-15T10:15:00Z"
+        }
+      ],
+      "missing_skills": [],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [],
+      "is_strong_fit": true,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-586e00b7"
     }
   ],
   "gemini_sessions": [

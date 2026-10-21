@@ -1571,32 +1571,85 @@ class App {
         <!-- Filter Search Bar (Matches Image 2) -->
         <div class="sb-feed-search-wrapper">
           <span class="sb-feed-search-icon">🔍</span>
-          <input type="text" id="candidate-job-search-input" class="sb-feed-search-box" placeholder="Filter by title, location, or stack..." />
+          <input type="text" id="candidate-job-search-input" class="sb-feed-search-box" placeholder="Filter by title, company, location, or stack (e.g. Python, Docker, React)..." />
         </div>
 
         <div id="candidate-jobs-feed-list" style="display:flex; flex-direction:column; gap:1rem;">
-          ${jobs.map(job => {
+          ${jobs.length === 0 ? `
+            <div class="card" style="text-align:center; padding:3.5rem 1.5rem; border:2px dashed #CBD5E1; background:#F8FAFC;">
+              <div style="font-size:2.5rem; margin-bottom:0.5rem;">💼</div>
+              <h3 style="font-size:1.15rem; font-weight:700; color:#1E293B; margin:0 0 0.4rem;">No Active Job Requisitions</h3>
+              <p style="color:#64748B; font-size:0.85rem; margin:0 0 1rem;">When HR or Founders publish a job opening, it will immediately appear here with your personalized match score.</p>
+              <button class="btn btn-outline btn-sm" onclick="window.location.reload()">🔄 Refresh Feed</button>
+            </div>
+          ` : jobs.map(job => {
             const m = job.match;
-            const score = m ? m.score : (job.match_score || 0);
+            const score = Math.round(m ? (m.score || m.match_score_percentage || 0) : (job.match_score || 0));
+            const isHighFit = score >= 75;
+            const isMediumFit = score >= 50 && score < 75;
+            const companyName = job.company_name || job.company || 'Enterprise Partner';
+            const location = job.location || 'Remote / Hybrid';
+            const employmentType = job.employment_type || job.job_type || 'Full-time';
+            const salaryText = job.salary_range || (job.salary_min ? `$${Number(job.salary_min).toLocaleString()} - $${Number(job.salary_max).toLocaleString()}` : null);
+            
+            // Check if job is newly posted (flagged or created within last 48 hours)
+            const createdMs = job.created_at ? new Date(job.created_at).getTime() : 0;
+            const isNew = Boolean(job.is_new || (createdMs > 0 && (Date.now() - createdMs) < 172800000));
+
+            // Extract skill list for display and search filtering
+            const rawSkills = job.required_skills || job.skills || [];
+            const skillsList = rawSkills.map(s => {
+              if (typeof s === 'string') return { name: s, is_required: true };
+              return {
+                name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Competency',
+                is_required: s.is_required !== false
+              };
+            });
+            const stackKeywords = skillsList.map(s => s.name.toLowerCase()).join(' ');
 
             return `
-              <div class="sb-job-card" data-title="${job.title.toLowerCase()}" data-company="${(job.company_name || '').toLowerCase()}" data-location="${(job.location || '').toLowerCase()}" data-stack="${(job.required_skills || []).map(s => s.skill_name || s.name || s).join(' ').toLowerCase()}">
+              <div class="sb-job-card ${isNew ? 'sb-job-card-new' : ''}" style="${isNew ? 'border-left: 4px solid var(--accent, #4F46E5);' : ''}" data-title="${job.title.toLowerCase()}" data-company="${companyName.toLowerCase()}" data-location="${location.toLowerCase()}" data-stack="${stackKeywords}">
                 <div class="sb-job-card-top">
                   <div>
-                    <h3 class="sb-job-title">${job.title}</h3>
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+                      <h3 class="sb-job-title" style="margin:0;">${job.title}</h3>
+                      ${isNew ? `<span class="sb-meta-pill" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE; font-weight:800; font-size:0.72rem; padding:0.18rem 0.55rem; border-radius:1rem;">✨ NEW REQUISITION</span>` : ''}
+                    </div>
                     <div class="sb-job-badges-row">
-                      <span class="sb-meta-pill">🏢 ${job.company_name}</span>
-                      <span class="sb-meta-pill">📍 ${job.location || 'remote'}</span>
-                      <span class="sb-meta-pill">⏱️ ${job.job_type || 'full-time'}</span>
+                      <span class="sb-meta-pill">🏢 ${companyName}</span>
+                      <span class="sb-meta-pill">📍 ${location}</span>
+                      <span class="sb-meta-pill">⏱️ ${employmentType}</span>
+                      ${salaryText ? `<span class="sb-meta-pill">💰 ${salaryText}</span>` : ''}
                     </div>
                   </div>
-                  <button class="sb-btn-analyze-match analyze-match-btn" data-id="${job.id}">
-                    Analyze & Match →
-                  </button>
+
+                  <!-- Prominent 75/25 Match Score & Analyze CTA -->
+                  <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0;">
+                    <div class="sb-match-pill-badge" style="background:${isHighFit ? '#ECFDF5' : isMediumFit ? '#FFFBEB' : '#FEF2F2'}; color:${isHighFit ? '#065F46' : isMediumFit ? '#92400E' : '#991B1B'}; border:1px solid ${isHighFit ? '#A7F3D0' : isMediumFit ? '#FDE68A' : '#FECACA'}; padding:0.35rem 0.75rem; border-radius:0.6rem; text-align:center; min-width:70px;">
+                      <div style="font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Match</div>
+                      <div style="font-size:1.15rem; font-weight:800; line-height:1.1;">${score}%</div>
+                    </div>
+                    <button class="sb-btn-analyze-match analyze-match-btn" data-id="${job.id}">
+                      Analyze & Match →
+                    </button>
+                  </div>
                 </div>
+
                 <p class="sb-job-desc">
                   ${job.description}
                 </p>
+
+                <!-- Required Competencies Chips -->
+                ${skillsList.length > 0 ? `
+                  <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.75rem; padding-top:0.65rem; border-top:1px solid #F1F5F9; align-items:center;">
+                    <span style="font-size:0.72rem; font-weight:700; color:#64748B; text-transform:uppercase;">Required Competencies:</span>
+                    ${skillsList.map(s => `
+                      <span style="font-size:0.74rem; padding:0.16rem 0.52rem; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:1rem; color:#334155; font-weight:600;">
+                        ${s.name} ${s.is_required ? '<b style="color:#2563EB;">(75% Core)</b>' : '<b style="color:#059669;">(25% Bonus)</b>'}
+                      </span>
+                    `).join('')}
+                  </div>
+                ` : ''}
               </div>
             `;
           }).join('')}
@@ -2093,6 +2146,14 @@ class App {
         if (job) this.openGapAnalysisModal(job, candidateId, passport, candidateSkills);
       });
     });
+
+    // Auto-sync when new job is published by HR
+    const onJobsUpdated = () => {
+      if (state.currentRole === 'candidate') {
+        this.renderCandidateDashboard();
+      }
+    };
+    window.addEventListener('i2i_jobs_updated', onJobsUpdated, { once: true });
   }
 
   // =========================================================================
@@ -2194,32 +2255,51 @@ class App {
     const cSkills = (candidateSkills && candidateSkills.length > 0) ? candidateSkills : (passport?.verified_skills || []);
     const verifiedNames = new Set(cSkills.map(s => (s.skill_name || s.name || '').toLowerCase().trim()));
 
-    // Mandatory skills for job
-    let mandSkills = [];
-    if (job.required_skills && job.required_skills.length > 0) {
-      mandSkills = job.required_skills.map(s => s.skill_name || s.name || s);
+    // Prefer pre-computed match details if available
+    const m = job.match;
+    let score = 0;
+    let missing = [];
+    let matched = [];
+
+    if (m && typeof m.score !== 'undefined') {
+      score = Math.round(m.score || m.match_score_percentage || 0);
+
+      // Extract matched skills
+      const rawMatched = m.matched_skills || [];
+      matched = rawMatched.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
+
+      // Extract critical gaps & missing
+      const rawMissing = (m.critical_skill_gaps && m.critical_skill_gaps.length > 0) 
+        ? m.critical_skill_gaps 
+        : (m.missing_skills || []);
+      missing = rawMissing.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
     } else {
-      // Clean representative defaults matching the tech stack in Image 1
-      mandSkills = ['JavaScript', 'React', 'PostgreSQL', 'TypeScript', 'Node.js'];
+      // Fallback: evaluate required_skills against candidate verified skills
+      let mandSkills = [];
+      if (job.required_skills && job.required_skills.length > 0) {
+        mandSkills = job.required_skills.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
+      } else {
+        mandSkills = ['JavaScript', 'React', 'PostgreSQL', 'TypeScript', 'Node.js'];
+      }
+
+      mandSkills.forEach(sName => {
+        const sLower = sName.toLowerCase().trim();
+        const hasMatch = Array.from(verifiedNames).some(v => v.includes(sLower) || sLower.includes(v));
+        if (hasMatch) {
+          matched.push(sName);
+        } else {
+          missing.push(sName);
+        }
+      });
+
+      const totalMand = mandSkills.length;
+      score = totalMand > 0 ? Math.round((matched.length / totalMand) * 100) : (job.match_score || 0);
     }
 
-    const missing = [];
-    const matched = [];
-
-    mandSkills.forEach(s => {
-      const sName = typeof s === 'string' ? s : (s.skill_name || s.name || '');
-      const sLower = sName.toLowerCase().trim();
-      const hasMatch = Array.from(verifiedNames).some(v => v.includes(sLower) || sLower.includes(v));
-      if (hasMatch) {
-        matched.push(sName);
-      } else {
-        missing.push(sName);
-      }
-    });
-
-    const totalMand = mandSkills.length;
-    const score = totalMand > 0 ? Math.round((matched.length / totalMand) * 100) : (job.match_score || 0);
     const isHigh = score >= 75;
+    const companyDisplay = job.company_name || job.company || 'Enterprise Partner';
+    const locationDisplay = job.location || 'Remote / Hybrid';
+    const typeDisplay = job.employment_type || job.job_type || 'Full-time';
 
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -2230,7 +2310,7 @@ class App {
           <div>
             <h3 class="sb-gap-modal-title">${job.title}</h3>
             <p class="sb-gap-modal-subtitle">
-              ${job.company_name} • ${job.location || 'Remote - US'} • ${job.job_type || 'full-time'}
+              ${companyDisplay} • ${locationDisplay} • ${typeDisplay}
             </p>
           </div>
           <button type="button" class="sb-gap-close-btn" id="close-gap-modal-btn">&times;</button>
@@ -5194,14 +5274,12 @@ class App {
 
         const skillsPayload = [
           ...mandatoryChips.map((s, idx) => ({
-            skill_id: `mand-${idx + 1}`,
             skill_name: s,
             name: s,
             is_required: true,
             weight: Number(mandWeight.toFixed(4))
           })),
           ...preferredChips.map((s, idx) => ({
-            skill_id: `pref-${idx + 1}`,
             skill_name: s,
             name: s,
             is_required: false,
@@ -5213,17 +5291,21 @@ class App {
           await api.createJob({
             created_by: hrId || 'hr-01',
             company_name: company,
+            company: company,
             title: title,
             description: desc,
             experience_level: exp,
             salary_min: salMin,
             salary_max: salMax,
+            salary_range: `$${salMin.toLocaleString()} - $${salMax.toLocaleString()}`,
             location: "San Francisco, CA / Hybrid",
+            employment_type: "Full-time",
+            job_type: "Full-time",
             required_skills: skillsPayload,
             skills: skillsPayload
           });
 
-          state.showToast(`🎉 "${title}" published successfully! Visible in Overview & Candidate Feeds.`, "success");
+          state.showToast(`🎉 "${title}" published successfully! Live in Candidate Analyze & Match feeds.`, "success");
           state.setTab('overview');
           state.notify();
         } catch (err) {

@@ -2580,6 +2580,31 @@
   margin: 0;
 }
 
+.sb-job-card-new {
+  position: relative;
+  background: linear-gradient(to right, #FFFFFF, #F8FAFC);
+  border-color: #C7D2FE !important;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08);
+}
+
+.sb-job-card-new:hover {
+  border-color: #818CF8 !important;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.12);
+}
+
+.sb-match-pill-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.65rem;
+  transition: transform 0.15s ease;
+}
+
+.sb-match-pill-badge:hover {
+  transform: scale(1.04);
+}
+
 /* =========================================================================
    EXACT IMAGE 1: ANALYZE & MATCH MODAL
    ========================================================================= */

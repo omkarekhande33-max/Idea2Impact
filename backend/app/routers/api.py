@@ -560,17 +560,22 @@ def download_passport_pdf(candidate_id: str):
 # -------------------------------------------------------------
 @router.post("/jobs")
 def create_job(payload: JobCreate):
+    sal_min = payload.salary_min or 80000
+    sal_max = payload.salary_max or 150000
     new_job: Dict[str, Any] = {
         "id": f"job-{str(uuid.uuid4())[:6]}",
         "created_by": payload.created_by or "hr-01",
         "company_name": payload.company_name,
+        "company": payload.company_name,
         "title": payload.title,
         "description": payload.description,
         "experience_level": payload.experience_level or "Mid-Senior",
-        "salary_min": payload.salary_min or 80000,
-        "salary_max": payload.salary_max or 150000,
-        "location": payload.location,
+        "salary_min": sal_min,
+        "salary_max": sal_max,
+        "salary_range": f"${sal_min:,} - ${sal_max:,}",
+        "location": payload.location or "San Francisco, CA / Hybrid",
         "employment_type": payload.employment_type or "full-time",
+        "job_type": payload.employment_type or "full-time",
         "status": "Active",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -586,14 +591,15 @@ def create_job(payload: JobCreate):
         default_weight = 2.0 if is_req else 1.0
         s_name = (req.get("skill_name") or req.get("name") or req.get("skill_id") or "Skill").strip()
 
-        # Link to existing catalog skill: prioritize explicit skill_id if provided
-        explicit_id = req.get("skill_id")
+        # Link to existing catalog skill: prioritize real explicit skill_id if provided
+        raw_explicit_id = req.get("skill_id")
+        explicit_id = None if (raw_explicit_id or "").startswith(("mand-", "pref-")) else raw_explicit_id
         catalog_id = None
         if explicit_id and db.find_one("skills", lambda s: s["id"] == explicit_id):
             catalog_id = explicit_id
         elif s_name.lower() in skills_name_map:
             catalog_id = skills_name_map[s_name.lower()]
-        elif not explicit_id:
+        else:
             for s_cat_name, s_cat_id in skills_name_map.items():
                 if len(s_cat_name) >= 3 and (s_cat_name in s_name.lower() or s_name.lower() in s_cat_name):
                     catalog_id = s_cat_id
@@ -627,6 +633,16 @@ def create_job(payload: JobCreate):
 
     new_job["required_skills"] = saved_skills
     new_job["skills"] = saved_skills
+    new_job["company"] = new_job.get("company_name")
+    new_job["job_type"] = new_job.get("employment_type", "full-time")
+    new_job["salary_range"] = f"${new_job.get('salary_min', 80000):,} - ${new_job.get('salary_max', 150000):,}"
+    db.save()
+
+    # Pre-calculate match score for candidate feed compatibility
+    try:
+        new_job["match"] = calculate_candidate_job_match("cand-01", new_job["id"])
+    except Exception:
+        new_job["match"] = None
 
     db.log_audit("Job Created", payload.created_by or "hr-01", f"Job {payload.title} created for {payload.company_name}")
     return new_job
@@ -664,6 +680,11 @@ def list_jobs(candidate_id: Optional[str] = Query(None)):
 
         results.append({
             **j,
+            "company": j.get("company") or j.get("company_name") or "Enterprise Partner",
+            "company_name": j.get("company_name") or j.get("company") or "Enterprise Partner",
+            "job_type": j.get("job_type") or j.get("employment_type") or "full-time",
+            "employment_type": j.get("employment_type") or j.get("job_type") or "full-time",
+            "salary_range": j.get("salary_range") or (f"${j.get('salary_min', 80000):,} - ${j.get('salary_max', 150000):,}" if j.get("salary_min") else "$120,000 - $160,000"),
             "required_skills": job_skills,
             "skills": job_skills,
             "match": match_info
@@ -1444,25 +1465,53 @@ def convert_request_to_job(payload: ConvertRoleToJobRequest):
     }
     db.insert("jobs", new_job)
 
-    # Insert required skills
     req_skills = target_role.get("required_skills", [])
     pref_skills = target_role.get("preferred_skills", [])
+
+    all_job_skills = []
     for s in req_skills:
-        db.insert("job_required_skills", {
+        s_id = s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}")
+        s_name = s.get("name", "Technical Skill")
+        row = {
             "job_id": new_job["id"],
-            "skill_id": s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}"),
-            "skill_name": s.get("name", "Technical Skill"),
+            "skill_id": s_id,
+            "skill_name": s_name,
             "is_required": True,
             "weight": s.get("weight", 0.40)
+        }
+        db.insert("job_required_skills", row)
+        all_job_skills.append({
+            **row,
+            "name": s_name,
+            "skill": {"id": s_id, "name": s_name, "category": "Technical"}
         })
     for s in pref_skills:
-        db.insert("job_required_skills", {
+        s_id = s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}")
+        s_name = s.get("name", "Bonus Skill")
+        row = {
             "job_id": new_job["id"],
-            "skill_id": s.get("skill_id", f"sk-{str(uuid.uuid4())[:6]}"),
-            "skill_name": s.get("name", "Bonus Skill"),
+            "skill_id": s_id,
+            "skill_name": s_name,
             "is_required": False,
             "weight": s.get("weight", 0.25)
+        }
+        db.insert("job_required_skills", row)
+        all_job_skills.append({
+            **row,
+            "name": s_name,
+            "skill": {"id": s_id, "name": s_name, "category": "Technical"}
         })
+
+    new_job["required_skills"] = all_job_skills
+    new_job["skills"] = all_job_skills
+    new_job["company"] = new_job.get("company_name")
+    new_job["job_type"] = new_job.get("employment_type", "full-time")
+    new_job["salary_range"] = f"${new_job.get('salary_min', 100000):,} - ${new_job.get('salary_max', 160000):,}"
+
+    try:
+        new_job["match"] = calculate_candidate_job_match("cand-01", new_job["id"])
+    except Exception:
+        new_job["match"] = None
 
     # Update request status
     req_obj["status"] = "Imported to Active Pipeline"
