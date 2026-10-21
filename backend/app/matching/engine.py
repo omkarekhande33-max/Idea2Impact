@@ -55,16 +55,32 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
     missing_preferred_skills = [] # Missing preferred skills
     all_missing_skills = []
 
-    # Fast candidate skill lookup by skill_id and normalized names/aliases
-    candidate_skill_names = {}
+    import re
+    def normalize_slug(text: str) -> str:
+        if not text:
+            return ""
+        return re.sub(r'[^a-z0-9]', '', str(text).lower().replace('sk-', ''))
+
+    # Candidate skill lookup maps for exact ID, name, and normalized slug
+    cand_by_id = {}
+    cand_by_name = {}
+    cand_by_slug = {}
+
     for cs in candidate_skills:
         s_obj = skills_catalog.get(cs["skill_id"], {})
+        c_id = cs["skill_id"].lower().strip()
+        cand_by_id[c_id] = cs
+
         name_cand = (cs.get("skill_name") or s_obj.get("name") or cs["skill_id"]).lower().strip()
-        candidate_skill_names[name_cand] = cs
-        for token in name_cand.replace('&', ' ').replace('/', ' ').split():
-            clean_tok = token.strip()
-            if len(clean_tok) >= 3 and clean_tok not in ('and', 'the', 'for', 'with'):
-                candidate_skill_names[clean_tok] = cs
+        cand_by_name[name_cand] = cs
+        c_slug = normalize_slug(name_cand)
+        if c_slug:
+            cand_by_slug[c_slug] = cs
+        c_id_slug = normalize_slug(c_id)
+        if c_id_slug:
+            cand_by_slug[c_id_slug] = cs
+        if s_obj.get("slug"):
+            cand_by_slug[normalize_slug(s_obj["slug"])] = cs
 
     for req in job_skills_req:
         skill_id = req["skill_id"]
@@ -73,16 +89,26 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
         skill_info = skills_catalog.get(skill_id, {"name": skill_id, "category": "General"})
         skill_name = (req.get("skill_name") or req.get("name") or skill_info.get("name") or skill_id).strip()
         req_name_lower = skill_name.lower().strip()
+        req_slug = normalize_slug(skill_name)
+        req_id_lower = skill_id.lower().strip()
 
-        cand_data = candidate_skill_ids.get(skill_id)
-        if not cand_data and req_name_lower in candidate_skill_names:
-            cand_data = candidate_skill_names[req_name_lower]
+        # Strict match: ID, exact name, or slug
+        cand_data = cand_by_id.get(req_id_lower)
         if not cand_data:
-            for token in req_name_lower.replace('&', ' ').replace('/', ' ').split():
-                clean_tok = token.strip()
-                if len(clean_tok) >= 3 and clean_tok in candidate_skill_names:
-                    cand_data = candidate_skill_names[clean_tok]
-                    break
+            cand_data = cand_by_name.get(req_name_lower)
+        if not cand_data and req_slug:
+            cand_data = cand_by_slug.get(req_slug)
+        if not cand_data and skill_info.get("slug"):
+            cand_data = cand_by_slug.get(normalize_slug(skill_info["slug"]))
+
+        # Controlled standard aliases ONLY
+        if not cand_data:
+            if req_slug in ('pythonfastapi', 'python') and ('python' in cand_by_slug or 'pythonfastapi' in cand_by_slug):
+                cand_data = cand_by_slug.get('pythonfastapi') or cand_by_slug.get('python')
+            elif req_slug in ('postgresqldatabasedesign', 'postgresql') and ('postgresql' in cand_by_slug or 'postgresqldatabasedesign' in cand_by_slug):
+                cand_data = cand_by_slug.get('postgresqldatabasedesign') or cand_by_slug.get('postgresql')
+            elif req_slug in ('dockerkubernetes', 'docker') and ('docker' in cand_by_slug or 'dockerkubernetes' in cand_by_slug):
+                cand_data = cand_by_slug.get('dockerkubernetes') or cand_by_slug.get('docker')
 
         is_cand_matched = cand_data is not None
         assessment_score = cand_data.get("assessment_score", cand_data.get("quiz_score", 85.0)) if cand_data else 0.0

@@ -1330,23 +1330,35 @@
     {
       "candidate_id": "cand-01",
       "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "proficiency_level": "Intermediate",
+      "years_experience": 2,
       "assessment_score": 100.0,
+      "quiz_score": 100.0,
       "is_verified": true,
       "verified_at": "2026-10-21T15:17:55.686818+00:00"
     },
     {
       "candidate_id": "cand-01",
-      "skill_id": "sk-02",
-      "assessment_score": 88.0,
+      "skill_id": "sk-java",
+      "skill_name": "Java",
+      "proficiency_level": "Intermediate",
+      "years_experience": 2,
+      "assessment_score": 80.0,
+      "quiz_score": 80.0,
       "is_verified": true,
-      "verified_at": "2026-02-15T10:15:00Z"
+      "verified_at": "2026-10-21T17:00:00.000000+00:00"
     },
     {
       "candidate_id": "cand-01",
-      "skill_id": "sk-03",
-      "assessment_score": 80.0,
+      "skill_id": "sk-asm-js",
+      "skill_name": "asm-js",
+      "proficiency_level": "Intermediate",
+      "years_experience": 2,
+      "assessment_score": 100.0,
+      "quiz_score": 100.0,
       "is_verified": true,
-      "verified_at": "2026-02-16T11:45:00Z"
+      "verified_at": "2026-10-21T17:00:00.000000+00:00"
     },
     {
       "candidate_id": "cand-02",
@@ -1378,14 +1390,6 @@
       "id": "cand-dbdec8de"
     },
     {
-      "candidate_id": "cand-01",
-      "skill_id": "sk-cpp",
-      "assessment_score": 100.0,
-      "is_verified": true,
-      "verified_at": "2026-10-11T12:19:56.962508+00:00",
-      "id": "cand-41ecd63e"
-    },
-    {
       "candidate_id": "test-cand-99",
       "skill_id": "sk-python",
       "proficiency_level": "advanced",
@@ -1396,20 +1400,6 @@
       "verified_at": "2026-10-21T13:22:36.347343+00:00",
       "id": "cs-2ed3f7",
       "skill_name": "Python"
-    },
-    {
-      "candidate_id": "cand-01",
-      "skill_id": "sk-05",
-      "assessment_score": 90.0,
-      "is_verified": true,
-      "verified_at": "2026-02-17T16:00:00Z"
-    },
-    {
-      "candidate_id": "cand-01",
-      "skill_id": "sk-06",
-      "assessment_score": 94.0,
-      "is_verified": true,
-      "verified_at": "2026-02-17T16:00:00Z"
     },
     {
       "candidate_id": "debug-cand",
@@ -8365,7 +8355,7 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-01",
-      "score": 100.0,
+      "score": 40.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -8378,11 +8368,56 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.35,
+          "status": "Not Verified"
         },
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        }
+      ],
+      "matched_count": 1,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.4 of 1.0 weighted points), yielding a 40.0% compatibility score (100% Mandatory). Critical gaps: PostgreSQL & Database Design, Modern JavaScript & Frontend.",
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "Modern JavaScript & Frontend",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Modern JavaScript & Frontend interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Modern JavaScript & Frontend production patterns.",
+          "assessment_cta": "Take the Modern JavaScript & Frontend 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Modern+JavaScript+%26+Frontend"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-69be9e4c",
+      "match_score_percentage": 40.0,
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -8394,10 +8429,10 @@
           "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         },
         {
           "skill_id": "sk-03",
@@ -8410,26 +8445,16 @@
           "category": "Frontend",
           "is_required": true,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 80.0,
-          "is_verified": true,
-          "verified_at": "2026-02-16T11:45:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "matched_count": 3,
-      "total_required_count": 3,
-      "explanation": "Candidate satisfies 3 of 3 mandatory skill requirements (1.0 of 1.0 weighted points), yielding a 100.0% compatibility score (100% Mandatory).",
-      "learning_roadmap": [],
-      "is_strong_fit": true,
-      "algorithm_version": "v4.2-dual-tier-75-25",
-      "id": "matc-69be9e4c",
-      "match_score_percentage": 100.0,
-      "critical_skill_gaps": [],
       "bonus_competencies": [],
       "missing_preferred_skills": [],
       "formula_breakdown": "100% Mandatory",
-      "mandatory_score_component": 100.0,
+      "mandatory_score_component": 40.0,
       "preferred_score_component": 0.0
     },
     {
@@ -8540,7 +8565,7 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-02",
-      "score": 55.0,
+      "score": 35.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -8553,26 +8578,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-05",
-          "skill_name": "Cloud Deployment & Docker",
-          "skill": {
-            "id": "sk-05",
-            "name": "Cloud Deployment & Docker",
-            "category": "DevOps"
-          },
-          "category": "DevOps",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
         }
       ],
       "missing_skills": [
@@ -8583,11 +8592,19 @@
           "is_required": true,
           "weight": 0.45,
           "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "category": "DevOps",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
         }
       ],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 55.0% compatibility score (100% Mandatory). Critical gaps: AI & LLM Integration.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 35.0% compatibility score (100% Mandatory). Critical gaps: AI & LLM Integration, Cloud Deployment & Docker.",
       "learning_roadmap": [
         {
           "skill_name": "AI & LLM Integration",
@@ -8596,12 +8613,20 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "Cloud Deployment & Docker",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Deployment & Docker interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Deployment & Docker production patterns.",
+          "assessment_cta": "Take the Cloud Deployment & Docker 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Deployment+%26+Docker"
         }
       ],
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-64703749",
-      "match_score_percentage": 55.0,
+      "match_score_percentage": 35.0,
       "critical_skill_gaps": [
         {
           "skill_id": "sk-04",
@@ -8618,19 +8643,63 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "skill": {
+            "id": "sk-05",
+            "name": "Cloud Deployment & Docker",
+            "category": "DevOps"
+          },
+          "category": "DevOps",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
       "bonus_competencies": [],
       "missing_preferred_skills": [],
       "formula_breakdown": "100% Mandatory",
-      "mandatory_score_component": 55.0,
+      "mandatory_score_component": 35.0,
       "preferred_score_component": 0.0
     },
     {
       "candidate_id": "cand-01",
       "job_id": "job-03",
-      "score": 100.0,
-      "matched_skills": [
+      "score": 25.0,
+      "matched_skills": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.6,
+          "status": "Not Verified"
+        }
+      ],
+      "matched_count": 0,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.6 weighted points), yielding a 25.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: Modern JavaScript & Frontend. Bonus competencies: Python & FastAPI.",
+      "learning_roadmap": [
+        {
+          "skill_name": "Modern JavaScript & Frontend",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Modern JavaScript & Frontend interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Modern JavaScript & Frontend production patterns.",
+          "assessment_cta": "Take the Modern JavaScript & Frontend 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Modern+JavaScript+%26+Frontend"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-6d7087f2",
+      "match_score_percentage": 25.0,
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-03",
           "skill_name": "Modern JavaScript & Frontend",
@@ -8642,22 +8711,12 @@
           "category": "Frontend",
           "is_required": true,
           "weight": 0.6,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 80.0,
-          "is_verified": true,
-          "verified_at": "2026-02-16T11:45:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "matched_count": 1,
-      "total_required_count": 1,
-      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.6 of 0.6 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: Python & FastAPI.",
-      "learning_roadmap": [],
-      "is_strong_fit": true,
-      "algorithm_version": "v4.2-dual-tier-75-25",
-      "id": "matc-6d7087f2",
-      "match_score_percentage": 100.0,
-      "critical_skill_gaps": [],
       "bonus_competencies": [
         {
           "skill_id": "sk-01",
@@ -8670,7 +8729,7 @@
           "category": "Backend & Systems",
           "is_required": false,
           "weight": 0.4,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
@@ -8678,7 +8737,7 @@
       ],
       "missing_preferred_skills": [],
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "mandatory_score_component": 75.0,
+      "mandatory_score_component": 0.0,
       "preferred_score_component": 25.0
     },
     {
@@ -8874,7 +8933,7 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
@@ -8980,7 +9039,7 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
@@ -9513,9 +9572,9 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-265f3a",
-      "score": 75.0,
-      "match_score_percentage": 75.0,
-      "mandatory_score_component": 75.0,
+      "score": 25.0,
+      "match_score_percentage": 25.0,
+      "mandatory_score_component": 25.0,
       "preferred_score_component": 0.0,
       "matched_skills": [
         {
@@ -9529,11 +9588,13 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 25.0,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -9545,45 +9606,11 @@
           "category": "Databases & Tools",
           "is_required": true,
           "weight": 25.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         },
-        {
-          "skill_id": "sk-c",
-          "skill_name": "Cloud Architecture",
-          "skill": {
-            "id": "sk-c",
-            "name": "Cloud Architecture",
-            "category": "Languages"
-          },
-          "category": "Languages",
-          "is_required": true,
-          "weight": 15.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
-        },
-        {
-          "skill_id": "sk-c",
-          "skill_name": "Docker & Kubernetes",
-          "skill": {
-            "id": "sk-c",
-            "name": "Docker & Kubernetes",
-            "category": "Languages"
-          },
-          "category": "Languages",
-          "is_required": true,
-          "weight": 10.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
-        }
-      ],
-      "critical_skill_gaps": [
         {
           "skill_id": "sk-1aed70",
           "skill_name": "Distributed Systems",
@@ -9599,10 +9626,50 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-c",
+            "name": "Cloud Architecture",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 15.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "Docker & Kubernetes",
+          "skill": {
+            "id": "sk-c",
+            "name": "Docker & Kubernetes",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 10.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
       "bonus_competencies": [],
       "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 25.0,
+          "status": "Not Verified"
+        },
         {
           "skill_id": "sk-1aed70",
           "skill_name": "Distributed Systems",
@@ -9610,14 +9677,38 @@
           "is_required": true,
           "weight": 25.0,
           "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "Cloud Architecture",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 15.0,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-c",
+          "skill_name": "Docker & Kubernetes",
+          "category": "Languages",
+          "is_required": true,
+          "weight": 10.0,
+          "status": "Not Verified"
         }
       ],
       "missing_preferred_skills": [],
-      "matched_count": 4,
+      "matched_count": 1,
       "total_required_count": 5,
-      "explanation": "Candidate satisfies 4 of 5 mandatory skill requirements (75.0 of 100.0 weighted points), yielding a 75.0% compatibility score (100% Mandatory). Critical gaps: Distributed Systems.",
+      "explanation": "Candidate satisfies 1 of 5 mandatory skill requirements (25.0 of 100.0 weighted points), yielding a 25.0% compatibility score (100% Mandatory). Critical gaps: PostgreSQL & Database Design, Distributed Systems, Cloud Architecture, Docker & Kubernetes.",
       "formula_breakdown": "100% Mandatory",
       "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
         {
           "skill_name": "Distributed Systems",
           "urgency": "High",
@@ -9625,9 +9716,25 @@
           "practice_project": "Build an end-to-end sandbox project highlighting Distributed Systems production patterns.",
           "assessment_cta": "Take the Distributed Systems 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=Distributed+Systems"
+        },
+        {
+          "skill_name": "Cloud Architecture",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Architecture interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Architecture production patterns.",
+          "assessment_cta": "Take the Cloud Architecture 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Architecture"
+        },
+        {
+          "skill_name": "Docker & Kubernetes",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Docker & Kubernetes interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Docker & Kubernetes production patterns.",
+          "assessment_cta": "Take the Docker & Kubernetes 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Docker+%26+Kubernetes"
         }
       ],
-      "is_strong_fit": true,
+      "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-5f92e09a"
     },
@@ -10340,10 +10447,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-e3f494",
-      "score": 100.0,
-      "match_score_percentage": 100.0,
-      "mandatory_score_component": 75.0,
-      "preferred_score_component": 25.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -10356,11 +10463,13 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.375,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -10372,14 +10481,40 @@
           "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.375,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "critical_skill_gaps": [],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.375,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "category": "DevOps",
+          "is_required": false,
+          "weight": 0.125,
+          "status": "Optional Missing"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 0.125,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-05",
           "skill_name": "Cloud Deployment & Docker",
@@ -10391,10 +10526,10 @@
           "category": "DevOps",
           "is_required": false,
           "weight": 0.125,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         },
         {
           "skill_id": "sk-06",
@@ -10407,20 +10542,43 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 0.125,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 2 of 2 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: Cloud Deployment & Docker, System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (0.38 of 0.75 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "learning_roadmap": [],
-      "is_strong_fit": true,
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "Cloud Deployment & Docker",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore Cloud Deployment & Docker concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add Cloud Deployment & Docker integration into your existing projects.",
+          "assessment_cta": "Verify Cloud Deployment & Docker for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Deployment+%26+Docker"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
+        }
+      ],
+      "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-fb0b7e00"
     },
@@ -12301,12 +12459,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-497f03",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12318,11 +12475,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12342,14 +12501,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12385,19 +12536,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -12422,12 +12565,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-8a341e",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12439,11 +12581,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12463,14 +12607,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12506,19 +12642,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -12543,12 +12671,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-05e10c",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12560,11 +12687,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12584,14 +12713,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12627,19 +12748,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -12664,12 +12777,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-8474cf",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12681,11 +12793,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12705,14 +12819,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12748,19 +12854,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -12785,12 +12883,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-8ebe95",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12802,11 +12899,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12826,14 +12925,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12869,19 +12960,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -12906,12 +12989,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-109dcf",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -12923,11 +13005,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12947,14 +13031,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -12990,19 +13066,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -13027,12 +13095,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-25bcdf",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -13044,11 +13111,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13068,14 +13137,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13111,19 +13172,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -13148,10 +13201,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-ad840f",
-      "score": 66.2,
-      "match_score_percentage": 66.2,
-      "mandatory_score_component": 41.2,
-      "preferred_score_component": 25.0,
+      "score": 26.2,
+      "match_score_percentage": 26.2,
+      "mandatory_score_component": 26.2,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -13164,26 +13217,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-02",
-          "skill_name": "PostgreSQL & Database Design",
-          "skill": {
-            "id": "sk-02",
-            "name": "PostgreSQL & Database Design",
-            "category": "Databases & Tools"
-          },
-          "category": "Databases & Tools",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
         }
       ],
       "critical_skill_gaps": [
@@ -13202,9 +13239,52 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-06",
           "skill_name": "System Architecture & Security",
@@ -13216,26 +13296,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 1.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.45,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 26.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -13245,6 +13314,22 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -13254,12 +13339,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-6e8155",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -13271,11 +13355,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13295,14 +13381,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13338,19 +13416,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -13375,10 +13445,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-d13268",
-      "score": 73.8,
-      "match_score_percentage": 73.8,
-      "mandatory_score_component": 48.8,
-      "preferred_score_component": 25.0,
+      "score": 30.0,
+      "match_score_percentage": 30.0,
+      "mandatory_score_component": 30.0,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -13391,10 +13461,28 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "skill": {
+            "id": "sk-04",
+            "name": "AI & LLM Integration",
+            "category": "AI / ML"
+          },
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         },
         {
           "skill_id": "sk-02",
@@ -13407,31 +13495,48 @@
           "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
-        }
-      ],
-      "critical_skill_gaps": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "skill": {
-            "id": "sk-04",
-            "name": "AI & LLM Integration",
-            "category": "AI / ML"
-          },
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.35,
           "proficiency_level": "none",
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.35,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "category": "DevOps",
+          "is_required": false,
+          "weight": 0.6,
+          "status": "Optional Missing"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 0.4,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-05",
           "skill_name": "Cloud Deployment & Docker",
@@ -13443,10 +13548,10 @@
           "category": "DevOps",
           "is_required": false,
           "weight": 0.6,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         },
         {
           "skill_id": "sk-06",
@@ -13459,26 +13564,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 0.4,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.35,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.65 of 1.0 weighted points), yielding a 73.8% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: Cloud Deployment & Docker, System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.4 of 1.0 weighted points), yielding a 30.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -13488,6 +13582,30 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "Cloud Deployment & Docker",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore Cloud Deployment & Docker concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add Cloud Deployment & Docker integration into your existing projects.",
+          "assessment_cta": "Verify Cloud Deployment & Docker for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Deployment+%26+Docker"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -13497,10 +13615,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-967e0b",
-      "score": 66.2,
-      "match_score_percentage": 66.2,
-      "mandatory_score_component": 41.2,
-      "preferred_score_component": 25.0,
+      "score": 26.2,
+      "match_score_percentage": 26.2,
+      "mandatory_score_component": 26.2,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -13513,26 +13631,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-02",
-          "skill_name": "PostgreSQL & Database Design",
-          "skill": {
-            "id": "sk-02",
-            "name": "PostgreSQL & Database Design",
-            "category": "Databases & Tools"
-          },
-          "category": "Databases & Tools",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
         }
       ],
       "critical_skill_gaps": [
@@ -13551,9 +13653,52 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-06",
           "skill_name": "System Architecture & Security",
@@ -13565,26 +13710,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 1.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.45,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 26.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -13594,6 +13728,22 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -13603,12 +13753,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-9f9d50",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -13620,11 +13769,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13644,14 +13795,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13687,19 +13830,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -13724,10 +13859,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-ba5219",
-      "score": 66.2,
-      "match_score_percentage": 66.2,
-      "mandatory_score_component": 41.2,
-      "preferred_score_component": 25.0,
+      "score": 26.2,
+      "match_score_percentage": 26.2,
+      "mandatory_score_component": 26.2,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -13740,26 +13875,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-02",
-          "skill_name": "PostgreSQL & Database Design",
-          "skill": {
-            "id": "sk-02",
-            "name": "PostgreSQL & Database Design",
-            "category": "Databases & Tools"
-          },
-          "category": "Databases & Tools",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
         }
       ],
       "critical_skill_gaps": [
@@ -13778,9 +13897,52 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-06",
           "skill_name": "System Architecture & Security",
@@ -13792,26 +13954,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 1.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.45,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 26.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -13821,6 +13972,22 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -13830,12 +13997,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-1cd069",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -13847,11 +14013,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13871,14 +14039,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -13914,19 +14074,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -13951,10 +14103,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-a13c28",
-      "score": 66.2,
-      "match_score_percentage": 66.2,
-      "mandatory_score_component": 41.2,
-      "preferred_score_component": 25.0,
+      "score": 26.2,
+      "match_score_percentage": 26.2,
+      "mandatory_score_component": 26.2,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -13967,26 +14119,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-02",
-          "skill_name": "PostgreSQL & Database Design",
-          "skill": {
-            "id": "sk-02",
-            "name": "PostgreSQL & Database Design",
-            "category": "Databases & Tools"
-          },
-          "category": "Databases & Tools",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
         }
       ],
       "critical_skill_gaps": [
@@ -14005,9 +14141,52 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-06",
           "skill_name": "System Architecture & Security",
@@ -14019,26 +14198,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 1.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.45,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 26.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -14048,6 +14216,22 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -14057,12 +14241,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-fe469e",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -14074,11 +14257,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14098,14 +14283,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14141,19 +14318,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -14178,12 +14347,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-95d198",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -14195,11 +14363,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14219,14 +14389,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14262,19 +14424,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -14299,12 +14453,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-ab5e64",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -14316,11 +14469,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14340,14 +14495,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14383,19 +14530,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -14420,12 +14559,11 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-a7f7bf",
-      "score": 0.0,
-      "match_score_percentage": 0.0,
-      "mandatory_score_component": 0.0,
+      "score": 37.5,
+      "match_score_percentage": 37.5,
+      "mandatory_score_component": 37.5,
       "preferred_score_component": 0.0,
-      "matched_skills": [],
-      "critical_skill_gaps": [
+      "matched_skills": [
         {
           "skill_id": "sk-python",
           "skill_name": "sk-python",
@@ -14437,11 +14575,13 @@
           "category": "Languages",
           "is_required": true,
           "weight": 2.0,
-          "proficiency_level": "none",
-          "candidate_assessment_score": 0.0,
-          "is_verified": false,
-          "verified_at": null
-        },
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14461,14 +14601,6 @@
       ],
       "bonus_competencies": [],
       "missing_skills": [
-        {
-          "skill_id": "sk-python",
-          "skill_name": "sk-python",
-          "category": "Languages",
-          "is_required": true,
-          "weight": 2.0,
-          "status": "Not Verified"
-        },
         {
           "skill_id": "sk-sql",
           "skill_name": "sk-sql",
@@ -14504,19 +14636,11 @@
           "verified_at": null
         }
       ],
-      "matched_count": 0,
+      "matched_count": 1,
       "total_required_count": 2,
-      "explanation": "Candidate satisfies 0 of 2 mandatory skill requirements (0.0 of 4.0 weighted points), yielding a 0.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-python, sk-sql.",
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 37.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
-        {
-          "skill_name": "sk-python",
-          "urgency": "High",
-          "suggested_resource": "Complete the certified sk-python interactive track and hands-on lab.",
-          "practice_project": "Build an end-to-end sandbox project highlighting sk-python production patterns.",
-          "assessment_cta": "Take the sk-python 10-minute verification assessment to earn your badge.",
-          "roadmap_url": "roadmap.html?skill=sk-python"
-        },
         {
           "skill_name": "sk-sql",
           "urgency": "High",
@@ -14541,11 +14665,12 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-fa7afd",
-      "score": 100.0,
-      "match_score_percentage": 100.0,
-      "mandatory_score_component": 75.0,
+      "score": 25.0,
+      "match_score_percentage": 25.0,
+      "mandatory_score_component": 0.0,
       "preferred_score_component": 25.0,
-      "matched_skills": [
+      "matched_skills": [],
+      "critical_skill_gaps": [
         {
           "skill_id": "sk-05",
           "skill_name": "Cloud Deployment & Docker",
@@ -14557,13 +14682,12 @@
           "category": "DevOps",
           "is_required": true,
           "weight": 0.75,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 90.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "critical_skill_gaps": [],
       "bonus_competencies": [
         {
           "skill_id": "sk-01",
@@ -14576,30 +14700,48 @@
           "category": "Backend & Systems",
           "is_required": false,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
-      "missing_skills": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-05",
+          "skill_name": "Cloud Deployment & Docker",
+          "category": "DevOps",
+          "is_required": true,
+          "weight": 0.75,
+          "status": "Not Verified"
+        }
+      ],
       "missing_preferred_skills": [],
-      "matched_count": 1,
+      "matched_count": 0,
       "total_required_count": 1,
-      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: Python & FastAPI.",
+      "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.75 weighted points), yielding a 25.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: Cloud Deployment & Docker. Bonus competencies: Python & FastAPI.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "learning_roadmap": [],
-      "is_strong_fit": true,
+      "learning_roadmap": [
+        {
+          "skill_name": "Cloud Deployment & Docker",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Deployment & Docker interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Deployment & Docker production patterns.",
+          "assessment_cta": "Take the Cloud Deployment & Docker 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Deployment+%26+Docker"
+        }
+      ],
+      "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-dd88ae04"
     },
     {
       "candidate_id": "cand-01",
       "job_id": "job-25fae1",
-      "score": 100.0,
-      "match_score_percentage": 100.0,
+      "score": 75.0,
+      "match_score_percentage": 75.0,
       "mandatory_score_component": 75.0,
-      "preferred_score_component": 25.0,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -14612,14 +14754,25 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.75,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "critical_skill_gaps": [],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -14631,19 +14784,26 @@
           "category": "Databases & Tools",
           "is_required": false,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "missing_preferred_skills": [],
       "matched_count": 1,
       "total_required_count": 1,
-      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 75.0% compatibility score (75% Mandatory + 25% Preferred).",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "learning_roadmap": [],
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore PostgreSQL & Database Design concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add PostgreSQL & Database Design integration into your existing projects.",
+          "assessment_cta": "Verify PostgreSQL & Database Design for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        }
+      ],
       "is_strong_fit": true,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-0a789c1e"
@@ -14651,10 +14811,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-116db6",
-      "score": 100.0,
-      "match_score_percentage": 100.0,
+      "score": 75.0,
+      "match_score_percentage": 75.0,
       "mandatory_score_component": 75.0,
-      "preferred_score_component": 25.0,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -14667,14 +14827,25 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.75,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "critical_skill_gaps": [],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -14686,19 +14857,26 @@
           "category": "Databases & Tools",
           "is_required": false,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "missing_preferred_skills": [],
       "matched_count": 1,
       "total_required_count": 1,
-      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 75.0% compatibility score (75% Mandatory + 25% Preferred).",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "learning_roadmap": [],
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore PostgreSQL & Database Design concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add PostgreSQL & Database Design integration into your existing projects.",
+          "assessment_cta": "Verify PostgreSQL & Database Design for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        }
+      ],
       "is_strong_fit": true,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-31e45d28"
@@ -14706,10 +14884,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-f95fd7",
-      "score": 66.2,
-      "match_score_percentage": 66.2,
-      "mandatory_score_component": 41.2,
-      "preferred_score_component": 25.0,
+      "score": 26.2,
+      "match_score_percentage": 26.2,
+      "mandatory_score_component": 26.2,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -14722,26 +14900,10 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.35,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
-        },
-        {
-          "skill_id": "sk-02",
-          "skill_name": "PostgreSQL & Database Design",
-          "skill": {
-            "id": "sk-02",
-            "name": "PostgreSQL & Database Design",
-            "category": "Databases & Tools"
-          },
-          "category": "Databases & Tools",
-          "is_required": true,
-          "weight": 0.2,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
         }
       ],
       "critical_skill_gaps": [
@@ -14760,9 +14922,52 @@
           "candidate_assessment_score": 0.0,
           "is_verified": false,
           "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-04",
+          "skill_name": "AI & LLM Integration",
+          "category": "AI / ML",
+          "is_required": true,
+          "weight": 0.45,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.2,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-06",
+          "skill_name": "System Architecture & Security",
+          "category": "Architecture",
+          "is_required": false,
+          "weight": 1.0,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-06",
           "skill_name": "System Architecture & Security",
@@ -14774,26 +14979,15 @@
           "category": "Architecture",
           "is_required": false,
           "weight": 1.0,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 94.0,
-          "is_verified": true,
-          "verified_at": "2026-02-17T16:00:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [
-        {
-          "skill_id": "sk-04",
-          "skill_name": "AI & LLM Integration",
-          "category": "AI / ML",
-          "is_required": true,
-          "weight": 0.45,
-          "status": "Not Verified"
-        }
-      ],
-      "missing_preferred_skills": [],
-      "matched_count": 2,
+      "matched_count": 1,
       "total_required_count": 3,
-      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.55 of 1.0 weighted points), yielding a 66.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration. Bonus competencies: System Architecture & Security.",
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.35 of 1.0 weighted points), yielding a 26.2% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: AI & LLM Integration, PostgreSQL & Database Design.",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
       "learning_roadmap": [
         {
@@ -14803,6 +14997,22 @@
           "practice_project": "Build an end-to-end sandbox project highlighting AI & LLM Integration production patterns.",
           "assessment_cta": "Take the AI & LLM Integration 10-minute verification assessment to earn your badge.",
           "roadmap_url": "roadmap.html?skill=AI+%26+LLM+Integration"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "System Architecture & Security",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore System Architecture & Security concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add System Architecture & Security integration into your existing projects.",
+          "assessment_cta": "Verify System Architecture & Security for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=System+Architecture+%26+Security"
         }
       ],
       "is_strong_fit": false,
@@ -14812,10 +15022,10 @@
     {
       "candidate_id": "cand-01",
       "job_id": "job-fa2355",
-      "score": 100.0,
-      "match_score_percentage": 100.0,
+      "score": 75.0,
+      "match_score_percentage": 75.0,
       "mandatory_score_component": 75.0,
-      "preferred_score_component": 25.0,
+      "preferred_score_component": 0.0,
       "matched_skills": [
         {
           "skill_id": "sk-01",
@@ -14828,14 +15038,25 @@
           "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.75,
-          "proficiency_level": "intermediate",
+          "proficiency_level": "Intermediate",
           "candidate_assessment_score": 100.0,
           "is_verified": true,
           "verified_at": "2026-10-21T15:17:55.686818+00:00"
         }
       ],
       "critical_skill_gaps": [],
-      "bonus_competencies": [
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": false,
+          "weight": 0.25,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
@@ -14847,22 +15068,167 @@
           "category": "Databases & Tools",
           "is_required": false,
           "weight": 0.25,
-          "proficiency_level": "intermediate",
-          "candidate_assessment_score": 88.0,
-          "is_verified": true,
-          "verified_at": "2026-02-15T10:15:00Z"
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
         }
       ],
-      "missing_skills": [],
-      "missing_preferred_skills": [],
       "matched_count": 1,
       "total_required_count": 1,
-      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 100.0% compatibility score (75% Mandatory + 25% Preferred). Bonus competencies: PostgreSQL & Database Design.",
+      "explanation": "Candidate satisfies 1 of 1 mandatory skill requirements (0.75 of 0.75 weighted points), yielding a 75.0% compatibility score (75% Mandatory + 25% Preferred).",
       "formula_breakdown": "75% Mandatory + 25% Preferred",
-      "learning_roadmap": [],
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore PostgreSQL & Database Design concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add PostgreSQL & Database Design integration into your existing projects.",
+          "assessment_cta": "Verify PostgreSQL & Database Design for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        }
+      ],
       "is_strong_fit": true,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-586e00b7"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "test-job-senior-backend",
+      "score": 25.0,
+      "match_score_percentage": 25.0,
+      "mandatory_score_component": 25.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "Intermediate",
+          "candidate_assessment_score": 100.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T15:17:55.686818+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-dist-sys",
+          "skill_name": "Distributed Systems",
+          "skill": {
+            "id": "sk-dist-sys",
+            "name": "Distributed Systems",
+            "category": "Cloud & Systems"
+          },
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-dist-sys",
+          "skill_name": "Distributed Systems",
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-docker-k8s",
+          "skill_name": "Docker & Kubernetes",
+          "category": "DevOps & Cloud",
+          "is_required": false,
+          "weight": 0.25,
+          "status": "Optional Missing"
+        }
+      ],
+      "missing_preferred_skills": [
+        {
+          "skill_id": "sk-docker-k8s",
+          "skill_name": "Docker & Kubernetes",
+          "skill": {
+            "id": "sk-docker-k8s",
+            "name": "Docker & Kubernetes",
+            "category": "DevOps & Cloud"
+          },
+          "category": "DevOps & Cloud",
+          "is_required": false,
+          "weight": 0.25,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "matched_count": 1,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 1 of 3 mandatory skill requirements (0.25 of 0.75 weighted points), yielding a 25.0% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: PostgreSQL & Database Design, Distributed Systems.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "Distributed Systems",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Distributed Systems interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Distributed Systems production patterns.",
+          "assessment_cta": "Take the Distributed Systems 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Distributed+Systems"
+        },
+        {
+          "skill_name": "Docker & Kubernetes",
+          "urgency": "Bonus / Low",
+          "suggested_resource": "Explore Docker & Kubernetes concepts to earn a +25% preferred score boost.",
+          "practice_project": "Add Docker & Kubernetes integration into your existing projects.",
+          "assessment_cta": "Verify Docker & Kubernetes for additional compatibility points.",
+          "roadmap_url": "roadmap.html?skill=Docker+%26+Kubernetes"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-29387f89"
     }
   ],
   "gemini_sessions": [

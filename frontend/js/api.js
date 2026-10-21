@@ -649,76 +649,109 @@ class ApiService {
 
     const allJobs = Array.from(jobMap.values());
 
-    // 4. Ensure every job has an explainable 75/25 match object for the candidate
-    let verifiedSkillNames = new Set(['python & fastapi', 'postgresql & database design', 'modern javascript & frontend', 'c++', 'docker & kubernetes']);
+    // 4. Ensure every job has an explainable 75/25 match object strictly comparing verified skills
+    const verifiedSkillEntries = [];
     try {
+      const cRaw = localStorage.getItem('i2i_candidate_skills');
+      if (cRaw) {
+        const cList = JSON.parse(cRaw);
+        if (Array.isArray(cList)) {
+          cList.forEach(s => {
+            if (s && (s.is_verified !== false || (s.assessment_score && s.assessment_score >= 70))) {
+              verifiedSkillEntries.push(s);
+            }
+          });
+        }
+      }
       const vRaw = localStorage.getItem('i2i_verified_skills');
       if (vRaw) {
         const vList = JSON.parse(vRaw);
-        vList.forEach(s => {
-          const name = (s.name || s.skill_name || '').toLowerCase().trim();
-          if (name) verifiedSkillNames.add(name);
-        });
+        if (Array.isArray(vList)) {
+          vList.forEach(s => {
+            if (s) verifiedSkillEntries.push(s);
+          });
+        }
       }
     } catch (e) {}
 
+    const normalizeSkillSlug = (text) => {
+      if (!text) return '';
+      return String(text).toLowerCase().replace(/^sk-/, '').replace(/[^a-z0-9]/g, '');
+    };
+
+    const isJobSkillVerified = (reqSkill) => {
+      const rName = (reqSkill.skill_name || reqSkill.name || '').toLowerCase().trim();
+      const rSlug = normalizeSkillSlug(rName);
+      const rId = (reqSkill.id || reqSkill.skill_id || '').toLowerCase().trim();
+
+      return verifiedSkillEntries.some(v => {
+        const vName = (v.skill_name || v.name || '').toLowerCase().trim();
+        const vSlug = normalizeSkillSlug(vName);
+        const vId = (v.skill_id || v.id || '').toLowerCase().trim();
+
+        if (rId && vId && rId === vId) return true;
+        if (rName && vName && rName === vName) return true;
+        if (rSlug && vSlug && rSlug === vSlug) return true;
+
+        // Controlled aliases
+        if ((rSlug === 'python' && vSlug === 'pythonfastapi') || (vSlug === 'python' && rSlug === 'pythonfastapi')) return true;
+        if ((rSlug === 'postgresql' && vSlug === 'postgresqldatabasedesign') || (vSlug === 'postgresql' && rSlug === 'postgresqldatabasedesign')) return true;
+        if ((rSlug === 'docker' && vSlug === 'dockerkubernetes') || (vSlug === 'docker' && rSlug === 'dockerkubernetes')) return true;
+
+        return false;
+      });
+    };
+
     allJobs.forEach(job => {
-      if (!job.match || typeof job.match.score === 'undefined') {
-        const reqSkills = (job.required_skills || []).map(s => {
-          if (typeof s === 'string') return { name: s, is_required: true, weight: 1.0 };
-          return {
-            name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Skill',
-            is_required: s.is_required !== false,
-            weight: Number(s.weight || 1.0)
-          };
-        });
-
-        const mandatory = reqSkills.filter(s => s.is_required);
-        const preferred = reqSkills.filter(s => !s.is_required);
-
-        const matchedMand = mandatory.filter(s => {
-          const sLower = s.name.toLowerCase();
-          return Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
-        });
-        const matchedPref = preferred.filter(s => {
-          const sLower = s.name.toLowerCase();
-          return Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
-        });
-
-        const mandRatio = mandatory.length > 0 ? (matchedMand.length / mandatory.length) : 1.0;
-        const prefRatio = preferred.length > 0 ? (matchedPref.length / preferred.length) : 1.0;
-
-        let calcScore = 0;
-        if (preferred.length > 0) {
-          calcScore = Math.round((mandRatio * 75) + (prefRatio * 25));
-        } else {
-          calcScore = Math.round(mandRatio * 100);
-        }
-
-        const missingSkills = reqSkills.filter(s => {
-          const sLower = s.name.toLowerCase();
-          return !Array.from(verifiedSkillNames).some(v => v.includes(sLower) || sLower.includes(v));
-        });
-
-        job.match = {
-          candidate_id: candidateId || 'cand-01',
-          job_id: job.id,
-          score: calcScore,
-          match_score_percentage: calcScore,
-          matched_skills: [...matchedMand, ...matchedPref].map(s => ({ skill_name: s.name, is_required: s.is_required })),
-          critical_skill_gaps: missingSkills.filter(s => s.is_required).map(s => ({ skill_name: s.name, is_required: true })),
-          bonus_competencies: matchedPref.map(s => ({ skill_name: s.name, is_required: false })),
-          missing_skills: missingSkills.map(s => ({ skill_name: s.name, is_required: s.is_required })),
-          learning_roadmap: missingSkills.map(s => ({
-            skill_name: s.name,
-            urgency: s.is_required ? 'High' : 'Bonus / Low',
-            suggested_resource: `Complete the ${s.name} specialized track & project labs.`,
-            practice_project: `Develop a testable feature implementing ${s.name} architecture.`,
-            assessment_cta: `Take the ${s.name} verification assessment to qualify.`
-          }))
+      // Re-evaluate or populate explainable 75/25 match
+      const reqSkills = (job.required_skills || job.skills || []).map(s => {
+        if (typeof s === 'string') return { name: s, is_required: true, weight: 1.0 };
+        return {
+          name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Skill',
+          is_required: s.is_required !== false,
+          weight: Number(s.weight || 1.0),
+          id: s.skill_id || s.id || ''
         };
-        job.match_score = calcScore;
+      });
+
+      const mandatory = reqSkills.filter(s => s.is_required);
+      const preferred = reqSkills.filter(s => !s.is_required);
+
+      const matchedMand = mandatory.filter(isJobSkillVerified);
+      const matchedPref = preferred.filter(isJobSkillVerified);
+
+      const mandRatio = mandatory.length > 0 ? (matchedMand.length / mandatory.length) : 1.0;
+      const prefRatio = preferred.length > 0 ? (matchedPref.length / preferred.length) : 0.0;
+
+      let calcScore = 0;
+      if (preferred.length > 0) {
+        calcScore = Math.round((mandRatio * 75) + (prefRatio * 25));
+      } else {
+        calcScore = Math.round(mandRatio * 100);
       }
+
+      const missingMandatory = mandatory.filter(s => !isJobSkillVerified(s));
+      const missingPreferred = preferred.filter(s => !isJobSkillVerified(s));
+      const allMissing = [...missingMandatory, ...missingPreferred];
+
+      job.match = {
+        candidate_id: candidateId || 'cand-01',
+        job_id: job.id,
+        score: calcScore,
+        match_score_percentage: calcScore,
+        matched_skills: [...matchedMand, ...matchedPref].map(s => ({ skill_name: s.name, is_required: s.is_required })),
+        critical_skill_gaps: missingMandatory.map(s => ({ skill_name: s.name, is_required: true })),
+        bonus_competencies: matchedPref.map(s => ({ skill_name: s.name, is_required: false })),
+        missing_skills: allMissing.map(s => ({ skill_name: s.name, is_required: s.is_required })),
+        learning_roadmap: allMissing.map(s => ({
+          skill_name: s.name,
+          urgency: s.is_required ? 'High' : 'Bonus / Low',
+          suggested_resource: `Complete the ${s.name} specialized track & project labs.`,
+          practice_project: `Develop a testable feature implementing ${s.name} architecture.`,
+          assessment_cta: `Take the ${s.name} verification assessment to qualify.`
+        }))
+      };
+      job.match_score = calcScore;
     });
 
     // Sort newest first so HR's newly created job appears at the very top of Candidate feed!
@@ -979,14 +1012,46 @@ class ApiService {
   }
 
   async removeCandidateSkill(skillId, candidateId = '') {
+    // 1. Immediately purge from local storage caches
     try {
-      return await this.request(candidateId ? `/candidate/skills/${skillId}?candidate_id=${candidateId}` : `/candidate/skills/${skillId}`, {
+      const targetLower = String(skillId || '').toLowerCase().trim();
+      const targetSlug = targetLower.replace(/^sk-/, '').replace(/[^a-z0-9]/g, '');
+
+      const filterOut = (list) => {
+        return (list || []).filter(s => {
+          const sId = (s.skill_id || s.id || '').toLowerCase().trim();
+          const sName = (s.skill_name || s.name || '').toLowerCase().trim();
+          const sSlug = sName.replace(/^sk-/, '').replace(/[^a-z0-9]/g, '');
+          if (sId && sId === targetLower) return false;
+          if (sName && sName === targetLower) return false;
+          if (targetSlug && sSlug === targetSlug) return false;
+          if (targetSlug && sId.replace(/[^a-z0-9]/g, '') === targetSlug) return false;
+          return true;
+        });
+      };
+
+      const cRaw = localStorage.getItem('i2i_candidate_skills');
+      if (cRaw) {
+        const cFiltered = filterOut(JSON.parse(cRaw));
+        localStorage.setItem('i2i_candidate_skills', JSON.stringify(cFiltered));
+      }
+
+      const vRaw = localStorage.getItem('i2i_verified_skills');
+      if (vRaw) {
+        const vFiltered = filterOut(JSON.parse(vRaw));
+        localStorage.setItem('i2i_verified_skills', JSON.stringify(vFiltered));
+      }
+    } catch (err) {
+      console.warn('Error purging skill from local storage:', err);
+    }
+
+    // 2. Also send DELETE request to backend
+    try {
+      const encId = encodeURIComponent(skillId);
+      return await this.request(candidateId ? `/candidate/skills/${encId}?candidate_id=${candidateId}` : `/candidate/skills/${encId}`, {
         method: 'DELETE'
       });
     } catch (e) {
-      const list = await this.getCandidateSkills(candidateId);
-      const filtered = list.filter(s => s.skill_id !== skillId && s.id !== skillId);
-      localStorage.setItem('i2i_candidate_skills', JSON.stringify(filtered));
       return { success: true };
     }
   }

@@ -1058,10 +1058,22 @@ def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = 
 @router.delete("/candidate/skills/{skill_id}")
 def delete_user_skill(skill_id: str, candidate_id: Optional[str] = Query(None)):
     cid = candidate_id or "cand-01"
-    clean_id = skill_id.lower().strip()
-    deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"].lower() == clean_id or cs.get("id", "").lower() == clean_id or cs.get("skill_name", "").lower() == clean_id))
+    clean_id = urllib.parse.unquote(skill_id).lower().strip()
+    import re
+    clean_slug = re.sub(r'[^a-z0-9]', '', clean_id.replace('sk-', ''))
+
+    def matches_cs(cs):
+        if cs.get("candidate_id") != cid:
+            return False
+        c_id = cs.get("skill_id", "").lower().strip()
+        c_rec_id = cs.get("id", "").lower().strip()
+        c_name = (cs.get("skill_name") or cs.get("name") or "").lower().strip()
+        c_slug = re.sub(r'[^a-z0-9]', '', (c_name or c_id).replace('sk-', ''))
+        return c_id == clean_id or c_rec_id == clean_id or c_name == clean_id or (clean_slug and c_slug == clean_slug)
+
+    deleted = db.delete("candidate_skills", matches_cs)
     if not deleted:
-        skill = db.find_one("skills", lambda s: s["id"].lower() == clean_id or s.get("name", "").lower() == clean_id or s.get("slug", "").lower() == clean_id)
+        skill = db.find_one("skills", lambda s: s["id"].lower() == clean_id or s.get("name", "").lower() == clean_id or s.get("slug", "").lower() == clean_id or (clean_slug and re.sub(r'[^a-z0-9]', '', s.get("slug", "").lower()) == clean_slug))
         if skill:
             deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == skill["id"])
     return {"success": True, "message": "Competency removed from profile"}

@@ -186,37 +186,29 @@ INITIAL_DATA = {
         {
             "candidate_id": "cand-01",
             "skill_id": "sk-01",
-            "assessment_score": 92.0,
+            "skill_name": "Python & FastAPI",
+            "assessment_score": 100.0,
+            "quiz_score": 100.0,
             "is_verified": True,
-            "verified_at": "2026-02-14T15:20:00Z"
+            "verified_at": "2026-10-21T15:17:55.686818+00:00"
         },
         {
             "candidate_id": "cand-01",
-            "skill_id": "sk-02",
-            "assessment_score": 88.0,
-            "is_verified": True,
-            "verified_at": "2026-02-15T10:15:00Z"
-        },
-        {
-            "candidate_id": "cand-01",
-            "skill_id": "sk-03",
+            "skill_id": "sk-java",
+            "skill_name": "Java",
             "assessment_score": 80.0,
+            "quiz_score": 80.0,
             "is_verified": True,
-            "verified_at": "2026-02-16T11:45:00Z"
+            "verified_at": "2026-10-21T17:00:00.000000+00:00"
         },
         {
             "candidate_id": "cand-01",
-            "skill_id": "sk-05",
-            "assessment_score": 90.0,
+            "skill_id": "sk-asm-js",
+            "skill_name": "asm-js",
+            "assessment_score": 100.0,
+            "quiz_score": 100.0,
             "is_verified": True,
-            "verified_at": "2026-02-17T14:10:00Z"
-        },
-        {
-            "candidate_id": "cand-01",
-            "skill_id": "sk-06",
-            "assessment_score": 94.0,
-            "is_verified": True,
-            "verified_at": "2026-02-17T16:30:00Z"
+            "verified_at": "2026-10-21T17:00:00.000000+00:00"
         },
         {
             "candidate_id": "cand-02",

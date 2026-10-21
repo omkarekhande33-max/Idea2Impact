@@ -1583,8 +1583,8 @@ class App {
               <button class="btn btn-outline btn-sm" onclick="window.location.reload()">🔄 Refresh Feed</button>
             </div>
           ` : jobs.map(job => {
-            const m = job.match;
-            const score = Math.round(m ? (m.score || m.match_score_percentage || 0) : (job.match_score || 0));
+            const realMatch = this.calculateRealJobMatch(job, candidateSkills, passport);
+            const score = realMatch.score;
             const isHighFit = score >= 75;
             const isMediumFit = score >= 50 && score < 75;
             const companyName = job.company_name || job.company || 'Enterprise Partner';
@@ -2129,6 +2129,15 @@ class App {
         if (confirm(`Remove competency "${skill}" from your profile?`)) {
           try {
             await api.removeCandidateSkill(skill, candidateId);
+            // Clean in-memory candidateSkills and passport arrays if present
+            if (Array.isArray(candidateSkills)) {
+              const idx = candidateSkills.findIndex(s => (s.name || s.skill_name || '').toLowerCase() === skill.toLowerCase());
+              if (idx !== -1) candidateSkills.splice(idx, 1);
+            }
+            if (passport && Array.isArray(passport.verified_skills)) {
+              const pIdx = passport.verified_skills.findIndex(s => (s.name || s.skill_name || '').toLowerCase() === skill.toLowerCase());
+              if (pIdx !== -1) passport.verified_skills.splice(pIdx, 1);
+            }
             state.showToast(`Removed ${skill}`, 'info');
             state.notify();
           } catch (err) {
@@ -2248,53 +2257,174 @@ class App {
   }
 
   // =========================================================================
+  // REAL-TIME 75/25 DUAL-TIER MATCHING ENGINE (REAL DATA COMPARISON)
+  // Strictly compares candidate's actual verified skills against job requirements
+  // =========================================================================
+  calculateRealJobMatch(job, candidateSkills = [], passport = null) {
+    // 1. Gather all candidate verified skills
+    let cSkills = (candidateSkills && candidateSkills.length > 0) ? [...candidateSkills] : [];
+    if (cSkills.length === 0 && passport && passport.verified_skills && passport.verified_skills.length > 0) {
+      cSkills = [...passport.verified_skills];
+    }
+    // Check localStorage caches if cSkills is still empty
+    if (cSkills.length === 0) {
+      try {
+        const cRaw = localStorage.getItem('i2i_candidate_skills');
+        const vRaw = localStorage.getItem('i2i_verified_skills');
+        const map = new Map();
+        if (cRaw) {
+          const list = JSON.parse(cRaw);
+          if (Array.isArray(list)) {
+            list.forEach(s => {
+              const name = (s.name || s.skill_name || s.skill_id || '').toLowerCase().trim();
+              if (name && (s.is_verified !== false || (s.assessment_score && s.assessment_score >= 70))) {
+                map.set(name, s);
+              }
+            });
+          }
+        }
+        if (vRaw) {
+          const list = JSON.parse(vRaw);
+          if (Array.isArray(list)) {
+            list.forEach(s => {
+              const name = (s.name || s.skill_name || s.skill_id || '').toLowerCase().trim();
+              if (name) map.set(name, s);
+            });
+          }
+        }
+        cSkills = Array.from(map.values());
+      } catch (e) {}
+    }
+
+    // 2. Resolve job requirements
+    const rawReqs = (job.required_skills && job.required_skills.length > 0)
+      ? job.required_skills
+      : (job.skills && job.skills.length > 0)
+        ? job.skills
+        : [];
+
+    if (rawReqs.length === 0) {
+      return {
+        score: 100,
+        matched: [],
+        critical_skill_gaps: [],
+        bonus_competencies: [],
+        missing_preferred: [],
+        all_missing: [],
+        is_high: true
+      };
+    }
+
+    const reqSkills = rawReqs.map(s => {
+      if (typeof s === 'string') {
+        return { name: s, skill_name: s, is_required: true, weight: 1.0, id: '' };
+      }
+      return {
+        name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Competency',
+        skill_name: s.skill_name || s.name || s.skill?.name || s.skill_id || 'Competency',
+        is_required: s.is_required !== false,
+        weight: Number(s.weight || 1.0),
+        id: s.skill_id || s.id || ''
+      };
+    });
+
+    const normalizeSlug = (text) => {
+      if (!text) return '';
+      return String(text).toLowerCase().replace(/^sk-/, '').replace(/[^a-z0-9]/g, '');
+    };
+
+    // Strict matcher: Only matches if candidate actually has verified this exact competency
+    const isMatched = (req) => {
+      const rName = (req.skill_name || req.name || '').toLowerCase().trim();
+      const rSlug = normalizeSlug(rName);
+      const rId = (req.id || req.skill_id || '').toLowerCase().trim();
+
+      return cSkills.some(cand => {
+        const cName = (cand.skill_name || cand.name || '').toLowerCase().trim();
+        const cSlug = normalizeSlug(cName);
+        const cId = (cand.skill_id || cand.id || '').toLowerCase().trim();
+
+        // 1. Direct ID match
+        if (rId && cId && rId === cId) return true;
+
+        // 2. Direct string match
+        if (rName && cName && rName === cName) return true;
+
+        // 3. Slug match (e.g. "python-fastapi" === "python & fastapi")
+        if (rSlug && cSlug && rSlug === cSlug) return true;
+
+        // 4. Catalog mapping check
+        const rCat = SKILLS_CATALOG.find(sk => sk.id.toLowerCase() === rId || sk.slug === rSlug || normalizeSlug(sk.name) === rSlug);
+        const cCat = SKILLS_CATALOG.find(sk => sk.id.toLowerCase() === cId || sk.slug === cSlug || normalizeSlug(sk.name) === cSlug);
+        if (rCat && cCat && (rCat.id === cCat.id || rCat.slug === cCat.slug)) {
+          return true;
+        }
+
+        // 5. Official prefix aliases (Python <-> Python & FastAPI, PostgreSQL <-> PostgreSQL & Database Design, Docker <-> Docker & Kubernetes)
+        if ((rSlug === 'python' && cSlug === 'pythonfastapi') || (cSlug === 'python' && rSlug === 'pythonfastapi')) return true;
+        if ((rSlug === 'postgresql' && cSlug === 'postgresqldatabasedesign') || (cSlug === 'postgresql' && rSlug === 'postgresqldatabasedesign')) return true;
+        if ((rSlug === 'docker' && cSlug === 'dockerkubernetes') || (cSlug === 'docker' && rSlug === 'dockerkubernetes')) return true;
+
+        return false;
+      });
+    };
+
+    const mandatory = reqSkills.filter(s => s.is_required);
+    const preferred = reqSkills.filter(s => !s.is_required);
+
+    const matchedMandatory = mandatory.filter(isMatched);
+    const missingMandatory = mandatory.filter(r => !isMatched(r));
+
+    const matchedPreferred = preferred.filter(isMatched);
+    const missingPreferred = preferred.filter(r => !isMatched(r));
+
+    // Dual-Tier 75/25 scoring formula
+    let score = 0;
+    const mandCount = mandatory.length;
+    const prefCount = preferred.length;
+
+    if (prefCount > 0) {
+      const mandRatio = mandCount > 0 ? (matchedMandatory.length / mandCount) : 1.0;
+      const prefRatio = (matchedPreferred.length / prefCount);
+      score = Math.round((mandRatio * 75) + (prefRatio * 25));
+    } else {
+      const mandRatio = mandCount > 0 ? (matchedMandatory.length / mandCount) : 1.0;
+      score = Math.round(mandRatio * 100);
+    }
+
+    return {
+      score: Math.min(100, Math.max(0, score)),
+      matched: [...matchedMandatory, ...matchedPreferred].map(s => s.name),
+      critical_skill_gaps: missingMandatory.map(s => s.name),
+      bonus_competencies: matchedPreferred.map(s => s.name),
+      missing_preferred: missingPreferred.map(s => s.name),
+      all_missing: [...missingMandatory, ...missingPreferred].map(s => s.name),
+      is_high: score >= 75
+    };
+  }
+
+  // =========================================================================
   // EXACT IMAGE 1: ANALYZE & MATCH MODAL (Red Skill Gaps with Roadmap Button)
   // =========================================================================
   openGapAnalysisModal(job, candidateId, passport, candidateSkills = []) {
-    // Collect candidate's verified skill names
-    const cSkills = (candidateSkills && candidateSkills.length > 0) ? candidateSkills : (passport?.verified_skills || []);
-    const verifiedNames = new Set(cSkills.map(s => (s.skill_name || s.name || '').toLowerCase().trim()));
+    // Real calculation: strictly compare candidate's verified skills against job requirements
+    const realMatch = this.calculateRealJobMatch(job, candidateSkills, passport);
+    const score = realMatch.score;
+    const matched = realMatch.matched;
+    const missing = realMatch.critical_skill_gaps;
 
-    // Prefer pre-computed match details if available
-    const m = job.match;
-    let score = 0;
-    let missing = [];
-    let matched = [];
-
-    if (m && typeof m.score !== 'undefined') {
-      score = Math.round(m.score || m.match_score_percentage || 0);
-
-      // Extract matched skills
-      const rawMatched = m.matched_skills || [];
-      matched = rawMatched.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
-
-      // Extract critical gaps & missing
-      const rawMissing = (m.critical_skill_gaps && m.critical_skill_gaps.length > 0) 
-        ? m.critical_skill_gaps 
-        : (m.missing_skills || []);
-      missing = rawMissing.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
-    } else {
-      // Fallback: evaluate required_skills against candidate verified skills
-      let mandSkills = [];
-      if (job.required_skills && job.required_skills.length > 0) {
-        mandSkills = job.required_skills.map(s => typeof s === 'string' ? s : (s.skill_name || s.name || s.skill?.name || 'Competency'));
-      } else {
-        mandSkills = ['JavaScript', 'React', 'PostgreSQL', 'TypeScript', 'Node.js'];
-      }
-
-      mandSkills.forEach(sName => {
-        const sLower = sName.toLowerCase().trim();
-        const hasMatch = Array.from(verifiedNames).some(v => v.includes(sLower) || sLower.includes(v));
-        if (hasMatch) {
-          matched.push(sName);
-        } else {
-          missing.push(sName);
-        }
-      });
-
-      const totalMand = mandSkills.length;
-      score = totalMand > 0 ? Math.round((matched.length / totalMand) * 100) : (job.match_score || 0);
-    }
+    // Cache real match object on job for feed consistency
+    job.match = {
+      candidate_id: candidateId || 'cand-01',
+      job_id: job.id,
+      score: score,
+      match_score_percentage: score,
+      matched_skills: matched.map(s => ({ skill_name: s, is_required: true })),
+      critical_skill_gaps: missing.map(s => ({ skill_name: s, is_required: true })),
+      bonus_competencies: realMatch.bonus_competencies.map(s => ({ skill_name: s, is_required: false })),
+      missing_skills: realMatch.all_missing.map(s => ({ skill_name: s, is_required: true }))
+    };
+    job.match_score = score;
 
     const isHigh = score >= 75;
     const companyDisplay = job.company_name || job.company || 'Enterprise Partner';
