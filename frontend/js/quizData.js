@@ -2,6 +2,96 @@
 
 export const SKILLS_CATALOG = [
   {
+    id: "sk-python-fastapi",
+    slug: "python-fastapi",
+    name: "Python & FastAPI",
+    full_name: "Python & FastAPI Production Services",
+    category: "Backend & Systems",
+    icon: "🐍",
+    color: "#3776AB",
+    bg: "rgba(55, 118, 171, 0.15)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Asynchronous API design with FastAPI, Pydantic data validation schemas, dependency injection with Depends, background task processing, and ASGI concurrency."
+  },
+  {
+    id: "sk-postgres-design",
+    slug: "postgresql-database-design",
+    name: "PostgreSQL & Database Design",
+    full_name: "PostgreSQL & Relational Database Design",
+    category: "Databases & Tools",
+    icon: "🐘",
+    color: "#336791",
+    bg: "rgba(51, 103, 145, 0.15)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Relational schema modeling, 3NF normalization, foreign keys, B-Tree and GIN indexes, EXPLAIN ANALYZE query plans, ACID transactions, and MVCC concurrency."
+  },
+  {
+    id: "sk-dist-sys",
+    slug: "distributed-systems",
+    name: "Distributed Systems",
+    full_name: "Distributed Systems & Resilient Architecture",
+    category: "Cloud & Systems",
+    icon: "🌐",
+    color: "#0284C7",
+    bg: "rgba(2, 132, 199, 0.15)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "CAP theorem, Paxos & Raft consensus algorithms, distributed transactions (2PC & Saga patterns), eventual consistency, idempotency, and message queues."
+  },
+  {
+    id: "sk-docker-k8s",
+    slug: "docker-kubernetes",
+    name: "Docker & Kubernetes",
+    full_name: "Docker Containerization & Kubernetes Orchestration",
+    category: "DevOps & Cloud",
+    icon: "🐳",
+    color: "#2496ED",
+    bg: "rgba(36, 150, 237, 0.15)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Multi-stage Docker builds, layer caching, Kubernetes Pods, Deployments, StatefulSets, Services, Ingress, and horizontal pod autoscaling (HPA)."
+  },
+  {
+    id: "sk-redis",
+    slug: "redis-caching",
+    name: "Redis Caching",
+    full_name: "Redis In-Memory Caching & Distributed Data Stores",
+    category: "Databases & Tools",
+    icon: "⚡",
+    color: "#DC2626",
+    bg: "rgba(220, 38, 38, 0.15)",
+    level: "Intermediate",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "In-memory data structures (Hashes, Sorted Sets), Cache-Aside and Write-Through caching patterns, TTL expiration, Redis Pub/Sub, and distributed locking."
+  },
+  {
+    id: "sk-cloud-arch",
+    slug: "cloud-architecture",
+    name: "Cloud Architecture",
+    full_name: "Cloud Systems Architecture & Reliability Engineering",
+    category: "Cloud & Systems",
+    icon: "☁️",
+    color: "#0D9488",
+    bg: "rgba(13, 148, 136, 0.15)",
+    level: "Advanced",
+    duration_minutes: 15,
+    question_count: 5,
+    passing_score: 75.0,
+    description: "Multi-AZ high availability, multi-region disaster recovery (RTO/RPO), 12-factor cloud apps, VPC networking, security groups, and Circuit Breaker patterns."
+  },
+  {
     id: "sk-cpp",
     slug: "cpp",
     name: "C++",
@@ -1193,13 +1283,453 @@ export const QUIZ_BANKS = {
         explanation: "PostgreSQL uses a process-per-connection architecture where each client connection consumes significant RAM (~10MB+) and process overhead; poolers maintain a small pool of persistent backend connections."
       }
     ]
+  },
+  python_fastapi: {
+    id: "asm-python-fastapi",
+    skill_id: "sk-python-fastapi",
+    title: "Python & FastAPI Production Services Assessment",
+    skill_name: "Python & FastAPI",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "pyd_q1",
+        text: "In FastAPI, how does declaring an endpoint handler with 'async def' differ from declaring it with standard synchronous 'def'?",
+        options: [
+          "'async def' forces FastAPI to spin up a new OS thread per request, whereas 'def' uses a single thread",
+          "'async def' routes run directly on the event loop (must never block), whereas 'def' routes are dispatched to an external worker threadpool",
+          "'def' routes cannot use Pydantic models or dependency injection",
+          "'async def' disables CORS and request validation for higher performance"
+        ],
+        correct_index: 1,
+        explanation: "FastAPI executes 'async def' functions cooperatively on the main asyncio event loop, while standard 'def' functions are offloaded to an external AnyIO threadpool to prevent blocking the event loop."
+      },
+      {
+        id: "pyd_q2",
+        text: "What is the primary role of FastAPI's 'Depends()' dependency injection system?",
+        options: [
+          "To automatically generate database migration scripts and ORM tables",
+          "To declare shared logic (auth, database sessions, query parameters) that FastAPI resolves hierarchically before executing the route handler",
+          "To inject JavaScript client-side bundles into HTML templates",
+          "To measure CPU and memory usage of individual HTTP endpoints"
+        ],
+        correct_index: 1,
+        explanation: "Depends() enables clean modular architectures where dependencies (such as auth token verification or database sessions) are instantiated, validated, and yield-cleaned automatically per request."
+      },
+      {
+        id: "pyd_q3",
+        text: "In Pydantic v2 / FastAPI, what is the recommended way to validate that a string field conforms to a valid email format?",
+        options: [
+          "Use a regular expression directly inside every route handler with re.match()",
+          "Declare the field using Pydantic's EmailStr type",
+          "Cast the incoming payload to a Python dictionary and check for '@' manually",
+          "Enable the --verify-emails flag in the Uvicorn command line"
+        ],
+        correct_index: 1,
+        explanation: "Pydantic provides EmailStr (backed by email-validator), which automatically performs RFC-compliant email syntax validation during request parsing."
+      },
+      {
+        id: "pyd_q4",
+        text: "How should an asynchronous FastAPI service execute a lightweight task (like sending an email or audit logging) after returning the HTTP response?",
+        options: [
+          "Use time.sleep() inside the route before the return statement",
+          "Add a parameter of type BackgroundTasks and call background_tasks.add_task(func, *args)",
+          "Fork a new child process with os.fork()",
+          "Block the client response with an infinite while loop"
+        ],
+        correct_index: 1,
+        explanation: "FastAPI's BackgroundTasks allows route handlers to schedule callables that run after the response has been sent to the client, preventing latency spikes for the caller."
+      },
+      {
+        id: "pyd_q5",
+        text: "When building high-throughput FastAPI services with async database drivers, why must you NEVER execute synchronous blocking I/O (e.g. requests.get or time.sleep)?",
+        options: [
+          "FastAPI will throw a SyntaxError at compile time",
+          "Blocking the single event loop thread stops ALL concurrent async requests from being processed until the blocking call finishes",
+          "It permanently disables database connection pooling",
+          "It causes the ASGI server to drop SSL certificates"
+        ],
+        correct_index: 1,
+        explanation: "Because asyncio relies on cooperative multitasking on a single thread, any blocking synchronous call stops the entire event loop, freezing all concurrent requests."
+      }
+    ]
+  },
+  postgresql_design: {
+    id: "asm-postgresql-design",
+    skill_id: "sk-postgres-design",
+    title: "PostgreSQL & Database Design Technical Assessment",
+    skill_name: "PostgreSQL & Database Design",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "pgd_q1",
+        text: "What defines a relational database schema adhering strictly to Third Normal Form (3NF)?",
+        options: [
+          "Every column must be indexed and encrypted with AES-256",
+          "The table is in 2NF, and every non-key attribute is non-transitively dependent on the primary key (no transitive dependencies)",
+          "All data must be stored in a single denormalized wide table for maximum read performance",
+          "The table must contain at least two foreign keys and an auto-incrementing integer"
+        ],
+        correct_index: 1,
+        explanation: "3NF requires 2NF plus the rule that non-key columns must depend solely on the primary key ('the key, the whole key, and nothing but the key, so help me Codd'), eliminating transitive dependencies."
+      },
+      {
+        id: "pgd_q2",
+        text: "When querying JSONB documents containing arrays in PostgreSQL, which index type provides optimal lookup performance for containment queries (@>)?",
+        options: [
+          "B-Tree index",
+          "GIN (Generalized Inverted Index)",
+          "Hash index",
+          "BRIN (Block Range Index)"
+        ],
+        correct_index: 1,
+        explanation: "GIN indexes decompose composite values (like JSONB keys, tags, or arrays) into individual elements, making them ideal for search and containment operators (@>, ?, ?&)."
+      },
+      {
+        id: "pgd_q3",
+        text: "How does PostgreSQL's Multi-Version Concurrency Control (MVCC) ensure that read operations do not block write operations and vice-versa?",
+        options: [
+          "By taking an exclusive table-level lock on every SELECT statement",
+          "By writing new versions of rows (tuples) with xmin/xmax transaction visibility IDs rather than overwriting existing data in-place",
+          "By serializing all client connections into a single FIFO queue",
+          "By storing uncommitted changes strictly in client browser cookies"
+        ],
+        correct_index: 1,
+        explanation: "Under MVCC, each transaction sees a consistent snapshot of data. Updates write a new tuple with the current transaction ID (xmin), while old tuples remain visible to earlier concurrent snapshots until vacuumed."
+      },
+      {
+        id: "pgd_q4",
+        text: "What is the critical distinction between running 'EXPLAIN' versus 'EXPLAIN ANALYZE' on a slow SQL query in PostgreSQL?",
+        options: [
+          "'EXPLAIN' shows the planner's estimated cost without running the query, whereas 'EXPLAIN ANALYZE' executes the query to return actual execution times and row counts",
+          "'EXPLAIN ANALYZE' only checks syntax and does not access the database",
+          "'EXPLAIN' automatically rewrites your SQL query to add missing indexes",
+          "'EXPLAIN ANALYZE' is only supported on SQLite databases"
+        ],
+        correct_index: 0,
+        explanation: "'EXPLAIN' produces estimated costs generated by the query planner. 'EXPLAIN ANALYZE' actually runs the statement, displaying real millisecond timings, buffer hits, and actual rows processed."
+      },
+      {
+        id: "pgd_q5",
+        text: "Why should production PostgreSQL installations facing thousands of concurrent client connections use a connection pooler like PgBouncer?",
+        options: [
+          "PostgreSQL lacks native support for TCP networking",
+          "PostgreSQL forks a dedicated OS process per client connection (~10MB+ RAM and context switching overhead), which can exhaust server resources without a pooler",
+          "PgBouncer automatically compiles SQL into C++ binaries for 10x faster execution",
+          "PgBouncer is required to enable foreign key constraints"
+        ],
+        correct_index: 1,
+        explanation: "PostgreSQL's process-per-connection model incurs significant memory and CPU context-switching overhead; PgBouncer multiplexes thousands of incoming client requests into a small pool of warm server backends."
+      }
+    ]
+  },
+  distributed_systems: {
+    id: "asm-distributed-systems",
+    skill_id: "sk-dist-sys",
+    title: "Distributed Systems & Resilient Architecture Assessment",
+    skill_name: "Distributed Systems",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "ds_q1",
+        text: "According to Eric Brewer's CAP Theorem, what fundamental guarantee must a distributed system make when a network partition (P) occurs?",
+        options: [
+          "It must guarantee both full Consistency (C) and 100% Availability (A) simultaneously",
+          "It must choose between Consistency (returning an error or waiting) or Availability (returning stale data)",
+          "It must immediately shut down all nodes across all availability zones",
+          "It must switch from TCP to UDP communication"
+        ],
+        correct_index: 1,
+        explanation: "Network partitions in distributed networks are inevitable. When a partition occurs, a system must decide whether to preserve strict Consistency (CP) or preserve high Availability (AP)."
+      },
+      {
+        id: "ds_q2",
+        text: "In the Raft consensus algorithm, how does a cluster maintain consistent state and handle leader failures?",
+        options: [
+          "Nodes choose random leader IDs without communication",
+          "Followers use randomized election timeouts to transition to candidates and seek majority votes from a quorum of nodes",
+          "The node with the lowest IP address is permanently designated as the sole leader",
+          "Transactions are recorded in plaintext files without log replication"
+        ],
+        correct_index: 1,
+        explanation: "Raft divides consensus into leader election, log replication, and safety. Randomized election timeouts prevent split-vote scenarios, and a candidate must win votes from a strict quorum (majority) of nodes."
+      },
+      {
+        id: "ds_q3",
+        text: "When coordinating a multi-step business workflow across multiple independent microservices (e.g. order, payment, inventory), why is the Saga pattern preferred over 2-Phase Commit (2PC)?",
+        options: [
+          "2PC is lock-free and has no latency overhead",
+          "2PC holds locks across all participating services until the final commit, causing high latency, single points of failure, and poor scalability under load; Sagas use asynchronous local transactions and compensating actions",
+          "Sagas require synchronous HTTP connections between all microservices",
+          "The Saga pattern only works on single-node relational databases"
+        ],
+        correct_index: 1,
+        explanation: "2PC is a blocking protocol where coordinator failures or slow nodes block all participants holding database locks. Sagas execute a sequence of local transactions, triggering compensating transactions if any step fails."
+      },
+      {
+        id: "ds_q4",
+        text: "What is the purpose of an 'Idempotency Key' in distributed message processing and payment APIs?",
+        options: [
+          "To encrypt payload contents in transit using TLS 1.3",
+          "To allow clients to safely retry requests without fear of executing duplicate transactions or side effects when network timeouts occur",
+          "To force consumer threads to process messages in chronological order",
+          "To generate dynamic API documentation"
+        ],
+        correct_index: 1,
+        explanation: "In distributed networks with at-least-once delivery, requests can be retried due to network drops. An idempotency key ensures that the server recognizes a duplicate attempt and returns the cached result without re-executing."
+      },
+      {
+        id: "ds_q5",
+        text: "In distributed key-value stores without synchronized physical wall clocks, how are concurrent update conflicts detected across replicas?",
+        options: [
+          "By relying strictly on server system clocks (NTP timestamps)",
+          "By using logical clocks or Vector Clocks to capture causality and detect concurrent branching updates",
+          "By discarding all writes that occur after 12:00 UTC",
+          "By pinging the client browser for the current local time"
+        ],
+        correct_index: 1,
+        explanation: "Physical clocks drift (clock skew). Vector Clocks track causal relationships between events across independent nodes, enabling distributed systems to identify whether an event preceded another or if they are in conflict."
+      }
+    ]
+  },
+  docker_kubernetes: {
+    id: "asm-docker-kubernetes",
+    skill_id: "sk-docker-k8s",
+    title: "Docker Containerization & Kubernetes Orchestration Assessment",
+    skill_name: "Docker & Kubernetes",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "dk_q1",
+        text: "Why are multi-stage Docker builds widely used in production CI/CD pipelines?",
+        options: [
+          "To run multiple containers inside the same single Docker image",
+          "To separate build-time dependencies (compilers, SDKs) from the final lean runtime image, minimizing image size and attack surface",
+          "To bypass Docker layer caching completely",
+          "To automatically publish images to Docker Hub without authentication"
+        ],
+        correct_index: 1,
+        explanation: "Multi-stage builds allow developers to compile artifacts in a heavy builder stage and copy only the compiled binaries/assets into a minimal base image (like alpine or distroless), slashing final image size."
+      },
+      {
+        id: "dk_q2",
+        text: "In Kubernetes, what is the fundamental difference between a 'Deployment' and a 'StatefulSet'?",
+        options: [
+          "Deployments are only for Linux nodes, while StatefulSets are only for Windows nodes",
+          "Deployments manage interchangeable, stateless replicas with ephemeral storage, whereas StatefulSets maintain sticky pod identities, ordered rollouts, and persistent volume bindings",
+          "StatefulSets do not support rolling updates or autoscaling",
+          "Deployments cannot expose network ports"
+        ],
+        correct_index: 1,
+        explanation: "StatefulSets are tailored for stateful workloads (like PostgreSQL, Kafka, Redis) requiring stable unique network identifiers (e.g. pod-0, pod-1) and dedicated persistent storage across rescheduling."
+      },
+      {
+        id: "dk_q3",
+        text: "Which Kubernetes Service type creates an internal virtual IP accessible ONLY within the cluster network?",
+        options: [
+          "NodePort",
+          "LoadBalancer",
+          "ClusterIP",
+          "ExternalName"
+        ],
+        correct_index: 2,
+        explanation: "ClusterIP is the default Kubernetes Service type. It exposes the service on an internal IP within the cluster, reachable only by other pods in the same cluster."
+      },
+      {
+        id: "dk_q4",
+        text: "How does Kubernetes Horizontal Pod Autoscaler (HPA) scale workloads dynamically in production?",
+        options: [
+          "By adjusting pod CPU clock speeds on the underlying nodes",
+          "By querying the metrics server (CPU, memory, or custom Prometheus metrics) and adjusting the Deployment's replica count within min/max bounds",
+          "By automatically rewriting Dockerfiles at runtime",
+          "By terminating unhealthy worker nodes"
+        ],
+        correct_index: 1,
+        explanation: "HPA continuously monitors resource utilization metrics via the metrics API and scales the number of pod replicas up or down based on defined target thresholds."
+      },
+      {
+        id: "dk_q5",
+        text: "Why should instructions that change frequently (like 'COPY . .') be placed near the BOTTOM of a Dockerfile?",
+        options: [
+          "Because Docker executes files from bottom to top",
+          "To maximize layer cache reuse for earlier steps (like installing dependencies), avoiding redundant dependency downloads when only source code changes",
+          "Because the Linux kernel requires application code to reside on the root partition",
+          "To prevent Docker images from exceeding 100MB"
+        ],
+        correct_index: 1,
+        explanation: "Docker caches each build step. Once a layer changes, all subsequent layers must be rebuilt. Placing frequently modified application source code after dependency installation keeps dependencies cached."
+      }
+    ]
+  },
+  redis_caching: {
+    id: "asm-redis-caching",
+    skill_id: "sk-redis",
+    title: "Redis Caching & In-Memory Architectures Assessment",
+    skill_name: "Redis Caching",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "red_q1",
+        text: "In the standard Cache-Aside (Lazy Loading) caching pattern, what sequence of actions does the application take on a cache MISS?",
+        options: [
+          "Throw an HTTP 404 error immediately to the client",
+          "Query the primary database, write the retrieved data to the Redis cache with an appropriate TTL, and return the result to the caller",
+          "Flush all keys in Redis and restart the database service",
+          "Block until another client populates the key"
+        ],
+        correct_index: 1,
+        explanation: "Under Cache-Aside, the app checks Redis first. On a miss, it queries the primary datastore, writes the result into Redis for subsequent requests, and returns the response."
+      },
+      {
+        id: "red_q2",
+        text: "Which Redis eviction policy should you configure if you want Redis to automatically evict the least recently used keys among ONLY those with an expiration (TTL) set?",
+        options: [
+          "noeviction",
+          "allkeys-lru",
+          "volatile-lru",
+          "allkeys-random"
+        ],
+        correct_index: 2,
+        explanation: "volatile-lru evicts the least recently used keys out of the keyset with an active expiration set, preserving keys without TTLs from unexpected eviction."
+      },
+      {
+        id: "red_q3",
+        text: "Which Redis native data structure is ideally suited for building real-time gaming leaderboards or prioritized job queues?",
+        options: [
+          "Hashes (HSET)",
+          "Sorted Sets (ZSET)",
+          "HyperLogLog",
+          "Strings (SET)"
+        ],
+        correct_index: 1,
+        explanation: "Sorted Sets (ZSET) store unique string members mapped to a floating-point score, maintaining items in sorted order and offering O(log N) operations like ZADD, ZRANGEBYSCORE, and ZREVRANK."
+      },
+      {
+        id: "red_q4",
+        text: "How can a distributed lock be safely acquired in Redis using a single atomic command?",
+        options: [
+          "Run GET key followed by SET key value",
+          "Execute 'SET resource_name my_random_token NX PX 30000'",
+          "Execute FLUSHALL ASYNC",
+          "Call HSETNX on an integer counter"
+        ],
+        correct_index: 1,
+        explanation: "SET resource_name token NX PX 30000 atomically sets the key only if it does not exist (NX) with an expiration of 30,000 milliseconds (PX), preventing deadlocks if the lock holder crashes."
+      },
+      {
+        id: "red_q5",
+        text: "What is the key difference between Redis RDB snapshots and AOF (Append Only File) persistence?",
+        options: [
+          "RDB logs every write operation in real-time, while AOF only runs when Redis shuts down",
+          "RDB creates point-in-time binary snapshots at specified intervals, while AOF logs every write operation sequentially for maximum durability",
+          "RDB requires a relational database backend, while AOF stores data in browser memory",
+          "AOF is only supported on single-threaded ARM processors"
+        ],
+        correct_index: 1,
+        explanation: "RDB creates compact point-in-time dump files (perfect for backups), while AOF appends every write command to a log file, offering higher durability with minimal data loss risk."
+      }
+    ]
+  },
+  cloud_architecture: {
+    id: "asm-cloud-architecture",
+    skill_id: "sk-cloud-arch",
+    title: "Cloud Systems Architecture & Reliability Assessment",
+    skill_name: "Cloud Architecture",
+    duration_minutes: 15,
+    passing_score: 75.0,
+    questions: [
+      {
+        id: "ca_q1",
+        text: "In cloud architecture, what does deploying a web application across multiple Availability Zones (Multi-AZ) within a region primarily achieve?",
+        options: [
+          "Zero networking costs between cloud providers",
+          "High Availability (HA) and fault tolerance against power, cooling, or hardware failures in an individual data center",
+          "Compliance with local data sovereignty laws across different countries",
+          "Automatic conversion of monolithic code to microservices"
+        ],
+        correct_index: 1,
+        explanation: "Availability Zones are distinct, physically separated data centers with redundant power and networking. Multi-AZ deployments ensure that if one AZ fails, traffic shifts automatically to healthy AZs."
+      },
+      {
+        id: "ca_q2",
+        text: "According to the Twelve-Factor App methodology for modern cloud applications, how should configuration (such as database credentials and API keys) be stored?",
+        options: [
+          "Hardcoded directly into the application source code repository",
+          "Injected via Environment Variables at container startup time",
+          "Checked into public Git commits inside config.json",
+          "Stored on local USB drives attached to each hypervisor"
+        ],
+        correct_index: 1,
+        explanation: "Factor III dictates strict separation of config from code. Storing config in environment variables allows identical build artifacts to run safely across development, staging, and production environments."
+      },
+      {
+        id: "ca_q3",
+        text: "In Cloud Disaster Recovery planning, what is the precise distinction between RTO (Recovery Time Objective) and RPO (Recovery Point Objective)?",
+        options: [
+          "RTO measures acceptable downtime until service is restored; RPO measures the maximum acceptable age of data lost due to the disaster",
+          "RTO measures cloud server costs; RPO measures database read queries per second",
+          "RPO measures downtime in minutes; RTO measures network bandwidth in Gbps",
+          "They are synonymous metrics measuring memory usage"
+        ],
+        correct_index: 0,
+        explanation: "RTO is the target time within which a business process must be restored after a disaster. RPO is the maximum acceptable amount of data loss measured in time (e.g. last 15 minutes of backup data)."
+      },
+      {
+        id: "ca_q4",
+        text: "Within a Virtual Private Cloud (VPC), where should production database instances be placed for enterprise security?",
+        options: [
+          "In a public subnet with a public IPv4 address and 0.0.0.0/0 ingress enabled",
+          "In an isolated private subnet with no direct public route, accessible only via internal application servers or a bastion host / VPN",
+          "Directly on the Edge CDN distribution point",
+          "Inside the DNS nameserver records"
+        ],
+        correct_index: 1,
+        explanation: "Databases should never be publicly reachable. Placing them in private subnets with strict Security Groups restricts access to authorized application tiers within the VPC."
+      },
+      {
+        id: "ca_q5",
+        text: "What problem does the Circuit Breaker pattern solve in distributed cloud microservices?",
+        options: [
+          "It automatically encrypts traffic using asymmetric RSA keys",
+          "It prevents cascading failures by stopping requests to an already failing upstream dependency, allowing it time to recover while returning fast fallback responses",
+          "It powers down servers at night to save cloud infrastructure costs",
+          "It synchronizes client clock drift with atomic standards"
+        ],
+        correct_index: 1,
+        explanation: "If a downstream microservice is overloaded or down, repeated requests tie up threads and cascade failures across the entire system. A circuit breaker trips open, failing fast and protecting system stability."
+      }
+    ]
   }
 };
 
 export function getQuizForSkill(skillIdentifier) {
-  if (!skillIdentifier) return QUIZ_BANKS.cpp;
+  if (!skillIdentifier) return QUIZ_BANKS.python_fastapi || QUIZ_BANKS.cpp;
   let key = skillIdentifier.toLowerCase().replace('sk-', '').replace('asm-', '').trim();
   
+  // High-priority exact & substring aliases for critical skill gap competencies
+  if (key.includes('fastapi') || (key.includes('python') && (key.includes('&') || key.includes('api') || key.includes('fast')))) {
+    return QUIZ_BANKS.python_fastapi;
+  }
+  if (key.includes('database design') || (key.includes('postgre') && (key.includes('&') || key.includes('design') || key.includes('database')))) {
+    return QUIZ_BANKS.postgresql_design;
+  }
+  if (key.includes('distributed') || key.includes('dist-sys')) {
+    return QUIZ_BANKS.distributed_systems;
+  }
+  if (key.includes('kubernetes') || key.includes('k8s') || (key.includes('docker') && (key.includes('&') || key.includes('k8s')))) {
+    return QUIZ_BANKS.docker_kubernetes;
+  }
+  if (key.includes('redis')) {
+    return QUIZ_BANKS.redis_caching;
+  }
+  if (key.includes('cloud') || key.includes('architecture')) {
+    return QUIZ_BANKS.cloud_architecture;
+  }
+
   // Normalization aliases
   if (key === 'js' || key === 'javascript') key = 'js';
   if (key === 'ts' || key === 'typescript') key = 'typescript';
@@ -1216,8 +1746,8 @@ export function getQuizForSkill(skillIdentifier) {
       return quiz;
     }
   }
-  // Fallback to C++ or Python
-  return QUIZ_BANKS.cpp;
+  // Fallback to Python & FastAPI or C++
+  return QUIZ_BANKS.python_fastapi || QUIZ_BANKS.cpp;
 }
 
 export function getQuizForSkills(skillIdentifiers) {

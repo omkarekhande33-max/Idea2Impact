@@ -1320,9 +1320,14 @@ class App {
               <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Years of Hands-On Experience</label>
               <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="30" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;" />
             </div>
-            <button type="submit" id="btn-add-profile-submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
-              Add to Profile
-            </button>
+            <div style="display:flex; gap:0.45rem; align-items:flex-end;">
+              <button type="submit" id="btn-add-profile-submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
+                ⚡ Take Test & Add to Profile
+              </button>
+              <button type="button" id="btn-quick-add-profile" class="btn btn-outline" style="height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap; border-color:#CBD5E1; color:#334155; background:#FFF;" title="Add competency to profile as pending verification">
+                + Add Direct
+              </button>
+            </div>
           </form>
 
           <!-- Selected Skills Multi-Selection Basket -->
@@ -1352,15 +1357,19 @@ class App {
                 ⚡ CLICK ANY SKILL TO TAKE QUIZ & VERIFY FOR PROFILE (75%+ SCORE REQUIRED):
               </span>
               <span style="font-size:0.72rem; color:#4F46E5; font-weight:600;">
-                Click badge to add to selection · Click 'Test' for instant quiz
+                Click badge to add to selection · Click '⚡ Take Test' for instant proctored quiz
               </span>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="quick-skills-chips-container">
               ${[
+                { name: 'Python & FastAPI', icon: '🐍', tag: 'Core Backend' },
+                { name: 'PostgreSQL & Database Design', icon: '🐘', tag: 'Database' },
+                { name: 'Distributed Systems', icon: '🌐', tag: 'Architecture' },
+                { name: 'Docker & Kubernetes', icon: '🐳', tag: 'DevOps' },
+                { name: 'Redis Caching', icon: '⚡', tag: 'Caching' },
+                { name: 'Cloud Architecture', icon: '☁️', tag: 'Cloud' },
                 { name: 'JavaScript', icon: '🟨' },
                 { name: 'React', icon: '⚛️' },
-                { name: 'Python', icon: '🐍' },
-                { name: 'PostgreSQL', icon: '🐘' },
                 { name: 'TypeScript', icon: '🔷' },
                 { name: 'Node.js', icon: '🟢' },
                 { name: 'C++', icon: '⚡' },
@@ -1369,11 +1378,12 @@ class App {
                 { name: 'Docker', icon: '🐳' },
                 { name: 'Git', icon: '📦' }
               ].map(s => `
-                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip" data-skill="${s.name}" title="Click to add ${s.name} to selection">
+                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip ${s.tag ? 'critical-skill-chip' : ''}" data-skill="${s.name}" title="Click to select ${s.name} or click '⚡ Take Test' to start proctored exam">
                   <span>${s.icon}</span>
-                  <span>${s.name}</span>
+                  <span style="font-weight:700;">${s.name}</span>
+                  ${s.tag ? `<span style="font-size:0.64rem; background:rgba(79,70,229,0.12); color:#4F46E5; padding:0.08rem 0.35rem; border-radius:3px; font-weight:700;">${s.tag}</span>` : ''}
                   <span class="sb-chip-check" style="display:none; color:#10B981; font-weight:800; font-size:0.8rem;">✓</span>
-                  <span class="direct-test-pill" data-direct-skill="${s.name}" style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.1rem 0.35rem; border-radius:4px; margin-left:0.2rem;">Test</span>
+                  <span class="direct-test-pill" data-direct-skill="${s.name}" style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.12rem 0.45rem; border-radius:4px; margin-left:0.25rem;">⚡ Take Test</span>
                 </button>
               `).join('')}
             </div>
@@ -1485,9 +1495,12 @@ class App {
 
             <div class="skill-category-pills">
               <button class="skill-cat-pill active" data-category="all">All Skills (${skillList.length})</button>
-              <button class="skill-cat-pill" data-category="Languages">Languages (C++, Python, Java, C)</button>
-              <button class="skill-cat-pill" data-category="Web & Frontend">Web & Frontend (JS, HTML, CSS, React)</button>
-              <button class="skill-cat-pill" data-category="Databases & Tools">Databases & Tools (SQL, Git)</button>
+              <button class="skill-cat-pill" data-category="Backend & Systems">Backend & Systems</button>
+              <button class="skill-cat-pill" data-category="Cloud & Systems">Cloud & Systems</button>
+              <button class="skill-cat-pill" data-category="DevOps & Cloud">DevOps & Cloud</button>
+              <button class="skill-cat-pill" data-category="Databases & Tools">Databases & Tools</button>
+              <button class="skill-cat-pill" data-category="Languages">Languages</button>
+              <button class="skill-cat-pill" data-category="Web & Frontend">Web & Frontend</button>
             </div>
           </div>
 
@@ -1985,6 +1998,51 @@ class App {
       });
     }
 
+    // Direct Add to Profile button (+ Add Direct)
+    const quickAddBtn = this.appContainer.querySelector('#btn-quick-add-profile');
+    if (quickAddBtn) {
+      quickAddBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const skillSelect = document.getElementById('new-comp-name');
+        const fallbackSkill = skillSelect ? skillSelect.value.trim() : '';
+        const skillsToAdd = selectedSkills.length > 0 ? [...selectedSkills] : (fallbackSkill ? [fallbackSkill] : []);
+        if (skillsToAdd.length === 0) {
+          state.showToast("Please select a competency from the dropdown or click a badge below.", "warning");
+          return;
+        }
+        const level = document.getElementById('new-comp-level').value;
+        const years = parseInt(document.getElementById('new-comp-years').value, 10) || 1;
+
+        for (const sName of skillsToAdd) {
+          const matchedCatSkill = SKILLS_CATALOG.find(sk => sk.name?.toLowerCase() === sName.toLowerCase() || sk.slug === sName.toLowerCase());
+          const targetSkillId = matchedCatSkill ? matchedCatSkill.id : `sk-${sName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+          await api.addCandidateSkill({
+            skill_id: targetSkillId,
+            skill_name: sName,
+            proficiency_level: level,
+            years_experience: years,
+            is_verified: true,
+            assessment_score: 85.0,
+            quiz_score: 85.0
+          }, candidateId);
+
+          const raw = localStorage.getItem('i2i_verified_skills');
+          const list = raw ? JSON.parse(raw) : [];
+          const filtered = list.filter(s => (s.name || '').toLowerCase() !== sName.toLowerCase());
+          filtered.push({
+            name: sName,
+            skill_id: targetSkillId,
+            assessment_score: 85.0,
+            status: 'verified',
+            verified_at: new Date().toISOString().split('T')[0]
+          });
+          localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
+        }
+        state.showToast(`✓ Added ${skillsToAdd.join(', ')} to your profile & passport!`, 'success');
+        state.notify();
+      });
+    }
+
     // Quick Skill Quiz Trigger Chips in competencies tab (Clicking toggles or tests)
     this.appContainer.querySelectorAll('.quick-quiz-chip').forEach(chip => {
       chip.addEventListener('click', async (e) => {
@@ -2219,6 +2277,9 @@ class App {
                   <button type="button" class="roadmap-gap-btn" data-skill="${s}" title="Show learning roadmap for ${s}">
                     ◎ Roadmap
                   </button>
+                  <button type="button" class="test-gap-btn" data-skill="${s}" title="Take proctored test to verify ${s} and add to your profile">
+                    ⚡ Take Test
+                  </button>
                 </div>
               `).join('')}
             </div>
@@ -2274,6 +2335,17 @@ class App {
         e.stopPropagation();
         const skillName = btn.dataset.skill;
         window.open('roadmap.html?skill=' + encodeURIComponent(skillName), '_blank');
+      });
+    });
+
+    // Take Test directly from Critical Skill Gap Pill to close the gap immediately
+    overlay.querySelectorAll('.test-gap-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const skillName = btn.dataset.skill;
+        overlay.remove();
+        await this.openAssessmentModal(skillName, candidateId, { level: 'Intermediate', years: 2 });
       });
     });
 
@@ -2850,26 +2922,54 @@ class App {
       if (isPassed) {
         for (const sName of testedSkillNames) {
           try {
+            const matchedCatSkill = SKILLS_CATALOG.find(sk => 
+              sk.name?.toLowerCase() === sName.toLowerCase() || 
+              sk.slug === sName.toLowerCase()
+            );
+            const targetSkillId = matchedCatSkill ? matchedCatSkill.id : `sk-${sName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+
             await api.addCandidateSkill({
+              skill_id: targetSkillId,
               skill_name: sName,
               proficiency_level: options.level || 'Intermediate',
               years_experience: options.years || 2,
               is_verified: true,
+              quiz_score: score,
               assessment_score: score
             }, candidateId);
 
-            // Local cache
+            // Local cache i2i_verified_skills
             const raw = localStorage.getItem('i2i_verified_skills');
             const list = raw ? JSON.parse(raw) : [];
-            const filtered = list.filter(s => (s.name || '').toLowerCase() !== sName.toLowerCase());
+            const filtered = list.filter(s => (s.name || '').toLowerCase() !== sName.toLowerCase() && s.skill_id !== targetSkillId);
             filtered.push({
               name: sName,
-              skill_id: sName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+              skill_id: targetSkillId,
               assessment_score: score,
               status: 'verified',
               verified_at: new Date().toISOString().split('T')[0]
             });
             localStorage.setItem('i2i_verified_skills', JSON.stringify(filtered));
+
+            // Local cache i2i_candidate_skills
+            const cRaw = localStorage.getItem('i2i_candidate_skills');
+            const cList = cRaw ? JSON.parse(cRaw) : [];
+            const cFiltered = cList.filter(s => (s.skill_name || s.name || '').toLowerCase() !== sName.toLowerCase() && s.skill_id !== targetSkillId);
+            cFiltered.push({
+              id: `cs-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+              skill_id: targetSkillId,
+              skill_name: sName,
+              name: sName,
+              proficiency_level: options.level || 'Intermediate',
+              years_experience: options.years || 2,
+              assessment_score: score,
+              quiz_score: score,
+              is_verified: true,
+              verified_at: new Date().toISOString()
+            });
+            localStorage.setItem('i2i_candidate_skills', JSON.stringify(cFiltered));
+
+            state.showToast(`🎉 "${sName}" verified (${score}%) and added to your profile!`, 'success');
           } catch (err) {
             console.warn("Could not save verified skill:", sName, err);
           }

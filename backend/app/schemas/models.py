@@ -39,10 +39,13 @@ class AssessmentSubmission(BaseModel):
     flags: Optional[List[str]] = Field(default_factory=list)
 
 class CandidateSkillCreate(BaseModel):
-    skill_id: str
+    skill_id: Optional[str] = None
+    skill_name: Optional[str] = None
     proficiency_level: Optional[str] = "intermediate"
     years_experience: Optional[float] = 1.0
     quiz_score: Optional[float] = None
+    assessment_score: Optional[float] = None
+    is_verified: Optional[bool] = False
 
 class JobCreate(BaseModel):
     created_by: Optional[str] = "hr-01"

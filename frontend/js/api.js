@@ -721,28 +721,76 @@ class ApiService {
   // CANDIDATE COMPETENCIES & AI RESUME PARSING (SkillBridge Engine)
   // =========================================================================
   async getCandidateSkills(candidateId = '') {
+    let remote = [];
     try {
-      return await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills');
+      remote = await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills');
     } catch (e) {
+      remote = [];
+    }
+
+    try {
       const raw = localStorage.getItem('i2i_candidate_skills');
-      return raw ? JSON.parse(raw) : [];
+      const local = raw ? JSON.parse(raw) : [];
+      const map = new Map();
+      (remote || []).forEach(s => {
+        const key = (s.skill_name || s.name || s.skill_id || '').toLowerCase();
+        map.set(key, s);
+      });
+      (local || []).forEach(s => {
+        const key = (s.skill_name || s.name || s.skill_id || '').toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, s);
+        } else {
+          const existing = map.get(key);
+          if (s.is_verified && !existing.is_verified) {
+            map.set(key, { ...existing, ...s });
+          }
+        }
+      });
+      return Array.from(map.values());
+    } catch (err) {
+      return remote || [];
     }
   }
 
   async addCandidateSkill(payload, candidateId = '') {
+    if (!payload.skill_id && payload.skill_name) {
+      payload.skill_id = `sk-${payload.skill_name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    }
+    if (!payload.skill_name && payload.name) {
+      payload.skill_name = payload.name;
+    }
+    if (payload.assessment_score !== undefined && payload.quiz_score === undefined) {
+      payload.quiz_score = payload.assessment_score;
+    }
+    let res = null;
     try {
-      const res = await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills', {
+      res = await this.request(candidateId ? `/candidate/skills?candidate_id=${candidateId}` : '/candidate/skills', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      return res;
     } catch (e) {
-      const list = await this.getCandidateSkills(candidateId);
-      const filtered = list.filter(s => s.skill_id !== payload.skill_id);
-      const newSkill = { id: `cs-${Date.now().toString(36)}`, ...payload, candidate_id: candidateId };
+      // Handled via local storage caching below
+    }
+
+    try {
+      const raw = localStorage.getItem('i2i_candidate_skills');
+      const list = raw ? JSON.parse(raw) : [];
+      const filtered = list.filter(s => 
+        s.skill_id !== payload.skill_id && 
+        (s.skill_name || s.name || '').toLowerCase() !== (payload.skill_name || payload.name || '').toLowerCase()
+      );
+      const newSkill = { 
+        id: `cs-${Date.now().toString(36)}`, 
+        ...payload, 
+        name: payload.skill_name || payload.name || payload.skill_id,
+        candidate_id: candidateId 
+      };
       filtered.push(newSkill);
       localStorage.setItem('i2i_candidate_skills', JSON.stringify(filtered));
-      return newSkill;
+      return res || newSkill;
+    } catch (e) {
+      return res || payload;
     }
   }
 

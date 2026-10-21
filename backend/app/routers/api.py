@@ -435,7 +435,7 @@ def get_verified_skill_passport(candidate_id: Optional[str] = Query(None)):
         s_info = skills_map.get(cs["skill_id"], {})
         verified_list.append({
             "skill_id": cs["skill_id"],
-            "name": s_info.get("name", cs["skill_id"]),
+            "name": s_info.get("name") or cs.get("skill_name") or cs["skill_id"],
             "category": s_info.get("category", "Technical"),
             "assessment_score": cs.get("assessment_score", 0),
             "verified_at": cs.get("verified_at"),
@@ -465,7 +465,7 @@ def download_passport_pdf(candidate_id: str):
     for cs in cand_skills:
         s_info = skills_map.get(cs["skill_id"], {})
         skills_list.append({
-            "name": s_info.get("name", cs["skill_id"]),
+            "name": s_info.get("name") or cs.get("skill_name") or cs["skill_id"],
             "category": s_info.get("category", "General"),
             "assessment_score": cs.get("assessment_score", 0),
             "verified_at": cs.get("verified_at")
@@ -868,12 +868,20 @@ def get_user_skills(candidate_id: Optional[str] = Query(None)):
     skills_catalog = {s["id"]: s for s in db.get_table("skills")}
     results = []
     for cs in cand_skills:
-        s_obj = skills_catalog.get(cs["skill_id"], {"id": cs["skill_id"], "name": cs["skill_id"], "category": "General"})
+        s_obj = skills_catalog.get(cs["skill_id"], {
+            "id": cs["skill_id"],
+            "name": cs.get("skill_name") or cs["skill_id"],
+            "category": "Technical"
+        })
         score = cs.get("assessment_score", cs.get("quiz_score"))
+        skill_display_name = s_obj.get("name") or cs.get("skill_name") or cs["skill_id"]
         results.append({
             "id": cs.get("id", f"cs-{cs['skill_id']}"),
             "candidate_id": cid,
             "skill_id": cs["skill_id"],
+            "name": skill_display_name,
+            "skill_name": skill_display_name,
+            "category": s_obj.get("category", "Technical"),
             "proficiency_level": cs.get("proficiency_level", "intermediate"),
             "years_experience": cs.get("years_experience", 1.0),
             "quiz_score": score,
@@ -888,14 +896,44 @@ def get_user_skills(candidate_id: Optional[str] = Query(None)):
 @router.post("/candidate/skills")
 def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = Query(None)):
     cid = candidate_id or "cand-01"
-    existing = db.find_one("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == payload.skill_id)
-    
-    score = payload.quiz_score
-    is_verified = (score is not None and score >= 75.0)
+    target_skill_id = payload.skill_id
+    skill_name = payload.skill_name or ""
+
+    # Resolve skill in catalog or insert new
+    matched_skill = None
+    if target_skill_id:
+        tid = target_skill_id.lower().strip()
+        matched_skill = db.find_one("skills", lambda s: s.get("id", "").lower() == tid or s.get("slug", "").lower() == tid or s.get("name", "").lower() == tid)
+    if not matched_skill and skill_name:
+        sname_clean = skill_name.lower().strip()
+        matched_skill = db.find_one("skills", lambda s: s.get("name", "").lower() == sname_clean or s.get("slug", "").lower() == sname_clean or s.get("id", "").lower() == sname_clean)
+
+    if matched_skill:
+        target_skill_id = matched_skill["id"]
+        if not skill_name:
+            skill_name = matched_skill.get("name", target_skill_id)
+    else:
+        if not target_skill_id:
+            safe_slug = "".join(c if c.isalnum() else "-" for c in (skill_name or "skill").lower()).strip("-")
+            target_skill_id = f"sk-{safe_slug[:24]}"
+        new_skill = {
+            "id": target_skill_id,
+            "name": skill_name or target_skill_id,
+            "category": "Technical",
+            "description": f"Verified competency in {skill_name or target_skill_id}"
+        }
+        db.insert("skills", new_skill)
+        matched_skill = new_skill
+
+    existing = db.find_one("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"] == target_skill_id or cs.get("skill_name", "").lower() == (skill_name or "").lower()))
+
+    score = payload.assessment_score if payload.assessment_score is not None else payload.quiz_score
+    is_verified = payload.is_verified or (score is not None and score >= 75.0)
 
     data: Dict[str, Any] = {
         "candidate_id": cid,
-        "skill_id": payload.skill_id,
+        "skill_id": target_skill_id,
+        "skill_name": skill_name or (matched_skill.get("name") if matched_skill else target_skill_id),
         "proficiency_level": payload.proficiency_level or "intermediate",
         "years_experience": payload.years_experience or 1.0
     }
@@ -911,7 +949,7 @@ def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = 
         data["verified_at"] = existing.get("verified_at")
 
     if existing:
-        updated = db.update("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == payload.skill_id, data)
+        updated = db.update("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"] == target_skill_id or cs.get("id") == existing.get("id")), data)
         return updated
     else:
         data["id"] = f"cs-{str(uuid.uuid4())[:6]}"
@@ -922,9 +960,10 @@ def add_user_skill(payload: CandidateSkillCreate, candidate_id: Optional[str] = 
 @router.delete("/candidate/skills/{skill_id}")
 def delete_user_skill(skill_id: str, candidate_id: Optional[str] = Query(None)):
     cid = candidate_id or "cand-01"
-    deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"] == skill_id or cs.get("id") == skill_id))
+    clean_id = skill_id.lower().strip()
+    deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and (cs["skill_id"].lower() == clean_id or cs.get("id", "").lower() == clean_id or cs.get("skill_name", "").lower() == clean_id))
     if not deleted:
-        skill = db.find_one("skills", lambda s: s["id"] == skill_id or s["name"].lower() == skill_id.lower())
+        skill = db.find_one("skills", lambda s: s["id"].lower() == clean_id or s.get("name", "").lower() == clean_id or s.get("slug", "").lower() == clean_id)
         if skill:
             deleted = db.delete("candidate_skills", lambda cs: cs["candidate_id"] == cid and cs["skill_id"] == skill["id"])
     return {"success": True, "message": "Competency removed from profile"}

@@ -407,6 +407,159 @@
       "bio": "Joined via Google Authentication",
       "auth_provider": "google",
       "created_at": "2026-10-13T03:29:43.374812+00:00"
+    },
+    {
+      "id": "foun-9b240d",
+      "username": "tester_b5641a",
+      "full_name": "Test Developer",
+      "email": "tester_b5641a@test.io",
+      "password_hash": "pbkdf2_sha256$100000$5554c2f9ae4351dbf4450b3afd36f1b0$925f666cb951893edf501c4a775bbea87baf99f6c0ebe7b14c453165c4d198c6",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T10:53:19.494522+00:00"
+    },
+    {
+      "id": "inve-6f8bdf",
+      "username": "google_user_f91e48",
+      "full_name": "Google Innovator",
+      "email": "google_user_f91e48@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$ec2ea730fe7bdbdd224b17b5d4a4bb66$6a2dc4cab27d4d37dd821c67e9df3ec0916bb7dd08385275a259efb4188abd36",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T10:53:19.945879+00:00"
+    },
+    {
+      "id": "foun-57e0b2",
+      "username": "tester_271bf3",
+      "full_name": "Test Developer",
+      "email": "tester_271bf3@test.io",
+      "password_hash": "pbkdf2_sha256$100000$ca187748252ab4122ebc66d4c573b4bf$b73b0e35ec5c789871f77c3a3fd8cda7de9dcd4f5c5dc6fb272ee4d03f5c82a4",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T11:41:47.900416+00:00"
+    },
+    {
+      "id": "inve-6a5c0b",
+      "username": "google_user_9ef5f5",
+      "full_name": "Google Innovator",
+      "email": "google_user_9ef5f5@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$b8ddbd9a8c7f3ddfb438bf6ac7766994$2e56583dcb66b7db2aa18335cdce894121f8acab09f0305225cd0008995b338f",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T11:41:48.226316+00:00"
+    },
+    {
+      "id": "foun-3f00e0",
+      "username": "tester_1ffca2",
+      "full_name": "Test Developer",
+      "email": "tester_1ffca2@test.io",
+      "password_hash": "pbkdf2_sha256$100000$15b734ae59531878af450f1e7f64142e$1263e22d9384767f9d69cdeb55650cdfaefe0e98a98125a433341f2796a5ec1b",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T11:48:35.125885+00:00"
+    },
+    {
+      "id": "inve-1f6275",
+      "username": "google_user_af9794",
+      "full_name": "Google Innovator",
+      "email": "google_user_af9794@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$e72e7985a44a7175c3499284b028f78b$bb61f1b3c6492d9d697126724ae235aa1a1204d52903257d1d09017f8c46bc0b",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T11:48:35.667579+00:00"
+    },
+    {
+      "id": "foun-1106f5",
+      "username": "tester_4ae5eb",
+      "full_name": "Test Developer",
+      "email": "tester_4ae5eb@test.io",
+      "password_hash": "pbkdf2_sha256$100000$0bd7aaa4db63a33033f6ecfd9f041e96$5e2ec89479c22b9224a28720bf0bbb6c737057c6d552e921e1b5bd680650bc1e",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T11:51:36.682871+00:00"
+    },
+    {
+      "id": "cand-skills-test-01",
+      "full_name": "Test Candidate",
+      "email": "test.candidate@example.com",
+      "role": "candidate",
+      "username": "testcandidate",
+      "password_hash": "pbkdf2_sha256$100000$32163292662e02ddb312b9e3431e512a$f56edd61aed09801ac9079a3a95b3fc55476f2df29112a7296784f0715e023ff",
+      "auth_provider": "local"
+    },
+    {
+      "id": "inve-3c0d6a",
+      "username": "google_user_bd2117",
+      "full_name": "Google Innovator",
+      "email": "google_user_bd2117@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$32163292662e02ddb312b9e3431e512a$f56edd61aed09801ac9079a3a95b3fc55476f2df29112a7296784f0715e023ff",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T11:51:37.113485+00:00"
+    },
+    {
+      "id": "foun-259af0",
+      "username": "tester_ec8dde",
+      "full_name": "Test Developer",
+      "email": "tester_ec8dde@test.io",
+      "password_hash": "pbkdf2_sha256$100000$65e176b2ec11f7d04852ce3d43fedfef$636a355e50bd45856f42138366eb25c4393f2c69cf228b21d75e0e8ca6d98ff3",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T11:55:27.400995+00:00"
+    },
+    {
+      "id": "inve-7e1c91",
+      "username": "google_user_e91e2b",
+      "full_name": "Google Innovator",
+      "email": "google_user_e91e2b@gmail.com",
+      "password_hash": "pbkdf2_sha256$100000$a3ea13ed7b7f88185a0bc088398444fe$4d95959950327e92885b8782cb8fa99dae8f7e2df6ec3891a8bbc4460f96356c",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T11:55:27.957733+00:00"
+    },
+    {
+      "id": "foun-26564e",
+      "username": "tester_f4c4dc",
+      "full_name": "Test Developer",
+      "email": "tester_f4c4dc@test.io",
+      "password_hash": "pbkdf2_sha256$100000$b2b44be6196c856cd4565d5389333de1$1a5329ff4ea6a39448ff93a2c753de819f458e41c29ba13f5c336a846f6880ca",
+      "role": "founder",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Test Developer",
+      "bio": "",
+      "auth_provider": "local",
+      "created_at": "2026-10-21T12:06:22.471966+00:00"
+    },
+    {
+      "id": "inve-f3e081",
+      "username": "google_user_b96d38",
+      "full_name": "Google Innovator",
+      "email": "google_user_b96d38@gmail.com",
+      "password_hash": "",
+      "role": "investor",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Google Innovator",
+      "bio": "Joined via Google Authentication",
+      "auth_provider": "google",
+      "created_at": "2026-10-21T12:06:22.957762+00:00"
     }
   ],
   "candidate_profiles": [
@@ -564,6 +717,54 @@
       "stage": "Idea",
       "pitch_deck_url": "",
       "id": "foun-0755a711"
+    },
+    {
+      "founder_id": "foun-9b240d",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-3fd9f43f"
+    },
+    {
+      "founder_id": "foun-57e0b2",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-92f584f6"
+    },
+    {
+      "founder_id": "foun-3f00e0",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-2e721fd6"
+    },
+    {
+      "founder_id": "foun-1106f5",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-b7c35365"
+    },
+    {
+      "founder_id": "foun-259af0",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-6b200e53"
+    },
+    {
+      "founder_id": "foun-26564e",
+      "company_name": "New Venture",
+      "industry": "Technology",
+      "stage": "Idea",
+      "pitch_deck_url": "",
+      "id": "foun-55b8441a"
     }
   ],
   "hr_profiles": [
@@ -773,20 +974,162 @@
       "min_ticket": 50000,
       "max_ticket": 250000,
       "id": "inve-74613a94"
+    },
+    {
+      "investor_id": "inve-6f8bdf",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-09da3cea"
+    },
+    {
+      "investor_id": "inve-6a5c0b",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-a8e45bf5"
+    },
+    {
+      "investor_id": "inve-1f6275",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-5f3d9ba2"
+    },
+    {
+      "investor_id": "inve-3c0d6a",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-ef44f000"
+    },
+    {
+      "investor_id": "inve-7e1c91",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-b43f9a32"
+    },
+    {
+      "investor_id": "inve-f3e081",
+      "fund_name": "Angel Syndicate",
+      "preferred_stages": [
+        "Seed"
+      ],
+      "target_industries": [
+        "AI",
+        "SaaS"
+      ],
+      "min_ticket": 50000,
+      "max_ticket": 250000,
+      "id": "inve-eade51e4"
     }
   ],
   "skills": [
     {
+      "id": "sk-cloud-arch",
+      "slug": "cloud-architecture",
+      "name": "Cloud Architecture",
+      "full_name": "Cloud Systems Architecture & Reliability Engineering",
+      "category": "Cloud & Systems",
+      "icon": "☁️",
+      "color": "#0D9488",
+      "level": "Advanced",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0,
+      "description": "Multi-AZ high availability, multi-region disaster recovery (RTO/RPO), 12-factor cloud apps, VPC networking, security groups, and Circuit Breaker patterns."
+    },
+    {
+      "id": "sk-redis",
+      "slug": "redis-caching",
+      "name": "Redis Caching",
+      "full_name": "Redis In-Memory Caching & Distributed Data Stores",
+      "category": "Databases & Tools",
+      "icon": "⚡",
+      "color": "#DC2626",
+      "level": "Intermediate",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0,
+      "description": "In-memory data structures (Hashes, Sorted Sets), Cache-Aside and Write-Through caching patterns, TTL expiration, Redis Pub/Sub, and distributed locking."
+    },
+    {
+      "id": "sk-docker-k8s",
+      "slug": "docker-kubernetes",
+      "name": "Docker & Kubernetes",
+      "full_name": "Docker Containerization & Kubernetes Orchestration",
+      "category": "DevOps & Cloud",
+      "icon": "🐳",
+      "color": "#2496ED",
+      "level": "Advanced",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0,
+      "description": "Multi-stage Docker builds, layer caching, Kubernetes Pods, Deployments, StatefulSets, Services, Ingress, and horizontal pod autoscaling (HPA)."
+    },
+    {
       "id": "sk-01",
       "name": "Python & FastAPI",
-      "category": "Backend",
-      "description": "Async programming, Pydantic validation, dependency injection, REST APIs."
+      "category": "Backend & Systems",
+      "description": "Asynchronous API design with FastAPI, Pydantic data validation schemas, dependency injection with Depends, background task processing, and ASGI concurrency.",
+      "slug": "python-fastapi",
+      "full_name": "Python & FastAPI Production Services",
+      "icon": "🐍",
+      "color": "#3776AB",
+      "level": "Advanced",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0
     },
     {
       "id": "sk-02",
       "name": "PostgreSQL & Database Design",
-      "category": "Database",
-      "description": "Relational schema modeling, indexing, foreign keys, query optimization, RLS."
+      "category": "Databases & Tools",
+      "description": "Relational schema modeling, 3NF normalization, foreign keys, B-Tree and GIN indexes, EXPLAIN ANALYZE query plans, ACID transactions, and MVCC concurrency.",
+      "slug": "postgresql-database-design",
+      "full_name": "PostgreSQL & Relational Database Design",
+      "icon": "🐘",
+      "color": "#336791",
+      "level": "Advanced",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0
     },
     {
       "id": "sk-03",
@@ -923,10 +1266,18 @@
       "description": "Branching, rebasing vs merging, conflict resolution, cherry-picking, HEAD detachment, and collaborative workflows."
     },
     {
-      "id": "sk-1aed70",
+      "id": "sk-dist-sys",
       "name": "Distributed Systems",
-      "category": "Technical",
-      "description": "Verified competency in Distributed Systems"
+      "category": "Cloud & Systems",
+      "description": "CAP theorem, Paxos & Raft consensus algorithms, distributed transactions (2PC & Saga patterns), eventual consistency, idempotency, and message queues.",
+      "slug": "distributed-systems",
+      "full_name": "Distributed Systems & Resilient Architecture",
+      "icon": "🌐",
+      "color": "#0284C7",
+      "level": "Advanced",
+      "duration_minutes": 15,
+      "question_count": 5,
+      "passing_score": 75.0
     }
   ],
   "candidate_skills": [
@@ -996,8 +1347,9 @@
       "assessment_score": 85.0,
       "quiz_score": 85.0,
       "is_verified": true,
-      "verified_at": "2026-10-13T03:29:43.056190+00:00",
-      "id": "cs-2ed3f7"
+      "verified_at": "2026-10-21T12:06:22.617856+00:00",
+      "id": "cs-2ed3f7",
+      "skill_name": "Python"
     },
     {
       "candidate_id": "cand-01",
@@ -1034,6 +1386,78 @@
       "is_verified": true,
       "verified_at": "2026-10-12T17:27:43.172312+00:00",
       "id": "cs-23af6e"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-01",
+      "skill_name": "Python & FastAPI",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.860340+00:00",
+      "id": "cs-b10d40"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-02",
+      "skill_name": "PostgreSQL & Database Design",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.874399+00:00",
+      "id": "cs-538b13"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-dist-sys",
+      "skill_name": "Distributed Systems",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.895374+00:00",
+      "id": "cs-2ce672"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-docker-k8s",
+      "skill_name": "Docker & Kubernetes",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.909463+00:00",
+      "id": "cs-1d27d2"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-redis",
+      "skill_name": "Redis Caching",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.923123+00:00",
+      "id": "cs-17bd83"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "skill_id": "sk-cloud-arch",
+      "skill_name": "Cloud Architecture",
+      "proficiency_level": "Advanced",
+      "years_experience": 2.0,
+      "assessment_score": 88.0,
+      "quiz_score": 88.0,
+      "is_verified": true,
+      "verified_at": "2026-10-21T12:06:22.943920+00:00",
+      "id": "cs-ba367c"
     }
   ],
   "assessments": [
@@ -1952,6 +2376,282 @@
           ],
           "correct_index": 0,
           "explanation": "git stash saves dirty working directory state to a local stack and reverts back to HEAD; use 'git stash pop' to restore changes."
+        }
+      ]
+    },
+    {
+      "id": "asm-distributed-systems",
+      "skill_id": "sk-dist-sys",
+      "title": "Distributed Systems & Resilient Architecture Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "ds_q1",
+          "text": "According to Eric Brewer's CAP Theorem, what fundamental guarantee must a distributed system make when a network partition (P) occurs?",
+          "options": [
+            "It must guarantee both full Consistency (C) and 100% Availability (A) simultaneously",
+            "It must choose between Consistency (returning an error or waiting) or Availability (returning stale data)",
+            "It must immediately shut down all nodes across all availability zones",
+            "It must switch from TCP to UDP communication"
+          ],
+          "correct_index": 1,
+          "explanation": "When network partitions occur, systems must choose between Consistency (CP) or Availability (AP)."
+        },
+        {
+          "id": "ds_q2",
+          "text": "In the Raft consensus algorithm, how does a cluster maintain consistent state and handle leader failures?",
+          "options": [
+            "Nodes choose random leader IDs without communication",
+            "Followers use randomized election timeouts to transition to candidates and seek majority votes from a quorum of nodes",
+            "The node with the lowest IP address is permanently designated as the sole leader",
+            "Transactions are recorded in plaintext files without log replication"
+          ],
+          "correct_index": 1,
+          "explanation": "Raft uses randomized election timeouts and requires a strict quorum for leader election and log commits."
+        },
+        {
+          "id": "ds_q3",
+          "text": "When coordinating a multi-step business workflow across multiple independent microservices, why is the Saga pattern preferred over 2-Phase Commit (2PC)?",
+          "options": [
+            "2PC is lock-free and has no latency overhead",
+            "2PC holds locks across all participating services until the final commit, causing high latency, single points of failure, and poor scalability under load; Sagas use asynchronous local transactions and compensating actions",
+            "Sagas require synchronous HTTP connections between all microservices",
+            "The Saga pattern only works on single-node relational databases"
+          ],
+          "correct_index": 1,
+          "explanation": "2PC is blocking and fragile across networks; Sagas execute local transactions with compensating rollbacks."
+        },
+        {
+          "id": "ds_q4",
+          "text": "What is the purpose of an 'Idempotency Key' in distributed message processing and payment APIs?",
+          "options": [
+            "To encrypt payload contents in transit using TLS 1.3",
+            "To allow clients to safely retry requests without fear of executing duplicate transactions or side effects when network timeouts occur",
+            "To force consumer threads to process messages in chronological order",
+            "To generate dynamic API documentation"
+          ],
+          "correct_index": 1,
+          "explanation": "Idempotency keys prevent duplicate execution when network retries occur."
+        },
+        {
+          "id": "ds_q5",
+          "text": "In distributed key-value stores without synchronized physical wall clocks, how are concurrent update conflicts detected across replicas?",
+          "options": [
+            "By relying strictly on server system clocks (NTP timestamps)",
+            "By using logical clocks or Vector Clocks to capture causality and detect concurrent branching updates",
+            "By discarding all writes that occur after 12:00 UTC",
+            "By pinging the client browser for the current local time"
+          ],
+          "correct_index": 1,
+          "explanation": "Vector Clocks track causal relationships across nodes to detect concurrent branching conflicts."
+        }
+      ]
+    },
+    {
+      "id": "asm-docker-kubernetes",
+      "skill_id": "sk-docker-k8s",
+      "title": "Docker Containerization & Kubernetes Orchestration Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "dk_q1",
+          "text": "Why are multi-stage Docker builds widely used in production CI/CD pipelines?",
+          "options": [
+            "To run multiple containers inside the same single Docker image",
+            "To separate build-time dependencies from the final lean runtime image, minimizing image size and attack surface",
+            "To bypass Docker layer caching completely",
+            "To automatically publish images to Docker Hub without authentication"
+          ],
+          "correct_index": 1,
+          "explanation": "Multi-stage builds leave compilers and build tooling behind, producing minimal runtime images."
+        },
+        {
+          "id": "dk_q2",
+          "text": "In Kubernetes, what is the fundamental difference between a 'Deployment' and a 'StatefulSet'?",
+          "options": [
+            "Deployments are only for Linux nodes, while StatefulSets are only for Windows nodes",
+            "Deployments manage interchangeable, stateless replicas with ephemeral storage, whereas StatefulSets maintain sticky pod identities, ordered rollouts, and persistent volume bindings",
+            "StatefulSets do not support rolling updates or autoscaling",
+            "Deployments cannot expose network ports"
+          ],
+          "correct_index": 1,
+          "explanation": "StatefulSets provide stable network IDs and dedicated persistent volume bindings for stateful services."
+        },
+        {
+          "id": "dk_q3",
+          "text": "Which Kubernetes Service type creates an internal virtual IP accessible ONLY within the cluster network?",
+          "options": [
+            "NodePort",
+            "LoadBalancer",
+            "ClusterIP",
+            "ExternalName"
+          ],
+          "correct_index": 2,
+          "explanation": "ClusterIP is the default internal-only service type."
+        },
+        {
+          "id": "dk_q4",
+          "text": "How does Kubernetes Horizontal Pod Autoscaler (HPA) scale workloads dynamically in production?",
+          "options": [
+            "By adjusting pod CPU clock speeds on the underlying nodes",
+            "By querying the metrics server and adjusting the Deployment's replica count within min/max bounds",
+            "By automatically rewriting Dockerfiles at runtime",
+            "By terminating unhealthy worker nodes"
+          ],
+          "correct_index": 1,
+          "explanation": "HPA queries metrics server and adjusts replica counts automatically."
+        },
+        {
+          "id": "dk_q5",
+          "text": "Why should instructions that change frequently (like 'COPY . .') be placed near the BOTTOM of a Dockerfile?",
+          "options": [
+            "Because Docker executes files from bottom to top",
+            "To maximize layer cache reuse for earlier steps (like installing dependencies), avoiding redundant dependency downloads when only source code changes",
+            "Because the Linux kernel requires application code to reside on the root partition",
+            "To prevent Docker images from exceeding 100MB"
+          ],
+          "correct_index": 1,
+          "explanation": "Docker layer caching is invalidated at the changed instruction and all subsequent layers."
+        }
+      ]
+    },
+    {
+      "id": "asm-redis-caching",
+      "skill_id": "sk-redis",
+      "title": "Redis Caching & In-Memory Architectures Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "red_q1",
+          "text": "In the standard Cache-Aside (Lazy Loading) caching pattern, what sequence of actions does the application take on a cache MISS?",
+          "options": [
+            "Throw an HTTP 404 error immediately to the client",
+            "Query the primary database, write the retrieved data to the Redis cache with an appropriate TTL, and return the result to the caller",
+            "Flush all keys in Redis and restart the database service",
+            "Block until another client populates the key"
+          ],
+          "correct_index": 1,
+          "explanation": "On cache miss, app reads DB, sets Redis key with TTL, and returns response."
+        },
+        {
+          "id": "red_q2",
+          "text": "Which Redis eviction policy should you configure if you want Redis to automatically evict the least recently used keys among ONLY those with an expiration (TTL) set?",
+          "options": [
+            "noeviction",
+            "allkeys-lru",
+            "volatile-lru",
+            "allkeys-random"
+          ],
+          "correct_index": 2,
+          "explanation": "volatile-lru evicts keys based on LRU out of keys with TTL set."
+        },
+        {
+          "id": "red_q3",
+          "text": "Which Redis native data structure is ideally suited for building real-time gaming leaderboards or prioritized job queues?",
+          "options": [
+            "Hashes (HSET)",
+            "Sorted Sets (ZSET)",
+            "HyperLogLog",
+            "Strings (SET)"
+          ],
+          "correct_index": 1,
+          "explanation": "Sorted Sets (ZSET) store unique members sorted by numeric scores."
+        },
+        {
+          "id": "red_q4",
+          "text": "How can a distributed lock be safely acquired in Redis using a single atomic command?",
+          "options": [
+            "Run GET key followed by SET key value",
+            "Execute 'SET resource_name my_random_token NX PX 30000'",
+            "Execute FLUSHALL ASYNC",
+            "Call HSETNX on an integer counter"
+          ],
+          "correct_index": 1,
+          "explanation": "SET NX PX provides atomic lock acquisition with TTL."
+        },
+        {
+          "id": "red_q5",
+          "text": "What is the key difference between Redis RDB snapshots and AOF (Append Only File) persistence?",
+          "options": [
+            "RDB logs every write operation in real-time, while AOF only runs when Redis shuts down",
+            "RDB creates point-in-time binary snapshots at specified intervals, while AOF logs every write operation sequentially for maximum durability",
+            "RDB requires a relational database backend, while AOF stores data in browser memory",
+            "AOF is only supported on single-threaded ARM processors"
+          ],
+          "correct_index": 1,
+          "explanation": "RDB creates point-in-time dumps; AOF logs every write command sequentially."
+        }
+      ]
+    },
+    {
+      "id": "asm-cloud-architecture",
+      "skill_id": "sk-cloud-arch",
+      "title": "Cloud Systems Architecture & Reliability Assessment",
+      "passing_score": 75.0,
+      "duration_minutes": 15,
+      "questions": [
+        {
+          "id": "ca_q1",
+          "text": "In cloud architecture, what does deploying a web application across multiple Availability Zones (Multi-AZ) within a region primarily achieve?",
+          "options": [
+            "Zero networking costs between cloud providers",
+            "High Availability (HA) and fault tolerance against power, cooling, or hardware failures in an individual data center",
+            "Compliance with local data sovereignty laws across different countries",
+            "Automatic conversion of monolithic code to microservices"
+          ],
+          "correct_index": 1,
+          "explanation": "Multi-AZ provides redundancy across isolated physical data center facilities."
+        },
+        {
+          "id": "ca_q2",
+          "text": "According to the Twelve-Factor App methodology for modern cloud applications, how should configuration (such as database credentials and API keys) be stored?",
+          "options": [
+            "Hardcoded directly into the application source code repository",
+            "Injected via Environment Variables at container startup time",
+            "Checked into public Git commits inside config.json",
+            "Stored on local USB drives attached to each hypervisor"
+          ],
+          "correct_index": 1,
+          "explanation": "Factor III dictates storing config in environment variables."
+        },
+        {
+          "id": "ca_q3",
+          "text": "In Cloud Disaster Recovery planning, what is the precise distinction between RTO (Recovery Time Objective) and RPO (Recovery Point Objective)?",
+          "options": [
+            "RTO measures acceptable downtime until service is restored; RPO measures the maximum acceptable age of data lost due to the disaster",
+            "RTO measures cloud server costs; RPO measures database read queries per second",
+            "RPO measures downtime in minutes; RTO measures network bandwidth in Gbps",
+            "They are synonymous metrics measuring memory usage"
+          ],
+          "correct_index": 0,
+          "explanation": "RTO is target restoration time; RPO is maximum acceptable data loss in time."
+        },
+        {
+          "id": "ca_q4",
+          "text": "Within a Virtual Private Cloud (VPC), where should production database instances be placed for enterprise security?",
+          "options": [
+            "In a public subnet with a public IPv4 address and 0.0.0.0/0 ingress enabled",
+            "In an isolated private subnet with no direct public route, accessible only via internal application servers or a bastion host / VPN",
+            "Directly on the Edge CDN distribution point",
+            "Inside the DNS nameserver records"
+          ],
+          "correct_index": 1,
+          "explanation": "Databases belong in private subnets without public internet routes."
+        },
+        {
+          "id": "ca_q5",
+          "text": "What problem does the Circuit Breaker pattern solve in distributed cloud microservices?",
+          "options": [
+            "It automatically encrypts traffic using asymmetric RSA keys",
+            "It prevents cascading failures by stopping requests to an already failing upstream dependency, allowing it time to recover while returning fast fallback responses",
+            "It powers down servers at night to save cloud infrastructure costs",
+            "It synchronizes client clock drift with atomic standards"
+          ],
+          "correct_index": 1,
+          "explanation": "Circuit Breakers trip open during downstream failure, avoiding cascading thread exhaustion."
         }
       ]
     }
@@ -3183,6 +3883,618 @@
       "employment_type": "full-time",
       "status": "Active",
       "created_at": "2026-10-13T03:29:43.755771+00:00"
+    },
+    {
+      "id": "job-25bcdf",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T10:53:19.675277+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-0a896fc6",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-9901b1df",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-e9ec7b77",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-0a896fc6",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-9901b1df",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-25bcdf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-e9ec7b77",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-109dcf",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T11:41:48.036221+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-ac7cadc7",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-4b6483b7",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-8abcddb8",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-ac7cadc7",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-4b6483b7",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-109dcf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-8abcddb8",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-8ebe95",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T11:48:35.334114+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-ca9d1fb3",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-84443ab8",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-310f476c",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-ca9d1fb3",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-84443ab8",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8ebe95",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-310f476c",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-8474cf",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T11:51:36.821772+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-3ef1b7b1",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-7d2a0bf3",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-c84bcafc",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-3ef1b7b1",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-7d2a0bf3",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-8474cf",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-c84bcafc",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-05e10c",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T11:55:27.587764+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-0a847d52",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-c43dd744",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-6dc8e7d3",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-0a847d52",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-c43dd744",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-05e10c",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-6dc8e7d3",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "job-833c25",
+      "created_by": "hr-01",
+      "company_name": "Acme Tech",
+      "title": "Senior Full-Stack Engineer",
+      "description": "Leading full stack architecture.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 80000,
+      "salary_max": 150000,
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-21T12:06:22.665856+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-49aac404",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-014b923b",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-e328bcfd",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-49aac404",
+          "name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "is_required": true,
+          "weight": 2.0,
+          "id": "job_-014b923b",
+          "name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Technical"
+          }
+        },
+        {
+          "job_id": "job-833c25",
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "is_required": false,
+          "weight": 1.0,
+          "id": "job_-e328bcfd",
+          "name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Technical"
+          }
+        }
+      ]
     }
   ],
   "job_required_skills": [
@@ -3697,6 +5009,150 @@
       "is_required": false,
       "weight": 1.0,
       "id": "job_-c39a9df5"
+    },
+    {
+      "job_id": "job-25bcdf",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-0a896fc6"
+    },
+    {
+      "job_id": "job-25bcdf",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-9901b1df"
+    },
+    {
+      "job_id": "job-25bcdf",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-e9ec7b77"
+    },
+    {
+      "job_id": "job-109dcf",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-ac7cadc7"
+    },
+    {
+      "job_id": "job-109dcf",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-4b6483b7"
+    },
+    {
+      "job_id": "job-109dcf",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-8abcddb8"
+    },
+    {
+      "job_id": "job-8ebe95",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-ca9d1fb3"
+    },
+    {
+      "job_id": "job-8ebe95",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-84443ab8"
+    },
+    {
+      "job_id": "job-8ebe95",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-310f476c"
+    },
+    {
+      "job_id": "job-8474cf",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-3ef1b7b1"
+    },
+    {
+      "job_id": "job-8474cf",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-7d2a0bf3"
+    },
+    {
+      "job_id": "job-8474cf",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-c84bcafc"
+    },
+    {
+      "job_id": "job-05e10c",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-0a847d52"
+    },
+    {
+      "job_id": "job-05e10c",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-c43dd744"
+    },
+    {
+      "job_id": "job-05e10c",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-6dc8e7d3"
+    },
+    {
+      "job_id": "job-833c25",
+      "skill_id": "sk-python",
+      "skill_name": "sk-python",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-49aac404"
+    },
+    {
+      "job_id": "job-833c25",
+      "skill_id": "sk-sql",
+      "skill_name": "sk-sql",
+      "is_required": true,
+      "weight": 2.0,
+      "id": "job_-014b923b"
+    },
+    {
+      "job_id": "job-833c25",
+      "skill_id": "sk-react",
+      "skill_name": "sk-react",
+      "is_required": false,
+      "weight": 1.0,
+      "id": "job_-e328bcfd"
     }
   ],
   "job_applications": [
@@ -3800,6 +5256,78 @@
       "match_score": 62.5,
       "applied_at": "2026-10-13T03:29:43.238735+00:00",
       "created_at": "2026-10-13T03:29:43.238735+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-d52883",
+      "job_id": "job-25bcdf",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T10:53:19.835337+00:00",
+      "created_at": "2026-10-21T10:53:19.835337+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-7950ad",
+      "job_id": "job-109dcf",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T11:41:48.150722+00:00",
+      "created_at": "2026-10-21T11:41:48.150722+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-5b4eaa",
+      "job_id": "job-8ebe95",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T11:48:35.442880+00:00",
+      "created_at": "2026-10-21T11:48:35.442880+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-3b00c9",
+      "job_id": "job-8474cf",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T11:51:36.933050+00:00",
+      "created_at": "2026-10-21T11:51:36.933050+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-753381",
+      "job_id": "job-05e10c",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T11:55:27.753735+00:00",
+      "created_at": "2026-10-21T11:55:27.753735+00:00",
+      "interview_date": null
+    },
+    {
+      "id": "app-4cff85",
+      "job_id": "job-833c25",
+      "candidate_id": "test-cand-99",
+      "status": "shortlisted",
+      "notes": "Ready to interview",
+      "learning_commitment": "Enrolled in PostgreSQL intensive course, completing in 2 weeks.",
+      "match_score": 62.5,
+      "applied_at": "2026-10-21T12:06:22.783981+00:00",
+      "created_at": "2026-10-21T12:06:22.783981+00:00",
       "interview_date": null
     }
   ],
@@ -4823,6 +6351,342 @@
       "user_id": "found-01",
       "details": "Founder shared pitch for 'CloudSentinel Telemetry' (Ask: ,100,000)",
       "timestamp": "2026-10-13T04:29:20.422715+00:00"
+    },
+    {
+      "id": "log-f7ccf53c",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T10:53:19.409529+00:00"
+    },
+    {
+      "id": "log-df3aa5fb",
+      "event": "Account Registered",
+      "user_id": "foun-9b240d",
+      "details": "User tester_b5641a registered as founder",
+      "timestamp": "2026-10-21T10:53:19.536106+00:00"
+    },
+    {
+      "id": "log-c0ade2db",
+      "event": "User Login",
+      "user_id": "foun-9b240d",
+      "details": "User tester_b5641a logged in successfully",
+      "timestamp": "2026-10-21T10:53:19.640275+00:00"
+    },
+    {
+      "id": "log-bc19bc0e",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T10:53:19.747489+00:00"
+    },
+    {
+      "id": "log-da7cd673",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-25bcdf with locked score 62.5%",
+      "timestamp": "2026-10-21T10:53:19.863110+00:00"
+    },
+    {
+      "id": "log-3e8043cf",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-25bcdf application status set to shortlisted",
+      "timestamp": "2026-10-21T10:53:19.918471+00:00"
+    },
+    {
+      "id": "log-662cffab",
+      "event": "Google Signup",
+      "user_id": "inve-6f8bdf",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T10:53:19.980453+00:00"
+    },
+    {
+      "id": "log-c4ff8920",
+      "event": "Google Login",
+      "user_id": "inve-6f8bdf",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T10:53:19.994472+00:00"
+    },
+    {
+      "id": "log-4014aac0",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T11:41:47.844512+00:00"
+    },
+    {
+      "id": "log-1c2d4172",
+      "event": "Account Registered",
+      "user_id": "foun-57e0b2",
+      "details": "User tester_271bf3 registered as founder",
+      "timestamp": "2026-10-21T11:41:47.927754+00:00"
+    },
+    {
+      "id": "log-3c7f9edf",
+      "event": "User Login",
+      "user_id": "foun-57e0b2",
+      "details": "User tester_271bf3 logged in successfully",
+      "timestamp": "2026-10-21T11:41:47.990607+00:00"
+    },
+    {
+      "id": "log-e16b2f6f",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T11:41:48.094347+00:00"
+    },
+    {
+      "id": "log-8b40462f",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-109dcf with locked score 62.5%",
+      "timestamp": "2026-10-21T11:41:48.171229+00:00"
+    },
+    {
+      "id": "log-8f804e2e",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-109dcf application status set to shortlisted",
+      "timestamp": "2026-10-21T11:41:48.198559+00:00"
+    },
+    {
+      "id": "log-38bb496b",
+      "event": "Google Signup",
+      "user_id": "inve-6a5c0b",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T11:41:48.256459+00:00"
+    },
+    {
+      "id": "log-7556e38e",
+      "event": "Google Login",
+      "user_id": "inve-6a5c0b",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T11:41:48.267905+00:00"
+    },
+    {
+      "id": "log-5fc21cf9",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T11:48:35.036027+00:00"
+    },
+    {
+      "id": "log-2ed56eff",
+      "event": "Account Registered",
+      "user_id": "foun-3f00e0",
+      "details": "User tester_1ffca2 registered as founder",
+      "timestamp": "2026-10-21T11:48:35.160951+00:00"
+    },
+    {
+      "id": "log-33aa8fa5",
+      "event": "User Login",
+      "user_id": "foun-3f00e0",
+      "details": "User tester_1ffca2 logged in successfully",
+      "timestamp": "2026-10-21T11:48:35.280126+00:00"
+    },
+    {
+      "id": "log-14e6438f",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T11:48:35.397015+00:00"
+    },
+    {
+      "id": "log-cec2b503",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-8ebe95 with locked score 62.5%",
+      "timestamp": "2026-10-21T11:48:35.452736+00:00"
+    },
+    {
+      "id": "log-679839e0",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-8ebe95 application status set to shortlisted",
+      "timestamp": "2026-10-21T11:48:35.487234+00:00"
+    },
+    {
+      "id": "log-3849a5e4",
+      "event": "Google Signup",
+      "user_id": "inve-1f6275",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T11:48:35.695186+00:00"
+    },
+    {
+      "id": "log-be7479f2",
+      "event": "Google Login",
+      "user_id": "inve-1f6275",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T11:48:35.709591+00:00"
+    },
+    {
+      "id": "log-bbc8bf23",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T11:51:36.621459+00:00"
+    },
+    {
+      "id": "log-f4a38112",
+      "event": "Account Registered",
+      "user_id": "foun-1106f5",
+      "details": "User tester_4ae5eb registered as founder",
+      "timestamp": "2026-10-21T11:51:36.710666+00:00"
+    },
+    {
+      "id": "log-8dd1c79f",
+      "event": "User Login",
+      "user_id": "foun-1106f5",
+      "details": "User tester_4ae5eb logged in successfully",
+      "timestamp": "2026-10-21T11:51:36.773223+00:00"
+    },
+    {
+      "id": "log-1db1106c",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T11:51:36.884309+00:00"
+    },
+    {
+      "id": "log-4164227b",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-8474cf with locked score 62.5%",
+      "timestamp": "2026-10-21T11:51:36.947535+00:00"
+    },
+    {
+      "id": "log-2b6d5216",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-8474cf application status set to shortlisted",
+      "timestamp": "2026-10-21T11:51:36.981477+00:00"
+    },
+    {
+      "id": "log-5c454a7e",
+      "event": "Google Signup",
+      "user_id": "inve-3c0d6a",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T11:51:37.141180+00:00"
+    },
+    {
+      "id": "log-444ff705",
+      "event": "Google Login",
+      "user_id": "inve-3c0d6a",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T11:51:37.155823+00:00"
+    },
+    {
+      "id": "log-c142b882",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T11:55:27.330042+00:00"
+    },
+    {
+      "id": "log-3001110c",
+      "event": "Account Registered",
+      "user_id": "foun-259af0",
+      "details": "User tester_ec8dde registered as founder",
+      "timestamp": "2026-10-21T11:55:27.441745+00:00"
+    },
+    {
+      "id": "log-6c05833f",
+      "event": "User Login",
+      "user_id": "foun-259af0",
+      "details": "User tester_ec8dde logged in successfully",
+      "timestamp": "2026-10-21T11:55:27.517632+00:00"
+    },
+    {
+      "id": "log-e103046c",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T11:55:27.691729+00:00"
+    },
+    {
+      "id": "log-fc424e1d",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-05e10c with locked score 62.5%",
+      "timestamp": "2026-10-21T11:55:27.774445+00:00"
+    },
+    {
+      "id": "log-f52aa787",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-05e10c application status set to shortlisted",
+      "timestamp": "2026-10-21T11:55:27.816425+00:00"
+    },
+    {
+      "id": "log-dc6d9ea3",
+      "event": "Google Signup",
+      "user_id": "inve-7e1c91",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T11:55:27.982832+00:00"
+    },
+    {
+      "id": "log-e79bd00e",
+      "event": "Google Login",
+      "user_id": "inve-7e1c91",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T11:55:28.003915+00:00"
+    },
+    {
+      "id": "log-489f9aa0",
+      "event": "User Login",
+      "user_id": "cand-01",
+      "details": "User alexrivera logged in successfully",
+      "timestamp": "2026-10-21T12:06:22.388279+00:00"
+    },
+    {
+      "id": "log-08660de5",
+      "event": "Account Registered",
+      "user_id": "foun-26564e",
+      "details": "User tester_f4c4dc registered as founder",
+      "timestamp": "2026-10-21T12:06:22.515993+00:00"
+    },
+    {
+      "id": "log-5ca5b0dd",
+      "event": "User Login",
+      "user_id": "foun-26564e",
+      "details": "User tester_f4c4dc logged in successfully",
+      "timestamp": "2026-10-21T12:06:22.582495+00:00"
+    },
+    {
+      "id": "log-99eb9755",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Senior Full-Stack Engineer created for Acme Tech",
+      "timestamp": "2026-10-21T12:06:22.728759+00:00"
+    },
+    {
+      "id": "log-c41f40fc",
+      "event": "Job Application",
+      "user_id": "test-cand-99",
+      "details": "Candidate applied to Job job-833c25 with locked score 62.5%",
+      "timestamp": "2026-10-21T12:06:22.798087+00:00"
+    },
+    {
+      "id": "log-2a3a4aaf",
+      "event": "Application Status Updated",
+      "user_id": "test-cand-99",
+      "details": "Job job-833c25 application status set to shortlisted",
+      "timestamp": "2026-10-21T12:06:22.825539+00:00"
+    },
+    {
+      "id": "log-d812dd13",
+      "event": "Google Signup",
+      "user_id": "inve-f3e081",
+      "details": "New user Google Innovator created via Google",
+      "timestamp": "2026-10-21T12:06:22.992130+00:00"
+    },
+    {
+      "id": "log-1cfaf02b",
+      "event": "Google Login",
+      "user_id": "inve-f3e081",
+      "details": "User Google Innovator logged in via Google",
+      "timestamp": "2026-10-21T12:06:23.006410+00:00"
     }
   ],
   "match_results": [
@@ -4837,9 +6701,9 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "intermediate",
@@ -4853,9 +6717,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "intermediate",
@@ -4907,9 +6771,9 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "intermediate",
@@ -4922,7 +6786,7 @@
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "status": "Not Verified"
@@ -4968,9 +6832,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "none",
@@ -8131,6 +9995,546 @@
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-5b1836cb"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-25bcdf",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T10:53:19.654156+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T10:53:19.667059+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-c4bd8c67"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-109dcf",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:41:48.004172+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:41:48.019357+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-5711b61d"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-8ebe95",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:48:35.299383+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:48:35.313735+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-8a4857c8"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-8474cf",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:51:36.787127+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:51:36.805623+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-b5743d2d"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-05e10c",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:55:27.538963+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T11:55:27.559878+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-0f3a59e2"
+    },
+    {
+      "candidate_id": "test-cand-99",
+      "job_id": "job-833c25",
+      "score": 62.5,
+      "match_score_percentage": 62.5,
+      "mandatory_score_component": 37.5,
+      "preferred_score_component": 25.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-python",
+          "skill_name": "sk-python",
+          "skill": {
+            "id": "sk-python",
+            "name": "sk-python",
+            "category": "Languages"
+          },
+          "category": "Languages",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "advanced",
+          "candidate_assessment_score": 85.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T12:06:22.617856+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "skill": {
+            "id": "sk-sql",
+            "name": "sk-sql",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [
+        {
+          "skill_id": "sk-react",
+          "skill_name": "sk-react",
+          "skill": {
+            "id": "sk-react",
+            "name": "sk-react",
+            "category": "Web & Frontend"
+          },
+          "category": "Web & Frontend",
+          "is_required": false,
+          "weight": 1.0,
+          "proficiency_level": "intermediate",
+          "candidate_assessment_score": 80.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T12:06:22.645708+00:00"
+        }
+      ],
+      "missing_skills": [
+        {
+          "skill_id": "sk-sql",
+          "skill_name": "sk-sql",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 2.0,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 1,
+      "total_required_count": 2,
+      "explanation": "Candidate satisfies 1 of 2 mandatory skill requirements (2.0 of 4.0 weighted points), yielding a 62.5% compatibility score (75% Mandatory + 25% Preferred). Critical gaps: sk-sql. Bonus competencies: sk-react.",
+      "formula_breakdown": "75% Mandatory + 25% Preferred",
+      "learning_roadmap": [
+        {
+          "skill_name": "sk-sql",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified sk-sql interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting sk-sql production patterns.",
+          "assessment_cta": "Take the sk-sql 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=sk-sql"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-8de4873d"
     }
   ],
   "gemini_sessions": [

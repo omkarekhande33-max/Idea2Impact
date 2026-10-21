@@ -209,5 +209,60 @@ class TestIdea2Impact(unittest.TestCase):
         del_res = delete_user_skill("sk-react", candidate_id=test_cand_id)
         self.assertTrue(del_res["success"])
 
+    def test_critical_skills_test_and_profile_addition(self):
+        """Tests that all 6 critical gap skills can be tested and added to candidate profile and passport."""
+        from app.routers.api import add_user_skill, get_user_skills, get_verified_skill_passport, get_assessment
+        from app.schemas.models import CandidateSkillCreate
+
+        test_cand = "cand-skills-test-01"
+        from app.database import db
+        if not db.find_one("profiles", lambda p: p["id"] == test_cand):
+            db.insert("profiles", {
+                "id": test_cand,
+                "full_name": "Test Candidate",
+                "email": "test.candidate@example.com",
+                "role": "candidate"
+            })
+        target_skills = [
+            "Python & FastAPI",
+            "PostgreSQL & Database Design",
+            "Distributed Systems",
+            "Docker & Kubernetes",
+            "Redis Caching",
+            "Cloud Architecture"
+        ]
+
+        # 1. Verify assessments exist or can be retrieved
+        for s_name in target_skills:
+            asm = get_assessment(s_name)
+            self.assertIsNotNone(asm)
+            self.assertGreater(len(asm["questions"]), 0)
+
+        # 2. Add each skill after taking test with score >= 75%
+        for s_name in target_skills:
+            res = add_user_skill(CandidateSkillCreate(
+                skill_name=s_name,
+                proficiency_level="Advanced",
+                years_experience=2.0,
+                assessment_score=88.0,
+                is_verified=True
+            ), candidate_id=test_cand)
+            assert res is not None
+            self.assertTrue(res.get("is_verified", False))
+
+        # 3. Verify in candidate skills list
+        user_skills = get_user_skills(candidate_id=test_cand)
+        added_names = {s.get("name") or s.get("skill_name") for s in user_skills}
+        for s_name in target_skills:
+            self.assertIn(s_name, added_names)
+
+        # 4. Verify in candidate passport
+        passport = get_verified_skill_passport(candidate_id=test_cand)
+        self.assertEqual(passport["total_verified"], len(target_skills))
+        passport_skill_names = {vs["name"] for vs in passport["verified_skills"]}
+        for s_name in target_skills:
+            self.assertIn(s_name, passport_skill_names)
+
 if __name__ == "__main__":
     unittest.main()
+

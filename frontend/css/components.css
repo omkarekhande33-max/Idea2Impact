@@ -2803,6 +2803,39 @@
   transform: translateY(-1px);
 }
 
+.test-gap-btn {
+  background: #DC2626;
+  border: 1px solid #B91C1C;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.22rem 0.6rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+  line-height: 1.1;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+}
+
+.test-gap-btn:hover {
+  background: #B91C1C;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.35);
+}
+
+.critical-skill-chip {
+  border-color: #C7D2FE !important;
+  background: #F8FAFC !important;
+}
+
+.critical-skill-chip:hover {
+  border-color: #6366F1 !important;
+  background: #EEF2FF !important;
+}
+
 /* Green Matched Skill Pill */
 .sb-skill-match-pill {
   display: inline-flex;

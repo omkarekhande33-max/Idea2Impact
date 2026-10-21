@@ -152,6 +152,34 @@ INITIAL_DATA = {
             "name": "System Architecture & Security",
             "category": "Architecture",
             "description": "Role-based access control (RBAC), token authentication, API rate limiting, sanitization."
+        },
+        {
+            "id": "sk-dist-sys",
+            "name": "Distributed Systems",
+            "slug": "distributed-systems",
+            "category": "Cloud & Systems",
+            "description": "CAP theorem, Paxos & Raft consensus algorithms, distributed transactions (2PC & Saga patterns), eventual consistency, idempotency, and message queues."
+        },
+        {
+            "id": "sk-docker-k8s",
+            "name": "Docker & Kubernetes",
+            "slug": "docker-kubernetes",
+            "category": "DevOps & Cloud",
+            "description": "Multi-stage Docker builds, layer caching, Kubernetes Pods, Deployments, StatefulSets, Services, Ingress, and horizontal pod autoscaling (HPA)."
+        },
+        {
+            "id": "sk-redis",
+            "name": "Redis Caching",
+            "slug": "redis-caching",
+            "category": "Databases & Tools",
+            "description": "In-memory data structures (Hashes, Sorted Sets), Cache-Aside and Write-Through caching patterns, TTL expiration, Redis Pub/Sub, and distributed locking."
+        },
+        {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "slug": "cloud-architecture",
+            "category": "Cloud & Systems",
+            "description": "Multi-AZ high availability, multi-region disaster recovery (RTO/RPO), 12-factor cloud apps, VPC networking, security groups, and Circuit Breaker patterns."
         }
     ],
     "candidate_skills": [
