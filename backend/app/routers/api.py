@@ -266,9 +266,22 @@ def update_profile(payload: ProfileUpdate, user_id: Optional[str] = Query(None))
 
 @router.get("/profiles")
 def list_profiles(role: Optional[str] = Query(None)):
-    if role:
-        return db.find_many("profiles", lambda p: p["role"] == role)
-    return db.get_table("profiles")
+    profiles = db.find_many("profiles", lambda p: p["role"] == role) if role else db.get_table("profiles")
+    results = []
+    for p in profiles:
+        clean = _sanitize_profile(p)
+        if clean and clean.get("role") == "candidate":
+            cp = db.find_one("candidate_profiles", lambda c: c.get("candidate_id") == clean["id"])
+            if cp:
+                clean["target_role"] = cp.get("target_role", "Software Engineer")
+                clean["experience_years"] = cp.get("experience_years", 1)
+                clean["education"] = cp.get("education", "Not specified")
+                clean["portfolio_url"] = cp.get("portfolio_url", "")
+                clean["summary"] = cp.get("summary", clean.get("bio", ""))
+            c_skills = db.find_many("candidate_skills", lambda cs: cs.get("candidate_id") == clean["id"])
+            clean["skills"] = [cs.get("skill_name") or cs.get("skill_id") for cs in c_skills]
+        results.append(clean)
+    return results
 
 # -------------------------------------------------------------
 # 2. SKILLS & ASSESSMENTS (Section 2.1 & 10.1)
@@ -755,8 +768,17 @@ def get_job_candidate_matches(job_id: str):
     for cand in candidates:
         match_data = calculate_candidate_job_match(cand["id"], job_id)
         cand_profile = db.find_one("candidate_profiles", lambda cp: cp["candidate_id"] == cand["id"]) or {}
+        c_skills = db.find_many("candidate_skills", lambda cs: cs.get("candidate_id") == cand["id"])
+        cand_clean = _sanitize_profile(cand) or {}
+        cand_clean["skills"] = [cs.get("skill_name") or cs.get("skill_id") for cs in c_skills]
+        if cand_profile:
+            cand_clean["target_role"] = cand_profile.get("target_role", "Software Engineer")
+            cand_clean["experience_years"] = cand_profile.get("experience_years", 1)
+            cand_clean["education"] = cand_profile.get("education", "Not specified")
+            cand_clean["portfolio_url"] = cand_profile.get("portfolio_url", "")
+            cand_clean["summary"] = cand_profile.get("summary", cand.get("bio", ""))
         matches.append({
-            "candidate": cand,
+            "candidate": cand_clean,
             "profile": cand_profile,
             "match": match_data
         })

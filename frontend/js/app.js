@@ -6612,6 +6612,16 @@ class App {
         api.getSharedHiringRequests().catch(() => []),
         api.getMessages().catch(() => [])
       ]);
+
+      try {
+        const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+        localUsers.forEach(lu => {
+          if (lu.role === 'candidate' && !candidates.some(c => c.id === lu.id || (lu.email && c.email === lu.email))) {
+            candidates.push(lu);
+          }
+        });
+      } catch (e) {}
+
       if (jobs.length > 0) {
         applications = await api.request(`/applications/job/${jobs[0].id}`).catch(() => []);
       }
@@ -6651,8 +6661,8 @@ class App {
                 <span class="sidebar-link-content">⚙️ Post 75/25 Weighted Job</span>
               </button>
               <button class="sidebar-link ${currentTab === 'candidates' ? 'active' : ''}" data-tab="candidates">
-                <span class="sidebar-link-content">🎯 Candidate Pipeline Dossier</span>
-                <span class="sidebar-badge">${candidates.length}</span>
+                <span class="sidebar-link-content">👥 Candidate Profiles</span>
+                <span class="sidebar-badge" style="background:#2563EB; color:#fff;">${candidates.length}</span>
               </button>
               <button class="sidebar-link ${currentTab === 'candidate-messages' ? 'active' : ''}" data-tab="candidate-messages">
                 <span class="sidebar-link-content">💬 Candidate Messages</span>
@@ -6742,14 +6752,14 @@ class App {
           </div>
 
           <!-- KPI 3: Pipeline Talent -->
-          <div class="recruiter-kpi-card">
+          <div class="recruiter-kpi-card" style="cursor:pointer;" onclick="state.setTab('candidates');" title="Click to view all registered candidate profiles">
             <div class="kpi-top-row">
-              <span class="kpi-title">Ranked Candidates</span>
+              <span class="kpi-title">Registered Candidates</span>
               <span class="material-symbols-outlined" style="color:#8B5CF6;">school</span>
             </div>
             <div class="kpi-value">${candidates.length}</div>
             <p style="font-size:0.78rem; color:var(--text-muted); margin:0.4rem 0 0;">
-              Skill passport verified candidates evaluated.
+              All candidate profiles registered on platform. Click to inspect →
             </p>
           </div>
 
@@ -6969,23 +6979,47 @@ class App {
       return `
         <div class="dashboard-header">
           <div class="dashboard-title">
-            <h2>Live Candidate Pipeline Dossier</h2>
-            <p>Ranked candidate applicants evaluated under the Dual-Tier 75/25 Matching Engine.</p>
+            <h2>Live Candidate Profiles & Pipeline Dossier</h2>
+            <p>Browse all registered candidate profiles and evaluate talent under the Dual-Tier 75/25 Matching Engine.</p>
           </div>
           <span class="formula-tag">Algorithm: 75% Core Mandatory + 25% Preferred Bonus</span>
         </div>
 
-        <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.85rem; background:#FFFFFF; border:1px solid var(--border); padding:0.85rem 1.25rem; border-radius:var(--radius-md);">
-          <span style="font-size:0.9rem; font-weight:700; color:var(--primary);">Evaluating For Role:</span>
-          <select class="form-select" id="hr-job-selector" style="max-width:400px;">
-            ${jobs.map(j => `<option value="${j.id}" ${j.id === selectedJob.id ? 'selected' : ''}>${j.title} (${j.company_name})</option>`).join('')}
-          </select>
+        <div style="margin-bottom:1.25rem; display:flex; flex-direction:column; gap:0.85rem; background:#FFFFFF; border:1px solid var(--border); padding:1rem 1.25rem; border-radius:var(--radius-md);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; flex:1; min-width:280px;">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--primary);">Evaluating For Role:</span>
+              <select class="form-select" id="hr-job-selector" style="max-width:380px; font-size:0.88rem;">
+                ${jobs.map(j => `<option value="${j.id}" ${j.id === selectedJob.id ? 'selected' : ''}>${j.title} (${j.company_name})</option>`).join('')}
+              </select>
+            </div>
+            <div style="flex:1; min-width:240px; max-width:380px;">
+              <input type="text" class="form-input" id="hr-candidate-search" placeholder="🔍 Search candidate by name, email, role, skills..." style="font-size:0.85rem; padding:0.45rem 0.85rem;" />
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; border-top:1px solid #F1F5F9; padding-top:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;" id="hr-candidate-filter-tabs">
+              <button type="button" class="btn btn-xs btn-primary hr-cand-filter-btn" data-filter="all" style="font-weight:700;">
+                🌟 All Registered Candidates
+              </button>
+              <button type="button" class="btn btn-xs btn-outline hr-cand-filter-btn" data-filter="real" style="font-weight:700;">
+                👤 Real Registered Users
+              </button>
+              <button type="button" class="btn btn-xs btn-outline hr-cand-filter-btn" data-filter="high-fit" style="font-weight:700;">
+                ⚡ High Fit (&gt;80%)
+              </button>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted);" id="hr-candidate-count-summary">
+              Evaluating candidate profiles...
+            </div>
+          </div>
         </div>
 
         <!-- Live Candidate Pipeline Dossier Cards Container -->
         <div id="hr-candidate-matches-list" style="display:flex; flex-direction:column; gap:1.25rem;">
           <div class="card" style="text-align:center; padding:3rem;">
-            <p style="color:var(--text-muted); font-size:0.95rem;">Loading ranked candidate pipeline dossiers...</p>
+            <p style="color:var(--text-muted); font-size:0.95rem;">Loading candidate profiles...</p>
           </div>
         </div>
       `;
@@ -7829,18 +7863,35 @@ class App {
     }
 
     // =========================================================================
-    // Candidate Pipeline Dossier Tab Logic (> 80% Match Filter & Matched Role Display)
+    // Candidate Profiles & Pipeline Dossier Tab Logic
     // =========================================================================
     const matchesList = this.appContainer.querySelector('#hr-candidate-matches-list');
     const jobSelector = this.appContainer.querySelector('#hr-job-selector');
+    const searchInput = this.appContainer.querySelector('#hr-candidate-search');
+    const filterTabsContainer = this.appContainer.querySelector('#hr-candidate-filter-tabs');
+    const countSummary = this.appContainer.querySelector('#hr-candidate-count-summary');
 
     if (matchesList && jobSelector) {
-      let showingAll = false;
+      let activeFilter = 'all'; // 'all' | 'real' | 'high-fit'
+      let searchQuery = '';
+
+      const demoAccountIds = new Set(['cand-01', 'cand-02', 'cand-03', 'cand-skills-test-01']);
+      const demoAccountNames = new Set(['alex rivera', 'priya sharma', 'jordan lee', 'test candidate']);
+      const demoAccountEmails = new Set(['alex.rivera@example.com', 'priya.sharma@example.com', 'jordan.lee@example.com', 'test.candidate@example.com']);
+      const demoAccountUsernames = new Set(['alexrivera', 'priyasharma', 'jordanlee', 'testcandidate']);
+      const isDemoCandidate = (u) => {
+        if (!u) return false;
+        const id = (u.id || u.candidate_id || '').toLowerCase().trim();
+        const name = (u.full_name || u.name || '').toLowerCase().trim();
+        const email = (u.email || '').toLowerCase().trim();
+        const username = (u.username || '').toLowerCase().trim();
+        return demoAccountIds.has(id) || demoAccountNames.has(name) || demoAccountEmails.has(email) || demoAccountUsernames.has(username);
+      };
 
       const loadDossiers = async (jobId) => {
         matchesList.innerHTML = `
           <div class="card" style="text-align:center; padding:3rem;">
-            <p style="color:var(--text-muted); font-size:1.05rem;">Evaluating talent pool under Dual-Tier 75/25 Matching Engine...</p>
+            <p style="color:var(--text-muted); font-size:1.05rem;">Evaluating all registered candidate profiles under Dual-Tier 75/25 Matching Engine...</p>
           </div>
         `;
 
@@ -7849,206 +7900,387 @@ class App {
           const roleTitle = currentJob.title;
           const companyName = currentJob.company_name;
 
-          // Fetch matches from API
+          // Fetch matches from API and existing applications
           const rawMatches = await api.getJobMatches(jobId).catch(() => []);
           const existingApps = await api.getJobCandidates(jobId).catch(() => []);
           const appMap = new Map();
           existingApps.forEach(a => appMap.set(a.candidate_id || a.id, a));
 
-          let candidatesData = rawMatches.map(rm => {
+          // 1. Build map of candidates from rawMatches
+          const candidatesMap = new Map();
+
+          rawMatches.forEach(rm => {
             const cId = rm.candidate?.id || rm.candidate_id;
+            if (!cId) return;
             const app = appMap.get(cId);
-            return {
+            const isReal = !isDemoCandidate(rm.candidate || { id: cId, name: rm.name });
+            candidatesMap.set(cId, {
               candidate_id: cId,
               full_name: rm.candidate?.full_name || rm.name || 'Candidate',
               email: rm.candidate?.email || 'candidate@idea2impact.io',
-              avatar_url: rm.candidate?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rm.candidate?.full_name || 'Candidate')}`,
-              match_score: rm.match?.score || rm.match_score || 0,
+              username: rm.candidate?.username || '',
+              avatar_url: rm.candidate?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rm.candidate?.full_name || rm.name || 'Candidate')}`,
+              target_role: rm.candidate?.target_role || rm.profile?.target_role || 'Software Engineer',
+              bio: rm.candidate?.bio || rm.profile?.summary || rm.candidate?.summary || '',
+              experience_years: rm.candidate?.experience_years || rm.profile?.experience_years || 1,
+              education: rm.candidate?.education || rm.profile?.education || 'Technical Background',
+              portfolio_url: rm.candidate?.portfolio_url || rm.profile?.portfolio_url || '',
+              skills: rm.candidate?.skills || [],
+              match_score: rm.match?.score !== undefined ? rm.match.score : (rm.match_score || 0),
               mandatory_score: rm.match?.mandatory_score_component || Math.round((rm.match?.score || 0) * 0.75),
               preferred_score: rm.match?.preferred_score_component || Math.round((rm.match?.score || 0) * 0.25),
               matched_skills: rm.match?.matched_skills || [],
               critical_skill_gaps: rm.match?.critical_skill_gaps || [],
               bonus_competencies: rm.match?.bonus_competencies || [],
-              learning_commitment: app?.learning_commitment || "Candidate profile verified against 75% mandatory competency requirements.",
-              application_status: app?.status || "Under Review"
-            };
+              learning_commitment: app?.learning_commitment || "Verified competency passport evaluated against role mandatory requirements.",
+              application_status: app?.status || "Under Review",
+              is_real_user: isReal
+            });
           });
 
-          // Sort candidates by match_score descending
-          candidatesData.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+          // 2. Ensure ALL candidate profiles in candidates and local storage are included
+          const allCandidateProfiles = Array.isArray(candidates) ? [...candidates] : [];
+          try {
+            const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+            localUsers.forEach(lu => {
+              if (lu.role === 'candidate' && !allCandidateProfiles.some(c => c.id === lu.id || (lu.email && c.email === lu.email))) {
+                allCandidateProfiles.push(lu);
+              }
+            });
+          } catch (e) {}
 
-          // Filter candidates strictly for match score > 80 unless showingAll is toggled
-          const qualifiedCandidates = showingAll 
-            ? candidatesData 
-            : candidatesData.filter(cand => Math.round(cand.match_score || 0) > 80);
-
-          if (qualifiedCandidates.length === 0) {
-            matchesList.innerHTML = `
-              <div class="card" style="text-align:center; padding:3.5rem 1.5rem; border:2px dashed #CBD5E1; background:#F8FAFC;">
-                <div style="font-size:3rem; margin-bottom:0.75rem;">🎯</div>
-                <h3 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0 0 0.5rem;">
-                  No Candidates Exceed the &gt;80% Benchmark for this Role
-                </h3>
-                <p style="color:var(--text-muted); font-size:0.9rem; max-width:560px; margin:0 auto 1.25rem; line-height:1.5;">
-                  Under the 75/25 Matching Engine rules, candidates must achieve a compatibility score strictly greater than 80% (&gt; 80%) to be listed in the Pipeline Dossier for <strong>${roleTitle}</strong> (${companyName}).
-                </p>
-                <div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="toggle-show-all-dossier-btn">
-                    Show All Talent Pool Applicants (${candidatesData.length} Evaluated)
-                  </button>
-                </div>
-              </div>
-            `;
-
-            const toggleBtn = matchesList.querySelector('#toggle-show-all-dossier-btn');
-            if (toggleBtn) {
-              toggleBtn.addEventListener('click', () => {
-                showingAll = true;
-                loadDossiers(jobId);
-              });
+          // Also check state.activeUser if candidate
+          if (state.activeUser && state.activeUser.role === 'candidate') {
+            if (!allCandidateProfiles.some(c => c.id === state.activeUser.id)) {
+              allCandidateProfiles.push(state.activeUser);
             }
-            return;
           }
 
-          matchesList.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; padding:0.6rem 0.85rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--radius-md);">
-              <span style="font-size:0.85rem; font-weight:700; color:#1E40AF;">
-                🎯 Matched Role: <strong>${roleTitle}</strong> (${companyName}) • ${showingAll ? 'Displaying All Talent Pool Candidates' : `Filtering for Candidates with Match Score &gt; 80% (${qualifiedCandidates.length} Qualified)`}
-              </span>
-              ${showingAll ? `
-                <button type="button" class="btn btn-xs btn-outline" id="reapply-80-filter-btn" style="border-color:#3B82F6; color:#1D4ED8; font-weight:700;">
-                  Apply &gt;80% Score Filter Only
-                </button>
-              ` : `
-                <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:700;">Score &gt; 80% Filter Active</span>
-              `}
-            </div>
+          allCandidateProfiles.forEach(cand => {
+            const cId = cand.id;
+            if (!candidatesMap.has(cId)) {
+              const isReal = !isDemoCandidate(cand);
+              const app = appMap.get(cId);
+              candidatesMap.set(cId, {
+                candidate_id: cId,
+                full_name: cand.full_name || cand.name || 'Candidate',
+                email: cand.email || 'candidate@idea2impact.dev',
+                username: cand.username || '',
+                avatar_url: cand.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cand.full_name || cand.name || 'Candidate')}`,
+                target_role: cand.target_role || 'Registered Candidate',
+                bio: cand.bio || cand.summary || 'Registered candidate profile awaiting skill passport verification.',
+                experience_years: cand.experience_years || 1,
+                education: cand.education || 'Not specified',
+                portfolio_url: cand.portfolio_url || '',
+                skills: cand.skills || [],
+                match_score: cand.match_score || 0,
+                mandatory_score: 0,
+                preferred_score: 0,
+                matched_skills: [],
+                critical_skill_gaps: [],
+                bonus_competencies: [],
+                learning_commitment: app?.learning_commitment || "Candidate registered on platform. Profile ready for interview screening.",
+                application_status: app?.status || "Applied",
+                is_real_user: isReal
+              });
+            } else {
+              // Update with any richer info from candidates
+              const existing = candidatesMap.get(cId);
+              if (!existing.bio && cand.bio) existing.bio = cand.bio;
+              if (!existing.target_role && cand.target_role) existing.target_role = cand.target_role;
+              if (cand.skills && cand.skills.length > 0 && (!existing.skills || existing.skills.length === 0)) {
+                existing.skills = cand.skills;
+              }
+              if (!isDemoCandidate(cand)) {
+                existing.is_real_user = true;
+              }
+            }
+          });
 
-            ${qualifiedCandidates.map((cand, index) => {
-              const rank = index + 1;
-              const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : 'rank-3';
-              const score = Math.round(cand.match_score || 85);
-              const mandScore = Math.round(cand.mandatory_score || (score * 0.75));
-              const prefScore = Math.round(cand.preferred_score || (score * 0.25));
-              const status = cand.application_status || 'Under Review';
-              const candId = cand.candidate_id;
-              const candName = cand.full_name;
-              const candEmail = cand.email;
-              const avatar = cand.avatar_url;
+          const candidatesData = Array.from(candidatesMap.values());
 
-              const matchedChipsHtml = cand.matched_skills && cand.matched_skills.length > 0 
-                ? cand.matched_skills.map(s => `
-                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">
-                      ✓ ${s.skill_name || s.name || s}
-                    </span>
-                  `).join('')
-                : `
-                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">✓ Python & FastAPI</span>
-                    <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">✓ PostgreSQL & Database Design</span>
-                  `;
+          // Sort candidates:
+          // 1. Real registered users first!
+          // 2. Then by match_score descending
+          candidatesData.sort((a, b) => {
+            if (a.is_real_user && !b.is_real_user) return -1;
+            if (!a.is_real_user && b.is_real_user) return 1;
+            return (b.match_score || 0) - (a.match_score || 0);
+          });
 
-              return `
-                <div class="dossier-card">
-                  <!-- Matched Role Banner & Rank Gauge -->
-                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; margin-bottom:1rem; border-bottom:1px solid #F1F5F9; padding-bottom:0.75rem;">
-                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                      <span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-weight:800; border:1px solid #BFDBFE; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:var(--radius-full);">
-                        🎯 Matched Role: ${roleTitle} (${companyName})
+          const renderList = () => {
+            let filtered = candidatesData;
+            if (activeFilter === 'real') {
+              filtered = filtered.filter(c => c.is_real_user);
+            } else if (activeFilter === 'high-fit') {
+              filtered = filtered.filter(c => Math.round(c.match_score || 0) > 80);
+            }
+
+            if (searchQuery) {
+              const q = searchQuery.toLowerCase().trim();
+              filtered = filtered.filter(c => 
+                (c.full_name || '').toLowerCase().includes(q) ||
+                (c.email || '').toLowerCase().includes(q) ||
+                (c.target_role || '').toLowerCase().includes(q) ||
+                (c.bio || '').toLowerCase().includes(q) ||
+                (c.skills || []).some(s => (typeof s === 'string' ? s : (s.skill_name || s.name || '')).toLowerCase().includes(q))
+              );
+            }
+
+            const realCount = candidatesData.filter(c => c.is_real_user).length;
+            if (countSummary) {
+              countSummary.innerHTML = `Showing <strong>${filtered.length}</strong> of <strong>${candidatesData.length}</strong> candidates (<strong>${realCount}</strong> real registered)`;
+            }
+
+            if (filtered.length === 0) {
+              matchesList.innerHTML = `
+                <div class="card" style="text-align:center; padding:3rem 1.5rem; border:2px dashed #CBD5E1; background:#F8FAFC;">
+                  <div style="font-size:2.5rem; margin-bottom:0.75rem;">🔍</div>
+                  <h3 style="font-size:1.2rem; font-weight:800; color:var(--primary); margin:0 0 0.5rem;">
+                    No Candidate Profiles Found
+                  </h3>
+                  <p style="color:var(--text-muted); font-size:0.9rem; max-width:480px; margin:0 auto 1.25rem;">
+                    No candidates matched the current filter (${activeFilter}) or search criteria.
+                  </p>
+                  <button type="button" class="btn btn-primary btn-sm" id="reset-all-cand-filters-btn">
+                    Show All Registered Candidates (${candidatesData.length})
+                  </button>
+                </div>
+              `;
+              const resetBtn = matchesList.querySelector('#reset-all-cand-filters-btn');
+              if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                  activeFilter = 'all';
+                  searchQuery = '';
+                  if (searchInput) searchInput.value = '';
+                  updateFilterButtons();
+                  renderList();
+                });
+              }
+              return;
+            }
+
+            matchesList.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; padding:0.6rem 0.85rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--radius-md);">
+                <span style="font-size:0.85rem; font-weight:700; color:#1E40AF;">
+                  🎯 Evaluating Role: <strong>${roleTitle}</strong> (${companyName}) • ${activeFilter === 'real' ? 'Showing Real Registered Users' : activeFilter === 'high-fit' ? 'Filtered for &gt;80% Fit' : 'All Registered Candidates'}
+                </span>
+                <span class="badge" style="background:#DBEAFE; color:#1E40AF; font-weight:700; font-size:0.75rem;">
+                  Dual-Tier 75/25 Algorithm Active
+                </span>
+              </div>
+
+              ${filtered.map((cand, index) => {
+                const rank = index + 1;
+                const score = Math.round(cand.match_score || 0);
+                const mandScore = Math.round(cand.mandatory_score || (score * 0.75));
+                const prefScore = Math.round(cand.preferred_score || (score * 0.25));
+                const status = cand.application_status || 'Under Review';
+                const candId = cand.candidate_id;
+                const candName = cand.full_name;
+                const candEmail = cand.email;
+                const avatar = cand.avatar_url;
+                const isReal = cand.is_real_user;
+
+                const matchedChipsHtml = cand.matched_skills && cand.matched_skills.length > 0 
+                  ? cand.matched_skills.map(s => `
+                      <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">
+                        ✓ ${s.skill_name || s.name || s}
                       </span>
-                      <span class="badge" style="background:${score > 80 ? '#DCFCE7' : '#FEF3C7'}; color:${score > 80 ? '#15803D' : '#B45309'}; font-weight:800; font-size:0.75rem; padding:0.35rem 0.65rem; border-radius:var(--radius-full);">
-                        ${score > 80 ? '✓ Verified Match &gt; 80%' : `${score}% Compatibility`}
-                      </span>
-                    </div>
-                    <div class="dossier-rank-badge ${rankClass}" style="position:static; transform:none;">
-                      #${rank} MATCH · ${score}% FIT
-                    </div>
-                  </div>
+                    `).join('')
+                  : (cand.skills && cand.skills.length > 0)
+                    ? cand.skills.map(s => `
+                        <span class="chip-mandatory" style="font-size:0.72rem; padding:0.15rem 0.5rem;">
+                          ✓ ${typeof s === 'string' ? s : (s.skill_name || s.name || s)}
+                        </span>
+                      `).join('')
+                    : `
+                        <span class="badge" style="background:#F1F5F9; color:#64748B; font-size:0.72rem;">Pending Skill Assessment</span>
+                      `;
 
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
-                    <!-- Left: Candidate Info -->
-                    <div class="dossier-candidate-info" style="flex:1; min-width:280px;">
-                      <img src="${avatar}" class="dossier-avatar" alt="${candName}"/>
-                      <div>
-                        <h4 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0;">${candName}</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0.5rem;">
-                          ${candEmail} • Verified Technical Passport Profile
-                        </p>
-                        <!-- Matched Competencies Badges -->
-                        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.4rem;">
-                          ${matchedChipsHtml}
+                return `
+                  <div class="dossier-card" style="border-left: 4px solid ${isReal ? '#10B981' : '#3B82F6'};">
+                    <!-- Top Bar: Badges & Rank/Fit Score -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; border-bottom:1px solid #F1F5F9; padding-bottom:0.75rem;">
+                      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                        ${isReal ? `
+                          <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:800; border:1px solid #86EFAC; font-size:0.78rem; padding:0.3rem 0.7rem; border-radius:var(--radius-full);">
+                            <span class="material-symbols-outlined" style="font-size:0.9rem; vertical-align:middle; margin-right:2px;">verified</span> Real Registered Candidate
+                          </span>
+                        ` : `
+                          <span class="badge" style="background:#F1F5F9; color:#475569; font-weight:600; font-size:0.75rem; padding:0.25rem 0.6rem; border-radius:var(--radius-full);">
+                            Talent Pool Demo
+                          </span>
+                        `}
+                        <span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-weight:700; font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full);">
+                          ID: ${candId}
+                        </span>
+                        <span class="badge" style="background:#F3E8FF; color:#7E22CE; font-weight:700; font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full);">
+                          💼 ${cand.target_role || 'Software Engineer'}
+                        </span>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span class="badge" style="background:${score > 80 ? '#DCFCE7' : score > 50 ? '#FEF3C7' : '#F1F5F9'}; color:${score > 80 ? '#15803D' : score > 50 ? '#B45309' : '#64748B'}; font-weight:800; font-size:0.75rem; padding:0.3rem 0.65rem; border-radius:var(--radius-full);">
+                          ${score > 80 ? '✓ &gt;80% Verified Fit' : score > 0 ? `${score}% Compatibility` : 'Assessment Pending'}
+                        </span>
+                        <div class="dossier-rank-badge ${score > 80 ? 'rank-1' : score > 50 ? 'rank-2' : 'rank-3'}" style="position:static; transform:none; font-size:0.8rem;">
+                          #${rank} · ${score}% FIT
                         </div>
                       </div>
                     </div>
 
-                    <!-- Right: Match Gauge & 75/25 Breakdown -->
-                    <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem 1.15rem; min-width:240px;">
-                      <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
-                        <span style="font-weight:700; color:#2563EB;">Core Mandatory:</span>
-                        <span style="font-weight:800; color:#2563EB;">${mandScore}% / 75%</span>
+                    <!-- Middle: Candidate Profile Details & 75/25 Gauge -->
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem; margin-top:0.25rem;">
+                      <!-- Left: Candidate Info -->
+                      <div class="dossier-candidate-info" style="flex:1; min-width:280px;">
+                        <img src="${avatar}" class="dossier-avatar" alt="${candName}" style="width:52px; height:52px; border-radius:var(--radius-full); object-fit:cover; border:2px solid ${isReal ? '#10B981' : '#CBD5E1'};" />
+                        <div>
+                          <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <h4 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0;">${candName}</h4>
+                          </div>
+                          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0.4rem;">
+                            ✉️ ${candEmail} • ⏱️ ${cand.experience_years || 1}+ yrs exp • 🎓 ${cand.education || 'Technical Degree'}
+                          </p>
+
+                          <!-- Candidate Bio / Summary Box -->
+                          <div style="font-size:0.88rem; color:#334155; line-height:1.5; margin:0.4rem 0 0.6rem; background:#F8FAFC; padding:0.6rem 0.85rem; border-radius:var(--radius-sm); border-left:3px solid ${isReal ? '#10B981' : '#2563EB'};">
+                            <strong>Profile Summary:</strong> ${cand.bio || cand.summary || 'Registered candidate user on Idea2Impact.'}
+                          </div>
+
+                          <!-- Matched Competencies Badges -->
+                          <div style="margin-top:0.4rem;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:0.25rem;">Competency Profile:</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
+                              ${matchedChipsHtml}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
-                        <span style="font-weight:700; color:#10B981;">Preferred Bonus:</span>
-                        <span style="font-weight:800; color:#10B981;">${prefScore}% / 25%</span>
+
+                      <!-- Right: 75/25 Breakdown -->
+                      <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem 1.15rem; min-width:230px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
+                          <span style="font-weight:700; color:#2563EB;">Core Mandatory:</span>
+                          <span style="font-weight:800; color:#2563EB;">${mandScore}% / 75%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.3rem;">
+                          <span style="font-weight:700; color:#10B981;">Preferred Bonus:</span>
+                          <span style="font-weight:800; color:#10B981;">${prefScore}% / 25%</span>
+                        </div>
+                        <div style="border-top:1px solid #E2E8F0; padding-top:0.35rem; display:flex; justify-content:space-between; font-size:0.88rem;">
+                          <span style="font-weight:800; color:var(--primary);">Composite Score:</span>
+                          <span style="font-weight:800; color:${score > 80 ? '#16A34A' : '#2563EB'}; font-size:1.15rem;">${score}%</span>
+                        </div>
                       </div>
-                      <div style="border-top:1px solid #E2E8F0; padding-top:0.35rem; display:flex; justify-content:space-between; font-size:0.88rem;">
-                        <span style="font-weight:800; color:var(--primary);">Composite Score:</span>
-                        <span style="font-weight:800; color:#16A34A; font-size:1.15rem;">${score}%</span>
+                    </div>
+
+                    <!-- Learning Commitment / Bridging Plan -->
+                    <div class="learning-commitment-quote" style="margin-top:0.5rem; font-size:0.85rem; background:#FFFBEB; border-left:3px solid #F59E0B; padding:0.5rem 0.85rem; border-radius:var(--radius-sm); color:#92400E;">
+                      "<strong>Bridging Action Plan:</strong> ${cand.learning_commitment || 'Verified competency passport satisfies core requirements.'}"
+                    </div>
+
+                    <!-- Footer: Status Selector & Direct Action Buttons -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid #F1F5F9; padding-top:0.85rem; margin-top:0.5rem;">
+                      <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <span style="font-size:0.82rem; font-weight:700; color:var(--text-main);">Pipeline Stage:</span>
+                        <select class="form-select dossier-status-select" data-job="${jobId}" data-cand="${candId}" style="font-size:0.82rem; padding:0.3rem 0.65rem;">
+                          <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+                          <option value="Under Review" ${status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                          <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                          <option value="Interview Scheduled" ${status === 'Interview Scheduled' ? 'selected' : ''}>Interview Scheduled</option>
+                          <option value="Offer Extended" ${status === 'Offer Extended' ? 'selected' : ''}>Offer Extended</option>
+                          <option value="Hired" ${status === 'Hired' ? 'selected' : ''}>Hired</option>
+                          <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                      </div>
+
+                      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary btn-sm hr-dossier-msg-btn" data-candidate-id="${candId}" data-candidate-name="${candName}" style="font-weight:700; font-size:0.82rem;">
+                          💬 Direct Message
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm hr-dossier-interview-btn" data-candidate-id="${candId}" data-candidate-name="${candName}" style="font-weight:700; font-size:0.82rem;">
+                          📅 Schedule Interview
+                        </button>
+                        <a href="${api.getPassportPdfUrl(candId)}" target="_blank" class="btn btn-outline btn-sm" download style="font-size:0.82rem;">
+                          🛡️ Skill Passport PDF ↗
+                        </a>
                       </div>
                     </div>
                   </div>
+                `;
+              }).join('')}
+            `;
 
-                  <!-- Learning Commitment Quote -->
-                  <div class="learning-commitment-quote" style="margin-top:1rem;">
-                    "<strong>Bridging Action Plan:</strong> ${cand.learning_commitment || 'Verified competency passport satisfies core requirements.'}"
-                  </div>
+            // Bind Direct Message buttons
+            matchesList.querySelectorAll('.hr-dossier-msg-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const cId = btn.dataset.candidateId;
+                const cName = btn.dataset.candidateName;
+                this.activeContactId = this.activeContactId || {};
+                this.activeContactId['candidate'] = cId;
+                state.setTab('candidate-messages');
+                state.showToast(`💬 Opened message channel with ${cName}`, 'info');
+              });
+            });
 
-                  <!-- Footer: Live Status Selector & Passport PDF Link -->
-                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid #F1F5F9; padding-top:0.85rem; margin-top:0.85rem;">
-                    <div style="display:flex; align-items:center; gap:0.6rem;">
-                      <span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Pipeline Stage:</span>
-                      <select class="form-select dossier-status-select" data-job="${jobId}" data-cand="${candId}" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
-                        <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
-                        <option value="Under Review" ${status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-                        <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                        <option value="Interview Scheduled" ${status === 'Interview Scheduled' ? 'selected' : ''}>Interview Scheduled</option>
-                        <option value="Offer Extended" ${status === 'Offer Extended' ? 'selected' : ''}>Offer Extended</option>
-                        <option value="Hired" ${status === 'Hired' ? 'selected' : ''}>Hired</option>
-                        <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                      </select>
-                    </div>
+            // Bind Schedule Interview buttons
+            matchesList.querySelectorAll('.hr-dossier-interview-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const cName = btn.dataset.candidateName;
+                state.setTab('interviews');
+                state.showToast(`📅 Coordinate interview schedule for ${cName}`, 'info');
+              });
+            });
 
-                    <a href="${api.getPassportPdfUrl(candId)}" target="_blank" class="btn btn-outline btn-sm" download>
-                      🛡️ Inspect Verified Skill Passport PDF ↗
-                    </a>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          `;
+            // Bind live status dropdown changes
+            matchesList.querySelectorAll('.dossier-status-select').forEach(select => {
+              select.addEventListener('change', async (e) => {
+                const jId = select.dataset.job;
+                const cId = select.dataset.cand;
+                const newStatus = select.value;
 
-          const resetFilterBtn = matchesList.querySelector('#reapply-80-filter-btn');
-          if (resetFilterBtn) {
-            resetFilterBtn.addEventListener('click', () => {
-              showingAll = false;
-              loadDossiers(jobId);
+                try {
+                  await api.updateCandidateApplicationStatus(jId, cId, newStatus, `Stage updated to ${newStatus} by HR`);
+                  state.showToast(`Candidate stage updated to: ${newStatus}!`, 'success');
+                } catch (statusErr) {
+                  state.showToast(`Updated stage locally to: ${newStatus}`, 'info');
+                }
+              });
+            });
+          };
+
+          const updateFilterButtons = () => {
+            if (filterTabsContainer) {
+              filterTabsContainer.querySelectorAll('.hr-cand-filter-btn').forEach(btn => {
+                if (btn.dataset.filter === activeFilter) {
+                  btn.className = 'btn btn-xs btn-primary hr-cand-filter-btn';
+                } else {
+                  btn.className = 'btn btn-xs btn-outline hr-cand-filter-btn';
+                }
+              });
+            }
+          };
+
+          // Filter buttons event listener
+          if (filterTabsContainer) {
+            filterTabsContainer.querySelectorAll('.hr-cand-filter-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                activeFilter = btn.dataset.filter;
+                updateFilterButtons();
+                renderList();
+              });
             });
           }
 
-          // Bind live status dropdown changes
-          matchesList.querySelectorAll('.dossier-status-select').forEach(select => {
-            select.addEventListener('change', async (e) => {
-              const jId = select.dataset.job;
-              const cId = select.dataset.cand;
-              const newStatus = select.value;
-
-              try {
-                await api.updateCandidateApplicationStatus(jId, cId, newStatus, `Stage updated to ${newStatus} by HR`);
-                state.showToast(`Candidate stage updated to: ${newStatus}!`, 'success');
-              } catch (statusErr) {
-                state.showToast(`Updated stage locally to: ${newStatus}`, 'info');
-              }
+          // Live search listener
+          if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+              searchQuery = e.target.value;
+              renderList();
             });
-          });
+          }
+
+          renderList();
 
         } catch (err) {
           matchesList.innerHTML = `<p style="color:var(--danger);">${err.message}</p>`;
@@ -8057,7 +8289,6 @@ class App {
 
       await loadDossiers(jobSelector.value);
       jobSelector.addEventListener('change', (e) => {
-        showingAll = false;
         loadDossiers(e.target.value);
       });
     }

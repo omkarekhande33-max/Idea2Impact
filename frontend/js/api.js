@@ -823,60 +823,106 @@ class ApiService {
   }
 
   async getJobMatches(jobId) {
+    let matches = [];
     try {
       const res = await this.request(`/jobs/${jobId}/matches`);
-      if (Array.isArray(res) && res.length > 0) return res;
+      if (Array.isArray(res) && res.length > 0) {
+        matches = [...res];
+      }
     } catch (e) {
       console.warn("Backend getJobMatches failed, using fallback calculation", e);
     }
 
-    // Client-side fallback candidate match calculation
+    // Dynamic fallback candidates if backend returned empty
     const defaultCandidates = [
       { id: 'cand-01', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', skills: ['Python & FastAPI', 'PostgreSQL & Database Design', 'Distributed Systems', 'Docker & Kubernetes', 'Modern JavaScript & Frontend'] },
       { id: 'cand-02', full_name: 'Priya Sharma', email: 'priya.sharma@example.com', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', skills: ['Python & FastAPI', 'AI & LLM Integration', 'Python'] },
       { id: 'cand-03', full_name: 'Jordan Lee', email: 'jordan.lee@example.com', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', skills: ['Modern JavaScript & Frontend', 'React', 'TypeScript', 'UI/UX'] }
     ];
 
-    const allJobs = await this.getMyJobs();
-    const targetJob = allJobs.find(j => j.id === jobId) || allJobs[0];
-    const reqSkills = targetJob?.required_skills || targetJob?.skills || [];
-    const mandReqs = reqSkills.filter(s => s.is_required !== false);
-    const prefReqs = reqSkills.filter(s => s.is_required === false);
+    try {
+      const allCandidates = await this.getProfiles('candidate').catch(() => defaultCandidates);
+      const allJobs = await this.getMyJobs().catch(() => []);
+      const targetJob = allJobs.find(j => j.id === jobId) || allJobs[0] || {};
+      const reqSkills = targetJob?.required_skills || targetJob?.skills || [];
+      const mandReqs = reqSkills.filter(s => s.is_required !== false);
+      const prefReqs = reqSkills.filter(s => s.is_required === false);
 
-    return defaultCandidates.map(c => {
-      const cSkillsLower = c.skills.map(s => s.toLowerCase());
-      const mandMatches = mandReqs.filter(r => {
-        const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
-        return cSkillsLower.some(cs => cs.includes(rName) || rName.includes(cs));
-      });
-      const prefMatches = prefReqs.filter(r => {
-        const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
-        return cSkillsLower.some(cs => cs.includes(rName) || rName.includes(cs));
-      });
+      const candidateList = allCandidates.length > 0 ? allCandidates : defaultCandidates;
 
-      const mandRatio = mandReqs.length > 0 ? (mandMatches.length / mandReqs.length) : 1.0;
-      const prefRatio = prefReqs.length > 0 ? (prefMatches.length / prefReqs.length) : 0.0;
-      const mandScore = prefReqs.length > 0 ? Math.round(mandRatio * 75) : Math.round(mandRatio * 100);
-      const prefScore = prefReqs.length > 0 ? Math.round(prefRatio * 25) : 0;
-      const totalScore = Math.min(100, mandScore + prefScore);
+      candidateList.forEach(cand => {
+        const candId = cand.id;
+        const existingIdx = matches.findIndex(m => (m.candidate?.id || m.candidate_id) === candId);
+        
+        const cSkills = (cand.skills || []).map(s => (typeof s === 'string' ? s : (s.skill_name || s.name || '')).toLowerCase());
+        const bioLower = `${cand.bio || ''} ${cand.summary || ''} ${cand.target_role || ''}`.toLowerCase();
+        
+        const mandMatches = mandReqs.filter(r => {
+          const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
+          return cSkills.some(cs => cs.includes(rName) || rName.includes(cs)) || (rName && bioLower.includes(rName));
+        });
+        const prefMatches = prefReqs.filter(r => {
+          const rName = (r.skill_name || r.name || r.skill_id || '').toLowerCase();
+          return cSkills.some(cs => cs.includes(rName) || rName.includes(cs)) || (rName && bioLower.includes(rName));
+        });
 
-      return {
-        candidate: { id: c.id, full_name: c.full_name, email: c.email, avatar_url: c.avatar_url, role: 'candidate' },
-        profile: { candidate_id: c.id, target_role: 'Full-Stack Engineer' },
-        match: {
-          candidate_id: c.id,
-          job_id: jobId,
-          score: totalScore,
-          match_score_percentage: totalScore,
-          mandatory_score_component: mandScore,
-          preferred_score_component: prefScore,
-          matched_skills: mandMatches.map(m => ({ skill_name: m.skill_name || m.name, is_required: true })),
-          critical_skill_gaps: mandReqs.filter(r => !mandMatches.includes(r)),
-          bonus_competencies: prefMatches.map(p => ({ skill_name: p.skill_name || p.name, is_required: false })),
-          is_strong_fit: totalScore >= 75
+        const mandRatio = mandReqs.length > 0 ? (mandMatches.length / mandReqs.length) : (cSkills.length > 0 ? 0.75 : 0);
+        const prefRatio = prefReqs.length > 0 ? (prefMatches.length / prefReqs.length) : (cSkills.length > 0 ? 0.25 : 0);
+        const mandScore = prefReqs.length > 0 ? Math.round(mandRatio * 75) : Math.round(mandRatio * 100);
+        const prefScore = prefReqs.length > 0 ? Math.round(prefRatio * 25) : 0;
+        const totalScore = Math.min(100, mandScore + prefScore);
+
+        if (existingIdx !== -1) {
+          // Enrich existing match with profile details
+          const cur = matches[existingIdx];
+          if (!cur.candidate.target_role && cand.target_role) cur.candidate.target_role = cand.target_role;
+          if (!cur.candidate.bio && cand.bio) cur.candidate.bio = cand.bio;
+          if (!cur.candidate.summary && cand.summary) cur.candidate.summary = cand.summary;
+          if (!cur.candidate.experience_years && cand.experience_years) cur.candidate.experience_years = cand.experience_years;
+          if (!cur.candidate.education && cand.education) cur.candidate.education = cand.education;
+          if ((!cur.candidate.skills || cur.candidate.skills.length === 0) && cand.skills) cur.candidate.skills = cand.skills;
+        } else {
+          matches.push({
+            candidate: {
+              id: cand.id,
+              full_name: cand.full_name || cand.name || 'Candidate',
+              email: cand.email || 'candidate@idea2impact.dev',
+              avatar_url: cand.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cand.full_name || cand.name || 'Candidate')}`,
+              role: 'candidate',
+              bio: cand.bio || cand.summary || '',
+              target_role: cand.target_role || 'Software Engineer',
+              experience_years: cand.experience_years || 1,
+              education: cand.education || 'Not specified',
+              portfolio_url: cand.portfolio_url || '',
+              skills: cand.skills || []
+            },
+            profile: {
+              candidate_id: cand.id,
+              target_role: cand.target_role || 'Software Engineer',
+              summary: cand.summary || cand.bio || '',
+              experience_years: cand.experience_years || 1,
+              education: cand.education || 'Not specified'
+            },
+            match: {
+              candidate_id: cand.id,
+              job_id: jobId,
+              score: totalScore,
+              match_score_percentage: totalScore,
+              mandatory_score_component: mandScore,
+              preferred_score_component: prefScore,
+              matched_skills: mandMatches.map(m => ({ skill_name: m.skill_name || m.name, is_required: true })),
+              critical_skill_gaps: mandReqs.filter(r => !mandMatches.includes(r)),
+              bonus_competencies: prefMatches.map(p => ({ skill_name: p.skill_name || p.name, is_required: false })),
+              is_strong_fit: totalScore >= 75
+            }
+          });
         }
-      };
-    }).sort((a, b) => b.match.score - a.match.score);
+      });
+    } catch (e) {
+      console.warn("Error merging candidate profiles in getJobMatches", e);
+    }
+
+    return matches;
   }
 
   async applyJob(jobId, data) {

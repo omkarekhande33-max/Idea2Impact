@@ -584,6 +584,18 @@
       "bio": "Joined via Google Authentication",
       "auth_provider": "google",
       "created_at": "2026-10-21T13:22:36.792515+00:00"
+    },
+    {
+      "id": "cand-15d122",
+      "username": "aaravpatel",
+      "full_name": "Aarav Patel",
+      "email": "aarav.patel@test.io",
+      "password_hash": "pbkdf2_sha256$100000$d12a3f44929c5a45f44f6d8a64d1250f$86bf63d310d25e03a96398a4bbd072a2bac7f91ac6fd5020d1061fb7373c0c23",
+      "role": "candidate",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Aarav Patel",
+      "bio": "Full Stack Developer with Python, React and Cloud experience",
+      "auth_provider": "local",
+      "created_at": "2026-10-22T20:43:30.125907+00:00"
     }
   ],
   "candidate_profiles": [
@@ -628,6 +640,15 @@
       "target_role": "Software Engineer",
       "summary": "Senior Software Engineer specializing in AI",
       "id": "cand-7427a069"
+    },
+    {
+      "candidate_id": "cand-15d122",
+      "education": "Not specified",
+      "experience_years": 1,
+      "portfolio_url": "",
+      "target_role": "Software Engineer",
+      "summary": "Full Stack Developer with Python, React and Cloud experience",
+      "id": "cand-90521057"
     }
   ],
   "founder_profiles": [
@@ -8443,6 +8464,13 @@
       "user_id": "hr-01",
       "details": "Message sent from hr to candidate (candidate channel)",
       "timestamp": "2026-10-22T20:20:50.327026+00:00"
+    },
+    {
+      "id": "log-6746e054",
+      "event": "Account Registered",
+      "user_id": "cand-15d122",
+      "details": "User aaravpatel registered as candidate",
+      "timestamp": "2026-10-22T20:43:30.202079+00:00"
     }
   ],
   "match_results": [
@@ -9234,9 +9262,9 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "intermediate",
@@ -9268,9 +9296,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "none",
@@ -9284,7 +9312,7 @@
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "status": "Not Verified"
@@ -9324,9 +9352,9 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "none",
@@ -9340,9 +9368,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "none",
@@ -9372,7 +9400,7 @@
         {
           "skill_id": "sk-01",
           "skill_name": "Python & FastAPI",
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "status": "Not Verified"
@@ -9380,7 +9408,7 @@
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "status": "Not Verified"
@@ -9444,9 +9472,9 @@
           "skill": {
             "id": "sk-01",
             "name": "Python & FastAPI",
-            "category": "Backend"
+            "category": "Backend & Systems"
           },
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "proficiency_level": "none",
@@ -9460,9 +9488,9 @@
           "skill": {
             "id": "sk-02",
             "name": "PostgreSQL & Database Design",
-            "category": "Database"
+            "category": "Databases & Tools"
           },
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "proficiency_level": "none",
@@ -9492,7 +9520,7 @@
         {
           "skill_id": "sk-01",
           "skill_name": "Python & FastAPI",
-          "category": "Backend",
+          "category": "Backend & Systems",
           "is_required": true,
           "weight": 0.4,
           "status": "Not Verified"
@@ -9500,7 +9528,7 @@
         {
           "skill_id": "sk-02",
           "skill_name": "PostgreSQL & Database Design",
-          "category": "Database",
+          "category": "Databases & Tools",
           "is_required": true,
           "weight": 0.35,
           "status": "Not Verified"
@@ -15323,6 +15351,215 @@
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-29387f89"
+    },
+    {
+      "candidate_id": "cand-skills-test-01",
+      "job_id": "job-01",
+      "score": 75.0,
+      "match_score_percentage": 75.0,
+      "mandatory_score_component": 75.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.4,
+          "proficiency_level": "Advanced",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T13:22:36.657905+00:00"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "Advanced",
+          "candidate_assessment_score": 88.0,
+          "is_verified": true,
+          "verified_at": "2026-10-21T13:22:36.677021+00:00"
+        }
+      ],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "skill": {
+            "id": "sk-03",
+            "name": "Modern JavaScript & Frontend",
+            "category": "Frontend"
+          },
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 2,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 2 of 3 mandatory skill requirements (0.75 of 1.0 weighted points), yielding a 75.0% compatibility score (100% Mandatory). Critical gaps: Modern JavaScript & Frontend.",
+      "formula_breakdown": "100% Mandatory",
+      "learning_roadmap": [
+        {
+          "skill_name": "Modern JavaScript & Frontend",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Modern JavaScript & Frontend interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Modern JavaScript & Frontend production patterns.",
+          "assessment_cta": "Take the Modern JavaScript & Frontend 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Modern+JavaScript+%26+Frontend"
+        }
+      ],
+      "is_strong_fit": true,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-855ddc17"
+    },
+    {
+      "candidate_id": "cand-15d122",
+      "job_id": "job-01",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "skill": {
+            "id": "sk-01",
+            "name": "Python & FastAPI",
+            "category": "Backend & Systems"
+          },
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.4,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "skill": {
+            "id": "sk-02",
+            "name": "PostgreSQL & Database Design",
+            "category": "Databases & Tools"
+          },
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.35,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        },
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "skill": {
+            "id": "sk-03",
+            "name": "Modern JavaScript & Frontend",
+            "category": "Frontend"
+          },
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-01",
+          "skill_name": "Python & FastAPI",
+          "category": "Backend & Systems",
+          "is_required": true,
+          "weight": 0.4,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-02",
+          "skill_name": "PostgreSQL & Database Design",
+          "category": "Databases & Tools",
+          "is_required": true,
+          "weight": 0.35,
+          "status": "Not Verified"
+        },
+        {
+          "skill_id": "sk-03",
+          "skill_name": "Modern JavaScript & Frontend",
+          "category": "Frontend",
+          "is_required": true,
+          "weight": 0.25,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 0,
+      "total_required_count": 3,
+      "explanation": "Candidate satisfies 0 of 3 mandatory skill requirements (0.0 of 1.0 weighted points), yielding a 0.0% compatibility score (100% Mandatory). Critical gaps: Python & FastAPI, PostgreSQL & Database Design, Modern JavaScript & Frontend.",
+      "formula_breakdown": "100% Mandatory",
+      "learning_roadmap": [
+        {
+          "skill_name": "Python & FastAPI",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Python & FastAPI interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Python & FastAPI production patterns.",
+          "assessment_cta": "Take the Python & FastAPI 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Python+%26+FastAPI"
+        },
+        {
+          "skill_name": "PostgreSQL & Database Design",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified PostgreSQL & Database Design interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting PostgreSQL & Database Design production patterns.",
+          "assessment_cta": "Take the PostgreSQL & Database Design 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=PostgreSQL+%26+Database+Design"
+        },
+        {
+          "skill_name": "Modern JavaScript & Frontend",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Modern JavaScript & Frontend interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Modern JavaScript & Frontend production patterns.",
+          "assessment_cta": "Take the Modern JavaScript & Frontend 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Modern+JavaScript+%26+Frontend"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-30d51a04"
     }
   ],
   "gemini_sessions": [
