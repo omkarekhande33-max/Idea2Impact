@@ -4506,6 +4506,17 @@
   border-color: #93C5FD;
 }
 
+.sb-badge-unread {
+  background: #2563EB;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  margin-left: auto;
+}
+
+
 
 
 

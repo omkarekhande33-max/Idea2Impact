@@ -116,7 +116,9 @@ class App {
           candidate: [
             { label: 'Analyze & Match', tab: 'jobs' },
             { label: 'My Competencies', tab: 'competencies' },
-            { label: 'Applied Roles', tab: 'applications' }
+            { label: 'Applied Roles', tab: 'applications' },
+            { label: 'HR Message', tab: 'hr-messages' },
+            { label: 'Meet with HR', tab: 'meet-hr' }
           ],
           hr: [
             { label: 'Executive Dashboard', tab: 'overview' },
@@ -974,15 +976,19 @@ class App {
     let applications = [];
     let skills = [];
     let candidateSkills = [];
+    let messages = [];
+    let meetings = [];
 
     try {
-      [passport, jobs, assessments, applications, skills, candidateSkills] = await Promise.all([
+      [passport, jobs, assessments, applications, skills, candidateSkills, messages, meetings] = await Promise.all([
         api.getPassport(candidateId),
         api.getJobs(candidateId),
         api.getAssessments(),
         api.getMyApplications(candidateId),
         api.getSkills(),
-        api.getCandidateSkills(candidateId).catch(() => [])
+        api.getCandidateSkills(candidateId).catch(() => []),
+        api.getMessages('candidate', candidateId).catch(() => []),
+        api.getMeetings(candidateId).catch(() => [])
       ]);
     } catch (e) {
       console.warn("Error fetching candidate data", e);
@@ -997,18 +1003,20 @@ class App {
     if (['analyze-match', 'analyze-and-match'].includes(currentTab)) {
       currentTab = 'jobs';
     }
-    if (!['jobs', 'competencies', 'applications'].includes(currentTab)) {
+    if (!['jobs', 'competencies', 'applications', 'hr-messages', 'meet-hr'].includes(currentTab)) {
       currentTab = 'jobs';
       state.activeTab = 'jobs';
     }
 
-    const candidateName = (state.activeUser && state.activeUser.name) || passport?.candidate?.full_name || 'Omkar Ekhande';
+    const candidateName = (state.activeUser && state.activeUser.name) || passport?.candidate?.full_name || 'Alex Rivera';
     const nameParts = candidateName.trim().split(/\s+/);
-    const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : nameParts[0].substring(0, 2)).toUpperCase() || 'OE';
+    const initials = (nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : nameParts[0].substring(0, 2)).toUpperCase() || 'AR';
 
     const activeJobsCount = jobs.length;
     const taggedSkillsCount = (candidateSkills && candidateSkills.length > 0) ? candidateSkills.length : (passport?.total_verified || 0);
     const avgMatch = jobs.length > 0 ? Math.round(jobs.reduce((acc, j) => acc + (j.match?.score || j.match_score || 0), 0) / jobs.length) : 0;
+    const hrUnreadCount = (messages || []).filter(m => (m.sender_role === 'hr' || m.sender_id === 'hr-01') && !m.is_read).length;
+    const upcomingMeetingsCount = (meetings || []).filter(m => m.status === 'Confirmed' || m.status === 'confirmed').length;
 
     this.appContainer.innerHTML = `
       <div class="container" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
@@ -1069,13 +1077,23 @@ class App {
                   <span class="sb-nav-icon">📋</span>
                   <span>Applied Roles</span>
                 </button>
+                <button class="sb-nav-link ${currentTab === 'hr-messages' ? 'active' : ''}" data-tab="hr-messages">
+                  <span class="sb-nav-icon">💬</span>
+                  <span>HR Message</span>
+                  ${hrUnreadCount > 0 ? `<span class="sb-badge-unread">${hrUnreadCount}</span>` : ''}
+                </button>
+                <button class="sb-nav-link ${currentTab === 'meet-hr' ? 'active' : ''}" data-tab="meet-hr">
+                  <span class="sb-nav-icon">📅</span>
+                  <span>Meet with HR</span>
+                  ${upcomingMeetingsCount > 0 ? `<span class="sb-badge-unread" style="background:#10B981;">${upcomingMeetingsCount}</span>` : ''}
+                </button>
               </nav>
             </div>
           </div>
 
           <!-- Main Content View Container -->
           <div class="dashboard-content" id="candidate-content-area">
-            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, skills, candidateSkills, candidateId, taggedSkillsCount, activeJobsCount, avgMatch, candidateName })}
+            ${this.renderCandidateTabContent(currentTab, { passport, jobs, assessments, applications, skills, candidateSkills, messages, meetings, candidateId, taggedSkillsCount, activeJobsCount, avgMatch, candidateName })}
           </div>
         </div>
       </div>
@@ -1097,7 +1115,7 @@ class App {
     }
 
     // Attach event listeners for Candidate interactions
-    this.attachCandidateEvents({ passport, jobs, assessments, applications, skills, candidateSkills, candidateId });
+    this.attachCandidateEvents({ passport, jobs, assessments, applications, skills, candidateSkills, messages, meetings, candidateId, candidateName });
   }
 
   renderCandidateTabContent(tab, data) {
@@ -1772,11 +1790,299 @@ class App {
       `;
     }
 
+    if (tab === 'hr-messages') {
+      return this.renderCandidateHrMessagesTab(data);
+    }
+
+    if (tab === 'meet-hr') {
+      return this.renderCandidateMeetHrTab(data);
+    }
+
     return '';
   }
 
+  renderCandidateHrMessagesTab(data) {
+    const { messages = [], candidateId = 'cand-01', candidateName = 'Alex Rivera' } = data;
+
+    // Filter messages for this candidate and HR
+    const thread = (messages || []).filter(m =>
+      m.channel === 'candidate' &&
+      (m.sender_id === candidateId || m.receiver_id === candidateId || m.sender_role === 'candidate' || m.receiver_role === 'candidate')
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const quickChips = [
+      '📅 Inquire about technical interview schedule',
+      '🌟 Follow up on my 75/25 assessment rating',
+      '💼 Request role responsibilities & compensation',
+      '📄 I have updated my verified skills portfolio'
+    ];
+
+    const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+    const candAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:0.75rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">💬 Direct Communication with HR</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">Chat directly with executive recruiters regarding your job applications, 75/25 competency matches, and interview coordination.</p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="cand-open-meet-tab-btn" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+            📅 Meet with HR →
+          </button>
+        </div>
+      </div>
+
+      <div class="cand-chat-card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 20px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:640px; overflow:hidden;">
+        <!-- Recruiter Profile Top Bar -->
+        <div style="padding:0.95rem 1.25rem; background:#FFFFFF; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:0.85rem;">
+            <div style="position:relative;">
+              <img src="${hrAvatar}" alt="Elena Rostova" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;" />
+              <span style="position:absolute; bottom:1px; right:1px; width:11px; height:11px; background:#10B981; border:2px solid #FFF; border-radius:50%;"></span>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary); margin:0;">Elena Rostova</h4>
+                <span class="badge badge-role" style="font-size:0.7rem;">Head of Technical Talent</span>
+                <span class="badge badge-verified" style="font-size:0.7rem;">NovaTech Systems</span>
+              </div>
+              <p style="font-size:0.78rem; color:#64748B; margin:0.2rem 0 0 0;">
+                ⚡ Dual-Tier 75/25 Hiring Lead • ✉️ elena.rostova@novatech.io • Active Now
+              </p>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="cand-chat-simulate-hr-btn" title="Simulate incoming reply from HR">
+              ⚡ Simulate HR Reply
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="hr-chat-messages-container" id="cand-chat-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
+          <div class="hr-chat-date-pill">Direct Thread with Elena Rostova (HR)</div>
+
+          ${thread.length === 0 ? `
+            <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+              <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+              <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your conversation with HR</h4>
+              <p style="font-size:0.85rem;">Reach out to Elena regarding open roles, your verified assessment scores, or to coordinate an interview.</p>
+            </div>
+          ` : thread.map(m => {
+            const isFromCandidate = m.sender_role === 'candidate' || m.sender_id === candidateId;
+            const senderAvatar = isFromCandidate ? candAvatar : hrAvatar;
+            const senderLabel = isFromCandidate ? `You (${candidateName})` : 'Elena Rostova (Executive Recruiter • HR)';
+            const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+            return `
+              <div class="hr-msg-row ${isFromCandidate ? 'outgoing' : 'incoming'}">
+                <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+                <div class="hr-msg-content">
+                  <span class="hr-msg-sender-name">${senderLabel}</span>
+                  <div class="hr-msg-bubble">${m.text}</div>
+                  <span class="hr-msg-time">${timeDisplay}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <div id="cand-chat-typing-slot"></div>
+        </div>
+
+        <!-- Quick Reply Chips Bar -->
+        <div class="hr-quick-replies-bar">
+          <span style="font-size:0.75rem; color:#94A3B8; font-weight:700; align-self:center; margin-right:0.25rem;">Quick:</span>
+          ${quickChips.map(chip => `
+            <button type="button" class="hr-quick-chip cand-quick-chip" data-text="${chip}">${chip}</button>
+          `).join('')}
+        </div>
+
+        <!-- Input Area -->
+        <div class="hr-chat-input-area">
+          <input
+            type="text"
+            class="hr-chat-input-field"
+            id="cand-chat-input"
+            placeholder="Type a message to Elena Rostova (HR)... (Press Enter to send)"
+            autocomplete="off"
+          />
+          <button class="hr-chat-send-btn" id="cand-chat-send-btn">
+            <span>Send</span> ✈️
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderCandidateMeetHrTab(data) {
+    const { meetings = [], candidateName = 'Alex Rivera', candidateId = 'cand-01' } = data;
+
+    // Filter confirmed/active meetings
+    const activeMeetings = (meetings || []).filter(m =>
+      m.requester_id === candidateId || m.recipient_id === candidateId || m.recipient_id === 'cand-01' || m.id === 'mtg-02'
+    );
+
+    const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:1.25rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">📅 Meet with HR & Technical Interviews</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">Book 1-on-1 interview slots, manage confirmed video meetings, and prepare for architecture deep-dives with NovaTech hiring leads.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="cand-msg-hr-shortcut-btn" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+          💬 Message HR Directly
+        </button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:1.5rem; align-items:start;">
+        <!-- Left: Confirmed Meetings & Upcoming Schedule -->
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="font-size:1.1rem; font-weight:800; color:#0F172A; margin:0;">
+              Confirmed Video Meetings (${activeMeetings.length})
+            </h3>
+            <span class="badge badge-verified" style="font-size:0.75rem;">Google Meet Integrated</span>
+          </div>
+
+          ${activeMeetings.length === 0 ? `
+            <div class="card" style="text-align:center; padding:3rem 1.5rem;">
+              <div style="font-size:3rem; margin-bottom:0.75rem;">📅</div>
+              <h4 style="color:#0F172A; margin-bottom:0.35rem;">No Meetings Scheduled Yet</h4>
+              <p style="color:#64748B; font-size:0.85rem; max-width:400px; margin:0 auto 1.25rem;">
+                Select a meeting round and preferred calendar time on the right to schedule your technical screen with Elena Rostova.
+              </p>
+            </div>
+          ` : activeMeetings.map(mtg => {
+            const timeDisplay = mtg.scheduled_at
+              ? new Date(mtg.scheduled_at).toLocaleString([], { dateStyle:'medium', timeStyle:'short' })
+              : (mtg.time || 'Thursday, 5:00 PM UTC');
+            const meetLink = mtg.meeting_link || 'https://meet.google.com/nova-tech-interview';
+
+            return `
+              <div class="sb-job-card" style="border-left:4px solid #2563EB;">
+                <div class="sb-job-card-top">
+                  <div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+                      <span class="badge badge-role" style="font-size:0.72rem;">NovaTech Systems</span>
+                      <span class="badge badge-verified" style="font-size:0.72rem;">${mtg.status || 'Confirmed'}</span>
+                    </div>
+                    <h3 class="sb-job-title" style="font-size:1.15rem; margin-bottom:0.25rem;">${mtg.meeting_type || mtg.title || 'Technical Architecture Interview'}</h3>
+                    <p style="font-size:0.82rem; color:#64748B; margin:0;">
+                      Host: <strong>Elena Rostova</strong> (Executive Recruiter) • Candidate: <strong>${candidateName}</strong>
+                    </p>
+                  </div>
+                  <div>
+                    <span style="font-size:0.85rem; font-weight:800; color:#2563EB; background:#EFF6FF; padding:0.35rem 0.75rem; border-radius:var(--radius-sm); border:1px solid #BFDBFE;">
+                      ⏰ ${timeDisplay}
+                    </span>
+                  </div>
+                </div>
+
+                <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:0.85rem; border:1px solid #E2E8F0;">
+                  <span style="font-size:0.78rem; font-weight:700; color:#334155;">Agenda:</span>
+                  <p style="font-size:0.82rem; color:#475569; margin:0.2rem 0 0 0; line-height:1.5;">
+                    ${mtg.agenda || 'Review 75/25 competency fit, FastAPI production architecture, and engineering team timeline.'}
+                  </p>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+                  <div style="display:flex; gap:0.5rem;">
+                    <a href="${meetLink}" target="_blank" class="btn btn-primary btn-sm" style="background:#16A34A; border-color:#16A34A; display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+                      🎥 Join Google Meet
+                    </a>
+                    <button class="btn btn-outline btn-sm cand-cal-btn" data-title="${mtg.meeting_type || 'HR Interview'}" data-time="${timeDisplay}">
+                      📅 Add to Calendar
+                    </button>
+                  </div>
+                  <button class="btn btn-outline btn-sm cand-msg-recruiter-btn" style="color:#2563EB; border-color:#93C5FD;">
+                    💬 Chat with Elena
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <!-- Interview Prep Guide Card -->
+          <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--radius-md); padding:1.25rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+              <span style="font-size:1.2rem;">💡</span>
+              <h4 style="font-size:0.95rem; font-weight:800; color:#1E40AF; margin:0;">75/25 Technical Round Preparation Tips</h4>
+            </div>
+            <ul style="font-size:0.82rem; color:#1E3A8A; margin:0; padding-left:1.25rem; line-height:1.6; display:flex; flex-direction:column; gap:0.35rem;">
+              <li><strong>Core Mandatory (75%):</strong> Be prepared to explain asynchronous Python/FastAPI request lifecycle, dependency injection, and PostgreSQL query optimizations.</li>
+              <li><strong>Preferred Bonus (25%):</strong> Mention your experience with Redis caching, Docker container builds, and scalable system design.</li>
+              <li><strong>Zero-Bias Evaluation:</strong> Recruiter evaluates your verified score passport directly without subjective screening.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: Schedule a New Meeting Form -->
+        <div class="card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.35rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <span style="font-size:1.3rem;">⚡</span>
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800; color:#0F172A; margin:0;">Schedule a Meeting with HR</h3>
+              <p style="font-size:0.78rem; color:#64748B; margin:0.15rem 0 0;">Pick a time slot for technical discussion or offer review</p>
+            </div>
+          </div>
+
+          <form id="cand-meet-form" style="display:flex; flex-direction:column; gap:1rem;">
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">HR Recruiter</label>
+              <div style="display:flex; align-items:center; gap:0.75rem; background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.6rem 0.85rem;">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
+                <div>
+                  <div style="font-size:0.85rem; font-weight:700; color:#0F172A;">Elena Rostova</div>
+                  <div style="font-size:0.75rem; color:#64748B;">Head of Technical Talent • NovaTech</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label for="cand-meet-type" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Interview / Meeting Round</label>
+              <select id="cand-meet-type" class="form-select" style="font-size:0.85rem;" required>
+                <option value="Technical Architecture Deep Dive (45 mins)">Technical Architecture Deep Dive (45 mins)</option>
+                <option value="75/25 Competency Fit & Culture Screen (30 mins)">75/25 Competency Fit & Culture Screen (30 mins)</option>
+                <option value="Offer Letter & Compensation Walkthrough (30 mins)">Offer Letter & Compensation Walkthrough (30 mins)</option>
+                <option value="Skill Verification & Assessment Debrief (20 mins)">Skill Verification & Assessment Debrief (20 mins)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="cand-meet-date" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Preferred Date</label>
+              <input type="date" id="cand-meet-date" class="form-input" style="font-size:0.85rem;" min="${todayStr}" value="${tomorrowStr}" required />
+            </div>
+
+            <div>
+              <label for="cand-meet-time" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Time Slot (UTC)</label>
+              <select id="cand-meet-time" class="form-select" style="font-size:0.85rem;" required>
+                <option value="10:00 AM UTC">10:00 AM UTC (Morning Slot)</option>
+                <option value="02:00 PM UTC">02:00 PM UTC (Early Afternoon)</option>
+                <option value="05:00 PM UTC" selected>05:00 PM UTC (Late Afternoon)</option>
+                <option value="07:30 PM UTC">07:30 PM UTC (Evening Slot)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="cand-meet-agenda" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Candidate Notes / Agenda</label>
+              <textarea id="cand-meet-agenda" class="form-input" rows="3" style="font-size:0.85rem; resize:vertical;" placeholder="E.g., I would like to discuss the Senior Full-Stack role and demonstrate my async microservice architecture."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="cand-meet-submit-btn" style="background:#2563EB; font-weight:700; padding:0.75rem;">
+              📅 Confirm & Schedule Meeting with HR
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
   attachCandidateEvents(data) {
-    const { passport, jobs, candidateSkills, candidateId } = data;
+    const { passport, jobs, candidateSkills, candidateId = 'cand-01', candidateName = 'Alex Rivera' } = data;
 
     // Quick quiz ribbon buttons in Overview tab
     const quizTopBtn = this.appContainer.querySelector('#tab-btn-take-quiz');
@@ -2165,6 +2471,227 @@ class App {
       }
     };
     window.addEventListener('i2i_jobs_updated', onJobsUpdated, { once: true });
+
+    // =========================================================================
+    // Candidate HR Messaging & Interview Meeting Event Handlers
+    // =========================================================================
+    // Shortcut to Meet tab
+    const openMeetBtn = this.appContainer.querySelector('#cand-open-meet-tab-btn');
+    if (openMeetBtn) {
+      openMeetBtn.addEventListener('click', () => state.setTab('meet-hr'));
+    }
+
+    // Shortcut to HR Messages tab
+    const msgHrShortcutBtn = this.appContainer.querySelector('#cand-msg-hr-shortcut-btn');
+    if (msgHrShortcutBtn) {
+      msgHrShortcutBtn.addEventListener('click', () => state.setTab('hr-messages'));
+    }
+
+    this.appContainer.querySelectorAll('.cand-msg-recruiter-btn').forEach(btn => {
+      btn.addEventListener('click', () => state.setTab('hr-messages'));
+    });
+
+    // Calendar sync button
+    this.appContainer.querySelectorAll('.cand-cal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.showToast('📅 Meeting details synchronized with Google Calendar!', 'info');
+      });
+    });
+
+    // Chat with HR logic
+    const candMsgBox = this.appContainer.querySelector('#cand-chat-messages-container');
+    const candChatInput = this.appContainer.querySelector('#cand-chat-input');
+    const candSendBtn = this.appContainer.querySelector('#cand-chat-send-btn');
+    const candSimulateBtn = this.appContainer.querySelector('#cand-chat-simulate-hr-btn');
+    const candTypingSlot = this.appContainer.querySelector('#cand-chat-typing-slot');
+
+    if (candMsgBox) {
+      candMsgBox.scrollTop = candMsgBox.scrollHeight;
+    }
+
+    // Quick chips
+    this.appContainer.querySelectorAll('.cand-quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (candChatInput) {
+          candChatInput.value = chip.dataset.text;
+          candChatInput.focus();
+        }
+      });
+    });
+
+    // Helper to append message bubble to candidate thread
+    const appendCandBubble = (senderRole, senderName, text, avatar, timestamp) => {
+      if (!candMsgBox) return;
+      const isFromCand = senderRole === 'candidate';
+      const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      const senderLabel = isFromCand ? `You (${candidateName})` : 'Elena Rostova (Executive Recruiter • HR)';
+
+      const row = document.createElement('div');
+      row.className = `hr-msg-row ${isFromCand ? 'outgoing' : 'incoming'}`;
+      row.innerHTML = `
+        <img src="${avatar}" alt="${senderName}" class="hr-msg-avatar" />
+        <div class="hr-msg-content">
+          <span class="hr-msg-sender-name">${senderLabel}</span>
+          <div class="hr-msg-bubble">${text}</div>
+          <span class="hr-msg-time">${timeDisplay}</span>
+        </div>
+      `;
+
+      if (candTypingSlot && candTypingSlot.parentNode === candMsgBox) {
+        candMsgBox.insertBefore(row, candTypingSlot);
+      } else {
+        candMsgBox.appendChild(row);
+      }
+      candMsgBox.scrollTop = candMsgBox.scrollHeight;
+    };
+
+    // Helper to trigger simulated HR reply
+    const triggerSimulatedHrReply = async () => {
+      if (!candTypingSlot) return;
+      const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+
+      candTypingSlot.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+          <img src="${hrAvatar}" style="width:28px; height:28px; border-radius:50%;" />
+          <div class="hr-typing-indicator">
+            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">Elena Rostova is typing</span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+          </div>
+        </div>
+      `;
+      candMsgBox.scrollTop = candMsgBox.scrollHeight;
+
+      setTimeout(async () => {
+        candTypingSlot.innerHTML = '';
+
+        const hrReplies = [
+          "Hi! Thank you for following up. Our engineering lead reviewed your verified assessment results and was very impressed with your score. We're finalizing the round schedule now.",
+          "Hello! I've received your note and verified your passport scores in our 75/25 candidate dossier. Are you free for a technical screen this week?",
+          "Thanks for reaching out! You can easily pick a direct video interview slot from the 'Meet with HR' tab above.",
+          "Great question! Our Senior Full-Stack role offers full flexibility, competitive equity, and focuses on high-concurrency async services."
+        ];
+        const replyText = hrReplies[Math.floor(Math.random() * hrReplies.length)];
+
+        const savedReply = await api.sendMessage({
+          sender_id: 'hr-01',
+          sender_role: 'hr',
+          sender_name: 'Elena Rostova',
+          receiver_id: candidateId,
+          receiver_role: 'candidate',
+          receiver_name: candidateName,
+          text: replyText,
+          channel: 'candidate',
+          timestamp: new Date().toISOString()
+        });
+
+        appendCandBubble('hr', 'Elena Rostova', replyText, hrAvatar, savedReply.timestamp);
+        state.showToast('📩 New message received from Elena Rostova (HR)!', 'info');
+      }, 1300);
+    };
+
+    // Candidate send message
+    const handleCandSend = async () => {
+      if (!candChatInput) return;
+      const text = candChatInput.value.trim();
+      if (!text) return;
+
+      candChatInput.value = '';
+      candChatInput.disabled = true;
+      if (candSendBtn) candSendBtn.disabled = true;
+
+      const candAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+      const nowIso = new Date().toISOString();
+
+      appendCandBubble('candidate', candidateName, text, candAvatar, nowIso);
+
+      try {
+        await api.sendMessage({
+          sender_id: candidateId,
+          sender_role: 'candidate',
+          sender_name: candidateName,
+          receiver_id: 'hr-01',
+          receiver_role: 'hr',
+          receiver_name: 'Elena Rostova',
+          text: text,
+          channel: 'candidate',
+          timestamp: nowIso
+        });
+
+        // Trigger automatic HR reply simulation
+        triggerSimulatedHrReply();
+      } catch (err) {
+        state.showToast(err.message, 'danger');
+      } finally {
+        candChatInput.disabled = false;
+        if (candSendBtn) candSendBtn.disabled = false;
+        candChatInput.focus();
+      }
+    };
+
+    if (candSendBtn) {
+      candSendBtn.addEventListener('click', handleCandSend);
+    }
+    if (candChatInput) {
+      candChatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleCandSend();
+        }
+      });
+    }
+
+    if (candSimulateBtn) {
+      candSimulateBtn.addEventListener('click', () => {
+        triggerSimulatedHrReply();
+      });
+    }
+
+    // Meet with HR Booking Form Logic
+    const meetForm = this.appContainer.querySelector('#cand-meet-form');
+    if (meetForm) {
+      meetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const meetType = this.appContainer.querySelector('#cand-meet-type')?.value;
+        const meetDate = this.appContainer.querySelector('#cand-meet-date')?.value;
+        const meetTime = this.appContainer.querySelector('#cand-meet-time')?.value;
+        const meetAgenda = this.appContainer.querySelector('#cand-meet-agenda')?.value;
+        const submitBtn = this.appContainer.querySelector('#cand-meet-submit-btn');
+
+        if (!meetDate) {
+          state.showToast('Please select a preferred meeting date.', 'warning');
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerText = 'Scheduling Meeting...';
+        }
+
+        try {
+          const scheduledIso = new Date(`${meetDate}T17:00:00Z`).toISOString();
+          await api.scheduleMeeting({
+            requester_id: candidateId,
+            recipient_id: 'hr-01',
+            meeting_type: meetType,
+            scheduled_at: scheduledIso,
+            meeting_link: 'https://meet.google.com/nova-tech-interview',
+            agenda: meetAgenda || `75/25 technical competency discussion and interview screening for ${meetType}.`
+          });
+
+          state.showToast(`🎉 Interview scheduled with Elena Rostova for ${meetDate} (${meetTime})!`, 'success');
+          // Re-render to show new meeting in confirmed list
+          await this.renderCandidateDashboard();
+        } catch (err) {
+          state.showToast(err.message, 'danger');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = '📅 Confirm & Schedule Meeting with HR';
+          }
+        }
+      });
+    }
   }
 
   // =========================================================================
