@@ -3965,6 +3965,170 @@ class App {
   }
 
   // =========================================================================
+  // AI BLUEPRINT TEXT BUILDERS & CLIPBOARD COPY HELPERS
+  // =========================================================================
+  copyTextToClipboard(text, successMessage = "Copied to clipboard!", btnElement = null) {
+    const doSuccess = () => {
+      state.showToast(successMessage, "success");
+      if (btnElement) {
+        const origHtml = btnElement.innerHTML;
+        btnElement.classList.add("copied");
+        btnElement.innerHTML = `<span>✓ Copied!</span>`;
+        setTimeout(() => {
+          btnElement.classList.remove("copied");
+          btnElement.innerHTML = origHtml;
+        }, 2000);
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(doSuccess).catch(() => {
+        this._fallbackCopyText(text, doSuccess);
+      });
+    } else {
+      this._fallbackCopyText(text, doSuccess);
+    }
+  }
+
+  _fallbackCopyText(text, callback) {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        if (callback) callback();
+      } else {
+        state.showToast("Could not copy automatically. Please select text manually.", "warning");
+      }
+    } catch (e) {
+      state.showToast("Could not copy automatically. Please select text manually.", "warning");
+    }
+  }
+
+  buildPitchCopyText(a) {
+    const deep = a.deep_explanation || {};
+    return [
+      `======================================================`,
+      `STARTUP PITCH: ${a.title || 'Startup Idea'}`,
+      `Industry: ${a.industry || 'Technology'}`,
+      `Tagline: ${a.tagline || ''}`,
+      `======================================================`,
+      ``,
+      `🎯 ELEVATOR PITCH:`,
+      `${deep.elevator_pitch || a.tagline || 'AI-powered continuous intelligence platform.'}`,
+      ``,
+      `💡 CORE VALUE PROPOSITION:`,
+      `${deep.core_value_prop || 'Replaces manual bottlenecks with automated intelligent workflows.'}`,
+      ``,
+      `⚙️ ARCHITECTURAL FOUNDATION:`,
+      `${deep.architectural_thesis || 'High-performance asynchronous microservices with real-time telemetry pipelines.'}`,
+      ``,
+      `💳 MONETIZATION MODEL:`,
+      `${deep.monetization_strategy || 'Tiered B2B SaaS recurring subscriptions with enterprise onboarding.'}`,
+      ``,
+      `🛡️ DEFENSIBILITY MOAT:`,
+      `${deep.defensibility_moat || 'Proprietary workflow telemetry data gravity and multi-stakeholder network effects.'}`
+    ].join('\n');
+  }
+
+  buildFeaturesCopyText(a) {
+    const scope = a.project_scope || {};
+    const features = (a.key_features && a.key_features.length > 0)
+      ? a.key_features
+      : ((scope.mvp_features || []).map((f, i) => ({
+          title: typeof f === 'string' && f.includes(':') ? f.split(':')[0].trim() : `Core Feature ${i+1}`,
+          description: typeof f === 'string' && f.includes(':') ? f.split(':').slice(1).join(':').trim() : (typeof f === 'string' ? f : (f.description || '')),
+          badge: 'Core Capability'
+        })));
+
+    const lines = [
+      `======================================================`,
+      `KEY FEATURES: ${a.title || 'Startup Idea'}`,
+      `Total Breakthrough Features: ${features.length}`,
+      `======================================================`,
+      ``
+    ];
+
+    features.forEach((feat, idx) => {
+      lines.push(`Feature ${idx + 1}: ${feat.title} [${feat.badge || 'Core Capability'}]`);
+      lines.push(`Description: ${feat.description}`);
+      lines.push(``);
+    });
+
+    return lines.join('\n');
+  }
+
+  buildRolesCopyText(a) {
+    const roles = a.required_job_roles || [];
+    const lines = [
+      `======================================================`,
+      `REQUIRED EMPLOYEES & HIRING PROFILES: ${a.title || 'Startup Idea'}`,
+      `Total Critical Founding Roles: ${roles.length}`,
+      `======================================================`,
+      ``
+    ];
+
+    roles.forEach((r, idx) => {
+      lines.push(`Role ${idx + 1}: ${r.title}`);
+      lines.push(`- Department: ${r.department || 'Engineering'} | Level: ${r.experience_level || 'Senior'}`);
+      lines.push(`- Target Compensation: ${r.salary_range || '$120,000 - $150,000'} | Priority: ${r.hiring_priority || 'Phase 1'}`);
+      if (r.responsibilities && r.responsibilities.length) {
+        lines.push(`- Key Responsibilities:`);
+        r.responsibilities.forEach(resp => lines.push(`  • ${resp}`));
+      }
+      if (r.required_skills && r.required_skills.length) {
+        lines.push(`- Mandatory Skills (75% Core Tier):`);
+        r.required_skills.forEach(s => lines.push(`  • ${s.name} (${Math.round((s.weight || 0.4) * 100)}% weight - ${s.category || 'Core'})`));
+      }
+      if (r.preferred_skills && r.preferred_skills.length) {
+        lines.push(`- Preferred Skills (25% Bonus Tier):`);
+        r.preferred_skills.forEach(s => lines.push(`  • ${s.name} (${s.category || 'Preferred'})`));
+      }
+      lines.push(``);
+    });
+
+    return lines.join('\n');
+  }
+
+  buildCompletePlanCopyText(a) {
+    const pitchText = this.buildPitchCopyText(a);
+    const featuresText = this.buildFeaturesCopyText(a);
+    const rolesText = this.buildRolesCopyText(a);
+    const scope = a.project_scope || {};
+    const invest = a.investment_required || {};
+
+    return [
+      `================================================================================`,
+      `IDEA2IMPACT AI VENTURE ARCHITECTURE BLUEPRINT`,
+      `Startup: ${a.title || 'Startup Idea'}`,
+      `Industry: ${a.industry || 'Technology'}`,
+      `================================================================================`,
+      ``,
+      pitchText,
+      ``,
+      featuresText,
+      ``,
+      rolesText,
+      `======================================================`,
+      `MARKET & CAPITAL FRAMEWORK`,
+      `======================================================`,
+      `Market Scope: TAM ${scope.tam || '$22.0B'} | SAM ${scope.sam || '$5.4B'} | SOM ${scope.som || '$240M'}`,
+      `Capital Target: ${invest.total_ask || '$750,000'} (${invest.stage || 'Seed Round'})`,
+      `Runway Target: ${invest.runway_months || 18} Months`,
+      `Target Valuation: ${invest.valuation_range || '$4.5M - $6.0M Post-Money'}`,
+      ``,
+      `Generated by Idea2Impact Autonomous Gemini Pro Venture Architect`
+    ].join('\n');
+  }
+
+  // =========================================================================
   // 3. FOUNDER DASHBOARD (Section 6.3 & 2.2)
   // =========================================================================
   async renderFounderDashboard() {
@@ -4267,16 +4431,43 @@ class App {
           const scope = a.project_scope || {};
           const invest = a.investment_required || {};
           const roles = a.required_job_roles || [];
+          const features = (a.key_features && a.key_features.length > 0)
+            ? a.key_features
+            : ((scope.mvp_features || []).map((f, i) => ({
+                title: typeof f === 'string' && f.includes(':') ? f.split(':')[0].trim() : `Core Feature ${i+1}`,
+                description: typeof f === 'string' && f.includes(':') ? f.split(':').slice(1).join(':').trim() : (typeof f === 'string' ? f : (f.description || '')),
+                badge: 'Core Capability'
+              })));
           const sessionId = res.session_id || `gem-${Date.now().toString(36)}`;
           const sourceTag = a.source === 'Gemini Pro (Google AI Live)' ? 
             '✦ Live Gemini Pro Response' : '✦ Gemini Pro Synthesis';
 
           overviewIdeaResults.innerHTML = `
             <div class="idea-bar-result-card">
+              <!-- Top Blueprint Copy Banner -->
+              <div class="blueprint-copy-banner">
+                <div>
+                  <div style="font-size:0.92rem; font-weight:800; color:#5EEAD4; display:flex; align-items:center; gap:0.4rem;">
+                    <span>✦</span> AI Pitch, Features &amp; Hiring Specifications Generated
+                  </div>
+                  <div style="font-size:0.78rem; color:rgba(255,255,255,0.7); margin-top:0.2rem;">
+                    Select any text with cursor to copy, or use 1-click Copy buttons.
+                  </div>
+                </div>
+                <button type="button" class="ai-copy-btn" id="overview-copy-all-btn" style="background:#0F766E; border-color:#5EEAD4; color:#FFFFFF; padding:0.45rem 0.95rem; font-size:0.8rem;">
+                  <span>📋 Copy Complete Blueprint</span>
+                </button>
+              </div>
+
               <!-- Result Topbar -->
               <div class="idea-bar-result-topbar">
-                <span class="idea-bar-result-pill">${sourceTag}</span>
-                <span class="idea-bar-result-industry">${a.industry || 'AI Enterprise SaaS'}</span>
+                <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                  <span class="idea-bar-result-pill">${sourceTag}</span>
+                  <span class="idea-bar-result-industry">${a.industry || 'AI Enterprise SaaS'}</span>
+                </div>
+                <button type="button" class="ai-copy-btn" id="overview-copy-all-top-btn" title="Copy full pitch, features & roles">
+                  <span>📋 Copy All Text</span>
+                </button>
               </div>
               <h4 class="idea-bar-result-title">${a.title || idea.substring(0, 60)}</h4>
               <p class="idea-bar-result-tagline">${a.tagline || deep.elevator_pitch || 'Transforming the industry with AI-first automation.'}</p>
@@ -4284,8 +4475,8 @@ class App {
               <!-- Quick Market & Financial Highlights -->
               <div class="idea-bar-result-grid">
                 <div class="idea-bar-result-item">
-                  <div class="idea-bar-result-item-label">📈 Market Size (TAM/SAM)</div>
-                  <div class="idea-bar-result-item-value idea-bar-highlight">${scope.tam || '$22B'} TAM · ${scope.sam || '$5.4B'} SAM</div>
+                  <div class="idea-bar-result-item-label">📈 Market Size (TAM/SAM/SOM)</div>
+                  <div class="idea-bar-result-item-value idea-bar-highlight">${scope.tam || '$22B'} TAM · ${scope.sam || '$5.4B'} SAM · ${scope.som || '$240M'} SOM</div>
                 </div>
                 <div class="idea-bar-result-item">
                   <div class="idea-bar-result-item-label">💰 Funding Target & Stage</div>
@@ -4293,15 +4484,20 @@ class App {
                 </div>
               </div>
 
-              <!-- 1. Explanation of His Idea -->
+              <!-- 1. Pitch for His Idea -->
               <div class="idea-explanation-section" style="margin-top:1.1rem;">
-                <div class="idea-section-heading">
-                  <span>📑</span> Explanation of Idea & Architectural Thesis
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.65rem;">
+                  <div class="idea-section-heading" style="margin-bottom:0;">
+                    <span>🎯</span> Pitch for Your Idea &amp; Executive Thesis
+                  </div>
+                  <button type="button" class="ai-copy-btn" id="overview-copy-pitch-btn">
+                    <span>📋 Copy Pitch</span>
+                  </button>
                 </div>
                 <div class="idea-explanation-card">
                   <div class="idea-exp-row">
-                    <div class="idea-exp-label">🎯 Elevator Pitch & Vision:</div>
-                    <div class="idea-exp-text">${deep.elevator_pitch || a.tagline || 'AI-powered continuous intelligence platform.'}</div>
+                    <div class="idea-exp-label">🎯 Executive Elevator Pitch:</div>
+                    <div class="idea-exp-text" style="font-weight:600; color:#FFFFFF;">${deep.elevator_pitch || a.tagline || 'AI-powered continuous intelligence platform.'}</div>
                   </div>
                   <div class="idea-exp-row">
                     <div class="idea-exp-label">💡 Core Value Proposition:</div>
@@ -4322,10 +4518,39 @@ class App {
                 </div>
               </div>
 
-              <!-- 2. Required Job Roles with Requirements -->
+              <!-- 2. Features of His Idea -->
+              <div class="idea-features-section" style="margin-top:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.65rem;">
+                  <div class="idea-section-heading" style="margin-bottom:0;">
+                    <span>⚡</span> Key Features of Your Idea (${features.length} Features)
+                  </div>
+                  <button type="button" class="ai-copy-btn" id="overview-copy-features-btn">
+                    <span>📋 Copy Features</span>
+                  </button>
+                </div>
+                <div class="idea-features-grid">
+                  ${features.map((f, i) => `
+                    <div class="idea-feature-card">
+                      <div class="idea-feature-top">
+                        <span class="idea-feature-num">Feature ${i + 1}</span>
+                        <span class="idea-feature-badge">${f.badge || 'Core Capability'}</span>
+                      </div>
+                      <div class="idea-feature-title">${f.title}</div>
+                      <div class="idea-feature-desc">${f.description}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- 3. Required Employees with Required Skills -->
               <div class="idea-roles-section" style="margin-top:1.25rem;">
-                <div class="idea-section-heading">
-                  <span>💼</span> Required Job Roles & 75/25 Skill Requirements (${roles.length} Key Roles)
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.65rem;">
+                  <div class="idea-section-heading" style="margin-bottom:0;">
+                    <span>👥</span> Required Employees &amp; 75/25 Skill Profiles (${roles.length} Key Roles)
+                  </div>
+                  <button type="button" class="ai-copy-btn" id="overview-copy-roles-btn">
+                    <span>📋 Copy Employees &amp; Skills</span>
+                  </button>
                 </div>
                 <div class="idea-roles-grid">
                   ${roles.map(r => `
@@ -4342,11 +4567,11 @@ class App {
                           💰 Target Comp: <strong>${r.salary_range || '$120,000 - $150,000'}</strong>
                         </div>
                         <div class="idea-role-resp">
-                          ${(r.responsibilities || []).slice(0, 2).map(resp => `<div>• ${resp}</div>`).join('')}
+                          ${(r.responsibilities || []).slice(0, 3).map(resp => `<div>• ${resp}</div>`).join('')}
                         </div>
                       </div>
                       <div class="idea-skills-wrapper">
-                        <div class="idea-skills-label">Required 75/25 Skills:</div>
+                        <div class="idea-skills-label">Required Skills (75% Mandatory / 25% Preferred):</div>
                         <div class="idea-skills-tags">
                           ${(r.required_skills || []).map(s => `
                             <span class="idea-skill-pill mandatory" title="Mandatory 75% Tier">${s.name} (${Math.round((s.weight || 0.4)*100)}%)</span>
@@ -4361,12 +4586,17 @@ class App {
                 </div>
               </div>
 
-              <!-- 3. Share Action Hub (Share to HR & Share to Investor) -->
+              <!-- 4. Share & Action Hub -->
               <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(94,234,212,0.18); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
                 <div style="font-size:0.82rem; color:rgba(255,255,255,0.7);">
-                  <strong style="color:#5EEAD4;">⚡ 1-Click Platform Distribution:</strong> Share job roles with HR or send pitch to Investors.
+                  <strong style="color:#5EEAD4;">⚡ 1-Click Platform Distribution:</strong> Copy full text, share job specifications with HR, or pitch to Investors.
                 </div>
                 <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+                  <!-- Copy Blueprint Button -->
+                  <button type="button" class="ai-copy-btn" id="overview-copy-all-bottom-btn" style="padding:0.6rem 1rem;">
+                    <span>📋 Copy Complete Blueprint</span>
+                  </button>
+
                   <!-- Share to HR Button -->
                   <button type="button" class="gemini-btn-hr" id="overview-share-hr-btn" style="padding:0.6rem 1.25rem;">
                     <span>💼 Share to HR</span>
@@ -4393,6 +4623,55 @@ class App {
 
           // Store for Gemini tab transfer
           this._overviewIdeaText = idea;
+
+          // Wire Copy Buttons
+          const copyAllBtn = overviewIdeaResults.querySelector('#overview-copy-all-btn');
+          if (copyAllBtn) {
+            copyAllBtn.addEventListener('click', () => {
+              const text = this.buildCompletePlanCopyText(a);
+              this.copyTextToClipboard(text, "Complete Startup Blueprint copied to clipboard!", copyAllBtn);
+            });
+          }
+
+          const copyAllTopBtn = overviewIdeaResults.querySelector('#overview-copy-all-top-btn');
+          if (copyAllTopBtn) {
+            copyAllTopBtn.addEventListener('click', () => {
+              const text = this.buildCompletePlanCopyText(a);
+              this.copyTextToClipboard(text, "Complete Startup Blueprint copied to clipboard!", copyAllTopBtn);
+            });
+          }
+
+          const copyPitchBtn = overviewIdeaResults.querySelector('#overview-copy-pitch-btn');
+          if (copyPitchBtn) {
+            copyPitchBtn.addEventListener('click', () => {
+              const text = this.buildPitchCopyText(a);
+              this.copyTextToClipboard(text, "Startup Pitch copied to clipboard!", copyPitchBtn);
+            });
+          }
+
+          const copyFeatBtn = overviewIdeaResults.querySelector('#overview-copy-features-btn');
+          if (copyFeatBtn) {
+            copyFeatBtn.addEventListener('click', () => {
+              const text = this.buildFeaturesCopyText(a);
+              this.copyTextToClipboard(text, "Key Features copied to clipboard!", copyFeatBtn);
+            });
+          }
+
+          const copyRolesBtn = overviewIdeaResults.querySelector('#overview-copy-roles-btn');
+          if (copyRolesBtn) {
+            copyRolesBtn.addEventListener('click', () => {
+              const text = this.buildRolesCopyText(a);
+              this.copyTextToClipboard(text, "Required Employees & Skills copied to clipboard!", copyRolesBtn);
+            });
+          }
+
+          const copyAllBottomBtn = overviewIdeaResults.querySelector('#overview-copy-all-bottom-btn');
+          if (copyAllBottomBtn) {
+            copyAllBottomBtn.addEventListener('click', () => {
+              const text = this.buildCompletePlanCopyText(a);
+              this.copyTextToClipboard(text, "Complete Startup Blueprint copied to clipboard!", copyAllBottomBtn);
+            });
+          }
 
           // Wire: Share to HR button
           const shareHrBtn = overviewIdeaResults.querySelector('#overview-share-hr-btn');
@@ -4598,6 +4877,13 @@ class App {
     const invest = a.investment_required || {};
     const roadmap = a.execution_roadmap || [];
     const roles = a.required_job_roles || [];
+    const features = (a.key_features && a.key_features.length > 0)
+      ? a.key_features
+      : ((scope.mvp_features || []).map((f, i) => ({
+          title: typeof f === 'string' && f.includes(':') ? f.split(':')[0].trim() : `Core Feature ${i+1}`,
+          description: typeof f === 'string' && f.includes(':') ? f.split(':').slice(1).join(':').trim() : (typeof f === 'string' ? f : (f.description || '')),
+          badge: 'Core Capability'
+        })));
     const sessionId = this.currentGeminiSessionId || 'default';
 
     return `
@@ -4613,10 +4899,25 @@ class App {
       <div class="gemini-msg ai">
         <div class="gemini-avatar ai-avatar">✦</div>
         <div class="gemini-bubble">
+          <!-- Top Blueprint Copy Banner -->
+          <div class="blueprint-copy-banner-light" style="margin-bottom:1rem;">
+            <div>
+              <div style="font-size:0.95rem; font-weight:800; color:#0F766E; display:flex; align-items:center; gap:0.4rem;">
+                <span>✦</span> Gemini 1.5 Pro Venture Blueprint Complete
+              </div>
+              <div style="font-size:0.8rem; color:#475569; margin-top:0.2rem;">
+                All generated text is selectable with your mouse. Use 1-click Copy buttons to copy sections or the full blueprint.
+              </div>
+            </div>
+            <button type="button" class="gemini-copy-btn" id="gemini-copy-all-top-btn" style="padding:0.45rem 0.95rem; font-size:0.82rem; background:#0F766E; color:#FFFFFF; border:none;">
+              <span>📋 Copy Complete Blueprint</span>
+            </button>
+          </div>
+
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
             <div>
               <span class="gemini-sparkle-pill" style="font-size:0.72rem; padding:0.25rem 0.65rem;">
-                ✦ GEMINI 1.5 PRO VENTURE BLUEPRINT COMPLETE
+                ✦ VENTURE ARCHITECTURE GENERATED
               </span>
               <h3 style="font-size:1.65rem; font-weight:800; color:var(--primary); margin-top:0.25rem;">${a.title}</h3>
               <p style="font-size:0.88rem; color:var(--text-muted);">${a.industry} • ${a.tagline}</p>
@@ -4628,31 +4929,102 @@ class App {
             </div>
           </div>
 
-          <!-- 1. Deep Explanation of Project Idea -->
-          <div class="gemini-section-header">
-            <span>📑</span> 1. Deep Project Explanation & Thesis
+          <!-- 1. Pitch for His Idea -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-top:1.25rem; margin-bottom:0.75rem; padding-bottom:0.35rem; border-bottom:2px solid #F1F5F9;">
+            <div class="gemini-section-header" style="margin:0; padding:0; border:none;">
+              <span>🎯</span> 1. Pitch for Your Idea &amp; Executive Thesis
+            </div>
+            <button type="button" class="gemini-copy-btn" id="gemini-copy-pitch-btn">
+              <span>📋 Copy Pitch</span>
+            </button>
           </div>
-          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1rem;">
-            <p style="font-size:0.92rem; color:var(--text-main); line-height:1.65; margin-bottom:0.75rem;">
-              <strong>Elevator Pitch:</strong> ${deep.elevator_pitch || a.tagline}
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.15rem 1.25rem; margin-bottom:1.15rem;">
+            <p style="font-size:0.94rem; color:var(--text-main); line-height:1.65; margin-bottom:0.75rem;">
+              <strong>🎯 Executive Elevator Pitch:</strong> <span style="color:#0F766E; font-weight:600;">${deep.elevator_pitch || a.tagline}</span>
             </p>
             <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
-              <strong>Core Value Proposition:</strong> ${deep.core_value_prop || '10x productivity improvement over legacy tools.'}
+              <strong>💡 Core Value Proposition:</strong> ${deep.core_value_prop || '10x productivity improvement over legacy tools.'}
             </p>
             <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
-              <strong>Architectural Foundation:</strong> ${deep.architectural_thesis || 'Scalable modern microservices.'}
+              <strong>⚙️ Architectural Foundation:</strong> ${deep.architectural_thesis || 'Scalable modern microservices.'}
             </p>
             <p style="font-size:0.9rem; color:var(--text-main); line-height:1.6; margin-bottom:0.5rem;">
-              <strong>Monetization Model:</strong> ${deep.monetization_strategy || 'Tiered B2B SaaS.'}
+              <strong>💳 Monetization Model:</strong> ${deep.monetization_strategy || 'Tiered B2B SaaS.'}
             </p>
             <p style="font-size:0.9rem; color:#0F766E; line-height:1.6; font-weight:600;">
-              <strong>Defensibility Moat:</strong> ${deep.defensibility_moat || 'Proprietary data ingestion & network effects.'}
+              <strong>🛡️ Defensibility Moat:</strong> ${deep.defensibility_moat || 'Proprietary data ingestion & network effects.'}
             </p>
           </div>
 
-          <!-- 2. Step-by-Step Execution Roadmap -->
+          <!-- 2. Features of His Idea -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-top:1.25rem; margin-bottom:0.75rem; padding-bottom:0.35rem; border-bottom:2px solid #F1F5F9;">
+            <div class="gemini-section-header" style="margin:0; padding:0; border:none;">
+              <span>⚡</span> 2. Key Features of Your Idea (${features.length} Features)
+            </div>
+            <button type="button" class="gemini-copy-btn" id="gemini-copy-features-btn">
+              <span>📋 Copy Features</span>
+            </button>
+          </div>
+          <div class="gemini-features-grid">
+            ${features.map((f, i) => `
+              <div class="gemini-feature-card">
+                <div class="gemini-feature-top">
+                  <span style="font-size:0.72rem; font-weight:800; color:#2563EB;">FEATURE ${i + 1}</span>
+                  <span class="gemini-feature-badge">${f.badge || 'Core Capability'}</span>
+                </div>
+                <div class="gemini-feature-title">${f.title}</div>
+                <div class="gemini-feature-desc">${f.description}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 3. Job Roles Required with Required Skills -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-top:1.25rem; margin-bottom:0.75rem; padding-bottom:0.35rem; border-bottom:2px solid #F1F5F9;">
+            <div class="gemini-section-header" style="margin:0; padding:0; border:none;">
+              <span>👥</span> 3. Required Employees &amp; 75/25 Skill Profiles (${roles.length} Roles)
+            </div>
+            <button type="button" class="gemini-copy-btn" id="gemini-copy-roles-btn">
+              <span>📋 Copy Employees &amp; Skills</span>
+            </button>
+          </div>
+          <div class="gemini-roles-grid">
+            ${roles.map(r => `
+              <div class="gemini-role-card">
+                <div>
+                  <div class="gemini-role-top">
+                    <div class="gemini-role-title">${r.title}</div>
+                    <span class="gemini-role-prio">${r.hiring_priority || 'Phase 1'}</span>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
+                    Dept: <strong>${r.department || 'Engineering'}</strong> • Level: <strong>${r.experience_level || 'Senior'}</strong>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--secondary); font-weight:700; margin-bottom:0.5rem;">
+                    💰 Target Salary: ${r.salary_range || '$120k - $150k'}
+                  </div>
+                  <div style="font-size:0.8rem; color:var(--text-main); margin-bottom:0.5rem;">
+                    ${(r.responsibilities || []).slice(0, 3).map(resp => `<div>• ${resp}</div>`).join('')}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem; text-transform:uppercase;">
+                    Required Skills (75% Mandatory / 25% Preferred):
+                  </div>
+                  <div class="gemini-skills-pills">
+                    ${(r.required_skills || []).map(s => `
+                      <span class="gemini-skill-tag mandatory" title="Mandatory 75% Tier">${s.name} (${Math.round((s.weight || 0.4)*100)}%)</span>
+                    `).join('')}
+                    ${(r.preferred_skills || []).map(s => `
+                      <span class="gemini-skill-tag" title="Preferred 25% Tier">${s.name}</span>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 4. Step-by-Step Execution Roadmap -->
           <div class="gemini-section-header">
-            <span>🗺️</span> 2. Step-by-Step Execution Roadmap to Success
+            <span>🗺️</span> 4. Step-by-Step Execution Roadmap to Success
           </div>
           <div class="gemini-roadmap-timeline">
             ${roadmap.map(phase => `
@@ -4674,48 +5046,9 @@ class App {
             `).join('')}
           </div>
 
-          <!-- 3. Job Roles Required & Skills in PDF -->
+          <!-- 5. Investment Required & Fund Allocation Breakdown -->
           <div class="gemini-section-header">
-            <span>💼</span> 3. Job Roles Required & 75/25 Skill Profiles (${roles.length} Roles)
-          </div>
-          <div class="gemini-roles-grid">
-            ${roles.map(r => `
-              <div class="gemini-role-card">
-                <div>
-                  <div class="gemini-role-top">
-                    <div class="gemini-role-title">${r.title}</div>
-                    <span class="gemini-role-prio">${r.hiring_priority || 'Phase 1'}</span>
-                  </div>
-                  <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
-                    Dept: <strong>${r.department || 'Engineering'}</strong> • Level: <strong>${r.experience_level || 'Senior'}</strong>
-                  </div>
-                  <div style="font-size:0.82rem; color:var(--secondary); font-weight:700; margin-bottom:0.5rem;">
-                    💰 Target Salary: ${r.salary_range || '$120k - $150k'}
-                  </div>
-                  <div style="font-size:0.8rem; color:var(--text-main); margin-bottom:0.5rem;">
-                    ${(r.responsibilities || []).slice(0, 2).map(resp => `<div>• ${resp}</div>`).join('')}
-                  </div>
-                </div>
-                <div>
-                  <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem; text-transform:uppercase;">
-                    Required 75/25 Skills:
-                  </div>
-                  <div class="gemini-skills-pills">
-                    ${(r.required_skills || []).map(s => `
-                      <span class="gemini-skill-tag mandatory" title="Mandatory 75% Tier">${s.name} (${Math.round((s.weight || 0.4)*100)}%)</span>
-                    `).join('')}
-                    ${(r.preferred_skills || []).map(s => `
-                      <span class="gemini-skill-tag" title="Preferred 25% Tier">${s.name}</span>
-                    `).join('')}
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-
-          <!-- 4. Investment Required & Fund Allocation Breakdown -->
-          <div class="gemini-section-header">
-            <span>💰</span> 4. Investment Required & Financial Framework
+            <span>💰</span> 5. Investment Required &amp; Financial Framework
           </div>
           <div class="gemini-investment-grid">
             <div class="gemini-invest-card">
@@ -4750,9 +5083,9 @@ class App {
             </div>
           </div>
 
-          <!-- 5. Project Scope & Market Sizing -->
+          <!-- 6. Project Scope & Market Sizing -->
           <div class="gemini-section-header">
-            <span>🎯</span> 5. Project Scope & Market Sizing (TAM/SAM/SOM)
+            <span>🎯</span> 6. Project Scope &amp; Market Sizing (TAM/SAM/SOM)
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
             <div style="background:#EEF2FF; border:1px solid #C7D2FE; padding:0.85rem; border-radius:var(--radius-md); text-align:center;">
@@ -4773,14 +5106,19 @@ class App {
           <div class="gemini-action-hub">
             <div>
               <div class="gemini-action-hub-title">
-                <span>⚡</span> Executive Export & Platform Distribution Hub
+                <span>⚡</span> Executive Export &amp; Platform Distribution Hub
               </div>
               <p style="font-size:0.8rem; color:#475569; margin-top:0.25rem;">
-                Instantly export formal PDF blueprints or push them directly to HR & Investor dashboards.
+                Instantly export formal PDF blueprints, copy the complete plain text plan, or push directly to HR &amp; Investor dashboards.
               </p>
             </div>
 
             <div class="gemini-action-hub-buttons">
+              <!-- Copy Blueprint Button -->
+              <button type="button" class="gemini-copy-btn" id="gemini-copy-all-btn" style="padding:0.4rem 0.85rem; font-weight:700;">
+                <span>📋 Copy Complete Blueprint</span>
+              </button>
+
               <!-- Job Roles PDF & Share to HR -->
               <a href="${api.getRolesPdfUrl(sessionId)}" target="_blank" class="btn btn-outline btn-sm" id="download-roles-pdf-btn" download>
                 📄 Roles PDF
@@ -4933,6 +5271,51 @@ class App {
           shareInvBtn.innerHTML = '<span>🦈 Share to Investor</span>';
           state.showToast(e.message, "danger");
         }
+      });
+    }
+
+    // Copy Pitch button
+    const copyPitchBtn = this.appContainer.querySelector('#gemini-copy-pitch-btn');
+    if (copyPitchBtn && this.currentGeminiAnalysis) {
+      copyPitchBtn.addEventListener('click', () => {
+        const text = this.buildPitchCopyText(this.currentGeminiAnalysis);
+        this.copyTextToClipboard(text, "Startup Pitch copied to clipboard!", copyPitchBtn);
+      });
+    }
+
+    // Copy Features button
+    const copyFeatBtn = this.appContainer.querySelector('#gemini-copy-features-btn');
+    if (copyFeatBtn && this.currentGeminiAnalysis) {
+      copyFeatBtn.addEventListener('click', () => {
+        const text = this.buildFeaturesCopyText(this.currentGeminiAnalysis);
+        this.copyTextToClipboard(text, "Key Features copied to clipboard!", copyFeatBtn);
+      });
+    }
+
+    // Copy Roles & Skills button
+    const copyRolesBtn = this.appContainer.querySelector('#gemini-copy-roles-btn');
+    if (copyRolesBtn && this.currentGeminiAnalysis) {
+      copyRolesBtn.addEventListener('click', () => {
+        const text = this.buildRolesCopyText(this.currentGeminiAnalysis);
+        this.copyTextToClipboard(text, "Required Employees & Skills copied to clipboard!", copyRolesBtn);
+      });
+    }
+
+    // Copy Complete Blueprint (top banner button)
+    const copyAllTopBtn = this.appContainer.querySelector('#gemini-copy-all-top-btn');
+    if (copyAllTopBtn && this.currentGeminiAnalysis) {
+      copyAllTopBtn.addEventListener('click', () => {
+        const text = this.buildCompletePlanCopyText(this.currentGeminiAnalysis);
+        this.copyTextToClipboard(text, "Complete Startup Blueprint copied to clipboard!", copyAllTopBtn);
+      });
+    }
+
+    // Copy Complete Blueprint (bottom action hub button)
+    const copyAllBtn = this.appContainer.querySelector('#gemini-copy-all-btn');
+    if (copyAllBtn && this.currentGeminiAnalysis) {
+      copyAllBtn.addEventListener('click', () => {
+        const text = this.buildCompletePlanCopyText(this.currentGeminiAnalysis);
+        this.copyTextToClipboard(text, "Complete Startup Blueprint copied to clipboard!", copyAllBtn);
       });
     }
   }

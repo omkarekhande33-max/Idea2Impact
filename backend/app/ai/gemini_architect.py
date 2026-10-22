@@ -87,6 +87,7 @@ def synthesize_startup_architecture(idea_input: str, founder_name: str = "Founde
             "- tagline (string, sharp 10-word punchy proposition)\n"
             "- industry (string, e.g. HealthTech, FinTech, CleanTech, AI Enterprise SaaS, EdTech)\n"
             "- deep_explanation: object containing elevator_pitch, architectural_thesis, core_value_prop, monetization_strategy, defensibility_moat\n"
+            "- key_features: array of 4-6 objects [{title, description, badge}] detailing the breakthrough core features of the founder's idea\n"
             "- project_scope: object containing tam ($B), sam ($B), som ($M), mvp_features (array of 4 strings), phase2_features (array of 3 strings), target_icp (array of 2 strings), risks_and_mitigations (array of 3 {risk, mitigation})\n"
             "- investment_required: object containing total_ask (string e.g. $750,000), stage (string e.g. Seed), runway_months (int 18), valuation_range (string), use_of_funds (array of 4 {category, percentage, amount, purpose}), key_milestones_unlocked (array of 3 strings)\n"
             "- execution_roadmap: array of 4-5 phase objects {phase_number, phase_name, timeline, objective, deliverables (array of 3 strings), kpi}\n"
@@ -101,6 +102,16 @@ def synthesize_startup_architecture(idea_input: str, founder_name: str = "Founde
                 clean_json_str = re.sub(r"\s*```$", "", clean_json_str)
                 parsed = json.loads(clean_json_str)
                 if isinstance(parsed, dict) and "execution_roadmap" in parsed and "required_job_roles" in parsed:
+                    if "key_features" not in parsed or not parsed["key_features"]:
+                        mvp = parsed.get("project_scope", {}).get("mvp_features", [])
+                        parsed["key_features"] = [
+                            {
+                                "title": feat.split(":")[0] if ":" in feat else f"Feature {i+1}",
+                                "description": feat.split(":", 1)[1].strip() if ":" in feat else feat,
+                                "badge": "Core Capability"
+                            }
+                            for i, feat in enumerate(mvp)
+                        ]
                     parsed["source"] = "Gemini Pro (Google AI Live)"
                     parsed["generated_at"] = datetime.now(timezone.utc).isoformat()
                     return parsed
@@ -192,6 +203,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 ]
             }
         ]
+        key_features = [
+            {
+                "title": "Automated Scope 1, 2 & 3 Emissions Ingestion",
+                "description": "Continuous API and IoT telematics pipelines directly ingest utility smart-meter feeds, ERP invoice lines, and supply freight logs without manual spreadsheet errors.",
+                "badge": "Core Engine"
+            },
+            {
+                "title": "GHG Protocol Algorithmic Factor Matching",
+                "description": "Autonomous matching of enterprise energy consumption against validated DEFRA, EPA, and IPCC emissions factor databases to calculate real-time CO2e footprints.",
+                "badge": "AI Calculation"
+            },
+            {
+                "title": "CSRD & SEC Audit-Ready Compliance Dossiers",
+                "description": "One-click export of cryptographically verifiable ESG disclosure reports formatted for auditor sign-off and international regulatory compliance.",
+                "badge": "Regulatory"
+            },
+            {
+                "title": "Predictive Decarbonization & Supplier Scenario Planner",
+                "description": "Interactive simulation models allowing enterprise sustainability teams to model cost-vs-carbon ROI for alternative suppliers and logistics routes.",
+                "badge": "Analytics"
+            },
+            {
+                "title": "Multi-Tier Supplier Carbon Accounting Portal",
+                "description": "Frictionless vendor onboarding interface with automated data validation and data completeness scoring for Scope 3 supply chain transparency.",
+                "badge": "Collaboration"
+            }
+        ]
 
     elif any(k in idea_lower for k in ["health", "med", "doctor", "clinic", "patient", "bio", "hospital", "pharma", "care", "neuro"]):
         domain = "HealthTech & Clinical AI"
@@ -263,6 +301,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 "preferred_skills": [
                     {"skill_id": "sk-ops-03", "name": "Provider Onboarding", "weight": 1.0, "category": "Operations", "is_required": False}
                 ]
+            }
+        ]
+        key_features = [
+            {
+                "title": "Multimodal Patient Tele-Triage & Clinical Intake",
+                "description": "Smart clinical intake engine combining conversational AI triage with vital telemetry to prioritize acute cases before physician consultation.",
+                "badge": "Core Engine"
+            },
+            {
+                "title": "HIPAA-Compliant Speech & Oculomotor Biomarkers",
+                "description": "Non-invasive tablet screening utilizing micropauses in speech cadence and ocular tracking to detect early neurocognitive shifts.",
+                "badge": "AI Diagnostic"
+            },
+            {
+                "title": "Physician Clinical Decision-Support Copilot",
+                "description": "Real-time differential diagnosis suggestions cross-referenced with peer-reviewed medical literature and clinical practice guidelines.",
+                "badge": "Decision Support"
+            },
+            {
+                "title": "Ambient Clinical Scribe & Automated EHR Sync",
+                "description": "Ambient consultation listening that generates structured FHIR/HL7 clinical encounter notes ready for 1-click doctor sign-off.",
+                "badge": "Automation"
+            },
+            {
+                "title": "Remote Patient Monitoring (RPM) Telemetry Alerts",
+                "description": "Continuous remote patient monitoring alerting care coordinators instantly when biometric telemetry breaches safe clinical thresholds.",
+                "badge": "Monitoring"
             }
         ]
 
@@ -338,6 +403,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 ]
             }
         ]
+        key_features = [
+            {
+                "title": "Immutable Double-Entry Ledger Architecture",
+                "description": "High-throughput transactional ledger guaranteeing zero-drift ACID compliance and real-time reconciliation across high-volume accounts.",
+                "badge": "Core Infrastructure"
+            },
+            {
+                "title": "Autonomous Cash-Flow & Balance Sheet Underwriting",
+                "description": "Real-time banking API integration (Plaid/Open Banking) that analyzes rolling 90-day cash flows to generate instant risk-adjusted credit limits.",
+                "badge": "Underwriting"
+            },
+            {
+                "title": "1-Click Embedded Invoice Factoring Engine",
+                "description": "Instant liquidity advances against verified B2B receivables with dynamic risk discounting and automated payment routing.",
+                "badge": "Lending Engine"
+            },
+            {
+                "title": "Real-Time Anti-Fraud & Graph Anomaly Detection",
+                "description": "Graph neural network analyzing transaction patterns, detecting circular invoicing, duplicate receivables, and synthetic identity fraud.",
+                "badge": "Security & Risk"
+            },
+            {
+                "title": "Automated BSA/AML & FinCEN Regulatory Compliance",
+                "description": "Continuous sanctions watchlist screening, automated Suspicious Activity Report (SAR) compilation, and audit-ready reporting.",
+                "badge": "Compliance"
+            }
+        ]
 
     elif any(k in idea_lower for k in ["learn", "edu", "student", "teach", "school", "course", "skill", "tutor", "class"]):
         domain = "EdTech & Talent Infrastructure"
@@ -409,6 +501,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 "preferred_skills": [
                     {"skill_id": "sk-edu-03", "name": "Event & Demo Day Production", "weight": 1.0, "category": "Marketing", "is_required": False}
                 ]
+            }
+        ]
+        key_features = [
+            {
+                "title": "Adaptive Vernacular Learning & Dynamic Pacing",
+                "description": "Personalized curriculum engine translating complex coding concepts into vernacular languages and automatically adjusting difficulty based on student comprehension.",
+                "badge": "Adaptive Engine"
+            },
+            {
+                "title": "Browser-Based Proctored Skill Passport Telemetry",
+                "description": "Tamper-resistant real-time skill assessment with lightweight behavioral and webcam proctoring to issue verified candidate passports.",
+                "badge": "Verification"
+            },
+            {
+                "title": "Interactive Multi-Language In-Browser Code Sandboxes",
+                "description": "Instant cloud execution sandboxes supporting 15+ languages with automated test case grading and line-by-line debugging guidance.",
+                "badge": "Execution Sandbox"
+            },
+            {
+                "title": "AI Technical Mock Interview Simulator",
+                "description": "Interactive voice-and-code interview prep providing actionable diagnostic feedback on algorithmic efficiency, communication, and clean architecture.",
+                "badge": "Career Prep"
+            },
+            {
+                "title": "Direct Talent Matching & Recruiter Verification Portal",
+                "description": "Two-sided hiring hub where verified candidate passports automatically match 75/25 job role profiles for zero-bias hiring.",
+                "badge": "Talent Bridge"
             }
         ]
 
@@ -483,6 +602,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 "preferred_skills": [
                     {"skill_id": "sk-saas-01", "name": "Product-Led Growth (PLG) Strategy", "weight": 1.0, "category": "Growth", "is_required": False}
                 ]
+            }
+        ]
+        key_features = [
+            {
+                "title": "eBPF Low-Overhead Kernel Telemetry Sensor",
+                "description": "Sub-millisecond container runtime observability capturing process executions, socket connections, and system calls with < 1% CPU footprint.",
+                "badge": "Kernel Telemetry"
+            },
+            {
+                "title": "Autonomous Zero-Trust Policy Orchestration",
+                "description": "Microsegmentation engine that continuously verifies workload identities and automatically isolates anomalous containers in real time.",
+                "badge": "Zero-Trust"
+            },
+            {
+                "title": "Continuous Multi-Cloud Misconfiguration Scanner",
+                "description": "Automated posture management inspecting Kubernetes manifests, IAM permissions, and cloud resources across AWS, GCP, and Azure.",
+                "badge": "Cloud Posture"
+            },
+            {
+                "title": "Shadow API & Endpoint Discovery Mesh",
+                "description": "Real-time detection of unauthenticated endpoints, exposed secrets, and API contract drifts across distributed microservices.",
+                "badge": "API Security"
+            },
+            {
+                "title": "SIEM & SOAR Automated Threat Incident Dispatch",
+                "description": "Instant bidirectional webhooks and playbooks integrating with Splunk, Datadog, Slack, and PagerDuty for instant threat mitigation.",
+                "badge": "Automation"
             }
         ]
 
@@ -560,6 +706,33 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
                 ]
             }
         ]
+        key_features = [
+            {
+                "title": "Autonomous Multi-Agent Workflow Orchestrator",
+                "description": "Asynchronous AI agent teams collaborating across structured tasks, decomposing complex business goals into verified actions.",
+                "badge": "Core AI Engine"
+            },
+            {
+                "title": "Low-Latency Enterprise Knowledge & Semantic RAG",
+                "description": "High-speed hybrid search over private enterprise documents, emails, and data warehouses with strict source citation guarantees.",
+                "badge": "Knowledge Mesh"
+            },
+            {
+                "title": "Executive PDF Dossier & Pitch Generation Engine",
+                "description": "Automated compilation of operational insights, financial forecasts, and architectural specifications into branded, downloadable PDFs.",
+                "badge": "Reporting"
+            },
+            {
+                "title": "Enterprise Role-Based Access Control (RBAC) & Audit Mesh",
+                "description": "Row-Level Security (RLS) enforcement, SOC2 audit logging, and encrypted credential vaults protecting sensitive enterprise operations.",
+                "badge": "Security"
+            },
+            {
+                "title": "1-Click Cross-Platform Distribution (HR & Investors)",
+                "description": "Seamless integration pushing hiring profiles directly to recruiters and executive proposals directly to angel investors.",
+                "badge": "Integration"
+            }
+        ]
 
     # Calculate investment allocations
     total_numeric = int(re.sub(r"[^\d]", "", ask) or "750000")
@@ -582,17 +755,13 @@ def _generate_domain_specific_architecture(idea: str, founder_name: str, custom_
             "monetization_strategy": "B2B SaaS tiered subscription model with Starter ($499/mo), Professional ($1,999/mo), and Enterprise Custom ($5,000+/mo with custom SLAs and white-glove onboarding).",
             "defensibility_moat": "High data gravity through continuous workflow ingestion, proprietary model calibration, and sticky multi-stakeholder network effects that create high switching costs."
         },
+        "key_features": key_features,
         "project_scope": {
             "tam": tam,
             "sam": sam,
             "som": som,
-            "mvp_features": [
-                "Core autonomous ingestion pipeline connecting existing customer workflows.",
-                "Real-time analytics dashboard with interactive data visualizers.",
-                "Automated PDF report and proposal generation engine.",
-                "Role-based authentication with strict data isolation and audit logging."
-            ],
-            "phase2_features": [
+            "mvp_features": [f"{f['title']}: {f['description']}" for f in key_features[:4]],
+            "phase2_features": [f"{f['title']}: {f['description']}" for f in key_features[4:]] if len(key_features) > 4 else [
                 "Multi-agent predictive simulation and automated scenario forecasting.",
                 "Native two-way ERP and enterprise software integrations (SAP, Salesforce, Slack).",
                 "Advanced collaborative team workspaces with approval hierarchies."

@@ -1310,6 +1310,33 @@ class ApiService {
           monetization_strategy: "B2B SaaS tiered subscriptions ($499 - $5,000/mo) + enterprise white-glove onboarding.",
           defensibility_moat: "High data gravity through continuous workflow ingestion and sticky multi-stakeholder network effects."
         },
+        key_features: [
+          {
+            title: "Autonomous Multi-Agent Workflow Orchestration",
+            description: "Asynchronous AI agent pipelines decompose complex operational processes into verified steps without manual bottlenecks.",
+            badge: "Core AI Engine"
+          },
+          {
+            title: "Real-Time Telemetry & Intelligent Analytics",
+            description: "Instant data ingestion and interactive dashboards offering operational visibility, KPI tracking, and automated forecasting.",
+            badge: "Analytics"
+          },
+          {
+            title: "Enterprise Knowledge & Semantic RAG Hub",
+            description: "High-speed hybrid search over private enterprise documentation, APIs, and data stores with strict citation provenance.",
+            badge: "Knowledge Mesh"
+          },
+          {
+            title: "Automated Executive PDF & Dossier Generation",
+            description: "Instant compilation of operational metrics, financial projections, and compliance checklists into professional branded PDFs.",
+            badge: "Automation"
+          },
+          {
+            title: "Two-Way Platform Distribution (HR & Shark Room)",
+            description: "1-click push of hiring specifications directly to HR dashboards and investor-ready proposals to Shark Room syndicates.",
+            badge: "Ecosystem"
+          }
+        ],
         project_scope: {
           tam: "$22.0B",
           sam: "$5.4B",

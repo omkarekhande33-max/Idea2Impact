@@ -3498,6 +3498,237 @@
   border: 1px solid rgba(165, 180, 252, 0.25);
 }
 
+/* ✦ Ensure all generated AI content is 100% selectable by mouse/keyboard */
+.idea-bar-results,
+.idea-bar-result-card,
+.idea-explanation-card,
+.idea-features-grid,
+.idea-feature-card,
+.idea-roles-grid,
+.idea-role-card,
+.gemini-chat-thread,
+.gemini-bubble,
+.gemini-features-grid,
+.gemini-feature-card,
+.gemini-role-card,
+.gemini-pitch-card,
+.idea-pitch-card,
+.idea-exp-text,
+.idea-feature-desc,
+.idea-role-resp {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+.idea-bar-results ::selection,
+.idea-bar-result-card ::selection {
+  background: rgba(94, 234, 212, 0.45) !important;
+  color: #FFFFFF !important;
+}
+
+.gemini-bubble ::selection {
+  background: #C7D2FE !important;
+  color: #1E1B4B !important;
+}
+
+/* ✦ Copy Button Styles */
+.ai-copy-btn {
+  background: rgba(94, 234, 212, 0.12);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  color: #5EEAD4;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.18s ease;
+}
+
+.ai-copy-btn:hover {
+  background: rgba(94, 234, 212, 0.24);
+  border-color: #5EEAD4;
+  transform: translateY(-1px);
+}
+
+.ai-copy-btn.copied {
+  background: #059669 !important;
+  border-color: #34D399 !important;
+  color: #FFFFFF !important;
+}
+
+.gemini-copy-btn {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1D4ED8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.18s ease;
+}
+
+.gemini-copy-btn:hover {
+  background: #DBEAFE;
+  border-color: #3B82F6;
+  transform: translateY(-1px);
+}
+
+.gemini-copy-btn.copied {
+  background: #059669 !important;
+  border-color: #34D399 !important;
+  color: #FFFFFF !important;
+}
+
+/* Top Blueprint Copy Banners */
+.blueprint-copy-banner {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.18) 0%, rgba(59, 130, 246, 0.15) 100%);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+}
+
+.blueprint-copy-banner-light {
+  background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%);
+  border: 1.5px solid #86EFAC;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+}
+
+/* ✦ Features Grid & Card (Overview Dark Theme) */
+.idea-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.85rem;
+}
+
+.idea-feature-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(94, 234, 212, 0.18);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.idea-feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(94, 234, 212, 0.4);
+}
+
+.idea-feature-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.idea-feature-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #5EEAD4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.idea-feature-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5EEAD4;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+}
+
+.idea-feature-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.35;
+}
+
+.idea-feature-desc {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.55;
+}
+
+/* ✦ Gemini Studio Feature Cards (Light / High-Contrast Theme) */
+.gemini-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.gemini-feature-card {
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.gemini-feature-card:hover {
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+  border-color: #2563EB;
+}
+
+.gemini-feature-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gemini-feature-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563EB;
+}
+
+.gemini-feature-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.35;
+}
+
+.gemini-feature-desc {
+  font-size: 0.84rem;
+  color: var(--text-main);
+  line-height: 1.55;
+}
+
 /* =========================================================================
    GEMINI PRO AI BUSINESS ARCHITECT & SHARING SUITE
    ========================================================================= */
