@@ -839,6 +839,90 @@ INITIAL_DATA = {
             "channel": "founder",
             "timestamp": "2026-03-03T16:40:00Z",
             "is_read": True
+        },
+        {
+            "id": "msg-14",
+            "sender_id": "inv-01",
+            "sender_role": "investor",
+            "sender_name": "Michael Chen (Apex Ventures)",
+            "receiver_id": "found-01",
+            "receiver_role": "founder",
+            "receiver_name": "Sarah Lin",
+            "text": "Hi Sarah, we reviewed your EcoTrace AI proposal and 92.5% readiness score. We are very interested in leading your $1.2M Seed round. What is your current ARR and enterprise pipeline?",
+            "channel": "investor",
+            "timestamp": "2026-03-02T15:20:00Z",
+            "is_read": True
+        },
+        {
+            "id": "msg-15",
+            "sender_id": "found-01",
+            "sender_role": "founder",
+            "sender_name": "Sarah Lin",
+            "receiver_id": "inv-01",
+            "receiver_role": "investor",
+            "receiver_name": "Michael Chen (Apex Ventures)",
+            "text": "Hi Michael! We currently have $320k contracted ARR with 4 enterprise pilots converting next month. Our 75/25 technical team architecture has reduced onboarding from 6 weeks to 3 days.",
+            "channel": "investor",
+            "timestamp": "2026-03-02T15:45:00Z",
+            "is_read": True
+        },
+        {
+            "id": "msg-16",
+            "sender_id": "inv-01",
+            "sender_role": "investor",
+            "sender_name": "Michael Chen (Apex Ventures)",
+            "receiver_id": "found-01",
+            "receiver_role": "founder",
+            "receiver_name": "Sarah Lin",
+            "text": "That is exceptional traction, Sarah. Let's schedule a formal pitch meeting this Thursday to review term sheet parameters.",
+            "channel": "investor",
+            "timestamp": "2026-03-02T16:10:00Z",
+            "is_read": False
+        },
+        {
+            "id": "msg-17",
+            "sender_id": "inv-02",
+            "sender_role": "investor",
+            "sender_name": "Sophia Zhang (Horizon Capital)",
+            "receiver_id": "found-01",
+            "receiver_role": "founder",
+            "receiver_name": "Sarah Lin",
+            "text": "Hello Sarah, loving the Gemini Pro role generation specs you published. Would love to connect for a 30-min intro sync on Thursday.",
+            "channel": "investor",
+            "timestamp": "2026-03-03T11:00:00Z",
+            "is_read": True
+        }
+    ],
+    "meetings": [
+        {
+            "id": "mtg-inv-01",
+            "title": "Seed Round Pitch & Technical Deep-Dive",
+            "meeting_type": "Pitch & Technical Deep-Dive",
+            "participant": "Michael Chen (General Partner, Apex Ventures)",
+            "investor_name": "Michael Chen",
+            "investor_firm": "Apex Ventures",
+            "founder_name": "Sarah Lin",
+            "startup_name": "EcoTrace AI",
+            "time": "Tomorrow, 3:30 PM EST",
+            "scheduled_at": "2026-03-05T15:30:00Z",
+            "meeting_link": "https://meet.google.com/i2i-apex-pitch",
+            "status": "Confirmed",
+            "agenda": "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for $1.2M Seed Ask."
+        },
+        {
+            "id": "mtg-inv-02",
+            "title": "Series Seed Due Diligence Sync",
+            "meeting_type": "Due Diligence & Cap Table Review",
+            "participant": "Sophia Zhang (Horizon Capital)",
+            "investor_name": "Sophia Zhang",
+            "investor_firm": "Horizon Capital",
+            "founder_name": "Sarah Lin",
+            "startup_name": "EcoTrace AI",
+            "time": "Friday, 11:00 AM EST",
+            "scheduled_at": "2026-03-06T11:00:00Z",
+            "meeting_link": "https://meet.google.com/i2i-horizon-dd",
+            "status": "Confirmed",
+            "agenda": "Enterprise pipeline evaluation, ESG data compliance benchmarks, and customer retention metrics."
         }
     ]
 }
@@ -868,7 +952,15 @@ class Database:
             try:
                 with open(DB_FILE, "r", encoding="utf-8") as f:
                     self._data = json.load(f)
+                    for k, v in INITIAL_DATA.items():
+                        if k not in self._data:
+                            self._data[k] = json.loads(json.dumps(v))
+                    existing_msg_ids = {m.get("id") for m in self._data.get("messages", [])}
+                    for m in INITIAL_DATA.get("messages", []):
+                        if m.get("id") not in existing_msg_ids:
+                            self._data.setdefault("messages", []).append(m)
                     self._migrate_users()
+                    self.save()
                     return
             except Exception as e:
                 print(f"Error loading {DB_FILE}, resetting to initial data: {e}")

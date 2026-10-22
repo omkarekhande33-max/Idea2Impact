@@ -1640,4 +1640,37 @@ def send_message(payload: MessageCreate):
     db.log_audit("Direct Message Sent", payload.sender_id, f"Message sent from {payload.sender_role} to {payload.receiver_role} ({payload.channel} channel)")
     return {"success": True, "message": "Message sent successfully", "data": record}
 
+@router.get("/meetings")
+def list_meetings(user_id: Optional[str] = Query(None)):
+    """Retrieve scheduled meetings."""
+    meetings = db.get_table("meetings")
+    if user_id and isinstance(user_id, str):
+        meetings = [m for m in meetings if m.get("user_id") == user_id or m.get("participant_id") == user_id or m.get("founder_id") == user_id or m.get("investor_id") == user_id]
+    return sorted(meetings, key=lambda m: m.get("scheduled_at", ""), reverse=True)
+
+@router.post("/meetings")
+def schedule_meeting(payload: dict):
+    """Schedule a new pitch or technical meeting."""
+    meet_id = payload.get("id") or f"mtg-{str(uuid.uuid4())[:8]}"
+    record = {
+        "id": meet_id,
+        "title": payload.get("title", "Investor Pitch & Technical Sync"),
+        "meeting_type": payload.get("meeting_type", "Pitch Sync"),
+        "participant": payload.get("participant", "Investor Partner"),
+        "investor_name": payload.get("investor_name", "Michael Chen"),
+        "investor_firm": payload.get("investor_firm", "Apex Ventures"),
+        "founder_name": payload.get("founder_name", "Sarah Lin"),
+        "startup_name": payload.get("startup_name", "EcoTrace AI"),
+        "time": payload.get("time", "Tomorrow, 3:30 PM EST"),
+        "scheduled_at": payload.get("scheduled_at") or datetime.now(timezone.utc).isoformat(),
+        "meeting_link": payload.get("meeting_link") or f"https://meet.google.com/i2i-{str(uuid.uuid4())[:6]}",
+        "status": payload.get("status", "Confirmed"),
+        "agenda": payload.get("agenda", "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and term sheet parameters."),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    db.insert("meetings", record)
+    db.log_audit("Meeting Scheduled", payload.get("founder_id", "founder"), f"Scheduled {record['meeting_type']} with {record['investor_name']}")
+    return {"success": True, "message": "Meeting scheduled successfully", "data": record}
+
+
 

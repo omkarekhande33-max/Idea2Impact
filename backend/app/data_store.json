@@ -19225,6 +19225,58 @@
       "channel": "candidate",
       "timestamp": "2026-10-22T15:40:06.525409+00:00",
       "is_read": false
+    },
+    {
+      "id": "msg-14",
+      "sender_id": "inv-01",
+      "sender_role": "investor",
+      "sender_name": "Michael Chen (Apex Ventures)",
+      "receiver_id": "found-01",
+      "receiver_role": "founder",
+      "receiver_name": "Sarah Lin",
+      "text": "Hi Sarah, we reviewed your EcoTrace AI proposal and 92.5% readiness score. We are very interested in leading your $1.2M Seed round. What is your current ARR and enterprise pipeline?",
+      "channel": "investor",
+      "timestamp": "2026-03-02T15:20:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-15",
+      "sender_id": "found-01",
+      "sender_role": "founder",
+      "sender_name": "Sarah Lin",
+      "receiver_id": "inv-01",
+      "receiver_role": "investor",
+      "receiver_name": "Michael Chen (Apex Ventures)",
+      "text": "Hi Michael! We currently have $320k contracted ARR with 4 enterprise pilots converting next month. Our 75/25 technical team architecture has reduced onboarding from 6 weeks to 3 days.",
+      "channel": "investor",
+      "timestamp": "2026-03-02T15:45:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-16",
+      "sender_id": "inv-01",
+      "sender_role": "investor",
+      "sender_name": "Michael Chen (Apex Ventures)",
+      "receiver_id": "found-01",
+      "receiver_role": "founder",
+      "receiver_name": "Sarah Lin",
+      "text": "That is exceptional traction, Sarah. Let's schedule a formal pitch meeting this Thursday to review term sheet parameters.",
+      "channel": "investor",
+      "timestamp": "2026-03-02T16:10:00Z",
+      "is_read": false
+    },
+    {
+      "id": "msg-17",
+      "sender_id": "inv-02",
+      "sender_role": "investor",
+      "sender_name": "Sophia Zhang (Horizon Capital)",
+      "receiver_id": "found-01",
+      "receiver_role": "founder",
+      "receiver_name": "Sarah Lin",
+      "text": "Hello Sarah, loving the Gemini Pro role generation specs you published. Would love to connect for a 30-min intro sync on Thursday.",
+      "channel": "investor",
+      "timestamp": "2026-03-03T11:00:00Z",
+      "is_read": true
     }
   ]
 }
