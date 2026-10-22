@@ -34,6 +34,108 @@ const DEMO_ACCOUNTS = {
   victoria: { id: 'inv-01', username: 'victoria', full_name: 'Victoria Sterling', role: 'investor', title: 'Partner, Apex Frontier VC', email: 'v.sterling@apexfrontier.vc', avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150', bio: 'Early-stage deeptech and AI investor looking for verified traction.' }
 };
 
+export const DEFAULT_CANDIDATE_PROFILES = [
+  {
+    id: 'cand-01',
+    username: 'alexrivera',
+    full_name: 'Alex Rivera',
+    name: 'Alex Rivera',
+    role: 'candidate',
+    target_role: 'Senior Full-Stack Engineer',
+    title: 'Senior Full-Stack Engineer',
+    email: 'alex.rivera@example.com',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    bio: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.',
+    summary: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.',
+    experience_years: 4,
+    education: 'B.S. in Computer Science, Georgia Tech',
+    skills: ['Python & FastAPI', 'PostgreSQL & Database Design', 'Distributed Systems', 'Docker & Kubernetes', 'Modern JavaScript & Frontend']
+  },
+  {
+    id: 'cand-02',
+    username: 'priyasharma',
+    full_name: 'Priya Sharma',
+    name: 'Priya Sharma',
+    role: 'candidate',
+    target_role: 'AI / Machine Learning Engineer',
+    title: 'AI / Machine Learning Engineer',
+    email: 'priya.sharma@example.com',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+    bio: 'AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.',
+    summary: 'AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.',
+    experience_years: 3,
+    education: 'M.S. in Artificial Intelligence, Carnegie Mellon',
+    skills: ['Python & FastAPI', 'AI & LLM Integration', 'Python']
+  },
+  {
+    id: 'cand-03',
+    username: 'jordanlee',
+    full_name: 'Jordan Lee',
+    name: 'Jordan Lee',
+    role: 'candidate',
+    target_role: 'Frontend Software Engineer',
+    title: 'Frontend Software Engineer',
+    email: 'jordan.lee@example.com',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    bio: 'Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.',
+    summary: 'Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.',
+    experience_years: 2,
+    education: 'B.A. in Interactive Design & CS, University of Washington',
+    skills: ['Modern JavaScript & Frontend', 'React', 'TypeScript', 'UI/UX']
+  },
+  {
+    id: 'cand-3354dd',
+    username: 'tiger',
+    full_name: 'rushikesh wagh',
+    name: 'rushikesh wagh',
+    role: 'candidate',
+    target_role: 'Senior Software Engineer specializing in AI',
+    title: 'Senior Software Engineer specializing in AI',
+    email: 'rushikeshwagh2501@gmail.com',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh%20wagh',
+    bio: 'Senior Software Engineer specializing in AI & distributed systems.',
+    summary: 'Senior Software Engineer specializing in AI & distributed systems.',
+    experience_years: 4,
+    education: 'B.Tech in Computer Science',
+    skills: ['Python & FastAPI', 'AI & LLM Integration', 'Cloud Architecture', 'Distributed Systems'],
+    is_registered: true
+  },
+  {
+    id: 'cand-291eba',
+    username: 'testuser99',
+    full_name: 'Test User',
+    name: 'Test User',
+    role: 'candidate',
+    target_role: 'Full-Stack Software Engineer',
+    title: 'Full-Stack Software Engineer',
+    email: 'testuser99@gmail.com',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Test%20User',
+    bio: 'Full stack software engineer with verified skill passport.',
+    summary: 'Full stack software engineer with verified skill passport.',
+    experience_years: 2,
+    education: 'B.S. in Computer Science',
+    skills: ['Python & FastAPI', 'PostgreSQL & Database Design', 'Modern JavaScript & Frontend'],
+    is_registered: true
+  },
+  {
+    id: 'cand-15d122',
+    username: 'aaravpatel',
+    full_name: 'Aarav Patel',
+    name: 'Aarav Patel',
+    role: 'candidate',
+    target_role: 'Full-Stack Cloud Engineer',
+    title: 'Full-Stack Cloud Engineer',
+    email: 'aarav.patel@test.io',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Aarav%20Patel',
+    bio: 'Full Stack Developer with Python, React and Cloud experience.',
+    summary: 'Full Stack Developer with Python, React and Cloud experience.',
+    experience_years: 3,
+    education: 'B.S. in Software Engineering',
+    skills: ['Python & FastAPI', 'Cloud Architecture', 'React', 'Docker & Kubernetes'],
+    is_registered: true
+  }
+];
+
 function getLocalUsers() {
   try {
     const raw = localStorage.getItem(LOCAL_USERS_KEY);
@@ -320,10 +422,18 @@ class ApiService {
     const local = getLocalUsers().filter(u => !role || u.role === role);
     const combined = Array.isArray(serverProfiles) ? [...serverProfiles] : [];
     local.forEach(lu => {
-      if (!combined.some(cp => cp.id === lu.id || (lu.email && cp.email === lu.email))) {
+      if (!combined.some(cp => cp.id === lu.id || (lu.email && cp.email === lu.email) || (lu.username && cp.username === lu.username))) {
         combined.push(lu);
       }
     });
+
+    if (!role || role === 'candidate') {
+      DEFAULT_CANDIDATE_PROFILES.forEach(dp => {
+        if (!combined.some(cp => cp.id === dp.id || (dp.email && cp.email === dp.email) || (dp.username && cp.username === dp.username))) {
+          combined.push(dp);
+        }
+      });
+    }
 
     return combined;
   }

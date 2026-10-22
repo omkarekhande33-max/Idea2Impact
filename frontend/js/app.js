@@ -7201,91 +7201,79 @@ class App {
     // Contacts setup
     let contacts = [];
     if (channel === 'candidate') {
-      const demoAccountIds = new Set(['cand-01', 'cand-02', 'cand-03', 'cand-skills-test-01']);
-      const demoAccountNames = new Set(['alex rivera', 'priya sharma', 'jordan lee', 'test candidate']);
-      const demoAccountEmails = new Set(['alex.rivera@example.com', 'priya.sharma@example.com', 'jordan.lee@example.com', 'test.candidate@example.com']);
-      const demoAccountUsernames = new Set(['alex', 'alexrivera', 'candidate', 'priyasharma', 'jordanlee', 'testcandidate']);
+      const allCandidateSources = [];
 
-      const isDemoCandidate = (u) => {
-        if (!u) return true;
-        const id = (u.id || '').toLowerCase().trim();
-        const name = (u.full_name || u.name || '').toLowerCase().trim();
-        const email = (u.email || '').toLowerCase().trim();
-        const username = (u.username || '').toLowerCase().trim();
-        return demoAccountIds.has(id) || demoAccountNames.has(name) || demoAccountEmails.has(email) || demoAccountUsernames.has(username);
-      };
-
-      // 1. Real candidates from server profiles (api.getProfiles('candidate'))
+      // 1. Server profiles or profiles passed in candidates
       if (Array.isArray(candidates)) {
-        candidates.forEach(c => {
-          if (!isDemoCandidate(c) && !contacts.some(cc => cc.id === c.id || (c.email && cc.email === c.email))) {
-            contacts.push({
-              id: c.id,
-              name: c.full_name || c.name || 'Candidate',
-              roleTitle: c.target_role || c.title || 'Verified Candidate',
-              avatar: c.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(c.full_name || c.name || 'Candidate')}`,
-              badge: 'Registered User',
-              verifiedSkill: c.bio || 'Verified Candidate Account',
-              email: c.email || `${c.username || 'candidate'}@idea2impact.dev`
-            });
-          }
-        });
+        allCandidateSources.push(...candidates);
       }
 
-      // 2. Real candidates from localStorage ('i2i_registered_users')
+      // 2. Candidates from localStorage ('i2i_registered_users')
       try {
         const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
         localUsers.forEach(u => {
-          if (u.role === 'candidate' && !isDemoCandidate(u) && !contacts.some(cc => cc.id === u.id || (u.email && cc.email === u.email))) {
-            contacts.push({
-              id: u.id,
-              name: u.full_name || u.name || 'Candidate',
-              roleTitle: u.target_role || u.title || 'Registered Candidate',
-              avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.full_name || u.name || 'Candidate')}`,
-              badge: 'Registered User',
-              verifiedSkill: u.bio || 'Verified Candidate Account',
-              email: u.email || `${u.username || 'candidate'}@idea2impact.dev`
-            });
+          if (u.role === 'candidate') {
+            allCandidateSources.push(u);
           }
         });
       } catch (e) {}
 
-      // 3. Active user if candidate
-      if (state.activeUser && state.activeUser.role === 'candidate' && !isDemoCandidate(state.activeUser)) {
-        if (!contacts.some(cc => cc.id === state.activeUser.id || (state.activeUser.email && cc.email === state.activeUser.email))) {
-          contacts.unshift({
-            id: state.activeUser.id,
-            name: state.activeUser.name || 'Current Candidate',
-            roleTitle: state.activeUser.title || 'Active Candidate Account',
-            avatar: state.activeUser.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser.name)}`,
-            badge: 'Active User',
-            verifiedSkill: 'Current Candidate Session',
-            email: state.activeUser.email || 'candidate@idea2impact.dev'
-          });
-        }
+      // 3. Built-in candidate profiles catalog to guarantee ALL candidates are visible even offline
+      const defaultCandidates = [
+        { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', badge: 'Registered User', isRegistered: true },
+        { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', bio: 'Full stack software engineer with verified skill passport.', badge: 'Registered User', isRegistered: true },
+        { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', bio: 'Full Stack Developer with Python, React and Cloud experience.', badge: 'Registered User', isRegistered: true },
+        { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', bio: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.', badge: 'Registered User', isRegistered: true },
+        { id: 'cand-02', name: 'Priya Sharma', full_name: 'Priya Sharma', email: 'priya.sharma@example.com', target_role: 'AI / Machine Learning Engineer', bio: 'AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.', badge: 'Registered User', isRegistered: true },
+        { id: 'cand-03', name: 'Jordan Lee', full_name: 'Jordan Lee', email: 'jordan.lee@example.com', target_role: 'Frontend Software Engineer', bio: 'Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.', badge: 'Registered User', isRegistered: true }
+      ];
+      allCandidateSources.push(...defaultCandidates);
+
+      // 4. Active user if candidate
+      if (state.activeUser && state.activeUser.role === 'candidate') {
+        allCandidateSources.unshift(state.activeUser);
       }
 
-      // 4. Any real candidate found in allMessages
+      // 5. Any candidate found in allMessages
       if (Array.isArray(allMessages)) {
         allMessages.forEach(m => {
           if (m.channel === 'candidate') {
             const isCandSender = m.sender_role === 'candidate';
             const candId = isCandSender ? m.sender_id : (m.receiver_role === 'candidate' ? m.receiver_id : null);
             const candName = isCandSender ? m.sender_name : (m.receiver_role === 'candidate' ? m.receiver_name : null);
-            if (candId && candName && !isDemoCandidate({ id: candId, name: candName }) && !contacts.some(cc => cc.id === candId)) {
-              contacts.push({
-                id: candId,
-                name: candName,
-                roleTitle: 'Registered Candidate',
-                avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candName)}`,
-                badge: 'Active Conversation',
-                verifiedSkill: 'Direct Messaging',
-                email: `${candName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
-              });
+            if (candId && candName) {
+              allCandidateSources.push({ id: candId, full_name: candName, name: candName, target_role: 'Registered Candidate' });
             }
           }
         });
       }
+
+      // Deduplicate into contacts
+      allCandidateSources.forEach(c => {
+        const cId = c.id || c.candidate_id;
+        const cName = c.full_name || c.name || c.username;
+        const cEmail = c.email || '';
+        if (!cId && !cName) return;
+
+        const exists = contacts.some(cc => 
+          (cId && cc.id === cId) || 
+          (cEmail && cc.email && cc.email.toLowerCase() === cEmail.toLowerCase()) || 
+          (cName && cc.name && cc.name.toLowerCase().trim() === cName.toLowerCase().trim())
+        );
+
+        if (!exists) {
+          const roleTitle = c.target_role || c.title || (c.bio && c.bio.length < 40 ? c.bio : 'Full-Stack Developer');
+          contacts.push({
+            id: cId || `cand-${Math.random().toString(36).substring(2, 8)}`,
+            name: cName || 'Candidate',
+            roleTitle: roleTitle,
+            avatar: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cName || 'Candidate')}`,
+            badge: 'Registered User',
+            verifiedSkill: c.bio || c.summary || 'Verified Candidate Account',
+            email: cEmail || `${(cName || 'candidate').toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+          });
+        }
+      });
     } else {
       contacts = [
         {
@@ -7948,6 +7936,20 @@ class App {
               }
             });
           } catch (e) {}
+
+          const defaultCands = [
+            { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', is_registered: true },
+            { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', bio: 'Full stack software engineer with verified skill passport.', is_registered: true },
+            { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', bio: 'Full Stack Developer with Python, React and Cloud experience.', is_registered: true },
+            { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', bio: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.' },
+            { id: 'cand-02', name: 'Priya Sharma', full_name: 'Priya Sharma', email: 'priya.sharma@example.com', target_role: 'AI / Machine Learning Engineer', bio: 'AI & ML Engineer focused on LLM pipelines, RAG systems, and high-performance inference.' },
+            { id: 'cand-03', name: 'Jordan Lee', full_name: 'Jordan Lee', email: 'jordan.lee@example.com', target_role: 'Frontend Software Engineer', bio: 'Frontend Engineer & UI Architect proficient in responsive layouts, component libraries, and TypeScript.' }
+          ];
+          defaultCands.forEach(dc => {
+            if (!allCandidateProfiles.some(c => c.id === dc.id || (dc.email && c.email === dc.email))) {
+              allCandidateProfiles.push(dc);
+            }
+          });
 
           // Also check state.activeUser if candidate
           if (state.activeUser && state.activeUser.role === 'candidate') {
