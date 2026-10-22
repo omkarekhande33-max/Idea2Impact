@@ -123,7 +123,9 @@ class App {
             { label: 'Founder Hiring Specs', tab: 'hiring-requests' },
             { label: 'Post 75/25 Job', tab: 'create-job' },
             { label: 'Candidate Dossier', tab: 'candidates' },
-            { label: 'Pipeline Kanban', tab: 'pipeline' }
+            { label: 'Candidate Messages', tab: 'candidate-messages' },
+            { label: 'Founder Messages', tab: 'founder-messages' },
+            { label: 'Interviews & Offers', tab: 'interviews' }
           ],
           founder: [
             { label: 'Startup Overview', tab: 'overview' },
@@ -886,7 +888,7 @@ class App {
                 </p>
                 <ul style="font-size:0.82rem; color:var(--text-main); list-style:none; display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.25rem;">
                   <li>✓ Transparent Formula: (Matched / Total) * 100</li>
-                  <li>✓ Stage Pipeline Kanban Board</li>
+                  <li>✓ Direct Candidate & Founder Messaging</li>
                   <li>✓ Interview Scheduler & Offer Delivery</li>
                 </ul>
               </div>
@@ -4531,12 +4533,14 @@ class App {
     let candidates = [];
     let applications = [];
     let sharedHiringRequests = [];
+    let allMessages = [];
 
     try {
-      [jobs, candidates, sharedHiringRequests] = await Promise.all([
+      [jobs, candidates, sharedHiringRequests, allMessages] = await Promise.all([
         api.getMyJobs(hrId).catch(() => api.getJobs()),
         api.getProfiles('candidate'),
-        api.getSharedHiringRequests().catch(() => [])
+        api.getSharedHiringRequests().catch(() => []),
+        api.getMessages().catch(() => [])
       ]);
       if (jobs.length > 0) {
         applications = await api.request(`/applications/job/${jobs[0].id}`).catch(() => []);
@@ -4546,6 +4550,8 @@ class App {
     }
 
     const currentTab = state.activeTab;
+    const candidateUnread = (allMessages || []).filter(m => m.channel === 'candidate' && !m.is_read && m.sender_role !== 'hr').length;
+    const founderUnread = (allMessages || []).filter(m => m.channel === 'founder' && !m.is_read && m.sender_role !== 'hr').length;
 
     this.appContainer.innerHTML = `
       <div class="container">
@@ -4578,9 +4584,13 @@ class App {
                 <span class="sidebar-link-content">🎯 Candidate Pipeline Dossier</span>
                 <span class="sidebar-badge">${candidates.length}</span>
               </button>
-              <button class="sidebar-link ${currentTab === 'pipeline' ? 'active' : ''}" data-tab="pipeline">
-                <span class="sidebar-link-content">📋 Pipeline Kanban</span>
-                <span class="sidebar-badge">${applications.length}</span>
+              <button class="sidebar-link ${currentTab === 'candidate-messages' ? 'active' : ''}" data-tab="candidate-messages">
+                <span class="sidebar-link-content">💬 Candidate Messages</span>
+                <span class="sidebar-badge" style="background:#2563EB; color:#fff;">${candidateUnread || 1}</span>
+              </button>
+              <button class="sidebar-link ${currentTab === 'founder-messages' ? 'active' : ''}" data-tab="founder-messages">
+                <span class="sidebar-link-content">🤝 Founder Messages</span>
+                <span class="sidebar-badge" style="background:#10B981; color:#fff;">${founderUnread || 1}</span>
               </button>
               <button class="sidebar-link ${currentTab === 'interviews' ? 'active' : ''}" data-tab="interviews">
                 <span class="sidebar-link-content">📅 Interviews & Offers</span>
@@ -4590,7 +4600,7 @@ class App {
 
           <!-- Main Content -->
           <div class="dashboard-content" id="hr-content-area">
-            ${this.renderHrTabContent(currentTab, { jobs, candidates, applications, sharedHiringRequests, hrId })}
+            ${this.renderHrTabContent(currentTab, { jobs, candidates, applications, sharedHiringRequests, allMessages, hrId })}
           </div>
         </div>
       </div>
@@ -4600,7 +4610,7 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachHrEvents({ jobs, candidates, sharedHiringRequests, hrId });
+    this.attachHrEvents({ jobs, candidates, sharedHiringRequests, allMessages, hrId });
   }
 
   renderHrTabContent(tab, data) {
@@ -4911,68 +4921,12 @@ class App {
       `;
     }
 
-    if (tab === 'pipeline') {
-      return `
-        <div class="dashboard-header">
-          <div class="dashboard-title">
-            <h2>Candidate Application Kanban Pipeline</h2>
-            <p>Manage candidate stages from initial application to offer letter.</p>
-          </div>
-        </div>
+    if (tab === 'pipeline' || tab === 'candidate-messages') {
+      return this.renderHrMessagesTab('candidate', data);
+    }
 
-        <div class="kanban-board">
-          <div class="kanban-col">
-            <div class="kanban-col-title">
-              <span>Applied</span>
-              <span class="badge" style="background:#E2E8F0;">1</span>
-            </div>
-            <div class="kanban-item">
-              <b>Jordan Lee</b>
-              <span style="font-size:0.75rem; color:var(--text-muted);">Frontend Engineer</span>
-              <button class="btn btn-sm btn-outline advance-stage-btn" data-app="app-03" data-next="Under Review">Advance →</button>
-            </div>
-          </div>
-
-          <div class="kanban-col">
-            <div class="kanban-col-title">
-              <span>Under Review</span>
-              <span class="badge" style="background:#E2E8F0;">0</span>
-            </div>
-          </div>
-
-          <div class="kanban-col">
-            <div class="kanban-col-title">
-              <span>Shortlisted</span>
-              <span class="badge" style="background:var(--accent-light); color:var(--accent-dark);">1</span>
-            </div>
-            <div class="kanban-item">
-              <b>Priya Sharma</b>
-              <span style="font-size:0.75rem; color:var(--text-muted);">AI Systems (85% Match)</span>
-              <button class="btn btn-sm btn-secondary advance-stage-btn" data-app="app-02" data-next="Interview Scheduled">Schedule Interview →</button>
-            </div>
-          </div>
-
-          <div class="kanban-col">
-            <div class="kanban-col-title">
-              <span>Interview Scheduled</span>
-              <span class="badge" style="background:var(--secondary); color:#fff;">1</span>
-            </div>
-            <div class="kanban-item">
-              <b>Alex Rivera</b>
-              <span style="font-size:0.75rem; color:var(--text-muted);">Full-Stack (94% Match)</span>
-              <span style="font-size:0.7rem; color:var(--success);">📅 Confirmed Technical Round</span>
-              <button class="btn btn-sm btn-accent advance-stage-btn" data-app="app-01" data-next="Offer Extended">Extend Offer Letter →</button>
-            </div>
-          </div>
-
-          <div class="kanban-col">
-            <div class="kanban-col-title">
-              <span>Offer Extended</span>
-              <span class="badge" style="background:var(--success-bg); color:var(--success);">0</span>
-            </div>
-          </div>
-        </div>
-      `;
+    if (tab === 'founder-messages') {
+      return this.renderHrMessagesTab('founder', data);
     }
 
     if (tab === 'interviews') {
@@ -5137,8 +5091,289 @@ class App {
     return '';
   }
 
+  renderHrMessagesTab(channel, data) {
+    const { candidates, sharedHiringRequests, allMessages = [], hrId } = data;
+
+    // Contacts setup
+    let contacts = [];
+    if (channel === 'candidate') {
+      contacts = [
+        {
+          id: 'cand-01',
+          name: 'Alex Rivera',
+          roleTitle: 'Senior Full-Stack Engineer',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          badge: '94% Match',
+          verifiedSkill: 'Python & FastAPI',
+          email: 'alex.rivera@example.com'
+        },
+        {
+          id: 'cand-02',
+          name: 'Priya Sharma',
+          roleTitle: 'AI & ML Systems Engineer',
+          avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+          badge: '85% Match',
+          verifiedSkill: 'AI & LLM Integration',
+          email: 'priya.sharma@example.com'
+        },
+        {
+          id: 'cand-03',
+          name: 'Jordan Lee',
+          roleTitle: 'Frontend Engineer & UI Architect',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+          badge: '78% Match',
+          verifiedSkill: 'Modern JavaScript & Frontend',
+          email: 'jordan.lee@example.com'
+        }
+      ];
+      if (Array.isArray(candidates)) {
+        candidates.forEach(c => {
+          if (!contacts.some(cc => cc.id === c.id)) {
+            contacts.push({
+              id: c.id,
+              name: c.full_name || c.name || 'Candidate',
+              roleTitle: c.target_role || 'Engineering Candidate',
+              avatar: c.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+              badge: 'Verified Candidate',
+              verifiedSkill: 'Core Verified Skills',
+              email: c.email || 'candidate@idea2impact.dev'
+            });
+          }
+        });
+      }
+    } else {
+      contacts = [
+        {
+          id: 'found-01',
+          name: 'Sarah Lin',
+          roleTitle: 'Founder & CEO, EcoTrace AI',
+          company: 'EcoTrace AI',
+          stage: 'Seed Round ($750k)',
+          avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
+          badge: 'Active Hiring Spec',
+          verifiedSkill: 'Lead Backend Engineer',
+          email: 'sarah.lin@ecotrace.ai'
+        },
+        {
+          id: 'found-02',
+          name: 'Marcus Vance',
+          roleTitle: 'Founder & CTO, HyperScale Data',
+          company: 'HyperScale Data',
+          stage: 'Series A ($3.2M)',
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+          badge: 'Cloud Architecture Spec',
+          verifiedSkill: 'Distributed Systems',
+          email: 'marcus@hyperscale.io'
+        }
+      ];
+      if (Array.isArray(sharedHiringRequests)) {
+        sharedHiringRequests.forEach(req => {
+          const fId = req.founder_id || `found-req-${req.id}`;
+          if (!contacts.some(fc => fc.id === fId || fc.name === req.founder_name)) {
+            contacts.push({
+              id: fId,
+              name: req.founder_name || 'Founder',
+              roleTitle: `Founder, ${req.idea_title || req.startup_name || 'Portfolio Startup'}`,
+              company: req.idea_title || req.startup_name || 'Venture',
+              stage: req.investment_required?.stage || 'Seed',
+              avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
+              badge: 'Gemini Spec Shared',
+              verifiedSkill: req.roles?.[0]?.title || 'Key Role Spec',
+              email: req.founder_email || 'founder@idea2impact.dev'
+            });
+          }
+        });
+      }
+    }
+
+    this.activeContactId = this.activeContactId || {};
+    const activeId = this.activeContactId[channel] || contacts[0].id;
+    const activeContact = contacts.find(c => c.id === activeId) || contacts[0];
+
+    const threadMessages = allMessages.filter(m =>
+      m.channel === channel &&
+      (m.sender_id === activeContact.id || m.receiver_id === activeContact.id)
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const quickChips = channel === 'candidate' ? [
+      '📅 Schedule Technical Interview',
+      '🌟 Impressive 75/25 Assessment Score!',
+      '💼 Discuss Compensation & Start Date',
+      '📄 Request Verified Skills Passport PDF'
+    ] : [
+      '✅ 75/25 Hiring Spec Received & Active',
+      '👥 Shortlisted 2 Candidates (>80% Match)',
+      '📊 Dual-Tier Competency Breakdown Ready',
+      '🤝 Align on Interview Round Structure'
+    ];
+
+    const isCandidate = channel === 'candidate';
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:0.75rem;">
+        <div class="dashboard-title">
+          <h2>${isCandidate ? '💬 Candidate Direct Messages' : '🤝 Founder Direct Messages'}</h2>
+          <p>${isCandidate 
+            ? 'Communicate in real time with verified candidates, discuss 75/25 competency matches, and coordinate technical interviews.'
+            : 'Collaborate directly with startup founders on 75/25 hiring specs, shortlist reviews, and role requirements.'}</p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <span class="badge ${isCandidate ? 'badge-role' : 'badge-verified'}" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
+            ⚡ Real-Time 2-Way Messaging Active
+          </span>
+        </div>
+      </div>
+
+      <div class="hr-messages-wrapper" id="hr-messages-container" data-channel="${channel}">
+        <!-- Left Contacts List -->
+        <div class="hr-messages-sidebar">
+          <div class="hr-contacts-header">
+            <div class="hr-contacts-search">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="hr-contacts-search-input" placeholder="Search ${isCandidate ? 'candidates' : 'founders'}..." />
+            </div>
+          </div>
+
+          <div class="hr-contacts-list" id="hr-contacts-list">
+            ${contacts.map(c => {
+              const cMsgs = allMessages.filter(m =>
+                m.channel === channel && (m.sender_id === c.id || m.receiver_id === c.id)
+              ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+              const last = cMsgs[cMsgs.length - 1];
+              const unread = cMsgs.filter(m => !m.is_read && m.sender_role !== 'hr').length;
+              const isActive = c.id === activeContact.id;
+              const timeStr = last ? new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
+
+              return `
+                <div class="hr-contact-item ${isActive ? 'active' : ''}" data-contact-id="${c.id}" data-contact-name="${c.name}">
+                  <div class="hr-contact-avatar-wrap">
+                    <img src="${c.avatar}" alt="${c.name}" class="hr-contact-avatar" />
+                    <span class="hr-contact-status-dot"></span>
+                  </div>
+                  <div class="hr-contact-info">
+                    <div class="hr-contact-top-row">
+                      <span class="hr-contact-name">${c.name}</span>
+                      <span class="hr-contact-time">${timeStr}</span>
+                    </div>
+                    <div class="hr-contact-sub">
+                      <span class="badge ${isCandidate ? 'badge-verified' : 'badge-role'}" style="font-size:0.65rem; padding:0.1rem 0.35rem;">
+                        ${c.badge}
+                      </span>
+                      <span>${c.roleTitle}</span>
+                    </div>
+                    <span class="hr-contact-last-msg">
+                      ${last ? (last.sender_role === 'hr' ? 'You: ' : '') + last.text : 'Start conversation...'}
+                    </span>
+                  </div>
+                  ${unread > 0 ? `<span class="hr-contact-unread-badge">${unread}</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Right Chat Workspace -->
+        <div class="hr-chat-pane">
+          <!-- Chat Header -->
+          <div class="hr-chat-header">
+            <div class="hr-chat-header-user">
+              <img src="${activeContact.avatar}" alt="${activeContact.name}" class="hr-chat-header-avatar" />
+              <div class="hr-chat-header-details">
+                <h4>
+                  ${activeContact.name}
+                  <span class="badge ${isCandidate ? 'badge-verified' : 'badge-role'}" style="font-size:0.7rem;">
+                    ${activeContact.badge}
+                  </span>
+                </h4>
+                <p>
+                  ${activeContact.roleTitle} • ✉️ ${activeContact.email}
+                </p>
+              </div>
+            </div>
+
+            <div class="hr-chat-header-actions">
+              ${isCandidate ? `
+                <button class="btn btn-secondary btn-sm" id="hr-chat-schedule-interview-btn" data-candidate="${activeContact.id}" data-name="${activeContact.name}">
+                  📅 Schedule Interview
+                </button>
+                <button class="btn btn-outline btn-sm" id="hr-chat-view-dossier-btn">
+                  🎯 View Dossier
+                </button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" id="hr-chat-view-spec-btn">
+                  📥 View Hiring Spec
+                </button>
+                <button class="btn btn-outline btn-sm" id="hr-chat-shortlist-btn" data-founder="${activeContact.id}">
+                  👥 Match Pipeline
+                </button>
+              `}
+              <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="hr-chat-simulate-btn" title="Simulate incoming response from ${activeContact.name}">
+                ⚡ Simulate Incoming Reply
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Thread Container -->
+          <div class="hr-chat-messages-container" id="hr-chat-messages-container">
+            <div class="hr-chat-date-pill">Conversation with ${activeContact.name}</div>
+
+            ${threadMessages.length === 0 ? `
+              <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+                <h4 style="color:var(--primary); margin-bottom:0.25rem;">No messages exchanged yet</h4>
+                <p style="font-size:0.85rem;">Send a direct message below to start coordinating with ${activeContact.name}.</p>
+              </div>
+            ` : threadMessages.map(m => {
+              const isHr = m.sender_role === 'hr';
+              const senderAvatar = isHr
+                ? (state.activeUser.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150')
+                : activeContact.avatar;
+              const senderLabel = isHr ? 'You (Elena Rostova • HR)' : `${activeContact.name} (${isCandidate ? 'Candidate' : 'Founder'})`;
+              const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+              return `
+                <div class="hr-msg-row ${isHr ? 'outgoing' : 'incoming'}">
+                  <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+                  <div class="hr-msg-content">
+                    <span class="hr-msg-sender-name">${senderLabel}</span>
+                    <div class="hr-msg-bubble">${m.text}</div>
+                    <span class="hr-msg-time">${timeDisplay}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            <div id="hr-chat-typing-slot"></div>
+          </div>
+
+          <!-- Quick Replies Bar -->
+          <div class="hr-quick-replies-bar">
+            <span style="font-size:0.75rem; color:#94A3B8; font-weight:700; align-self:center; margin-right:0.25rem;">Quick:</span>
+            ${quickChips.map(chip => `
+              <button type="button" class="hr-quick-chip" data-text="${chip}">${chip}</button>
+            `).join('')}
+          </div>
+
+          <!-- Input Area -->
+          <div class="hr-chat-input-area">
+            <input
+              type="text"
+              class="hr-chat-input-field"
+              id="hr-chat-input"
+              placeholder="Type message to ${activeContact.name}... (Press Enter to send)"
+              autocomplete="off"
+            />
+            <button class="hr-chat-send-btn" id="hr-chat-send-btn">
+              <span>Send</span> ✈️
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   async attachHrEvents(data) {
-    const { jobs, hrId, sharedHiringRequests } = data;
+    const { jobs, hrId, sharedHiringRequests, allMessages = [] } = data;
 
     // Navigation buttons
     const topPostBtn = this.appContainer.querySelector('#hr-top-post-btn');
@@ -5682,13 +5917,281 @@ class App {
       });
     }
 
-    // Advance Stage Buttons in Kanban
-    this.appContainer.querySelectorAll('.advance-stage-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const next = btn.dataset.next;
-        state.showToast(`Candidate stage advanced to: ${next}`, 'success');
+    // =========================================================================
+    // HR Direct Messaging (Candidate & Founder Channels) Logic
+    // =========================================================================
+    const msgContainer = this.appContainer.querySelector('#hr-messages-container');
+    if (msgContainer) {
+      const channel = msgContainer.dataset.channel || 'candidate';
+      const isCandidate = channel === 'candidate';
+      const contactsList = this.appContainer.querySelector('#hr-contacts-list');
+      const messagesBox = this.appContainer.querySelector('#hr-chat-messages-container');
+      const chatInput = this.appContainer.querySelector('#hr-chat-input');
+      const sendBtn = this.appContainer.querySelector('#hr-chat-send-btn');
+      const simulateBtn = this.appContainer.querySelector('#hr-chat-simulate-btn');
+      const searchInput = this.appContainer.querySelector('#hr-contacts-search-input');
+      const typingSlot = this.appContainer.querySelector('#hr-chat-typing-slot');
+
+      // Auto-scroll to bottom of conversation
+      if (messagesBox) {
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+      }
+
+      // Filter contacts via search input
+      if (searchInput && contactsList) {
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          contactsList.querySelectorAll('.hr-contact-item').forEach(item => {
+            const name = (item.dataset.contactName || '').toLowerCase();
+            const text = item.innerText.toLowerCase();
+            if (name.includes(query) || text.includes(query)) {
+              item.style.display = 'flex';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // Quick Reply Chips
+      this.appContainer.querySelectorAll('.hr-quick-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          if (chatInput) {
+            chatInput.value = chip.dataset.text;
+            chatInput.focus();
+          }
+        });
       });
-    });
+
+      // Switch active contact
+      this.appContainer.querySelectorAll('.hr-contact-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const contactId = item.dataset.contactId;
+          this.activeContactId = this.activeContactId || {};
+          this.activeContactId[channel] = contactId;
+          this.renderHrDashboard();
+        });
+      });
+
+      // Header Action buttons
+      const schedBtn = this.appContainer.querySelector('#hr-chat-schedule-interview-btn');
+      if (schedBtn) {
+        schedBtn.addEventListener('click', () => {
+          state.setTab('interviews');
+          state.showToast(`📅 Opened Interview Scheduler for ${schedBtn.dataset.name}`, 'info');
+        });
+      }
+
+      const dossierBtn = this.appContainer.querySelector('#hr-chat-view-dossier-btn');
+      if (dossierBtn) {
+        dossierBtn.addEventListener('click', () => {
+          state.setTab('candidates');
+        });
+      }
+
+      const specBtn = this.appContainer.querySelector('#hr-chat-view-spec-btn');
+      if (specBtn) {
+        specBtn.addEventListener('click', () => {
+          state.setTab('hiring-requests');
+        });
+      }
+
+      const shortlistBtn = this.appContainer.querySelector('#hr-chat-shortlist-btn');
+      if (shortlistBtn) {
+        shortlistBtn.addEventListener('click', () => {
+          state.setTab('candidates');
+          state.showToast('🎯 Matched Candidate Dossier loaded (>80% compatibility filter)', 'success');
+        });
+      }
+
+      // Helper to append message bubble to UI
+      const appendBubble = (senderRole, senderName, text, avatar, timestamp) => {
+        if (!messagesBox) return;
+        const isHr = senderRole === 'hr';
+        const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+        const senderLabel = isHr ? 'You (Elena Rostova • HR)' : `${senderName} (${isCandidate ? 'Candidate' : 'Founder'})`;
+
+        const row = document.createElement('div');
+        row.className = `hr-msg-row ${isHr ? 'outgoing' : 'incoming'}`;
+        row.innerHTML = `
+          <img src="${avatar}" alt="${senderName}" class="hr-msg-avatar" />
+          <div class="hr-msg-content">
+            <span class="hr-msg-sender-name">${senderLabel}</span>
+            <div class="hr-msg-bubble">${text}</div>
+            <span class="hr-msg-time">${timeDisplay}</span>
+          </div>
+        `;
+
+        if (typingSlot && typingSlot.parentNode === messagesBox) {
+          messagesBox.insertBefore(row, typingSlot);
+        } else {
+          messagesBox.appendChild(row);
+        }
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+      };
+
+      // Helper to simulate incoming reply
+      const triggerSimulatedReply = async (contactId, contactName, contactAvatar) => {
+        if (!typingSlot) return;
+
+        // Show typing indicator
+        typingSlot.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+            <img src="${contactAvatar}" style="width:28px; height:28px; border-radius:50%;" />
+            <div class="hr-typing-indicator">
+              <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">${contactName} is typing</span>
+              <span class="hr-typing-dot"></span>
+              <span class="hr-typing-dot"></span>
+              <span class="hr-typing-dot"></span>
+            </div>
+          </div>
+        `;
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+
+        // Simulate network / thinking delay
+        setTimeout(async () => {
+          typingSlot.innerHTML = '';
+
+          // Realistic contextual reply bank
+          let replyText = '';
+          if (isCandidate) {
+            const candReplies = {
+              'cand-01': [
+                "Thank you Elena! I'm excited about this opportunity. That time works great for me, and I'm ready to walk through our FastAPI production architecture.",
+                "Sounds excellent! I've also verified my PostgreSQL indexing and Docker deployment skills if the team wants to cover those in the technical round.",
+                "Thank you for the update! Looking forward to meeting the NovaTech engineering team."
+              ],
+              'cand-02': [
+                "Thanks Elena! I've accepted the calendar invite and will prepare a brief demo of our LLM fine-tuning and agentic RAG evaluation framework.",
+                "Great! I am eager to contribute to NovaTech's autonomous AI systems pipeline."
+              ],
+              'cand-03': [
+                "Thank you Elena! I will have my UI component showcase and design system repo ready for the walkthrough."
+              ]
+            };
+            const options = candReplies[contactId] || [
+              "Thank you Elena! I am very interested and available to discuss next steps anytime."
+            ];
+            replyText = options[Math.floor(Math.random() * options.length)];
+          } else {
+            const founderReplies = {
+              'found-01': [
+                "Fantastic news Elena! Alex Rivera's 94% match on our 75% core FastAPI & PostgreSQL requirement is exactly what EcoTrace AI needs. Let's fast-track his round 1 screen.",
+                "Thanks Elena! Could you also check if we have any candidates with secondary Docker/Kubernetes experience for our deployment runway?",
+                "Received, thanks! Please keep me posted on the interview feedback from our technical lead."
+              ],
+              'found-02': [
+                "Thanks Elena. The candidate dossier for HyperScale Data looks very solid. Let's arrange an architecture deep dive this week."
+              ]
+            };
+            const options = founderReplies[contactId] || [
+              "Thanks Elena! The candidate shortlist looks right on track with our 75/25 hiring specification."
+            ];
+            replyText = options[Math.floor(Math.random() * options.length)];
+          }
+
+          const savedReply = await api.sendMessage({
+            sender_id: contactId,
+            sender_role: channel,
+            sender_name: contactName,
+            receiver_id: hrId,
+            receiver_role: 'hr',
+            receiver_name: state.activeUser.name || 'Elena Rostova',
+            text: replyText,
+            channel: channel,
+            timestamp: new Date().toISOString()
+          });
+
+          appendBubble(channel, contactName, replyText, contactAvatar, savedReply.timestamp);
+          state.showToast(`📩 New message received from ${contactName}!`, 'info');
+
+          // Update active contact preview in sidebar
+          const activeContactEl = contactsList?.querySelector(`.hr-contact-item[data-contact-id="${contactId}"]`);
+          if (activeContactEl) {
+            const lastMsgEl = activeContactEl.querySelector('.hr-contact-last-msg');
+            if (lastMsgEl) lastMsgEl.innerText = replyText;
+            const timeEl = activeContactEl.querySelector('.hr-contact-time');
+            if (timeEl) timeEl.innerText = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+          }
+        }, 1300);
+      };
+
+      // Handler to send message from HR
+      const handleSendMessage = async () => {
+        if (!chatInput) return;
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        chatInput.value = '';
+        chatInput.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
+        const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-01' : 'found-01');
+        const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'Alex Rivera' : 'Sarah Lin');
+        const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+
+        const hrAvatar = state.activeUser.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+        const nowIso = new Date().toISOString();
+
+        appendBubble('hr', state.activeUser.name || 'Elena Rostova', text, hrAvatar, nowIso);
+
+        try {
+          await api.sendMessage({
+            sender_id: hrId,
+            sender_role: 'hr',
+            sender_name: state.activeUser.name || 'Elena Rostova',
+            receiver_id: contactId,
+            receiver_role: channel,
+            receiver_name: contactName,
+            text: text,
+            channel: channel,
+            timestamp: nowIso
+          });
+
+          // Update snippet in left sidebar
+          if (activeContactEl) {
+            const lastMsgEl = activeContactEl.querySelector('.hr-contact-last-msg');
+            if (lastMsgEl) lastMsgEl.innerText = `You: ${text}`;
+            const timeEl = activeContactEl.querySelector('.hr-contact-time');
+            if (timeEl) timeEl.innerText = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+          }
+
+          // Trigger automated realistic candidate/founder reply
+          triggerSimulatedReply(contactId, contactName, contactAvatar);
+        } catch (err) {
+          state.showToast(err.message, 'danger');
+        } finally {
+          chatInput.disabled = false;
+          if (sendBtn) sendBtn.disabled = false;
+          chatInput.focus();
+        }
+      };
+
+      if (sendBtn) {
+        sendBtn.addEventListener('click', handleSendMessage);
+      }
+      if (chatInput) {
+        chatInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSendMessage();
+          }
+        });
+      }
+
+      // Manual "Simulate Incoming Reply" button
+      if (simulateBtn) {
+        simulateBtn.addEventListener('click', () => {
+          const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
+          const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-01' : 'found-01');
+          const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'Alex Rivera' : 'Sarah Lin');
+          const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+
+          triggerSimulatedReply(contactId, contactName, contactAvatar);
+        });
+      }
+    }
   }
 
   // =========================================================================

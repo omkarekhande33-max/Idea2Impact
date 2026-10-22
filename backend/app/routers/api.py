@@ -1,6 +1,7 @@
 import uuid
 import io
 import re
+import urllib.parse
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Query, Header, Response, File, UploadFile
 from typing import Optional, List, Dict, Any
@@ -13,7 +14,7 @@ from ..schemas.models import (
     JobCreate, JobApplicationCreate, ApplicationStatusUpdate,
     CandidateSkillCreate,
     IdeaAnalyzeRequest, StartupCreate, ProposalShareRequest,
-    InvestorInterestRequest, MeetingRequest,
+    InvestorInterestRequest, MeetingRequest, MessageCreate,
     GeminiIdeaPromptRequest, ShareToHrRequest, ConvertRoleToJobRequest, ShareToInvestorRequest
 )
 from ..security.auth import (
@@ -428,7 +429,7 @@ def submit_assessment(assessment_id: str, payload: AssessmentSubmission):
 
         correct = q.get("correct_index")
         try:
-            is_correct = (chosen is not None and correct is not None and int(chosen) == int(correct))
+            is_correct = (chosen is not None and correct is not None and chosen == int(correct))
         except (ValueError, TypeError):
             is_correct = (chosen is not None and chosen == correct)
         if is_correct:
@@ -1599,4 +1600,44 @@ def list_shared_pitches():
     """Fetches all proposals shared by founders for the Investor / Sharks Mode."""
     pitches = db.get_table("shared_founder_pitches")
     return sorted(pitches, key=lambda p: p.get("shared_at", ""), reverse=True)
+
+@router.get("/messages")
+def list_messages(
+    channel: Optional[str] = Query(None),
+    contact_id: Optional[str] = Query(None),
+    user_id: Optional[str] = Query(None)
+):
+    """Retrieve messages filtered by channel (candidate / founder) or contact ID."""
+    messages = db.get_table("messages")
+    filtered = messages
+    if channel and isinstance(channel, str):
+        filtered = [m for m in filtered if m.get("channel") == channel]
+    if contact_id and isinstance(contact_id, str):
+        filtered = [m for m in filtered if m.get("sender_id") == contact_id or m.get("receiver_id") == contact_id]
+    if user_id and isinstance(user_id, str):
+        filtered = [m for m in filtered if m.get("sender_id") == user_id or m.get("receiver_id") == user_id]
+    return sorted(filtered, key=lambda m: m.get("timestamp", ""))
+
+@router.post("/messages")
+def send_message(payload: MessageCreate):
+    """Send a direct message between HR and Candidate/Founder."""
+    msg_id = f"msg-{str(uuid.uuid4())[:8]}"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    record = {
+        "id": msg_id,
+        "sender_id": payload.sender_id,
+        "receiver_id": payload.receiver_id,
+        "sender_role": payload.sender_role,
+        "receiver_role": payload.receiver_role,
+        "sender_name": payload.sender_name or payload.sender_id,
+        "receiver_name": payload.receiver_name or payload.receiver_id,
+        "text": payload.text,
+        "channel": payload.channel or "candidate",
+        "timestamp": payload.timestamp or now_iso,
+        "is_read": False
+    }
+    db.insert("messages", record)
+    db.log_audit("Direct Message Sent", payload.sender_id, f"Message sent from {payload.sender_role} to {payload.receiver_role} ({payload.channel} channel)")
+    return {"success": True, "message": "Message sent successfully", "data": record}
+
 

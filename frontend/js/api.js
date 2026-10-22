@@ -1588,6 +1588,245 @@ class ApiService {
       return JSON.parse(localStorage.getItem(key) || '[]');
     }
   }
+
+  async getMessages(channel = '', contactId = '') {
+    const key = 'i2i_messages';
+    const defaultMessages = [
+      {
+        id: "msg-01",
+        sender_id: "cand-01",
+        sender_role: "candidate",
+        sender_name: "Alex Rivera",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Hi Elena! I just completed the Python & FastAPI production assessment with a 92% score. I'm very interested in the Senior Full-Stack Engineer role at NovaTech Systems.",
+        channel: "candidate",
+        timestamp: "2026-03-01T10:15:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-02",
+        sender_id: "hr-01",
+        sender_role: "hr",
+        sender_name: "Elena Rostova",
+        receiver_id: "cand-01",
+        receiver_role: "candidate",
+        receiver_name: "Alex Rivera",
+        text: "Hello Alex, impressive performance on the assessment! Your 75/25 compatibility score came out to 94%. We'd love to schedule a technical architecture discussion with our engineering lead.",
+        channel: "candidate",
+        timestamp: "2026-03-01T10:30:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-03",
+        sender_id: "cand-01",
+        sender_role: "candidate",
+        sender_name: "Alex Rivera",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Thank you Elena! I'm available this Thursday or Friday afternoon. Looking forward to discussing the async microservices pipeline.",
+        channel: "candidate",
+        timestamp: "2026-03-01T10:45:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-04",
+        sender_id: "cand-02",
+        sender_role: "candidate",
+        sender_name: "Priya Sharma",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Hi Elena, I saw NovaTech's open AI Systems role. I've verified my skills in LLM fine-tuning and agentic pipelines with a 95% assessment rating.",
+        channel: "candidate",
+        timestamp: "2026-03-02T14:10:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-05",
+        sender_id: "hr-01",
+        sender_role: "hr",
+        sender_name: "Elena Rostova",
+        receiver_id: "cand-02",
+        receiver_role: "candidate",
+        receiver_name: "Priya Sharma",
+        text: "Hi Priya, your credentials look fantastic. We are building an enterprise autonomous agent suite and your background is a great match. Are you free for an exploratory call?",
+        channel: "candidate",
+        timestamp: "2026-03-02T14:35:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-06",
+        sender_id: "cand-02",
+        sender_role: "candidate",
+        sender_name: "Priya Sharma",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Absolutely! I can jump on a Google Meet tomorrow at 3 PM UTC. Let me know if that works for your team.",
+        channel: "candidate",
+        timestamp: "2026-03-02T14:50:00Z",
+        is_read: false
+      },
+      {
+        id: "msg-07",
+        sender_id: "cand-03",
+        sender_role: "candidate",
+        sender_name: "Jordan Lee",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Hello Elena, I've submitted my application for the UI Architect position. My portfolio showcases our design system and interactive dashboards.",
+        channel: "candidate",
+        timestamp: "2026-03-03T09:20:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-08",
+        sender_id: "hr-01",
+        sender_role: "hr",
+        sender_name: "Elena Rostova",
+        receiver_id: "cand-03",
+        receiver_role: "candidate",
+        receiver_name: "Jordan Lee",
+        text: "Thanks Jordan! We're reviewing your design showcase alongside our front-end lead. We'll follow up shortly with next steps.",
+        channel: "candidate",
+        timestamp: "2026-03-03T09:40:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-09",
+        sender_id: "found-01",
+        sender_role: "founder",
+        sender_name: "Sarah Lin",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Hi Elena, I just shared our hiring specification for EcoTrace AI via Gemini Pro Studio. We urgently need a Lead Backend Engineer with 75% core FastAPI & PostgreSQL and 25% Docker/Kubernetes.",
+        channel: "founder",
+        timestamp: "2026-03-01T11:00:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-10",
+        sender_id: "hr-01",
+        sender_role: "hr",
+        sender_name: "Elena Rostova",
+        receiver_id: "found-01",
+        receiver_role: "founder",
+        receiver_name: "Sarah Lin",
+        text: "Hi Sarah! I received the hiring specification and official PDF. We already ran it through our 75/25 dual-tier matching engine and identified 2 candidates with >80% compatibility (including Alex Rivera at 94%).",
+        channel: "founder",
+        timestamp: "2026-03-01T11:25:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-11",
+        sender_id: "found-01",
+        sender_role: "founder",
+        sender_name: "Sarah Lin",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "That's incredible turnaround! Could you please share their verified passports and arrange initial technical screens for this week?",
+        channel: "founder",
+        timestamp: "2026-03-01T11:45:00Z",
+        is_read: false
+      },
+      {
+        id: "msg-12",
+        sender_id: "found-02",
+        sender_role: "founder",
+        sender_name: "Marcus Vance",
+        receiver_id: "hr-01",
+        receiver_role: "hr",
+        receiver_name: "Elena Rostova",
+        text: "Elena, our Series A round is closing soon and we need to ramp up our distributed systems team. Do you have verified candidates with consensus protocol experience?",
+        channel: "founder",
+        timestamp: "2026-03-03T16:15:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-13",
+        sender_id: "hr-01",
+        sender_role: "hr",
+        sender_name: "Elena Rostova",
+        receiver_id: "found-02",
+        receiver_role: "founder",
+        receiver_name: "Marcus Vance",
+        text: "Hi Marcus, yes! We have candidates with verified badges in Distributed Systems and Redis Caching. I will compile a dedicated dossier for HyperScale Data today.",
+        channel: "founder",
+        timestamp: "2026-03-03T16:40:00Z",
+        is_read: true
+      }
+    ];
+
+    try {
+      let q = [];
+      if (channel) q.push(`channel=${encodeURIComponent(channel)}`);
+      if (contactId) q.push(`contact_id=${encodeURIComponent(contactId)}`);
+      const qs = q.length ? `?${q.join('&')}` : '';
+      const serverMsgs = await this.request(`/messages${qs}`);
+      if (Array.isArray(serverMsgs) && serverMsgs.length > 0) {
+        return serverMsgs;
+      }
+    } catch (e) {
+      // Backend request silent fallback
+    }
+
+    let stored = localStorage.getItem(key);
+    let msgs = stored ? JSON.parse(stored) : null;
+    if (!msgs || !Array.isArray(msgs) || msgs.length === 0) {
+      msgs = defaultMessages;
+      localStorage.setItem(key, JSON.stringify(msgs));
+    }
+    let res = msgs;
+    if (channel) res = res.filter(m => m.channel === channel);
+    if (contactId) res = res.filter(m => m.sender_id === contactId || m.receiver_id === contactId);
+    return res;
+  }
+
+  async sendMessage(data) {
+    const key = 'i2i_messages';
+    let record = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      sender_id: data.sender_id || 'hr-01',
+      receiver_id: data.receiver_id,
+      sender_role: data.sender_role || 'hr',
+      receiver_role: data.receiver_role || 'candidate',
+      sender_name: data.sender_name || 'Elena Rostova',
+      receiver_name: data.receiver_name || '',
+      text: data.text,
+      channel: data.channel || 'candidate',
+      timestamp: data.timestamp || new Date().toISOString(),
+      is_read: false
+    };
+
+    try {
+      const resp = await this.request('/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      if (resp && resp.data) {
+        record = resp.data;
+      }
+    } catch (e) {
+      // Backend fallback
+    }
+
+    try {
+      const msgs = JSON.parse(localStorage.getItem(key) || '[]');
+      msgs.push(record);
+      localStorage.setItem(key, JSON.stringify(msgs));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+
+    return record;
+  }
 }
 
 export const api = new ApiService();

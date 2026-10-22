@@ -151,3 +151,15 @@ class MeetingRequest(BaseModel):
     scheduled_at: str
     meeting_link: Optional[str] = "https://meet.google.com/idea2impact-call"
     agenda: str
+
+class MessageCreate(BaseModel):
+    id: Optional[str] = None
+    sender_id: str
+    receiver_id: str
+    sender_role: str = "hr" # "hr", "candidate", "founder"
+    receiver_role: str = "candidate" # "candidate", "founder", "hr"
+    sender_name: Optional[str] = None
+    receiver_name: Optional[str] = None
+    text: str
+    channel: Optional[str] = "candidate" # "candidate" or "founder"
+    timestamp: Optional[str] = None

@@ -59,7 +59,7 @@ def calculate_candidate_job_match(candidate_id: str, job_id: str) -> Dict[str, A
     def normalize_slug(text: str) -> str:
         if not text:
             return ""
-        return re.sub(r'[^a-z0-9]', '', str(text).lower().replace('sk-', ''))
+        return re.sub(r'[^a-z0-9]', '', text.lower().replace('sk-', ''))
 
     # Candidate skill lookup maps for exact ID, name, and normalized slug
     cand_by_id = {}
