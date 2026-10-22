@@ -1018,9 +1018,89 @@ class App {
     const hrUnreadCount = (messages || []).filter(m => (m.sender_role === 'hr' || m.sender_id === 'hr-01') && !m.is_read).length;
     const upcomingMeetingsCount = (meetings || []).filter(m => m.status === 'Confirmed' || m.status === 'confirmed').length;
 
+    let activeMeet = null;
+    try {
+      const rawMeet = localStorage.getItem('i2i_active_meet_request');
+      if (rawMeet) activeMeet = JSON.parse(rawMeet);
+    } catch (e) {}
+
+    const isMeetActive = activeMeet && activeMeet.status === 'active';
+    let candidateMeetStatus = 'pending';
+    if (isMeetActive && activeMeet.candidates) {
+      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
+      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+      const myCandName = (candidateName || '').toLowerCase().trim();
+
+      for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
+        if (cId === myCandId || 
+            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
+            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+          candidateMeetStatus = cData.status || 'pending';
+          break;
+        }
+      }
+    }
+    const isMeetAccepted = candidateMeetStatus === 'accepted';
+
     this.appContainer.innerHTML = `
       <div class="container" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-        
+
+        <!-- Live Google Meet Interview Joining Request Banner -->
+        ${isMeetActive ? `
+          <div class="card" id="cand-live-meet-hero-banner" style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #064E3B 100%); color:#FFFFFF; border:2px solid ${isMeetAccepted ? '#10B981' : '#3B82F6'}; border-radius:var(--radius-lg); padding:1.25rem 1.6rem; margin-bottom:1.5rem; box-shadow:0 12px 28px -6px rgba(16,185,129,0.3); position:relative; overflow:hidden;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.2rem; position:relative; z-index:1;">
+              <div style="display:flex; align-items:center; gap:1rem;">
+                <div style="width:48px; height:48px; border-radius:12px; background:rgba(16,185,129,0.25); border:1px solid #10B981; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0;">
+                  🎥
+                </div>
+                <div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.3rem; flex-wrap:wrap;">
+                    <span class="badge" style="background:#EF4444; color:#FFFFFF; font-weight:800; font-size:0.72rem; padding:0.25rem 0.65rem; border-radius:4px; letter-spacing:0.04em;">
+                      🔴 LIVE GOOGLE MEET INVITATION
+                    </span>
+                    <span style="font-size:0.8rem; color:#A7F3D0; font-weight:700;">
+                      Host: Elena Rostova (NovaTech HR)
+                    </span>
+                    ${isMeetAccepted ? `
+                      <span class="badge" style="background:#10B981; color:#fff; font-size:0.72rem; font-weight:700;">
+                        ✓ Accepted & In Google Meet
+                      </span>
+                    ` : `
+                      <span class="badge" style="background:#F59E0B; color:#fff; font-size:0.72rem; font-weight:700;">
+                        ⏳ Awaiting Your Acceptance
+                      </span>
+                    `}
+                  </div>
+                  <h3 style="font-size:1.18rem; font-weight:800; color:#FFFFFF; margin:0 0 0.25rem 0;">
+                    Live Technical Screening & 75/25 Architecture Screen
+                  </h3>
+                  <p style="font-size:0.84rem; color:#CBD5E1; margin:0; line-height:1.4;">
+                    Elena Rostova opened the official Google Meet room and sent an interview joining request to you. Join now to communicate live on Google Meet.
+                  </p>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                ${isMeetAccepted ? `
+                  <a href="${activeMeet.room_url}" target="_blank" class="btn btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:800; display:flex; align-items:center; gap:0.45rem; padding:0.65rem 1.25rem; font-size:0.9rem;">
+                    🎥 Communicating Live • Re-open Meet →
+                  </a>
+                ` : `
+                  <button type="button" class="btn btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.4rem; font-size:0.95rem; box-shadow:0 6px 16px rgba(22,163,74,0.4); cursor:pointer;">
+                    ✅ Accept Request & Join Google Meet →
+                  </button>
+                `}
+                <button type="button" class="btn btn-outline btn-sm cand-quick-msg-hr-btn" style="color:#CBD5E1; border-color:rgba(255,255,255,0.25); font-size:0.8rem;">
+                  💬 Chat with HR
+                </button>
+                <button type="button" class="btn btn-outline btn-sm cand-dismiss-meet-banner" style="color:#94A3B8; border-color:rgba(255,255,255,0.15); font-size:0.75rem;">
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <!-- Top 3 Stats Row (Matches Image 2) -->
         <div class="sb-stats-row">
           <div class="sb-stat-card">
@@ -1831,6 +1911,30 @@ class App {
     const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
     const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candidateName)}`;
 
+    let activeMeet = null;
+    try {
+      const rawMeet = localStorage.getItem('i2i_active_meet_request');
+      if (rawMeet) activeMeet = JSON.parse(rawMeet);
+    } catch (e) {}
+
+    const isMeetActive = activeMeet && activeMeet.status === 'active';
+    let candidateMeetStatus = 'pending';
+    if (isMeetActive && activeMeet.candidates) {
+      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
+      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+      const myCandName = (candidateName || '').toLowerCase().trim();
+
+      for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
+        if (cId === myCandId || 
+            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
+            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+          candidateMeetStatus = cData.status || 'pending';
+          break;
+        }
+      }
+    }
+    const isMeetAccepted = candidateMeetStatus === 'accepted';
+
     return `
       <div class="dashboard-header" style="margin-bottom:0.75rem;">
         <div class="dashboard-title">
@@ -1871,6 +1975,28 @@ class App {
           </div>
         </div>
 
+        <!-- Live Google Meet Alert inside Chat -->
+        ${isMeetActive ? `
+          <div style="padding:0.75rem 1.25rem; background:linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%); border-bottom:1px solid #A7F3D0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span style="font-size:1.3rem;">🎥</span>
+              <div>
+                <div style="font-size:0.85rem; font-weight:800; color:#065F46;">Live Google Meet Room Open</div>
+                <div style="font-size:0.78rem; color:#047857;">Elena Rostova is in Google Meet waiting for you to join.</div>
+              </div>
+            </div>
+            ${isMeetAccepted ? `
+              <a href="${activeMeet.room_url}" target="_blank" class="btn btn-sm btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
+                🎥 Re-enter Google Meet
+              </a>
+            ` : `
+              <button type="button" class="btn btn-sm btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
+                ✅ Accept Request & Join Google Meet
+              </button>
+            `}
+          </div>
+        ` : ''}
+
         <!-- Chat Messages Container -->
         <div class="hr-chat-messages-container" id="cand-chat-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
           <div class="hr-chat-date-pill">Direct Thread with Elena Rostova (HR)</div>
@@ -1887,12 +2013,30 @@ class App {
             const senderLabel = isFromCandidate ? `You (${candidateName})` : `${m.sender_name || 'Elena Rostova'} (HR)`;
             const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
+            let bubbleContent = m.text;
+            if (typeof m.text === 'string' && m.text.includes('meet.google.com')) {
+              bubbleContent = `
+                <div>${m.text}</div>
+                <div style="margin-top:0.65rem;">
+                  ${isMeetAccepted ? `
+                    <a href="https://meet.google.com/nova-tech-interview" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
+                      🎥 Connected • Re-enter Meet
+                    </a>
+                  ` : `
+                    <button type="button" class="btn btn-xs btn-primary cand-accept-meet-btn" data-url="https://meet.google.com/nova-tech-interview" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
+                      ✅ Accept Request & Join Google Meet
+                    </button>
+                  `}
+                </div>
+              `;
+            }
+
             return `
               <div class="hr-msg-row ${isFromCandidate ? 'outgoing' : 'incoming'}">
                 <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
                 <div class="hr-msg-content">
                   <span class="hr-msg-sender-name">${senderLabel}</span>
-                  <div class="hr-msg-bubble">${m.text}</div>
+                  <div class="hr-msg-bubble">${bubbleContent}</div>
                   <span class="hr-msg-time">${timeDisplay}</span>
                 </div>
               </div>
@@ -1938,6 +2082,30 @@ class App {
     const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     const todayStr = new Date().toISOString().split('T')[0];
 
+    let activeMeet = null;
+    try {
+      const rawMeet = localStorage.getItem('i2i_active_meet_request');
+      if (rawMeet) activeMeet = JSON.parse(rawMeet);
+    } catch (e) {}
+
+    const isMeetActive = activeMeet && activeMeet.status === 'active';
+    let candidateMeetStatus = 'pending';
+    if (isMeetActive && activeMeet.candidates) {
+      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
+      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+      const myCandName = (candidateName || '').toLowerCase().trim();
+
+      for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
+        if (cId === myCandId || 
+            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
+            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+          candidateMeetStatus = cData.status || 'pending';
+          break;
+        }
+      }
+    }
+    const isMeetAccepted = candidateMeetStatus === 'accepted';
+
     return `
       <div class="dashboard-header" style="margin-bottom:1.25rem;">
         <div class="dashboard-title">
@@ -1952,6 +2120,59 @@ class App {
       <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:1.5rem; align-items:start;">
         <!-- Left: Confirmed Meetings & Upcoming Schedule -->
         <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+          <!-- Live Active Interview Request from HR Card -->
+          ${isMeetActive ? `
+            <div class="card" style="background:#FFFFFF; border:2px solid ${isMeetAccepted ? '#10B981' : '#2563EB'}; border-radius:var(--radius-md); padding:1.25rem 1.4rem; box-shadow:0 8px 24px rgba(37,99,235,0.12);">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.65rem;">
+                <div style="display:flex; align-items:center; gap:0.45rem;">
+                  <span class="badge" style="background:${isMeetAccepted ? '#10B981' : '#EF4444'}; color:#FFFFFF; font-weight:800; font-size:0.75rem;">
+                    ${isMeetAccepted ? '✅ LIVE GOOGLE MEET CONNECTED' : '🔴 INCOMING INTERVIEW REQUEST'}
+                  </span>
+                  <span class="badge badge-verified" style="font-size:0.75rem;">Google Meet Official</span>
+                </div>
+                <span style="font-size:0.8rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:0.2rem 0.6rem; border-radius:4px; border:1px solid #BFDBFE;">
+                  ⚡ Happening Now
+                </span>
+              </div>
+
+              <h4 style="font-size:1.15rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0;">
+                Live Technical Screening & 75/25 Architecture Screen
+              </h4>
+              <p style="font-size:0.82rem; color:#64748B; margin:0 0 0.75rem 0;">
+                Host: <strong>Elena Rostova</strong> (Executive Recruiter, NovaTech Systems) • Candidate: <strong>${candidateName}</strong>
+              </p>
+
+              <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.75rem 0.9rem; border:1px solid #E2E8F0; margin-bottom:0.85rem;">
+                <span style="font-size:0.78rem; font-weight:700; color:#334155;">Agenda:</span>
+                <p style="font-size:0.82rem; color:#475569; margin:0.15rem 0 0 0; line-height:1.5;">
+                  ${activeMeet.agenda || 'Review 75/25 competency fit, FastAPI production architecture, and engineering team timeline.'}
+                </p>
+                <div style="font-size:0.78rem; color:#059669; font-weight:700; margin-top:0.35rem;">
+                  🔗 Room URL: <a href="${activeMeet.room_url}" target="_blank" style="color:#059669; text-decoration:underline;">${activeMeet.room_url}</a>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                ${isMeetAccepted ? `
+                  <a href="${activeMeet.room_url}" target="_blank" class="btn btn-primary btn-sm" style="background:#16A34A; border-color:#16A34A; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+                    🎥 In Session • Re-open Google Meet →
+                  </a>
+                  <span style="font-size:0.8rem; color:#15803D; font-weight:700;">
+                    ✓ Accepted & Connected with HR
+                  </span>
+                ` : `
+                  <button type="button" class="btn btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:0.92rem; padding:0.6rem 1.25rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer; box-shadow:0 4px 12px rgba(22,163,74,0.35);">
+                    ✅ Accept Request & Join Google Meet →
+                  </button>
+                  <span style="font-size:0.8rem; color:#64748B;">
+                    Accepting request will launch Google Meet and notify Elena Rostova.
+                  </span>
+                `}
+              </div>
+            </div>
+          ` : ''}
+
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <h3 style="font-size:1.1rem; font-weight:800; color:#0F172A; margin:0;">
               Confirmed Video Meetings (${activeMeetings.length})
@@ -2508,6 +2729,127 @@ class App {
         state.showToast('📅 Meeting details synchronized with Google Calendar!', 'info');
       });
     });
+
+    // =========================================================================
+    // Candidate Google Meet Joining Request Acceptance Logic
+    // =========================================================================
+    const handleAcceptMeetRequest = async (roomUrl) => {
+      try {
+        state.showToast('Connecting to Google Meet room...', 'info');
+
+        let activeMeet = null;
+        try {
+          const raw = localStorage.getItem('i2i_active_meet_request');
+          if (raw) activeMeet = JSON.parse(raw);
+        } catch (e) {}
+
+        const targetUrl = roomUrl || activeMeet?.room_url || 'https://meet.google.com/nova-tech-interview';
+        const myCandId = state.activeUser?.id || candidateId || 'cand-01';
+        const myCandName = (state.activeUser && state.activeUser.name) || candidateName || 'Alex Rivera';
+
+        // 1. Update candidate acceptance status in localStorage
+        if (activeMeet && activeMeet.candidates) {
+          let foundKey = null;
+          for (const [k, cData] of Object.entries(activeMeet.candidates)) {
+            if (k === myCandId || 
+                (cData.name && cData.name.toLowerCase().trim() === myCandName.toLowerCase().trim()) || 
+                (cData.email && state.activeUser?.email && cData.email.toLowerCase() === state.activeUser.email.toLowerCase())) {
+              foundKey = k;
+              break;
+            }
+          }
+          if (foundKey) {
+            activeMeet.candidates[foundKey].status = 'accepted';
+            activeMeet.candidates[foundKey].accepted_at = new Date().toISOString();
+          } else {
+            activeMeet.candidates[myCandId] = {
+              id: myCandId,
+              name: myCandName,
+              email: state.activeUser?.email || '',
+              status: 'accepted',
+              accepted_at: new Date().toISOString()
+            };
+          }
+          localStorage.setItem('i2i_active_meet_request', JSON.stringify(activeMeet));
+        }
+
+        // 2. Send automated acceptance message to HR
+        const nowIso = new Date().toISOString();
+        try {
+          await api.sendMessage({
+            sender_id: myCandId,
+            sender_role: 'candidate',
+            sender_name: myCandName,
+            receiver_id: 'hr-01',
+            receiver_role: 'hr',
+            receiver_name: 'Elena Rostova',
+            channel: 'candidate',
+            text: `✅ I have accepted your Google Meet joining request and entered the room (${targetUrl})! Ready to communicate with you.`,
+            timestamp: nowIso
+          });
+        } catch (e) {
+          console.warn('Could not post acceptance message to HR', e);
+        }
+
+        // 3. Dispatch events so HR knows immediately across tabs
+        window.dispatchEvent(new CustomEvent('i2i_meet_request_accepted', {
+          detail: {
+            candidateId: myCandId,
+            candidateName: myCandName,
+            roomUrl: targetUrl
+          }
+        }));
+        window.dispatchEvent(new Event('storage'));
+
+        // 4. Open Google Meet in new window/tab for the candidate to communicate!
+        window.open(targetUrl, '_blank');
+
+        state.showToast(`🎉 Request accepted! Joined Google Meet room with Elena Rostova.`, 'success');
+
+        // Re-render to update UI to accepted state
+        await this.renderCandidateDashboard();
+      } catch (err) {
+        console.error('Accept meet error', err);
+        state.showToast('Error joining Google Meet: ' + err.message, 'danger');
+      }
+    };
+
+    this.appContainer.querySelectorAll('.cand-accept-meet-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = btn.dataset.url || 'https://meet.google.com/nova-tech-interview';
+        handleAcceptMeetRequest(url);
+      });
+    });
+
+    const candDismissBannerBtn = this.appContainer.querySelector('.cand-dismiss-meet-banner');
+    if (candDismissBannerBtn) {
+      candDismissBannerBtn.addEventListener('click', () => {
+        const banner = document.getElementById('cand-live-meet-hero-banner');
+        if (banner) banner.style.display = 'none';
+      });
+    }
+
+    const candQuickMsgBtn = this.appContainer.querySelector('.cand-quick-msg-hr-btn');
+    if (candQuickMsgBtn) {
+      candQuickMsgBtn.addEventListener('click', () => state.setTab('hr-messages'));
+    }
+
+    // Real-time listener for incoming HR broadcast
+    if (!window._candMeetBroadcastListenerAttached) {
+      window._candMeetBroadcastListenerAttached = true;
+      window.addEventListener('i2i_meet_broadcast_started', () => {
+        if (state.currentRole === 'candidate') {
+          state.showToast('🔴 Incoming Google Meet invitation from Elena Rostova (HR)!', 'info');
+          this.renderCandidateDashboard();
+        }
+      });
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_active_meet_request' && state.currentRole === 'candidate') {
+          this.renderCandidateDashboard();
+        }
+      });
+    }
 
     // Chat with HR logic
     const candMsgBox = this.appContainer.querySelector('#cand-chat-messages-container');
@@ -6595,6 +6937,36 @@ class App {
   }
 
   // =========================================================================
+  getAllCandidatesList(passedCandidates = []) {
+    const list = [...(passedCandidates || [])];
+    try {
+      const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+      localUsers.forEach(lu => {
+        if (lu.role === 'candidate' && !list.some(c => c.id === lu.id || (lu.email && c.email === lu.email) || (c.name && lu.name && c.name.toLowerCase().trim() === lu.name.toLowerCase().trim()))) {
+          list.push(lu);
+        }
+      });
+    } catch (e) {}
+
+    const defaults = [
+      { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+      { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
+      { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
+      { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+      { id: 'cand-02', name: 'Priya Sharma', full_name: 'Priya Sharma', email: 'priya.sharma@example.com', target_role: 'AI / Machine Learning Engineer', avatar_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150' },
+      { id: 'cand-03', name: 'Jordan Lee', full_name: 'Jordan Lee', email: 'jordan.lee@example.com', target_role: 'Frontend Software Engineer', avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150' }
+    ];
+
+    defaults.forEach(d => {
+      if (!list.some(c => c.id === d.id || (d.email && c.email === d.email) || (c.name && c.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
+        list.push(d);
+      }
+    });
+
+    return list;
+  }
+
+  // =========================================================================
   // 4. HR / RECRUITER DASHBOARD (SkillBridge Executive Mode)
   // =========================================================================
   async renderHrDashboard() {
@@ -6613,14 +6985,7 @@ class App {
         api.getMessages().catch(() => [])
       ]);
 
-      try {
-        const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
-        localUsers.forEach(lu => {
-          if (lu.role === 'candidate' && !candidates.some(c => c.id === lu.id || (lu.email && c.email === lu.email))) {
-            candidates.push(lu);
-          }
-        });
-      } catch (e) {}
+      candidates = this.getAllCandidatesList(candidates);
 
       if (jobs.length > 0) {
         applications = await api.request(`/applications/job/${jobs[0].id}`).catch(() => []);
@@ -7034,27 +7399,249 @@ class App {
     }
 
     if (tab === 'interviews') {
+      let activeMeet = null;
+      try {
+        const rawMeet = localStorage.getItem('i2i_active_meet_request');
+        if (rawMeet) activeMeet = JSON.parse(rawMeet);
+      } catch (e) {}
+
+      const isSessionActive = activeMeet && activeMeet.status === 'active';
+      const meetUrl = activeMeet?.room_url || 'https://meet.google.com/nova-tech-interview';
+
+      // Ensure we have all registered candidate profiles
+      const allCandidates = this.getAllCandidatesList(candidates);
+
+      // Calculate accepted / pending counts
+      let acceptedCount = 0;
+      let pendingCount = 0;
+
+      const candidateCardsData = allCandidates.map(c => {
+        const cId = c.id || c.candidate_id;
+        const cName = c.full_name || c.name || c.username;
+        const cEmail = c.email || '';
+        let status = 'ready'; // ready | pending | accepted
+        let acceptedAt = null;
+
+        if (isSessionActive && activeMeet.candidates) {
+          for (const [k, cData] of Object.entries(activeMeet.candidates)) {
+            if (k === cId || 
+                (cData.email && cEmail && cData.email.toLowerCase().trim() === cEmail.toLowerCase().trim()) || 
+                (cData.name && cName && cData.name.toLowerCase().trim() === cName.toLowerCase().trim())) {
+              status = cData.status || 'pending';
+              acceptedAt = cData.accepted_at;
+              break;
+            }
+          }
+          if (status === 'ready') status = 'pending';
+        }
+
+        if (status === 'accepted') acceptedCount++;
+        else if (status === 'pending') pendingCount++;
+
+        return {
+          id: cId,
+          name: cName,
+          email: cEmail,
+          role: c.target_role || c.title || 'Candidate',
+          avatar: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cName)}`,
+          status,
+          acceptedAt
+        };
+      });
+
       return `
-        <div class="dashboard-header">
+        <div class="dashboard-header" style="margin-bottom:1.25rem;">
           <div class="dashboard-title">
-            <h2>Scheduled Interviews & Offer Letters</h2>
-            <p>Coordinate calendar slots and share formalized employment offers.</p>
+            <h2>📅 Scheduled Interviews & Live Google Meet Broadcasting</h2>
+            <p>Launch real-time technical interviews on Google Meet, automatically dispatch joining requests to all registered candidates, and communicate live.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            ${isSessionActive ? `
+              <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:800; border:1px solid #86EFAC; padding:0.4rem 0.85rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                <span style="width:8px; height:8px; background:#16A34A; border-radius:50%; display:inline-block; animation:pulse 1.5s infinite;"></span>
+                LIVE GOOGLE MEET BROADCAST ACTIVE
+              </span>
+            ` : `
+              <span class="badge badge-verified" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+                Google Meet Integrated
+              </span>
+            `}
           </div>
         </div>
 
-        <div class="card">
-          <h3 class="card-title" style="margin-bottom:1rem;">Active Technical Interviews</h3>
-          <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:1.25rem; border-radius:var(--radius-md); flex-wrap:wrap; gap:1rem;">
+        <!-- 1. Google Meet Live Control Center Card -->
+        <div class="card" style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #064E3B 100%); color:#FFFFFF; border:1.5px solid ${isSessionActive ? '#10B981' : 'rgba(16,185,129,0.3)'}; border-radius:var(--radius-lg); padding:1.5rem 1.75rem; margin-bottom:1.5rem; box-shadow:0 12px 28px -6px rgba(0,0,0,0.3);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+            <div style="max-width:680px;">
+              <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+                <span class="badge" style="background:${isSessionActive ? '#EF4444' : '#2563EB'}; color:#FFFFFF; font-weight:800; font-size:0.75rem; letter-spacing:0.04em;">
+                  ${isSessionActive ? '🔴 ACTIVE BROADCAST' : '⚡ READY TO BROADCAST'}
+                </span>
+                <span style="font-size:0.82rem; color:#A7F3D0; font-weight:700;">NovaTech Systems Live Interview Room</span>
+              </div>
+              <h3 style="font-size:1.35rem; font-weight:800; color:#FFFFFF; margin:0 0 0.4rem 0;">
+                Live Technical Screening & 75/25 Architecture Screen
+              </h3>
+              <p style="font-size:0.88rem; color:#CBD5E1; margin:0 0 0.75rem 0; line-height:1.5;">
+                When you click <strong>"Open Google Meet Room"</strong>, Idea2Impact instantly launches your video room and automatically dispatches a live interview joining request to all ${allCandidates.length} registered candidates. Candidates can immediately accept and communicate with you through Google Meet.
+              </p>
+              <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; font-size:0.82rem; color:#94A3B8;">
+                <span>🔗 Room URL:</span>
+                <code style="background:rgba(255,255,255,0.12); color:#6EE7B7; padding:0.2rem 0.5rem; border-radius:4px; font-weight:600;">${meetUrl}</code>
+                <button type="button" class="btn btn-xs btn-outline hr-copy-meet-link-btn" data-url="${meetUrl}" style="color:#CBD5E1; border-color:rgba(255,255,255,0.25);">
+                  📋 Copy Link
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Buttons on Right -->
+            <div style="display:flex; flex-direction:column; gap:0.75rem; min-width:260px;">
+              ${!isSessionActive ? `
+                <button type="button" class="btn btn-primary btn-lg" id="hr-open-meet-broadcast-btn" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:1rem; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:center; gap:0.6rem; box-shadow:0 8px 24px rgba(22,163,74,0.4); cursor:pointer;">
+                  🎥 Open Google Meet Room & Send Request to All Candidates
+                </button>
+                <p style="font-size:0.75rem; color:#94A3B8; text-align:center; margin:0;">
+                  Dispatches joining requests to all ${allCandidates.length} candidates simultaneously
+                </p>
+              ` : `
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                  <a href="${meetUrl}" target="_blank" class="btn btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:0.95rem; padding:0.75rem 1.25rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; box-shadow:0 6px 16px rgba(22,163,74,0.4);">
+                    🎥 Join Room As Host (Google Meet) ↗
+                  </a>
+                  <button type="button" class="btn btn-secondary" id="hr-re-broadcast-btn" style="font-weight:700; font-size:0.85rem; padding:0.6rem 1rem;">
+                    🔔 Re-send Alert to All Candidates
+                  </button>
+                  <button type="button" class="btn btn-outline" id="hr-end-meet-session-btn" style="color:#FCA5A5; border-color:#EF4444; font-size:0.82rem; padding:0.5rem 1rem;">
+                    ⏹ End Meeting Broadcast
+                  </button>
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Real-Time Candidate Joining & Response Tracker -->
+        <div class="card" style="margin-bottom:1.5rem; background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.35rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid #F1F5F9; padding-bottom:0.85rem;">
             <div>
-              <span class="badge badge-verified">CONFIRMED INTERVIEW</span>
-              <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary); margin-top:0.35rem;">Alex Rivera — Senior Backend & Distributed Systems Engineer</h4>
-              <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-                Agenda: Async Python architecture, PostgreSQL indexing & Docker microservices
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--primary); margin:0 0 0.25rem 0;">
+                Live Candidate Joining & Response Tracker
+              </h3>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+                Real-time participation tracking across all candidate accounts registered in Idea2Impact.
               </p>
             </div>
-            <a href="https://meet.google.com/nova-tech-interview" target="_blank" class="btn btn-secondary">
-              Open Google Meet Room →
-            </a>
+            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+              <span class="badge" style="background:#EFF6FF; color:#1E40AF; border:1px solid #BFDBFE; font-weight:700;">
+                👥 Total Invited: ${allCandidates.length}
+              </span>
+              <span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-weight:700;">
+                ✅ Accepted & In Meet: ${acceptedCount}
+              </span>
+              <span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-weight:700;">
+                ⏳ Pending: ${pendingCount}
+              </span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1rem;" id="hr-meet-candidates-grid">
+            ${candidateCardsData.map(c => `
+              <div style="border:1.5px solid ${c.status === 'accepted' ? '#86EFAC' : (c.status === 'pending' ? '#FCD34D' : 'var(--border)')}; border-radius:var(--radius-md); padding:1rem; background:${c.status === 'accepted' ? '#F0FDF4' : (c.status === 'pending' ? '#FFFBEB' : '#FFFFFF')}; display:flex; flex-direction:column; justify-content:space-between; gap:0.85rem; transition:all 150ms;">
+                <div style="display:flex; align-items:flex-start; gap:0.75rem;">
+                  <img src="${c.avatar}" alt="${c.name}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid ${c.status === 'accepted' ? '#16A34A' : '#CBD5E1'}; flex-shrink:0;" />
+                  <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+                      <h4 style="font-size:0.95rem; font-weight:800; color:var(--primary); margin:0; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                        ${c.name}
+                      </h4>
+                    </div>
+                    <p style="font-size:0.78rem; color:var(--text-muted); margin:0.15rem 0 0 0; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                      ${c.role} • ${c.email || 'Registered Candidate'}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div style="padding-top:0.25rem;">
+                  ${c.status === 'accepted' ? `
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                      <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:800; font-size:0.75rem; border:1px solid #86EFAC; display:flex; align-items:center; gap:0.35rem;">
+                        <span style="width:7px; height:7px; background:#16A34A; border-radius:50%; display:inline-block; animation:pulse 1.2s infinite;"></span>
+                        ✅ Accepted & Communicating in Google Meet
+                      </span>
+                    </div>
+                    <div style="font-size:0.72rem; color:#166534; margin-top:0.25rem;">
+                      Joined at ${c.acceptedAt ? new Date(c.acceptedAt).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : 'Just now'}
+                    </div>
+                  ` : (c.status === 'pending' ? `
+                    <span class="badge" style="background:#FEF3C7; color:#B45309; font-weight:700; font-size:0.75rem; border:1px solid #FCD34D;">
+                      ⏳ Joining Request Sent (Pending Acceptance)
+                    </span>
+                  ` : `
+                    <span class="badge badge-unverified" style="font-size:0.72rem;">
+                      ⚪ Ready to Receive Request
+                    </span>
+                  `)}
+                </div>
+
+                <!-- Action Toolbar for Candidate -->
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; border-top:1px solid rgba(0,0,0,0.06); padding-top:0.65rem;">
+                  <button type="button" class="btn btn-xs btn-outline hr-chat-contact-shortcut-btn" data-contact-id="${c.id}" data-contact-name="${c.name}" style="font-size:0.75rem;">
+                    💬 Chat
+                  </button>
+                  <div style="display:flex; gap:0.35rem;">
+                    ${c.status !== 'accepted' ? `
+                      <button type="button" class="btn btn-xs btn-outline hr-ping-candidate-btn" data-candidate-id="${c.id}" data-candidate-name="${c.name}" style="font-size:0.72rem;" title="Re-send meeting joining request to ${c.name}">
+                        🔔 Ping
+                      </button>
+                      <button type="button" class="btn btn-xs btn-secondary hr-simulate-join-btn" data-candidate-id="${c.id}" data-candidate-name="${c.name}" style="font-size:0.72rem;" title="Simulate ${c.name} accepting the request and joining Google Meet">
+                        ⚡ Simulate Accept
+                      </button>
+                    ` : `
+                      <a href="${meetUrl}" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700; font-size:0.72rem;">
+                        🎥 In Call
+                      </a>
+                    `}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 3. Pre-Scheduled 1-on-1 Interviews List -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <h3 class="card-title" style="margin:0;">Active 1-on-1 Technical Interview Schedules</h3>
+            <span class="badge badge-verified" style="font-size:0.75rem;">Direct Google Meet Links</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:1.25rem; border-radius:var(--radius-md); flex-wrap:wrap; gap:1rem;">
+              <div>
+                <span class="badge badge-verified">CONFIRMED INTERVIEW</span>
+                <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary); margin-top:0.35rem;">Alex Rivera — Senior Backend & Distributed Systems Engineer</h4>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
+                  Agenda: Async Python architecture, PostgreSQL indexing & Docker microservices
+                </p>
+              </div>
+              <button type="button" class="btn btn-secondary hr-open-meet-single-btn" data-url="${meetUrl}">
+                Open Google Meet Room →
+              </button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:1.25rem; border-radius:var(--radius-md); flex-wrap:wrap; gap:1rem;">
+              <div>
+                <span class="badge badge-role">SCHEDULED ROUND</span>
+                <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary); margin-top:0.35rem;">rushikesh wagh — Senior Software Engineer (AI Systems)</h4>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
+                  Agenda: 75/25 Architecture Screen, FastAPI Microservices & High-Throughput Inference
+                </p>
+              </div>
+              <button type="button" class="btn btn-secondary hr-open-meet-single-btn" data-url="${meetUrl}">
+                Open Google Meet Room →
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -7463,6 +8050,9 @@ class App {
                 <button class="btn btn-secondary btn-sm" id="hr-chat-schedule-interview-btn" data-candidate="${activeContact.id}" data-name="${activeContact.name}">
                   📅 Schedule Interview
                 </button>
+                <button class="btn btn-primary btn-sm" id="hr-chat-open-meet-btn" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
+                  🎥 Open Google Meet Room
+                </button>
                 <button class="btn btn-outline btn-sm" id="hr-chat-view-dossier-btn">
                   🎯 View Dossier
                 </button>
@@ -7540,7 +8130,7 @@ class App {
   }
 
   async attachHrEvents(data) {
-    const { jobs, hrId, sharedHiringRequests, allMessages = [] } = data;
+    const { jobs, hrId, candidates = [], sharedHiringRequests, allMessages = [] } = data;
 
     // Navigation buttons
     const topPostBtn = this.appContainer.querySelector('#hr-top-post-btn');
@@ -8566,8 +9156,243 @@ class App {
           const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
           triggerSimulatedReply(contactId, contactName, contactAvatar);
-        });
       }
+    }
+
+    // =========================================================================
+    // HR Google Meet Broadcasting & Live Candidate Response Logic
+    // =========================================================================
+    const handleOpenGoogleMeetBroadcast = async () => {
+      try {
+        state.showToast('📡 Opening Google Meet room and dispatching joining request to all candidates...', 'info');
+
+        const allCands = this.getAllCandidatesList(candidates);
+        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+        const candStatusMap = {};
+
+        allCands.forEach(c => {
+          const cId = c.id || c.candidate_id;
+          const cName = c.full_name || c.name || c.username;
+          const cEmail = c.email || '';
+          candStatusMap[cId] = {
+            id: cId,
+            name: cName,
+            email: cEmail,
+            target_role: c.target_role || c.title || 'Candidate',
+            avatar_url: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cName)}`,
+            status: 'pending',
+            requested_at: new Date().toISOString(),
+            accepted_at: null
+          };
+        });
+
+        // 1. Store broadcast record in localStorage
+        const broadcastRecord = {
+          id: `meet-bcast-${Date.now()}`,
+          room_url: meetUrl,
+          host_id: hrId || 'hr-01',
+          host_name: state.activeUser?.name || 'Elena Rostova',
+          host_role: 'Executive Recruiter, NovaTech Systems',
+          title: 'NovaTech Systems Live Technical Screening',
+          agenda: 'Dual-Tier 75/25 competency evaluation, architecture screening, and team alignment.',
+          status: 'active',
+          created_at: new Date().toISOString(),
+          candidates: candStatusMap
+        };
+        localStorage.setItem('i2i_active_meet_request', JSON.stringify(broadcastRecord));
+
+        // 2. Send official invitation message to every candidate
+        const nowIso = new Date().toISOString();
+        const sendPromises = allCands.map(c => {
+          const cId = c.id || c.candidate_id;
+          const cName = c.full_name || c.name || c.username;
+          return api.sendMessage({
+            sender_id: hrId || 'hr-01',
+            sender_role: 'hr',
+            sender_name: state.activeUser?.name || 'Elena Rostova',
+            receiver_id: cId,
+            receiver_role: 'candidate',
+            receiver_name: cName,
+            channel: 'candidate',
+            text: `🎥 Elena Rostova has opened the live Google Meet interview room! Please accept this joining request to communicate: ${meetUrl}`,
+            timestamp: nowIso
+          }).catch(e => console.warn('Could not send invite to', cName, e));
+        });
+        await Promise.all(sendPromises);
+
+        // 3. Open Google Meet room for HR in a new tab
+        window.open(meetUrl, '_blank');
+
+        // 4. Notify & sync across tabs / roles
+        window.dispatchEvent(new CustomEvent('i2i_meet_broadcast_started', { detail: broadcastRecord }));
+        window.dispatchEvent(new Event('storage'));
+
+        state.showToast(`🎉 Google Meet Room opened! Joining request sent to all ${allCands.length} candidates.`, 'success');
+
+        // 5. Re-render HR dashboard so the real-time tracker displays active status
+        await this.renderHrDashboard();
+      } catch (err) {
+        console.error('Broadcast meet error', err);
+        state.showToast('Error opening Google Meet room: ' + err.message, 'danger');
+      }
+    };
+
+    const handleEndGoogleMeetSession = async () => {
+      try {
+        localStorage.removeItem('i2i_active_meet_request');
+        window.dispatchEvent(new CustomEvent('i2i_meet_broadcast_ended'));
+        window.dispatchEvent(new Event('storage'));
+        state.showToast('⏹ Google Meet broadcast session ended.', 'info');
+        await this.renderHrDashboard();
+      } catch (e) {
+        console.error('End session error', e);
+      }
+    };
+
+    // Primary Broadcast Button
+    const broadcastBtn = this.appContainer.querySelector('#hr-open-meet-broadcast-btn');
+    if (broadcastBtn) {
+      broadcastBtn.addEventListener('click', handleOpenGoogleMeetBroadcast);
+    }
+
+    // Single Interview Open Meet buttons
+    this.appContainer.querySelectorAll('.hr-open-meet-single-btn').forEach(btn => {
+      btn.addEventListener('click', handleOpenGoogleMeetBroadcast);
+    });
+
+    // Chat Header Open Meet button
+    const chatMeetBtn = this.appContainer.querySelector('#hr-chat-open-meet-btn');
+    if (chatMeetBtn) {
+      chatMeetBtn.addEventListener('click', handleOpenGoogleMeetBroadcast);
+    }
+
+    // Re-send Alert to All button
+    const reBroadcastBtn = this.appContainer.querySelector('#hr-re-broadcast-btn');
+    if (reBroadcastBtn) {
+      reBroadcastBtn.addEventListener('click', handleOpenGoogleMeetBroadcast);
+    }
+
+    // End Session button
+    const endMeetBtn = this.appContainer.querySelector('#hr-end-meet-session-btn');
+    if (endMeetBtn) {
+      endMeetBtn.addEventListener('click', handleEndGoogleMeetSession);
+    }
+
+    // Copy Meet Link buttons
+    this.appContainer.querySelectorAll('.hr-copy-meet-link-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.dataset.url || 'https://meet.google.com/nova-tech-interview';
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+            state.showToast('📋 Google Meet room link copied to clipboard!', 'info');
+          });
+        } else {
+          state.showToast('Room link: ' + url, 'info');
+        }
+      });
+    });
+
+    // Simulate Candidate Acceptance
+    this.appContainer.querySelectorAll('.hr-simulate-join-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const cId = btn.dataset.candidateId;
+        const cName = btn.dataset.candidateName;
+
+        let activeMeet = null;
+        try {
+          const raw = localStorage.getItem('i2i_active_meet_request');
+          if (raw) activeMeet = JSON.parse(raw);
+        } catch (e) {}
+
+        if (!activeMeet) {
+          state.showToast('Please open the Google Meet room first!', 'warning');
+          return;
+        }
+
+        if (activeMeet.candidates && activeMeet.candidates[cId]) {
+          activeMeet.candidates[cId].status = 'accepted';
+          activeMeet.candidates[cId].accepted_at = new Date().toISOString();
+        } else if (activeMeet.candidates) {
+          activeMeet.candidates[cId] = {
+            id: cId,
+            name: cName,
+            status: 'accepted',
+            accepted_at: new Date().toISOString()
+          };
+        }
+        localStorage.setItem('i2i_active_meet_request', JSON.stringify(activeMeet));
+
+        // Send acceptance chat message from candidate to HR
+        await api.sendMessage({
+          sender_id: cId,
+          sender_role: 'candidate',
+          sender_name: cName,
+          receiver_id: hrId || 'hr-01',
+          receiver_role: 'hr',
+          receiver_name: state.activeUser?.name || 'Elena Rostova',
+          channel: 'candidate',
+          text: `✅ I have accepted your Google Meet joining request and entered the room (${activeMeet.room_url})! Ready to communicate with you.`,
+          timestamp: new Date().toISOString()
+        }).catch(() => {});
+
+        window.dispatchEvent(new CustomEvent('i2i_meet_request_accepted', {
+          detail: { candidateId: cId, candidateName: cName, roomUrl: activeMeet.room_url }
+        }));
+        window.dispatchEvent(new Event('storage'));
+
+        state.showToast(`🎉 ${cName} accepted your request and joined Google Meet!`, 'success');
+        await this.renderHrDashboard();
+      });
+    });
+
+    // Ping candidate button
+    this.appContainer.querySelectorAll('.hr-ping-candidate-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const cId = btn.dataset.candidateId;
+        const cName = btn.dataset.candidateName;
+        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+
+        await api.sendMessage({
+          sender_id: hrId || 'hr-01',
+          sender_role: 'hr',
+          sender_name: state.activeUser?.name || 'Elena Rostova',
+          receiver_id: cId,
+          receiver_role: 'candidate',
+          receiver_name: cName,
+          channel: 'candidate',
+          text: `🔔 Reminder: Elena Rostova is waiting in Google Meet room: ${meetUrl}. Please join the session.`,
+          timestamp: new Date().toISOString()
+        }).catch(() => {});
+
+        state.showToast(`🔔 Joining reminder sent directly to ${cName}!`, 'info');
+      });
+    });
+
+    // Chat with candidate shortcut button from tracker
+    this.appContainer.querySelectorAll('.hr-chat-contact-shortcut-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cId = btn.dataset.contactId;
+        this.activeContactId = this.activeContactId || {};
+        this.activeContactId['candidate'] = cId;
+        state.setTab('candidate-messages');
+      });
+    });
+
+    // Real-time listener for candidate acceptance
+    if (!window._hrMeetAcceptedListenerAttached) {
+      window._hrMeetAcceptedListenerAttached = true;
+      window.addEventListener('i2i_meet_request_accepted', (e) => {
+        const cName = e.detail?.candidateName || 'A candidate';
+        state.showToast(`🎉 ${cName} accepted your Google Meet request and entered the room!`, 'success');
+        if (state.currentRole === 'hr') {
+          this.renderHrDashboard();
+        }
+      });
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_active_meet_request' && state.currentRole === 'hr') {
+          this.renderHrDashboard();
+        }
+      });
     }
   }
 
