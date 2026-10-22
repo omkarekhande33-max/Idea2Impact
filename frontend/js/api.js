@@ -310,13 +310,22 @@ class ApiService {
   // PROFILES
   // =========================================================================
   async getProfiles(role = '') {
+    let serverProfiles = [];
     try {
-      return await this.request(role ? `/profiles?role=${role}` : '/profiles');
+      serverProfiles = await this.request(role ? `/profiles?role=${role}` : '/profiles');
     } catch (e) {
-      const local = getLocalUsers().filter(u => !role || u.role === role);
-      const demo = Object.values(DEMO_ACCOUNTS).filter(u => !role || u.role === role);
-      return [...local, ...demo];
+      serverProfiles = [];
     }
+
+    const local = getLocalUsers().filter(u => !role || u.role === role);
+    const combined = Array.isArray(serverProfiles) ? [...serverProfiles] : [];
+    local.forEach(lu => {
+      if (!combined.some(cp => cp.id === lu.id || (lu.email && cp.email === lu.email))) {
+        combined.push(lu);
+      }
+    });
+
+    return combined;
   }
 
   async getProfileMe(userId) {
@@ -1916,29 +1925,44 @@ class ApiService {
       }
     ];
 
+    let combined = [];
     try {
       let q = [];
       if (channel) q.push(`channel=${encodeURIComponent(channel)}`);
       if (contactId) q.push(`contact_id=${encodeURIComponent(contactId)}`);
       const qs = q.length ? `?${q.join('&')}` : '';
       const serverMsgs = await this.request(`/messages${qs}`);
-      if (Array.isArray(serverMsgs) && serverMsgs.length > 0) {
-        return serverMsgs;
+      if (Array.isArray(serverMsgs)) {
+        combined = [...serverMsgs];
       }
     } catch (e) {
       // Backend request silent fallback
     }
 
-    let stored = localStorage.getItem(key);
-    let msgs = stored ? JSON.parse(stored) : null;
-    if (!msgs || !Array.isArray(msgs) || msgs.length === 0) {
-      msgs = defaultMessages;
-      localStorage.setItem(key, JSON.stringify(msgs));
-    }
-    let res = msgs;
+    try {
+      const stored = localStorage.getItem(key);
+      const localMsgs = stored ? JSON.parse(stored) : defaultMessages;
+      if (Array.isArray(localMsgs)) {
+        localMsgs.forEach(lm => {
+          if (!combined.some(cm => cm.id === lm.id)) {
+            combined.push(lm);
+          }
+        });
+      }
+    } catch (e) {}
+
+    let res = combined;
     if (channel) res = res.filter(m => m.channel === channel);
-    if (contactId) res = res.filter(m => m.sender_id === contactId || m.receiver_id === contactId);
-    return res;
+    if (contactId) {
+      const cId = contactId.toLowerCase().trim();
+      res = res.filter(m =>
+        (m.sender_id || '').toLowerCase().trim() === cId ||
+        (m.receiver_id || '').toLowerCase().trim() === cId ||
+        (m.sender_name || '').toLowerCase().trim() === cId ||
+        (m.receiver_name || '').toLowerCase().trim() === cId
+      );
+    }
+    return res.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   }
 
   async sendMessage(data) {

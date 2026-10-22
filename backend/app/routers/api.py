@@ -1626,9 +1626,23 @@ def list_messages(
     if channel and isinstance(channel, str):
         filtered = [m for m in filtered if m.get("channel") == channel]
     if contact_id and isinstance(contact_id, str):
-        filtered = [m for m in filtered if m.get("sender_id") == contact_id or m.get("receiver_id") == contact_id]
+        cid = contact_id.lower().strip()
+        filtered = [
+            m for m in filtered
+            if (m.get("sender_id", "").lower().strip() == cid or
+                m.get("receiver_id", "").lower().strip() == cid or
+                m.get("sender_name", "").lower().strip() == cid or
+                m.get("receiver_name", "").lower().strip() == cid)
+        ]
     if user_id and isinstance(user_id, str):
-        filtered = [m for m in filtered if m.get("sender_id") == user_id or m.get("receiver_id") == user_id]
+        uid = user_id.lower().strip()
+        filtered = [
+            m for m in filtered
+            if (m.get("sender_id", "").lower().strip() == uid or
+                m.get("receiver_id", "").lower().strip() == uid or
+                m.get("sender_name", "").lower().strip() == uid or
+                m.get("receiver_name", "").lower().strip() == uid)
+        ]
     return sorted(filtered, key=lambda m: m.get("timestamp", ""))
 
 @router.post("/messages")

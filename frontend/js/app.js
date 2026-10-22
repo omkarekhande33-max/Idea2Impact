@@ -1804,11 +1804,22 @@ class App {
   renderCandidateHrMessagesTab(data) {
     const { messages = [], candidateId = 'cand-01', candidateName = 'Alex Rivera' } = data;
 
-    // Filter messages for this candidate and HR
-    const thread = (messages || []).filter(m =>
-      m.channel === 'candidate' &&
-      (m.sender_id === candidateId || m.receiver_id === candidateId || m.sender_role === 'candidate' || m.receiver_role === 'candidate')
-    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    // Filter messages specifically for this candidate and HR
+    const candIdLower = (candidateId || '').toLowerCase().trim();
+    const candNameLower = (candidateName || '').toLowerCase().trim();
+
+    const thread = (messages || []).filter(m => {
+      if (m.channel !== 'candidate') return false;
+      const sId = (m.sender_id || '').toLowerCase().trim();
+      const rId = (m.receiver_id || '').toLowerCase().trim();
+      const sName = (m.sender_name || '').toLowerCase().trim();
+      const rName = (m.receiver_name || '').toLowerCase().trim();
+
+      const isCandidateMsg = (sId === candIdLower || rId === candIdLower || sName === candNameLower || rName === candNameLower);
+      const isHrMsg = (m.sender_role === 'hr' || m.receiver_role === 'hr' || sId === 'hr-01' || rId === 'hr-01');
+
+      return isCandidateMsg && isHrMsg;
+    }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     const quickChips = [
       '📅 Inquire about technical interview schedule',
@@ -1818,7 +1829,7 @@ class App {
     ];
 
     const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
-    const candAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candidateName)}`;
 
     return `
       <div class="dashboard-header" style="margin-bottom:0.75rem;">
@@ -1871,9 +1882,9 @@ class App {
               <p style="font-size:0.85rem;">Reach out to Elena regarding open roles, your verified assessment scores, or to coordinate an interview.</p>
             </div>
           ` : thread.map(m => {
-            const isFromCandidate = m.sender_role === 'candidate' || m.sender_id === candidateId;
+            const isFromCandidate = m.sender_role === 'candidate' || (m.sender_id && m.sender_id.toLowerCase().trim() === candIdLower) || (m.sender_name && m.sender_name.toLowerCase().trim() === candNameLower);
             const senderAvatar = isFromCandidate ? candAvatar : hrAvatar;
-            const senderLabel = isFromCandidate ? `You (${candidateName})` : 'Elena Rostova (Executive Recruiter • HR)';
+            const senderLabel = isFromCandidate ? `You (${candidateName})` : `${m.sender_name || 'Elena Rostova'} (HR)`;
             const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
             return `
@@ -2619,8 +2630,7 @@ class App {
           timestamp: nowIso
         });
 
-        // Trigger automatic HR reply simulation
-        triggerSimulatedHrReply();
+        state.showToast('Message sent to HR!', 'success');
       } catch (err) {
         state.showToast(err.message, 'danger');
       } finally {
@@ -7157,47 +7167,88 @@ class App {
     // Contacts setup
     let contacts = [];
     if (channel === 'candidate') {
-      contacts = [
-        {
-          id: 'cand-01',
-          name: 'Alex Rivera',
-          roleTitle: 'Senior Full-Stack Engineer',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          badge: '94% Match',
-          verifiedSkill: 'Python & FastAPI',
-          email: 'alex.rivera@example.com'
-        },
-        {
-          id: 'cand-02',
-          name: 'Priya Sharma',
-          roleTitle: 'AI & ML Systems Engineer',
-          avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-          badge: '85% Match',
-          verifiedSkill: 'AI & LLM Integration',
-          email: 'priya.sharma@example.com'
-        },
-        {
-          id: 'cand-03',
-          name: 'Jordan Lee',
-          roleTitle: 'Frontend Engineer & UI Architect',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-          badge: '78% Match',
-          verifiedSkill: 'Modern JavaScript & Frontend',
-          email: 'jordan.lee@example.com'
-        }
-      ];
+      const demoAccountIds = new Set(['cand-01', 'cand-02', 'cand-03', 'cand-skills-test-01']);
+      const demoAccountNames = new Set(['alex rivera', 'priya sharma', 'jordan lee', 'test candidate']);
+      const demoAccountEmails = new Set(['alex.rivera@example.com', 'priya.sharma@example.com', 'jordan.lee@example.com', 'test.candidate@example.com']);
+      const demoAccountUsernames = new Set(['alex', 'alexrivera', 'candidate', 'priyasharma', 'jordanlee', 'testcandidate']);
+
+      const isDemoCandidate = (u) => {
+        if (!u) return true;
+        const id = (u.id || '').toLowerCase().trim();
+        const name = (u.full_name || u.name || '').toLowerCase().trim();
+        const email = (u.email || '').toLowerCase().trim();
+        const username = (u.username || '').toLowerCase().trim();
+        return demoAccountIds.has(id) || demoAccountNames.has(name) || demoAccountEmails.has(email) || demoAccountUsernames.has(username);
+      };
+
+      // 1. Real candidates from server profiles (api.getProfiles('candidate'))
       if (Array.isArray(candidates)) {
         candidates.forEach(c => {
-          if (!contacts.some(cc => cc.id === c.id)) {
+          if (!isDemoCandidate(c) && !contacts.some(cc => cc.id === c.id || (c.email && cc.email === c.email))) {
             contacts.push({
               id: c.id,
               name: c.full_name || c.name || 'Candidate',
-              roleTitle: c.target_role || 'Engineering Candidate',
-              avatar: c.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-              badge: 'Verified Candidate',
-              verifiedSkill: 'Core Verified Skills',
-              email: c.email || 'candidate@idea2impact.dev'
+              roleTitle: c.target_role || c.title || 'Verified Candidate',
+              avatar: c.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(c.full_name || c.name || 'Candidate')}`,
+              badge: 'Registered User',
+              verifiedSkill: c.bio || 'Verified Candidate Account',
+              email: c.email || `${c.username || 'candidate'}@idea2impact.dev`
             });
+          }
+        });
+      }
+
+      // 2. Real candidates from localStorage ('i2i_registered_users')
+      try {
+        const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+        localUsers.forEach(u => {
+          if (u.role === 'candidate' && !isDemoCandidate(u) && !contacts.some(cc => cc.id === u.id || (u.email && cc.email === u.email))) {
+            contacts.push({
+              id: u.id,
+              name: u.full_name || u.name || 'Candidate',
+              roleTitle: u.target_role || u.title || 'Registered Candidate',
+              avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.full_name || u.name || 'Candidate')}`,
+              badge: 'Registered User',
+              verifiedSkill: u.bio || 'Verified Candidate Account',
+              email: u.email || `${u.username || 'candidate'}@idea2impact.dev`
+            });
+          }
+        });
+      } catch (e) {}
+
+      // 3. Active user if candidate
+      if (state.activeUser && state.activeUser.role === 'candidate' && !isDemoCandidate(state.activeUser)) {
+        if (!contacts.some(cc => cc.id === state.activeUser.id || (state.activeUser.email && cc.email === state.activeUser.email))) {
+          contacts.unshift({
+            id: state.activeUser.id,
+            name: state.activeUser.name || 'Current Candidate',
+            roleTitle: state.activeUser.title || 'Active Candidate Account',
+            avatar: state.activeUser.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser.name)}`,
+            badge: 'Active User',
+            verifiedSkill: 'Current Candidate Session',
+            email: state.activeUser.email || 'candidate@idea2impact.dev'
+          });
+        }
+      }
+
+      // 4. Any real candidate found in allMessages
+      if (Array.isArray(allMessages)) {
+        allMessages.forEach(m => {
+          if (m.channel === 'candidate') {
+            const isCandSender = m.sender_role === 'candidate';
+            const candId = isCandSender ? m.sender_id : (m.receiver_role === 'candidate' ? m.receiver_id : null);
+            const candName = isCandSender ? m.sender_name : (m.receiver_role === 'candidate' ? m.receiver_name : null);
+            if (candId && candName && !isDemoCandidate({ id: candId, name: candName }) && !contacts.some(cc => cc.id === candId)) {
+              contacts.push({
+                id: candId,
+                name: candName,
+                roleTitle: 'Registered Candidate',
+                avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candName)}`,
+                badge: 'Active Conversation',
+                verifiedSkill: 'Direct Messaging',
+                email: `${candName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+              });
+            }
           }
         });
       }
@@ -7246,14 +7297,48 @@ class App {
       }
     }
 
-    this.activeContactId = this.activeContactId || {};
-    const activeId = this.activeContactId[channel] || contacts[0].id;
-    const activeContact = contacts.find(c => c.id === activeId) || contacts[0];
+    if (contacts.length === 0) {
+      return `
+        <div class="dashboard-header" style="margin-bottom:0.75rem;">
+          <div class="dashboard-title">
+            <h2>💬 Candidate Direct Messages</h2>
+            <p>Communicate in real time with real registered candidate users.</p>
+          </div>
+          <span class="badge badge-role" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
+            Real Users Only • AI Demo Accounts Excluded
+          </span>
+        </div>
 
-    const threadMessages = allMessages.filter(m =>
+        <div class="card" style="text-align:center; padding:4rem 2rem;">
+          <div style="font-size:3.5rem; margin-bottom:1rem;">👥</div>
+          <h3 style="font-size:1.35rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">No Registered Candidate Users Yet</h3>
+          <p style="color:var(--text-muted); max-width:520px; margin:0 auto 1.5rem; line-height:1.6;">
+            All AI demo accounts have been filtered out. Only real users who create an account on this website as a <b>Candidate</b> will appear here for direct 2-way messaging and interview scheduling.
+          </p>
+          <div style="display:flex; justify-content:center; gap:1rem;">
+            <button class="btn btn-primary" onclick="state.openLogin('register', 'candidate');">
+              + Register a Real Candidate Account to Test
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    this.activeContactId = this.activeContactId || {};
+    const activeId = this.activeContactId[channel] || (contacts.length > 0 ? contacts[0].id : null);
+    const activeContact = contacts.find(c => c.id === activeId) || (contacts.length > 0 ? contacts[0] : null);
+
+    const threadMessages = activeContact ? allMessages.filter(m =>
       m.channel === channel &&
-      (m.sender_id === activeContact.id || m.receiver_id === activeContact.id)
-    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      (
+        m.sender_id === activeContact.id ||
+        m.receiver_id === activeContact.id ||
+        (activeContact.name && (
+          (m.sender_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim() ||
+          (m.receiver_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim()
+        ))
+      )
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) : [];
 
     const quickChips = channel === 'candidate' ? [
       '📅 Schedule Technical Interview',
@@ -8217,8 +8302,7 @@ class App {
             if (timeEl) timeEl.innerText = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
           }
 
-          // Trigger automated realistic candidate/founder reply
-          triggerSimulatedReply(contactId, contactName, contactAvatar);
+          state.showToast(`Message sent to ${contactName}!`, 'success');
         } catch (err) {
           state.showToast(err.message, 'danger');
         } finally {

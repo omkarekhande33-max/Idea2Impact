@@ -8429,6 +8429,20 @@
       "user_id": "found-01",
       "details": "Meeting with Victoria Sterling on 2026-03-09T14:00:00Z",
       "timestamp": "2026-10-22T19:38:23.422301+00:00"
+    },
+    {
+      "id": "log-63ef05d1",
+      "event": "Direct Message Sent",
+      "user_id": "cand-291eba",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-22T20:20:50.229491+00:00"
+    },
+    {
+      "id": "log-9d73b24b",
+      "event": "Direct Message Sent",
+      "user_id": "hr-01",
+      "details": "Message sent from hr to candidate (candidate channel)",
+      "timestamp": "2026-10-22T20:20:50.327026+00:00"
     }
   ],
   "match_results": [
@@ -19343,6 +19357,71 @@
       "channel": "investor",
       "timestamp": "2026-03-03T11:00:00Z",
       "is_read": true
+    },
+    {
+      "id": "msg-real-01",
+      "sender_id": "cand-291eba",
+      "receiver_id": "hr-01",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "Test User",
+      "receiver_name": "Elena Rostova",
+      "text": "Hello Elena! I registered my candidate profile on Idea2Impact and completed my assessment verification. I am eager to discuss open backend engineering positions with your team.",
+      "channel": "candidate",
+      "timestamp": "2026-10-22T14:10:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-real-02",
+      "sender_id": "hr-01",
+      "receiver_id": "cand-291eba",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "Elena Rostova",
+      "receiver_name": "Test User",
+      "text": "Hi Test User! Thank you for registering on Idea2Impact. We reviewed your verified credentials and would love to schedule a technical screen. Looking forward to speaking soon!",
+      "channel": "candidate",
+      "timestamp": "2026-10-22T14:30:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-real-03",
+      "sender_id": "cand-3354dd",
+      "receiver_id": "hr-01",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh wagh",
+      "receiver_name": "Elena Rostova",
+      "text": "Hi Elena! Excited to join Idea2Impact as a candidate. Looking forward to discussing technical engineering roles.",
+      "channel": "candidate",
+      "timestamp": "2026-10-22T15:00:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-0c55b5a4",
+      "sender_id": "cand-291eba",
+      "receiver_id": "hr-01",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "Test User",
+      "receiver_name": "Elena Rostova",
+      "text": "Automated validation: Candidate sending message to HR.",
+      "channel": "candidate",
+      "timestamp": "2026-10-22T20:20:50.213488+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-d7ccaf58",
+      "sender_id": "hr-01",
+      "receiver_id": "cand-291eba",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "Elena Rostova",
+      "receiver_name": "Test User",
+      "text": "Automated validation: HR replying to Candidate.",
+      "channel": "candidate",
+      "timestamp": "2026-10-22T20:20:50.275801+00:00",
+      "is_read": false
     }
   ]
 }
