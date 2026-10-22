@@ -38,7 +38,7 @@ class StateManager {
     }
 
     const savedRole = localStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || 'candidate';
-    this.activeTab = (savedRole === 'candidate') ? 'jobs' : 'overview';
+    this.activeTab = (savedRole === 'candidate') ? 'jobs' : (savedRole === 'investor' ? 'shared-pitches' : 'overview');
     this.authMode = 'landing'; // 'landing' | 'signin' | 'role-pick' | 'register'
     this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
     this.tabSwitchCount = 0;
@@ -69,7 +69,7 @@ class StateManager {
       email: user.email,
       avatar_url: user.avatar_url
     };
-    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
+    this.activeTab = (role === 'candidate') ? 'jobs' : (role === 'investor' ? 'shared-pitches' : 'overview');
     this.showToast(`Signed in successfully! Entering ${role.toUpperCase()} Mode.`, 'success');
     this.notify();
   }
@@ -113,14 +113,16 @@ class StateManager {
       return;
     }
     this.currentRole = role;
-    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
+    this.activeTab = (role === 'candidate') ? 'jobs' : (role === 'investor' ? 'shared-pitches' : 'overview');
     localStorage.setItem('i2i_role', role);
     this.notify();
   }
 
   setTab(tab) {
-    if (this.currentRole === 'founder' && !['overview', 'gemini-studio'].includes(tab)) {
+    if (this.currentRole === 'founder' && !['overview', 'gemini-studio', 'meet-investor', 'meet-invester', 'hr-messages', 'investor-messages', 'invester-messages'].includes(tab)) {
       this.activeTab = 'overview';
+    } else if (this.currentRole === 'investor' && !['shared-pitches', 'pitch-calls'].includes(tab)) {
+      this.activeTab = 'shared-pitches';
     } else {
       this.activeTab = tab;
     }
