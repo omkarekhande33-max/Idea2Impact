@@ -131,7 +131,10 @@ class App {
           ],
           founder: [
             { label: 'Startup Overview', tab: 'overview' },
-            { label: '✦ Google Gemini Pro', tab: 'gemini-studio' }
+            { label: '✦ Google Gemini Pro', tab: 'gemini-studio' },
+            { label: 'Meet Investor', tab: 'meet-investor' },
+            { label: 'HR Message', tab: 'hr-messages' },
+            { label: 'Investor Message', tab: 'investor-messages' }
           ],
           investor: [
             { label: 'Dashboard', tab: 'overview' },
@@ -4132,18 +4135,27 @@ class App {
   // 3. FOUNDER DASHBOARD (Section 6.3 & 2.2)
   // =========================================================================
   async renderFounderDashboard() {
-    const founderId = state.activeUser.id;
+    const founderId = state.activeUser?.id || 'found-01';
     let startups = [];
+    let messages = [];
+    let meetings = [];
 
     try {
-      startups = await api.getStartups();
+      [startups, messages, meetings] = await Promise.all([
+        api.getStartups().catch(() => []),
+        api.getMessages().catch(() => []),
+        api.getMeetings().catch(() => [])
+      ]);
     } catch (e) {
       console.warn("Founder data fetch error", e);
     }
 
     let currentTab = state.activeTab;
-    // Founder mode only supports Startup Overview and Google Gemini Pro
-    if (currentTab !== 'overview' && currentTab !== 'gemini-studio') {
+    if (currentTab === 'meet-invester') currentTab = 'meet-investor';
+    if (currentTab === 'invester-messages' || currentTab === 'investor-message') currentTab = 'investor-messages';
+
+    const validFounderTabs = ['overview', 'gemini-studio', 'meet-investor', 'hr-messages', 'investor-messages'];
+    if (!validFounderTabs.includes(currentTab)) {
       currentTab = 'overview';
       state.activeTab = 'overview';
     }
@@ -4183,12 +4195,24 @@ class App {
                 <span class="sidebar-link-content" style="color:#0F766E; font-weight:700;">✦ Google Gemini Pro</span>
                 <span class="sidebar-badge" style="background:#0F766E; color:#fff;">AI</span>
               </button>
+              <button class="sidebar-link ${currentTab === 'meet-investor' ? 'active' : ''}" data-tab="meet-investor">
+                <span class="sidebar-link-content">🎥 Meet Investor</span>
+                <span class="sidebar-badge" style="background:#10B981; color:#fff;">Meet</span>
+              </button>
+              <button class="sidebar-link ${currentTab === 'hr-messages' ? 'active' : ''}" data-tab="hr-messages">
+                <span class="sidebar-link-content">💬 HR Message</span>
+                <span class="sidebar-badge" style="background:#2563EB; color:#fff;">HR</span>
+              </button>
+              <button class="sidebar-link ${currentTab === 'investor-messages' ? 'active' : ''}" data-tab="investor-messages">
+                <span class="sidebar-link-content">💼 Investor Message</span>
+                <span class="sidebar-badge" style="background:#8B5CF6; color:#fff;">VC</span>
+              </button>
             </nav>
           </div>
 
           <!-- Main Content -->
           <div class="dashboard-content" id="founder-content-area">
-            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, founderId })}
+            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, founderId, messages, meetings })}
           </div>
         </div>
       </div>
@@ -4198,14 +4222,23 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachFounderEvents({ currentStartup, founderId });
+    this.attachFounderEvents({ currentStartup, founderId, messages, meetings, currentTab });
   }
 
   renderFounderTabContent(tab, data) {
-    const { currentStartup, founderId } = data;
+    const { currentStartup, founderId, messages, meetings } = data;
 
     if (tab === 'gemini-studio') {
       return this.renderGeminiStudio(currentStartup, founderId);
+    }
+    if (tab === 'meet-investor') {
+      return this.renderFounderMeetInvestorTab(data);
+    }
+    if (tab === 'hr-messages') {
+      return this.renderFounderHrMessagesTab(data);
+    }
+    if (tab === 'investor-messages') {
+      return this.renderFounderInvestorMessagesTab(data);
     }
 
     // Default tab: 'overview'
@@ -4314,6 +4347,587 @@ class App {
           </div>
         </div>
       `;
+  }
+
+  renderFounderMeetInvestorTab(data) {
+    const { currentStartup, meetings = [], founderId = 'found-01' } = data;
+
+    // Filter investor meetings
+    const investorMeetings = (meetings || []).filter(m =>
+      m.channel === 'investor' ||
+      m.meeting_type?.toLowerCase().includes('pitch') ||
+      m.meeting_type?.toLowerCase().includes('diligence') ||
+      m.title?.toLowerCase().includes('pitch') ||
+      m.investor_name ||
+      m.participant?.includes('Investor') ||
+      m.participant?.includes('Ventures') ||
+      m.participant?.includes('Capital') ||
+      m.id?.startsWith('mtg-inv')
+    );
+
+    const activeList = investorMeetings.length > 0 ? investorMeetings : [
+      {
+        id: 'mtg-inv-01',
+        title: 'Seed Round Pitch & Technical Deep-Dive',
+        meeting_type: 'Pitch & Technical Deep-Dive',
+        participant: 'Michael Chen (General Partner, Apex Ventures)',
+        investor_name: 'Michael Chen',
+        investor_firm: 'Apex Ventures',
+        founder_name: state.activeUser?.name || 'Sarah Lin',
+        startup_name: currentStartup?.name || 'EcoTrace AI',
+        time: 'Tomorrow, 3:30 PM EST',
+        scheduled_at: '2026-03-05T15:30:00Z',
+        meeting_link: 'https://meet.google.com/i2i-apex-pitch',
+        status: 'Confirmed',
+        agenda: 'Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for $1.2M Seed Ask.'
+      },
+      {
+        id: 'mtg-inv-02',
+        title: 'Series Seed Due Diligence Sync',
+        meeting_type: 'Due Diligence & Cap Table Review',
+        participant: 'Sophia Zhang (Horizon Capital)',
+        investor_name: 'Sophia Zhang',
+        investor_firm: 'Horizon Capital',
+        founder_name: state.activeUser?.name || 'Sarah Lin',
+        startup_name: currentStartup?.name || 'EcoTrace AI',
+        time: 'Friday, 11:00 AM EST',
+        scheduled_at: '2026-03-06T11:00:00Z',
+        meeting_link: 'https://meet.google.com/i2i-horizon-dd',
+        status: 'Confirmed',
+        agenda: 'Enterprise pipeline evaluation, ESG data compliance benchmarks, and customer retention metrics.'
+      }
+    ];
+
+    const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const instantMeetUrl = 'https://meet.google.com/i2i-pitch-' + Math.random().toString(36).substr(2, 6);
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:1.25rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+            🎥 Meet Investor — Live Pitch & Diligence Rooms
+          </h2>
+          <p style="font-size:0.86rem; color:#64748B; margin:0;">
+            Conduct live video pitch sessions with venture capitalists via Google Meet, demonstrate your 92.5% readiness score, and coordinate seed term sheet execution.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <a href="${instantMeetUrl}" target="_blank" class="btn btn-primary" id="founder-instant-meet-btn" style="background:linear-gradient(135deg, #059669 0%, #10B981 100%); border:none; display:flex; align-items:center; gap:0.45rem; font-weight:700; box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+            <span>🎥</span> Conduct Instant Google Meet
+          </a>
+          <button class="btn btn-outline" id="founder-msg-inv-shortcut-btn" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+            <span>💬</span> Message Investors
+          </button>
+        </div>
+      </div>
+
+      <!-- Instant Google Meet Launcher Hero Card -->
+      <div class="card" style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #064E3B 100%); color:#FFFFFF; border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-lg); padding:1.4rem 1.6rem; margin-bottom:1.5rem; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.2rem;">
+          <div style="max-width:580px;">
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.4); padding:0.25rem 0.65rem; border-radius:999px; font-size:0.72rem; font-weight:800; color:#34D399; margin-bottom:0.5rem; letter-spacing:0.04em;">
+              <span>🟢</span> GOOGLE MEET INTEGRATED • READY TO BROADCAST
+            </div>
+            <h3 style="font-size:1.25rem; font-weight:800; color:#FFFFFF; margin:0 0 0.35rem 0;">
+              Conduct Live Google Meet with Investor
+            </h3>
+            <p style="font-size:0.85rem; color:#CBD5E1; margin:0; line-height:1.5;">
+              Open a secure, high-definition Google Meet pitch room directly from Idea2Impact. Share your screen to demo your <strong>${currentStartup?.name || 'EcoTrace AI'}</strong> unit economics and 75/25 engineering team roadmap.
+            </p>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
+            <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:var(--radius-sm); padding:0.6rem 0.85rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+              <span id="instant-meet-link-text" style="font-family:monospace; font-size:0.8rem; color:#A7F3D0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                ${instantMeetUrl}
+              </span>
+              <button type="button" class="btn btn-sm btn-outline founder-copy-instant-meet-btn" data-url="${instantMeetUrl}" style="color:#FFF; border-color:rgba(255,255,255,0.3); padding:0.2rem 0.5rem; font-size:0.72rem;">
+                📋 Copy
+              </button>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <a href="${instantMeetUrl}" target="_blank" class="btn btn-primary btn-sm" style="flex:1; background:#10B981; border:none; display:flex; align-items:center; justify-content:center; gap:0.4rem; font-weight:700;">
+                <span>🚀</span> Launch Room Now
+              </a>
+              <button type="button" class="btn btn-outline btn-sm founder-regen-meet-btn" style="color:#FFF; border-color:rgba(255,255,255,0.3); font-size:0.75rem;">
+                🔄 New Link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.25fr 0.85fr; gap:1.5rem; align-items:start;">
+        <!-- Left: Confirmed Video Meetings with Investors -->
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="font-size:1.1rem; font-weight:800; color:#0F172A; margin:0;">
+              Confirmed Google Meet Pitches (${activeList.length})
+            </h3>
+            <span class="badge badge-verified" style="background:#ECFDF5; color:#059669; border-color:#A7F3D0; font-size:0.75rem;">
+              ⚡ Dual-Verified Calendar
+            </span>
+          </div>
+
+          ${activeList.map(mtg => {
+            const timeDisplay = mtg.scheduled_at
+              ? new Date(mtg.scheduled_at).toLocaleString([], { dateStyle:'medium', timeStyle:'short' })
+              : (mtg.time || 'Tomorrow, 3:30 PM EST');
+            const meetLink = mtg.meeting_link || 'https://meet.google.com/i2i-apex-pitch';
+            const investorFirm = mtg.investor_firm || 'Apex Ventures';
+            const investorName = mtg.investor_name || 'Michael Chen';
+
+            return `
+              <div class="sb-job-card" style="border-left:4px solid #10B981; background:#FFFFFF; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <div class="sb-job-card-top">
+                  <div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+                      <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-weight:700; font-size:0.72rem;">
+                        💼 ${investorFirm}
+                      </span>
+                      <span class="badge badge-verified" style="font-size:0.72rem;">
+                        ${mtg.status || 'Confirmed'}
+                      </span>
+                    </div>
+                    <h3 class="sb-job-title" style="font-size:1.15rem; margin-bottom:0.25rem; color:#0F172A;">
+                      ${mtg.meeting_type || mtg.title || 'Investor Pitch & Technical Sync'}
+                    </h3>
+                    <p style="font-size:0.82rem; color:#64748B; margin:0;">
+                      Investor: <strong>${investorName}</strong> • Startup: <strong>${currentStartup?.name || 'EcoTrace AI'}</strong>
+                    </p>
+                  </div>
+                  <div>
+                    <span style="font-size:0.82rem; font-weight:800; color:#059669; background:#ECFDF5; padding:0.35rem 0.75rem; border-radius:var(--radius-sm); border:1px solid #A7F3D0; display:inline-flex; align-items:center; gap:0.3rem;">
+                      ⏰ ${timeDisplay}
+                    </span>
+                  </div>
+                </div>
+
+                <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:0.85rem; border:1px solid #E2E8F0;">
+                  <span style="font-size:0.78rem; font-weight:700; color:#334155;">Meeting Agenda & Discussion Topics:</span>
+                  <p style="font-size:0.82rem; color:#475569; margin:0.2rem 0 0 0; line-height:1.5;">
+                    ${mtg.agenda || 'Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters.'}
+                  </p>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1rem; flex-wrap:wrap; gap:0.6rem;">
+                  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <a href="${meetLink}" target="_blank" class="btn btn-primary btn-sm" style="background:#16A34A; border-color:#16A34A; display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+                      🎥 Join Google Meet
+                    </a>
+                    <button type="button" class="btn btn-outline btn-sm founder-copy-meet-btn" data-link="${meetLink}" style="font-size:0.78rem;">
+                      📋 Copy Link
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm founder-cal-btn" data-title="${mtg.title || 'Investor Pitch'}" data-time="${timeDisplay}">
+                      📅 Add to Calendar
+                    </button>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm founder-chat-investor-btn" data-investor="${investorName}" style="color:#7C3AED; border-color:#DDD6FE; font-weight:700;">
+                    💬 Chat with ${investorName.split(' ')[0]}
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <!-- Pitch Deck & Term Sheet Prep Card -->
+          <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:var(--radius-md); padding:1.25rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+              <span style="font-size:1.2rem;">💡</span>
+              <h4 style="font-size:0.95rem; font-weight:800; color:#166534; margin:0;">
+                Conducting High-Conversion Investor Google Meets
+              </h4>
+            </div>
+            <ul style="font-size:0.82rem; color:#14532D; margin:0; padding-left:1.25rem; line-height:1.6; display:flex; flex-direction:column; gap:0.35rem;">
+              <li><strong>Lead with Verified Readiness:</strong> Show your 92.5% Founder Readiness Score and autonomous business feasibility model from Gemini Pro Studio.</li>
+              <li><strong>Explain Dual-Tier 75/25 Architecture:</strong> Demonstrate how hiring verified engineers with 75% core mandatory skills reduces onboarding from 6 weeks to 3 days.</li>
+              <li><strong>Term Sheet Parameters:</strong> Be prepared to discuss your $1.2M Seed Ask, 12% equity target, and $320k contracted ARR pipeline.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: Schedule Google Meet with Investor Form -->
+        <div class="card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.35rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <span style="font-size:1.3rem;">⚡</span>
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800; color:#0F172A; margin:0;">Schedule Google Meet</h3>
+              <p style="font-size:0.78rem; color:#64748B; margin:0.15rem 0 0;">Lock in a video pitch slot with leading venture partners</p>
+            </div>
+          </div>
+
+          <form id="founder-meet-form" style="display:flex; flex-direction:column; gap:1rem;">
+            <div>
+              <label for="founder-meet-investor" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Select Investor Partner</label>
+              <select id="founder-meet-investor" class="form-select" style="font-size:0.85rem;" required>
+                <option value="Michael Chen|Apex Ventures|inv-01">Michael Chen (General Partner, Apex Ventures — $1.2M Seed Lead)</option>
+                <option value="Sophia Zhang|Horizon Capital|inv-02">Sophia Zhang (Investment Partner, Horizon Capital — AI Growth)</option>
+                <option value="Victoria Sterling|Apex Frontier VC|inv-03">Victoria Sterling (Managing Director, Apex Frontier VC)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="founder-meet-type" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Meeting Type / Pitch Stage</label>
+              <select id="founder-meet-type" class="form-select" style="font-size:0.85rem;" required>
+                <option value="Seed Round Pitch & Technical Deep-Dive">Seed Round Pitch & Technical Deep-Dive (45 mins)</option>
+                <option value="Term Sheet Negotiation & Valuation Sync">Term Sheet Negotiation & Valuation Sync (45 mins)</option>
+                <option value="Series Seed Due Diligence Sync">Series Seed Due Diligence Sync (30 mins)</option>
+                <option value="Autonomous Architecture & ARR Walkthrough">Autonomous Architecture & ARR Walkthrough (30 mins)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="founder-meet-date" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Preferred Date</label>
+              <input type="date" id="founder-meet-date" class="form-input" style="font-size:0.85rem;" min="${todayStr}" value="${tomorrowStr}" required />
+            </div>
+
+            <div>
+              <label for="founder-meet-time" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Time Slot</label>
+              <select id="founder-meet-time" class="form-select" style="font-size:0.85rem;" required>
+                <option value="11:00 AM EST">11:00 AM EST (Morning Pitch)</option>
+                <option value="02:00 PM EST">02:00 PM EST (Early Afternoon)</option>
+                <option value="03:30 PM EST" selected>03:30 PM EST (Late Afternoon)</option>
+                <option value="05:00 PM EST">05:00 PM EST (Partner Meeting)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="founder-meet-agenda" style="font-size:0.8rem; font-weight:700; color:#334155; display:block; margin-bottom:0.35rem;">Pitch Agenda / Executive Summary</label>
+              <textarea id="founder-meet-agenda" class="form-input" rows="3" style="font-size:0.85rem; resize:vertical;" placeholder="Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for $1.2M Seed Ask.">Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for $1.2M Seed Ask.</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="founder-meet-submit-btn" style="background:#10B981; border:none; padding:0.75rem 1rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:0.25rem;">
+              <span>📅</span> Schedule Google Meet Pitch
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  renderFounderHrMessagesTab(data) {
+    const { messages = [], founderId = 'found-01', currentStartup } = data;
+    const founderName = state.activeUser?.name || 'Sarah Lin';
+
+    // Filter messages for founder channel
+    const thread = (messages || []).filter(m =>
+      m.channel === 'founder'
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const quickChips = [
+      '📋 Request candidate shortlist for 75/25 backend role',
+      '⚡ How is candidate screening progressing for EcoTrace AI?',
+      '💡 Let\'s fast-track candidate Alex Rivera to offer stage',
+      '📄 Send updated hiring specification from Gemini Pro Studio'
+    ];
+
+    const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:0.75rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+            💬 HR Message — Direct Communication
+          </h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">
+            Send and receive real-time messages with Head of Talent Elena Rostova to coordinate hiring specifications, review 75/25 candidate match dossiers, and align on offer timelines.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="founder-open-gemini-spec-btn" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+            ✦ Open Gemini Pro Studio →
+          </button>
+        </div>
+      </div>
+
+      <div class="cand-chat-card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 20px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:640px; overflow:hidden;">
+        <!-- Recruiter Profile Top Bar -->
+        <div style="padding:0.95rem 1.25rem; background:#FFFFFF; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:0.85rem;">
+            <div style="position:relative;">
+              <img src="${hrAvatar}" alt="Elena Rostova" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;" />
+              <span style="position:absolute; bottom:1px; right:1px; width:11px; height:11px; background:#10B981; border:2px solid #FFF; border-radius:50%;"></span>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary); margin:0;">Elena Rostova</h4>
+                <span class="badge badge-role" style="font-size:0.7rem;">Head of Technical Talent</span>
+                <span class="badge badge-verified" style="font-size:0.7rem;">NovaTech Systems</span>
+              </div>
+              <p style="font-size:0.78rem; color:#64748B; margin:0.2rem 0 0 0;">
+                ⚡ Dual-Tier 75/25 Hiring Lead • ✉️ elena.rostova@novatech.io • Active Now
+              </p>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="founder-chat-simulate-hr-btn" title="Simulate incoming reply from HR">
+              ⚡ Simulate HR Reply
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="hr-chat-messages-container" id="founder-hr-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
+          <div class="hr-chat-date-pill">Direct Thread with Elena Rostova (HR)</div>
+
+          ${thread.length === 0 ? `
+            <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+              <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+              <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your conversation with HR</h4>
+              <p style="font-size:0.85rem;">Reach out to Elena regarding hiring specifications generated by Gemini Pro Studio or coordinate candidate screenings.</p>
+            </div>
+          ` : thread.map(m => {
+            const isFounder = m.sender_role === 'founder' || m.sender_id === founderId;
+            const senderAvatar = isFounder ? founderAvatar : hrAvatar;
+            const senderLabel = isFounder ? `You (${founderName} • Founder)` : `${m.sender_name || 'Elena Rostova'} (Executive Recruiter • HR)`;
+            const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+            return `
+              <div class="hr-msg-row ${isFounder ? 'outgoing' : 'incoming'}">
+                <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+                <div class="hr-msg-content">
+                  <span class="hr-msg-sender-name">${senderLabel}</span>
+                  <div class="hr-msg-bubble">${m.text}</div>
+                  <span class="hr-msg-time">${timeDisplay}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <div id="founder-hr-typing-slot"></div>
+        </div>
+
+        <!-- Quick Reply Chips Bar -->
+        <div class="hr-quick-replies-bar">
+          <span style="font-size:0.75rem; color:#94A3B8; font-weight:700; align-self:center; margin-right:0.25rem;">Quick:</span>
+          ${quickChips.map(chip => `
+            <button type="button" class="hr-quick-chip founder-hr-quick-chip" data-text="${chip}">${chip}</button>
+          `).join('')}
+        </div>
+
+        <!-- Input Area -->
+        <div class="hr-chat-input-area">
+          <input
+            type="text"
+            class="hr-chat-input-field"
+            id="founder-hr-chat-input"
+            placeholder="Type a message to Elena Rostova (HR)... (Press Enter to send)"
+            autocomplete="off"
+          />
+          <button class="hr-chat-send-btn" id="founder-hr-chat-send-btn">
+            <span>Send</span> ✈️
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderFounderInvestorMessagesTab(data) {
+    const { messages = [], founderId = 'found-01', currentStartup } = data;
+    const founderName = state.activeUser?.name || 'Sarah Lin';
+
+    const investors = [
+      {
+        id: 'inv-01',
+        name: 'Michael Chen',
+        firm: 'Apex Ventures',
+        roleTitle: 'General Partner • Apex Ventures',
+        badge: 'Lead Seed ($1.2M)',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        email: 'm.chen@apexventures.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      },
+      {
+        id: 'inv-02',
+        name: 'Sophia Zhang',
+        firm: 'Horizon Capital',
+        roleTitle: 'Investment Partner • AI Growth',
+        badge: 'Climate & AI Fund',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+        email: 's.zhang@horizoncap.io',
+        meetLink: 'https://meet.google.com/i2i-horizon-dd'
+      },
+      {
+        id: 'inv-03',
+        name: 'Victoria Sterling',
+        firm: 'Apex Frontier VC',
+        roleTitle: 'Managing Director • Frontier Tech',
+        badge: 'Due Diligence Lead',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        email: 'v.sterling@apexfrontier.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      }
+    ];
+
+    const activeInvestor = this._selectedInvestorContact || investors[0];
+
+    // Filter investor messages for active contact
+    const investorMessages = (messages || []).filter(m =>
+      m.channel === 'investor' &&
+      (m.sender_id === activeInvestor.id || m.receiver_id === activeInvestor.id || m.sender_name?.includes(activeInvestor.name) || m.receiver_name?.includes(activeInvestor.name))
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const quickChips = [
+      '📊 Current ARR is $320k with 4 enterprise pilots converting next month',
+      '📈 Our 75/25 technical team architecture has reduced onboarding to 3 days',
+      '🤝 We\'d love to review term sheet parameters on Thursday',
+      '💡 Sharing our Gemini Pro feature breakdown & unit economics model'
+    ];
+
+    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:0.75rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+            💼 Investor Message — Venture Direct Messaging
+          </h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">
+            Send and receive direct messages with venture partners regarding seed funding, term sheet negotiation, enterprise ARR traction, and Google Meet pitch scheduling.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn btn-primary btn-sm" id="founder-jump-meet-investor-btn" style="background:#10B981; border:none; display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+            🎥 Meet Investor (Google Meet) →
+          </button>
+        </div>
+      </div>
+
+      <div class="hr-messages-wrapper" id="founder-inv-messages-wrapper" style="margin-top:0.5rem;">
+        <!-- Left: Investor Contacts List -->
+        <div class="hr-messages-sidebar" style="width:310px; min-width:280px;">
+          <div class="hr-contacts-header">
+            <div class="hr-contacts-search">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="founder-inv-contacts-search" placeholder="Search investors & venture funds..." />
+            </div>
+          </div>
+
+          <div class="hr-contacts-list" id="founder-inv-contacts-list">
+            ${investors.map(inv => {
+              const invMsgs = (messages || []).filter(m =>
+                m.channel === 'investor' && (m.sender_id === inv.id || m.receiver_id === inv.id || m.sender_name?.includes(inv.name) || m.receiver_name?.includes(inv.name))
+              ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+              const last = invMsgs[invMsgs.length - 1];
+              const unread = invMsgs.filter(m => !m.is_read && m.sender_role === 'investor').length;
+              const isActive = inv.id === activeInvestor.id;
+              const timeStr = last ? new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
+
+              return `
+                <div class="hr-contact-item ${isActive ? 'active' : ''} founder-inv-contact-item" data-id="${inv.id}">
+                  <div class="hr-contact-avatar-wrap">
+                    <img src="${inv.avatar}" alt="${inv.name}" class="hr-contact-avatar" />
+                    <span class="hr-contact-status-dot"></span>
+                  </div>
+                  <div class="hr-contact-info">
+                    <div class="hr-contact-top-row">
+                      <span class="hr-contact-name">${inv.name}</span>
+                      <span class="hr-contact-time">${timeStr}</span>
+                    </div>
+                    <div class="hr-contact-sub">
+                      <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.65rem; padding:0.1rem 0.35rem;">
+                        ${inv.badge}
+                      </span>
+                      <span>${inv.firm}</span>
+                    </div>
+                    <span class="hr-contact-last-msg">
+                      ${last ? (last.sender_role === 'founder' ? 'You: ' : '') + last.text : 'Start pitch conversation...'}
+                    </span>
+                  </div>
+                  ${unread > 0 ? `<span class="hr-contact-unread-badge">${unread}</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Right: Chat Pane -->
+        <div class="hr-chat-pane">
+          <!-- Top Chat Header -->
+          <div class="hr-chat-header">
+            <div class="hr-chat-header-user">
+              <img src="${activeInvestor.avatar}" alt="${activeInvestor.name}" class="hr-chat-header-avatar" />
+              <div class="hr-chat-header-details">
+                <h4>
+                  ${activeInvestor.name}
+                  <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.7rem;">
+                    ${activeInvestor.badge}
+                  </span>
+                </h4>
+                <p>
+                  ${activeInvestor.roleTitle} • ✉️ ${activeInvestor.email}
+                </p>
+              </div>
+            </div>
+
+            <div class="hr-chat-header-actions">
+              <a href="${activeInvestor.meetLink}" target="_blank" class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+                🎥 Google Meet
+              </a>
+              <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="founder-inv-simulate-btn" title="Simulate incoming reply from ${activeInvestor.name}">
+                ⚡ Simulate Reply
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Thread Container -->
+          <div class="hr-chat-messages-container" id="founder-inv-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
+            <div class="hr-chat-date-pill">Conversation with ${activeInvestor.name} (${activeInvestor.firm})</div>
+
+            ${investorMessages.length === 0 ? `
+              <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">💼</div>
+                <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your pitch conversation with ${activeInvestor.name}</h4>
+                <p style="font-size:0.85rem;">Share your enterprise traction, unit economics model, and invite them to conduct a Google Meet pitch.</p>
+              </div>
+            ` : investorMessages.map(m => {
+              const isFounder = m.sender_role === 'founder' || m.sender_id === founderId;
+              const senderAvatar = isFounder ? founderAvatar : activeInvestor.avatar;
+              const senderLabel = isFounder ? `You (${founderName} • Founder)` : `${m.sender_name || activeInvestor.name} (${activeInvestor.firm})`;
+              const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+              return `
+                <div class="hr-msg-row ${isFounder ? 'outgoing' : 'incoming'}">
+                  <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+                  <div class="hr-msg-content">
+                    <span class="hr-msg-sender-name">${senderLabel}</span>
+                    <div class="hr-msg-bubble">${m.text}</div>
+                    <span class="hr-msg-time">${timeDisplay}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            <div id="founder-inv-typing-slot"></div>
+          </div>
+
+          <!-- Quick Pitch Chips Bar -->
+          <div class="hr-quick-replies-bar">
+            <span style="font-size:0.75rem; color:#94A3B8; font-weight:700; align-self:center; margin-right:0.25rem;">Quick:</span>
+            ${quickChips.map(chip => `
+              <button type="button" class="hr-quick-chip founder-inv-quick-chip" data-text="${chip}">${chip}</button>
+            `).join('')}
+          </div>
+
+          <!-- Input Area -->
+          <div class="hr-chat-input-area">
+            <input
+              type="text"
+              class="hr-chat-input-field"
+              id="founder-inv-chat-input"
+              placeholder="Type a message to ${activeInvestor.name} (${activeInvestor.firm})... (Press Enter to send)"
+              autocomplete="off"
+            />
+            <button class="hr-chat-send-btn" id="founder-inv-chat-send-btn">
+              <span>Send</span> ✈️
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   attachFounderEvents(data) {
@@ -4798,6 +5412,545 @@ class App {
     }
 
     this.attachGeminiEvents(currentStartup, founderId);
+    this.attachFounderMeetInvestorEvents(data);
+    this.attachFounderHrMessagesEvents(data);
+    this.attachFounderInvestorMessagesEvents(data);
+  }
+
+  attachFounderMeetInvestorEvents(data) {
+    const { currentStartup, founderId } = data;
+
+    // Instant Meet copy link button
+    this.appContainer.querySelectorAll('.founder-copy-instant-meet-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const url = btn.dataset.url || 'https://meet.google.com/i2i-apex-pitch';
+        try {
+          await navigator.clipboard.writeText(url);
+          const orig = btn.innerText;
+          btn.innerText = '✅ Copied!';
+          state.showToast('📋 Google Meet link copied to clipboard!', 'success');
+          setTimeout(() => { btn.innerText = orig; }, 2000);
+        } catch (e) {
+          state.showToast('Link: ' + url, 'info');
+        }
+      });
+    });
+
+    // Instant Meet regenerate link button
+    this.appContainer.querySelectorAll('.founder-regen-meet-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newUrl = 'https://meet.google.com/i2i-pitch-' + Math.random().toString(36).substr(2, 6);
+        const linkSpan = this.appContainer.querySelector('#instant-meet-link-text');
+        const copyBtn = this.appContainer.querySelector('.founder-copy-instant-meet-btn');
+        const instantMeetBtn = this.appContainer.querySelector('#founder-instant-meet-btn');
+        if (linkSpan) linkSpan.innerText = newUrl;
+        if (copyBtn) copyBtn.dataset.url = newUrl;
+        if (instantMeetBtn) instantMeetBtn.href = newUrl;
+        state.showToast('🔄 Generated fresh Google Meet pitch link!', 'info');
+      });
+    });
+
+    // Shortcut to message investors
+    const msgInvShortcutBtn = this.appContainer.querySelector('#founder-msg-inv-shortcut-btn');
+    if (msgInvShortcutBtn) {
+      msgInvShortcutBtn.addEventListener('click', () => state.setTab('investor-messages'));
+    }
+
+    // Copy meeting links from list
+    this.appContainer.querySelectorAll('.founder-copy-meet-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const link = btn.dataset.link || 'https://meet.google.com/i2i-apex-pitch';
+        try {
+          await navigator.clipboard.writeText(link);
+          const orig = btn.innerText;
+          btn.innerText = '✅ Copied!';
+          state.showToast('📋 Google Meet link copied to clipboard!', 'success');
+          setTimeout(() => { btn.innerText = orig; }, 2000);
+        } catch (e) {
+          state.showToast('Link: ' + link, 'info');
+        }
+      });
+    });
+
+    // Add to Calendar buttons
+    this.appContainer.querySelectorAll('.founder-cal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.showToast('📅 Video pitch meeting synchronized with Google Calendar!', 'info');
+      });
+    });
+
+    // Chat with Investor buttons
+    this.appContainer.querySelectorAll('.founder-chat-investor-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const invName = btn.dataset.investor || '';
+        if (invName.toLowerCase().includes('sophia')) {
+          this._selectedInvestorContact = {
+            id: 'inv-02',
+            name: 'Sophia Zhang',
+            firm: 'Horizon Capital',
+            roleTitle: 'Investment Partner • AI Growth',
+            badge: 'Climate & AI Fund',
+            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+            email: 's.zhang@horizoncap.io',
+            meetLink: 'https://meet.google.com/i2i-horizon-dd'
+          };
+        } else if (invName.toLowerCase().includes('victoria')) {
+          this._selectedInvestorContact = {
+            id: 'inv-03',
+            name: 'Victoria Sterling',
+            firm: 'Apex Frontier VC',
+            roleTitle: 'Managing Director • Frontier Tech',
+            badge: 'Due Diligence Lead',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+            email: 'v.sterling@apexfrontier.vc',
+            meetLink: 'https://meet.google.com/i2i-apex-pitch'
+          };
+        } else {
+          this._selectedInvestorContact = {
+            id: 'inv-01',
+            name: 'Michael Chen',
+            firm: 'Apex Ventures',
+            roleTitle: 'General Partner • Apex Ventures',
+            badge: 'Lead Seed ($1.2M)',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+            email: 'm.chen@apexventures.vc',
+            meetLink: 'https://meet.google.com/i2i-apex-pitch'
+          };
+        }
+        state.setTab('investor-messages');
+      });
+    });
+
+    // Schedule Google Meet with Investor Form logic
+    const meetForm = this.appContainer.querySelector('#founder-meet-form');
+    if (meetForm) {
+      meetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const invRaw = this.appContainer.querySelector('#founder-meet-investor')?.value || 'Michael Chen|Apex Ventures|inv-01';
+        const [invName, invFirm, invId] = invRaw.split('|');
+        const meetType = this.appContainer.querySelector('#founder-meet-type')?.value;
+        const meetDate = this.appContainer.querySelector('#founder-meet-date')?.value;
+        const meetTime = this.appContainer.querySelector('#founder-meet-time')?.value;
+        const meetAgenda = this.appContainer.querySelector('#founder-meet-agenda')?.value;
+        const submitBtn = this.appContainer.querySelector('#founder-meet-submit-btn');
+
+        if (!meetDate) {
+          state.showToast('Please select a preferred meeting date.', 'warning');
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerText = 'Scheduling Pitch Meeting...';
+        }
+
+        try {
+          const roomSlug = Math.random().toString(36).substr(2, 6);
+          const meetLink = `https://meet.google.com/i2i-${roomSlug}`;
+          const scheduledIso = new Date(`${meetDate}T15:30:00Z`).toISOString();
+
+          await api.scheduleMeeting({
+            title: meetType,
+            meeting_type: meetType,
+            participant: `${invName} (${invFirm})`,
+            investor_name: invName,
+            investor_firm: invFirm,
+            investor_id: invId,
+            founder_name: state.activeUser?.name || 'Sarah Lin',
+            founder_id: founderId || 'found-01',
+            startup_name: currentStartup?.name || 'EcoTrace AI',
+            time: `${meetDate} at ${meetTime}`,
+            scheduled_at: scheduledIso,
+            meeting_link: meetLink,
+            status: 'Confirmed',
+            agenda: meetAgenda || `Seed round review and technical diligence for ${currentStartup?.name || 'EcoTrace AI'}.`
+          });
+
+          state.showToast(`🎉 Google Meet scheduled with ${invName} (${invFirm}) for ${meetDate}!`, 'success');
+          await this.renderFounderDashboard();
+        } catch (err) {
+          state.showToast(err.message, 'danger');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = '📅 Schedule Google Meet Pitch';
+          }
+        }
+      });
+    }
+  }
+
+  attachFounderHrMessagesEvents(data) {
+    const { founderId } = data;
+    const founderName = state.activeUser?.name || 'Sarah Lin';
+    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
+    const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+
+    const msgBox = this.appContainer.querySelector('#founder-hr-messages-container');
+    const input = this.appContainer.querySelector('#founder-hr-chat-input');
+    const sendBtn = this.appContainer.querySelector('#founder-hr-chat-send-btn');
+    const simulateBtn = this.appContainer.querySelector('#founder-chat-simulate-hr-btn');
+    const typingSlot = this.appContainer.querySelector('#founder-hr-typing-slot');
+    const openGeminiBtn = this.appContainer.querySelector('#founder-open-gemini-spec-btn');
+
+    if (openGeminiBtn) {
+      openGeminiBtn.addEventListener('click', () => state.setTab('gemini-studio'));
+    }
+
+    if (msgBox) {
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    // Quick chips
+    this.appContainer.querySelectorAll('.founder-hr-quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (input) {
+          input.value = chip.dataset.text;
+          input.focus();
+        }
+      });
+    });
+
+    const appendBubble = (senderRole, senderName, text, avatar, timestamp) => {
+      if (!msgBox) return;
+      const isFounder = senderRole === 'founder';
+      const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      const senderLabel = isFounder ? `You (${founderName} • Founder)` : `${senderName} (Executive Recruiter • HR)`;
+
+      const row = document.createElement('div');
+      row.className = `hr-msg-row ${isFounder ? 'outgoing' : 'incoming'}`;
+      row.innerHTML = `
+        <img src="${avatar}" alt="${senderName}" class="hr-msg-avatar" />
+        <div class="hr-msg-content">
+          <span class="hr-msg-sender-name">${senderLabel}</span>
+          <div class="hr-msg-bubble">${text}</div>
+          <span class="hr-msg-time">${timeDisplay}</span>
+        </div>
+      `;
+
+      if (typingSlot && typingSlot.parentNode === msgBox) {
+        msgBox.insertBefore(row, typingSlot);
+      } else {
+        msgBox.appendChild(row);
+      }
+      msgBox.scrollTop = msgBox.scrollHeight;
+    };
+
+    const triggerSimulatedHrReply = async () => {
+      if (!typingSlot) return;
+
+      typingSlot.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+          <img src="${hrAvatar}" style="width:28px; height:28px; border-radius:50%;" />
+          <div class="hr-typing-indicator">
+            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">Elena Rostova is typing</span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+          </div>
+        </div>
+      `;
+      if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+
+      setTimeout(async () => {
+        typingSlot.innerHTML = '';
+
+        const hrReplies = [
+          "Hi Sarah! I received your hiring spec and ran it through our 75/25 dual-tier matching engine. Candidate Alex Rivera verified at 94% compatibility and is ready for technical screening.",
+          "Great news, Sarah! Our recruitment pipeline has 3 candidates with verified skills in FastAPI and Docker who match your exact startup parameters.",
+          "I have scheduled an initial technical screening for Thursday. I will share their verified skill passport before the interview.",
+          "Understood! We've updated the compensation band and verified their background telemetry. The 75% core mandatory skills gate has saved us countless hours of screening."
+        ];
+        const replyText = hrReplies[Math.floor(Math.random() * hrReplies.length)];
+
+        const savedReply = await api.sendMessage({
+          sender_id: 'hr-01',
+          sender_role: 'hr',
+          sender_name: 'Elena Rostova',
+          receiver_id: founderId || 'found-01',
+          receiver_role: 'founder',
+          receiver_name: founderName,
+          text: replyText,
+          channel: 'founder',
+          timestamp: new Date().toISOString()
+        });
+
+        appendBubble('hr', 'Elena Rostova', replyText, hrAvatar, savedReply.timestamp);
+        state.showToast('📩 New message received from Elena Rostova (HR)!', 'info');
+      }, 1200);
+    };
+
+    const handleSend = async () => {
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.disabled = true;
+      if (sendBtn) sendBtn.disabled = true;
+
+      const nowIso = new Date().toISOString();
+      appendBubble('founder', founderName, text, founderAvatar, nowIso);
+
+      try {
+        await api.sendMessage({
+          sender_id: founderId || 'found-01',
+          sender_role: 'founder',
+          sender_name: founderName,
+          receiver_id: 'hr-01',
+          receiver_role: 'hr',
+          receiver_name: 'Elena Rostova',
+          text: text,
+          channel: 'founder',
+          timestamp: nowIso
+        });
+
+        triggerSimulatedHrReply();
+      } catch (err) {
+        state.showToast(err.message, 'danger');
+      } finally {
+        input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+      }
+    };
+
+    if (sendBtn) sendBtn.addEventListener('click', handleSend);
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSend();
+        }
+      });
+    }
+
+    if (simulateBtn) {
+      simulateBtn.addEventListener('click', () => {
+        triggerSimulatedHrReply();
+      });
+    }
+  }
+
+  attachFounderInvestorMessagesEvents(data) {
+    const { founderId } = data;
+    const founderName = state.activeUser?.name || 'Sarah Lin';
+    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
+
+    const investors = [
+      {
+        id: 'inv-01',
+        name: 'Michael Chen',
+        firm: 'Apex Ventures',
+        roleTitle: 'General Partner • Apex Ventures',
+        badge: 'Lead Seed ($1.2M)',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        email: 'm.chen@apexventures.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      },
+      {
+        id: 'inv-02',
+        name: 'Sophia Zhang',
+        firm: 'Horizon Capital',
+        roleTitle: 'Investment Partner • AI Growth',
+        badge: 'Climate & AI Fund',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+        email: 's.zhang@horizoncap.io',
+        meetLink: 'https://meet.google.com/i2i-horizon-dd'
+      },
+      {
+        id: 'inv-03',
+        name: 'Victoria Sterling',
+        firm: 'Apex Frontier VC',
+        roleTitle: 'Managing Director • Frontier Tech',
+        badge: 'Due Diligence Lead',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        email: 'v.sterling@apexfrontier.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      }
+    ];
+
+    const activeInvestor = this._selectedInvestorContact || investors[0];
+
+    // Jump to Meet Investor tab
+    const jumpMeetBtn = this.appContainer.querySelector('#founder-jump-meet-investor-btn');
+    if (jumpMeetBtn) {
+      jumpMeetBtn.addEventListener('click', () => state.setTab('meet-investor'));
+    }
+
+    // Contacts search filtering
+    const searchInput = this.appContainer.querySelector('#founder-inv-contacts-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        this.appContainer.querySelectorAll('.founder-inv-contact-item').forEach(item => {
+          const text = item.innerText.toLowerCase();
+          item.style.display = text.includes(query) ? 'flex' : 'none';
+        });
+      });
+    }
+
+    // Contact selection
+    this.appContainer.querySelectorAll('.founder-inv-contact-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const invId = item.dataset.id;
+        const target = investors.find(i => i.id === invId) || investors[0];
+        this._selectedInvestorContact = target;
+        await this.renderFounderDashboard();
+      });
+    });
+
+    const msgBox = this.appContainer.querySelector('#founder-inv-messages-container');
+    const input = this.appContainer.querySelector('#founder-inv-chat-input');
+    const sendBtn = this.appContainer.querySelector('#founder-inv-chat-send-btn');
+    const simulateBtn = this.appContainer.querySelector('#founder-inv-simulate-btn');
+    const typingSlot = this.appContainer.querySelector('#founder-inv-typing-slot');
+
+    if (msgBox) {
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    // Quick chips
+    this.appContainer.querySelectorAll('.founder-inv-quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (input) {
+          input.value = chip.dataset.text;
+          input.focus();
+        }
+      });
+    });
+
+    const appendBubble = (senderRole, senderName, text, avatar, timestamp) => {
+      if (!msgBox) return;
+      const isFounder = senderRole === 'founder';
+      const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      const senderLabel = isFounder ? `You (${founderName} • Founder)` : `${senderName} (${activeInvestor.firm})`;
+
+      const row = document.createElement('div');
+      row.className = `hr-msg-row ${isFounder ? 'outgoing' : 'incoming'}`;
+      row.innerHTML = `
+        <img src="${avatar}" alt="${senderName}" class="hr-msg-avatar" />
+        <div class="hr-msg-content">
+          <span class="hr-msg-sender-name">${senderLabel}</span>
+          <div class="hr-msg-bubble">${text}</div>
+          <span class="hr-msg-time">${timeDisplay}</span>
+        </div>
+      `;
+
+      if (typingSlot && typingSlot.parentNode === msgBox) {
+        msgBox.insertBefore(row, typingSlot);
+      } else {
+        msgBox.appendChild(row);
+      }
+      msgBox.scrollTop = msgBox.scrollHeight;
+    };
+
+    const triggerSimulatedInvestorReply = async () => {
+      if (!typingSlot) return;
+
+      typingSlot.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+          <img src="${activeInvestor.avatar}" style="width:28px; height:28px; border-radius:50%;" />
+          <div class="hr-typing-indicator">
+            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">${activeInvestor.name} is typing</span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+          </div>
+        </div>
+      `;
+      if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+
+      setTimeout(async () => {
+        typingSlot.innerHTML = '';
+
+        const repliesByInvestor = {
+          'inv-01': [
+            "Hi Sarah! We reviewed your updated $320k ARR metrics and 4 enterprise pilot conversions. Apex Ventures is ready to lead the $1.2M Seed Round. Let's finalize terms in our Google Meet pitch this Thursday.",
+            "That's great validation, Sarah. The 75/25 technical team architecture reducing onboarding to 3 days gives us high conviction in your execution velocity.",
+            "Understood! Let's schedule 45 minutes on Google Meet to review the cap table and milestone disbursement schedule.",
+            "Looking forward to our sync on Thursday! I'm bringing our principal engineer into the Google Meet to review the Gemini Pro architecture."
+          ],
+          'inv-02': [
+            "Hello Sarah, Horizon Capital loves the ESG continuous telemetry benchmarks. We'd love to join the Seed round as a co-investor alongside Apex.",
+            "The enterprise compliance metrics you sent are stellar. Looking forward to our Google Meet due diligence sync on Friday!",
+            "Thanks for sharing the unit economics model. The customer acquisition cost payback period looks very favorable."
+          ],
+          'inv-03': [
+            "Sarah, impressive work on the 92.5% Founder Readiness Score. Let's connect on Google Meet to go over governance and board observer seats.",
+            "We've circulated your seed deck with our investment committee and received positive unanimous feedback."
+          ]
+        };
+
+        const replyList = repliesByInvestor[activeInvestor.id] || repliesByInvestor['inv-01'];
+        const replyText = replyList[Math.floor(Math.random() * replyList.length)];
+
+        const savedReply = await api.sendMessage({
+          sender_id: activeInvestor.id,
+          sender_role: 'investor',
+          sender_name: `${activeInvestor.name} (${activeInvestor.firm})`,
+          receiver_id: founderId || 'found-01',
+          receiver_role: 'founder',
+          receiver_name: founderName,
+          text: replyText,
+          channel: 'investor',
+          timestamp: new Date().toISOString()
+        });
+
+        appendBubble('investor', activeInvestor.name, replyText, activeInvestor.avatar, savedReply.timestamp);
+        state.showToast(`📩 New message received from ${activeInvestor.name} (${activeInvestor.firm})!`, 'info');
+      }, 1300);
+    };
+
+    const handleSend = async () => {
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.disabled = true;
+      if (sendBtn) sendBtn.disabled = true;
+
+      const nowIso = new Date().toISOString();
+      appendBubble('founder', founderName, text, founderAvatar, nowIso);
+
+      try {
+        await api.sendMessage({
+          sender_id: founderId || 'found-01',
+          sender_role: 'founder',
+          sender_name: founderName,
+          receiver_id: activeInvestor.id,
+          receiver_role: 'investor',
+          receiver_name: activeInvestor.name,
+          text: text,
+          channel: 'investor',
+          timestamp: nowIso
+        });
+
+        triggerSimulatedInvestorReply();
+      } catch (err) {
+        state.showToast(err.message, 'danger');
+      } finally {
+        input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+      }
+    };
+
+    if (sendBtn) sendBtn.addEventListener('click', handleSend);
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSend();
+        }
+      });
+    }
+
+    if (simulateBtn) {
+      simulateBtn.addEventListener('click', () => {
+        triggerSimulatedInvestorReply();
+      });
+    }
   }
 
   renderGeminiStudio(currentStartup, founderId) {

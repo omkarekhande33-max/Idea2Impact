@@ -6957,6 +6957,40 @@
   ],
   "meetings": [
     {
+      "id": "mtg-inv-02",
+      "title": "Series Seed Due Diligence Sync",
+      "meeting_type": "Due Diligence & Cap Table Review",
+      "participant": "Sophia Zhang (Horizon Capital)",
+      "investor_name": "Sophia Zhang",
+      "investor_firm": "Horizon Capital",
+      "investor_id": "inv-02",
+      "founder_name": "Sarah Lin",
+      "founder_id": "found-01",
+      "startup_name": "EcoTrace AI",
+      "time": "Friday, 11:00 AM EST",
+      "scheduled_at": "2026-03-06T11:00:00Z",
+      "meeting_link": "https://meet.google.com/i2i-horizon-dd",
+      "status": "Confirmed",
+      "agenda": "Enterprise pipeline evaluation, ESG data compliance benchmarks, and customer retention metrics."
+    },
+    {
+      "id": "mtg-inv-01",
+      "title": "Seed Round Pitch & Technical Deep-Dive",
+      "meeting_type": "Pitch & Technical Deep-Dive",
+      "participant": "Michael Chen (General Partner, Apex Ventures)",
+      "investor_name": "Michael Chen",
+      "investor_firm": "Apex Ventures",
+      "investor_id": "inv-01",
+      "founder_name": "Sarah Lin",
+      "founder_id": "found-01",
+      "startup_name": "EcoTrace AI",
+      "time": "Tomorrow, 3:30 PM EST",
+      "scheduled_at": "2026-03-05T15:30:00Z",
+      "meeting_link": "https://meet.google.com/i2i-apex-pitch",
+      "status": "Confirmed",
+      "agenda": "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for .2M Seed Ask."
+    },
+    {
       "id": "mtg-01",
       "requester_id": "inv-01",
       "recipient_id": "found-01",
@@ -6964,7 +6998,12 @@
       "scheduled_at": "2026-03-15T18:00:00Z",
       "status": "Confirmed",
       "meeting_link": "https://meet.google.com/xyz-idea-impact",
-      "agenda": "Review enterprise pilot metrics, customer acquisition pipeline, and cap table."
+      "agenda": "Review enterprise pilot metrics, customer acquisition pipeline, and cap table.",
+      "title": "Investor Pitch & Due Diligence",
+      "investor_name": "Michael Chen",
+      "investor_firm": "Apex Ventures",
+      "founder_name": "Sarah Lin",
+      "startup_name": "EcoTrace AI"
     },
     {
       "id": "mtg-02",
@@ -6975,6 +7014,26 @@
       "status": "Confirmed",
       "meeting_link": "https://meet.google.com/nova-tech-interview",
       "agenda": "FastAPI async pipeline design and PostgreSQL indexing strategy."
+    },
+    {
+      "id": "mtg-723a53",
+      "title": "Series Seed Pitch & Demo",
+      "meeting_type": "Pitch & Demo",
+      "participant": "Victoria Sterling (Apex Frontier VC)",
+      "investor_name": "Victoria Sterling",
+      "investor_firm": "Apex Frontier VC",
+      "investor_id": "inv-01",
+      "founder_name": "Sarah Lin",
+      "founder_id": "found-01",
+      "startup_name": "EcoTrace AI",
+      "time": "Next Monday, 2:00 PM EST",
+      "requester_id": "found-01",
+      "recipient_id": "inv-01",
+      "scheduled_at": "2026-03-09T14:00:00Z",
+      "status": "Confirmed",
+      "meeting_link": "https://meet.google.com/i2i-test-sync",
+      "agenda": "Finalize .2M seed syndicate allocation.",
+      "created_at": "2026-10-22T19:38:23.349355+00:00"
     }
   ],
   "audit_logs": [
@@ -8363,6 +8422,13 @@
       "user_id": "found-01",
       "details": "Generated business architecture for 'EcoSync Horizon'",
       "timestamp": "2026-10-22T18:02:52.418184+00:00"
+    },
+    {
+      "id": "log-06207464",
+      "event": "Meeting Scheduled",
+      "user_id": "found-01",
+      "details": "Meeting with Victoria Sterling on 2026-03-09T14:00:00Z",
+      "timestamp": "2026-10-22T19:38:23.422301+00:00"
     }
   ],
   "match_results": [

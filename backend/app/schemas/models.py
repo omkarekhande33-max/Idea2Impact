@@ -145,12 +145,20 @@ class InvestorInterestRequest(BaseModel):
     note: str
 
 class MeetingRequest(BaseModel):
-    requester_id: str
-    recipient_id: str
-    meeting_type: str
-    scheduled_at: str
+    id: Optional[str] = None
+    title: Optional[str] = None
+    meeting_type: Optional[str] = "Pitch Sync"
+    participant: Optional[str] = None
+    investor_name: Optional[str] = None
+    investor_firm: Optional[str] = None
+    founder_name: Optional[str] = None
+    startup_name: Optional[str] = None
+    time: Optional[str] = None
+    requester_id: Optional[str] = "found-01"
+    recipient_id: Optional[str] = "inv-01"
+    scheduled_at: Optional[str] = None
     meeting_link: Optional[str] = "https://meet.google.com/idea2impact-call"
-    agenda: str
+    agenda: Optional[str] = "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and term sheet parameters."
 
 class MessageCreate(BaseModel):
     id: Optional[str] = None

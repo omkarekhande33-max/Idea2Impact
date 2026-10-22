@@ -1225,24 +1225,98 @@ class ApiService {
   // MEETINGS & AUDIT
   // =========================================================================
   async getMeetings(userId = '') {
+    const key = 'i2i_meetings';
+    const defaultMeetings = [
+      {
+        id: 'mtg-inv-01',
+        title: 'Seed Round Pitch & Technical Deep-Dive',
+        meeting_type: 'Pitch & Technical Deep-Dive',
+        participant: 'Michael Chen (General Partner, Apex Ventures)',
+        investor_name: 'Michael Chen',
+        investor_firm: 'Apex Ventures',
+        founder_name: 'Sarah Lin',
+        startup_name: 'EcoTrace AI',
+        time: 'Tomorrow, 3:30 PM EST',
+        scheduled_at: '2026-03-05T15:30:00Z',
+        meeting_link: 'https://meet.google.com/i2i-apex-pitch',
+        status: 'Confirmed',
+        agenda: 'Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and lead term sheet parameters for $1.2M Seed Ask.'
+      },
+      {
+        id: 'mtg-inv-02',
+        title: 'Series Seed Due Diligence Sync',
+        meeting_type: 'Due Diligence & Cap Table Review',
+        participant: 'Sophia Zhang (Horizon Capital)',
+        investor_name: 'Sophia Zhang',
+        investor_firm: 'Horizon Capital',
+        founder_name: 'Sarah Lin',
+        startup_name: 'EcoTrace AI',
+        time: 'Friday, 11:00 AM EST',
+        scheduled_at: '2026-03-06T11:00:00Z',
+        meeting_link: 'https://meet.google.com/i2i-horizon-dd',
+        status: 'Confirmed',
+        agenda: 'Enterprise pipeline evaluation, ESG data compliance benchmarks, and customer retention metrics.'
+      }
+    ];
+
     try {
-      return await this.request(userId ? `/meetings?user_id=${userId}` : '/meetings');
+      const serverMeetings = await this.request(userId ? `/meetings?user_id=${userId}` : '/meetings');
+      if (Array.isArray(serverMeetings) && serverMeetings.length > 0) {
+        return serverMeetings;
+      }
     } catch (e) {
-      return [
-        { id: 'mtg-01', title: 'Due Diligence Term Sheet Sync', participant: 'Victoria Sterling (Investor)', time: 'Tomorrow at 2:00 PM EST', link: 'https://meet.google.com/i2i-dd-sync' }
-      ];
+      // Backend fallback
     }
+
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      localStorage.setItem(key, JSON.stringify(defaultMeetings));
+    } catch (e) {}
+
+    return defaultMeetings;
   }
 
   async scheduleMeeting(data) {
+    const key = 'i2i_meetings';
+    let record = {
+      id: data.id || `mtg-${Date.now().toString(36)}`,
+      title: data.title || data.meeting_type || 'Investor Pitch & Technical Sync',
+      meeting_type: data.meeting_type || data.title || 'Pitch Sync',
+      participant: data.participant || data.investor_name || 'Investor Partner',
+      investor_name: data.investor_name || 'Michael Chen',
+      investor_firm: data.investor_firm || 'Apex Ventures',
+      founder_name: data.founder_name || 'Sarah Lin',
+      startup_name: data.startup_name || 'EcoTrace AI',
+      time: data.time || 'Tomorrow, 3:30 PM EST',
+      scheduled_at: data.scheduled_at || new Date().toISOString(),
+      meeting_link: data.meeting_link || `https://meet.google.com/i2i-${Math.random().toString(36).substr(2, 6)}`,
+      status: data.status || 'Confirmed',
+      agenda: data.agenda || 'Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and term sheet parameters.',
+      ...data
+    };
+
     try {
-      return await this.request('/meetings', {
+      const resp = await this.request('/meetings', {
         method: 'POST',
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
       });
-    } catch (e) {
-      return { id: `mtg-${Date.now().toString(36)}`, ...data, status: 'confirmed' };
-    }
+      if (resp && resp.data) {
+        record = resp.data;
+      }
+    } catch (e) {}
+
+    try {
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      list.unshift(record);
+      localStorage.setItem(key, JSON.stringify(list));
+    } catch (e) {}
+
+    return record;
   }
 
   async getAuditLogs() {
@@ -1786,6 +1860,58 @@ class ApiService {
         text: "Hi Marcus, yes! We have candidates with verified badges in Distributed Systems and Redis Caching. I will compile a dedicated dossier for HyperScale Data today.",
         channel: "founder",
         timestamp: "2026-03-03T16:40:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-14",
+        sender_id: "inv-01",
+        sender_role: "investor",
+        sender_name: "Michael Chen (Apex Ventures)",
+        receiver_id: "found-01",
+        receiver_role: "founder",
+        receiver_name: "Sarah Lin",
+        text: "Hi Sarah, we reviewed your EcoTrace AI proposal and 92.5% readiness score. We are very interested in leading your $1.2M Seed round. What is your current ARR and enterprise pipeline?",
+        channel: "investor",
+        timestamp: "2026-03-02T15:20:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-15",
+        sender_id: "found-01",
+        sender_role: "founder",
+        sender_name: "Sarah Lin",
+        receiver_id: "inv-01",
+        receiver_role: "investor",
+        receiver_name: "Michael Chen (Apex Ventures)",
+        text: "Hi Michael! We currently have $320k contracted ARR with 4 enterprise pilots converting next month. Our 75/25 technical team architecture has reduced onboarding from 6 weeks to 3 days.",
+        channel: "investor",
+        timestamp: "2026-03-02T15:45:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-16",
+        sender_id: "inv-01",
+        sender_role: "investor",
+        sender_name: "Michael Chen (Apex Ventures)",
+        receiver_id: "found-01",
+        receiver_role: "founder",
+        receiver_name: "Sarah Lin",
+        text: "That is exceptional traction, Sarah. Let's schedule a formal pitch meeting this Thursday to review term sheet parameters.",
+        channel: "investor",
+        timestamp: "2026-03-02T16:10:00Z",
+        is_read: false
+      },
+      {
+        id: "msg-17",
+        sender_id: "inv-02",
+        sender_role: "investor",
+        sender_name: "Sophia Zhang (Horizon Capital)",
+        receiver_id: "found-01",
+        receiver_role: "founder",
+        receiver_name: "Sarah Lin",
+        text: "Hello Sarah, loving the Gemini Pro role generation specs you published. Would love to connect for a 30-min intro sync on Thursday.",
+        channel: "investor",
+        timestamp: "2026-03-03T11:00:00Z",
         is_read: true
       }
     ];

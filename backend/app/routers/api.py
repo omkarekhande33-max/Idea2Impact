@@ -1210,25 +1210,38 @@ def list_investor_interests(investor_id: Optional[str] = Query(None)):
 # -------------------------------------------------------------
 @router.post("/meetings")
 def create_meeting(payload: MeetingRequest):
+    meet_id = payload.id or f"mtg-{str(uuid.uuid4())[:6]}"
+    scheduled_iso = payload.scheduled_at or datetime.now(timezone.utc).isoformat()
     new_meeting = {
-        "id": f"mtg-{str(uuid.uuid4())[:6]}",
-        "requester_id": payload.requester_id,
-        "recipient_id": payload.recipient_id,
-        "meeting_type": payload.meeting_type,
-        "scheduled_at": payload.scheduled_at,
+        "id": meet_id,
+        "title": payload.title or payload.meeting_type or "Investor Pitch & Technical Sync",
+        "meeting_type": payload.meeting_type or "Pitch Sync",
+        "participant": payload.participant or (f"{payload.investor_name} ({payload.investor_firm})" if payload.investor_name else "Investor Partner"),
+        "investor_name": payload.investor_name or "Michael Chen",
+        "investor_firm": payload.investor_firm or "Apex Ventures",
+        "investor_id": payload.recipient_id or "inv-01",
+        "founder_name": payload.founder_name or "Sarah Lin",
+        "founder_id": payload.requester_id or "found-01",
+        "startup_name": payload.startup_name or "EcoTrace AI",
+        "time": payload.time or "Tomorrow, 3:30 PM EST",
+        "requester_id": payload.requester_id or "found-01",
+        "recipient_id": payload.recipient_id or "inv-01",
+        "scheduled_at": scheduled_iso,
         "status": "Confirmed",
-        "meeting_link": payload.meeting_link,
-        "agenda": payload.agenda
+        "meeting_link": payload.meeting_link or f"https://meet.google.com/i2i-{str(uuid.uuid4())[:6]}",
+        "agenda": payload.agenda or "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and term sheet parameters.",
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     db.insert("meetings", new_meeting)
-    db.log_audit("Meeting Scheduled", payload.requester_id, f"Meeting with {payload.recipient_id} on {payload.scheduled_at}")
-    return new_meeting
+    db.log_audit("Meeting Scheduled", new_meeting["founder_id"], f"Meeting with {new_meeting['investor_name']} on {new_meeting['scheduled_at']}")
+    return {"success": True, "message": "Meeting scheduled successfully", "data": new_meeting}
 
 @router.get("/meetings")
 def list_meetings(user_id: Optional[str] = Query(None)):
-    if user_id:
-        return db.find_many("meetings", lambda m: m["requester_id"] == user_id or m["recipient_id"] == user_id)
-    return db.get_table("meetings")
+    meetings = db.get_table("meetings")
+    if user_id and isinstance(user_id, str):
+        meetings = [m for m in meetings if m.get("user_id") == user_id or m.get("participant_id") == user_id or m.get("founder_id") == user_id or m.get("investor_id") == user_id or m.get("requester_id") == user_id or m.get("recipient_id") == user_id]
+    return sorted(meetings, key=lambda m: m.get("scheduled_at", ""), reverse=True)
 
 @router.get("/audit-logs")
 def list_audit_logs():
@@ -1640,37 +1653,7 @@ def send_message(payload: MessageCreate):
     db.log_audit("Direct Message Sent", payload.sender_id, f"Message sent from {payload.sender_role} to {payload.receiver_role} ({payload.channel} channel)")
     return {"success": True, "message": "Message sent successfully", "data": record}
 
-@router.get("/meetings")
-def list_meetings(user_id: Optional[str] = Query(None)):
-    """Retrieve scheduled meetings."""
-    meetings = db.get_table("meetings")
-    if user_id and isinstance(user_id, str):
-        meetings = [m for m in meetings if m.get("user_id") == user_id or m.get("participant_id") == user_id or m.get("founder_id") == user_id or m.get("investor_id") == user_id]
-    return sorted(meetings, key=lambda m: m.get("scheduled_at", ""), reverse=True)
 
-@router.post("/meetings")
-def schedule_meeting(payload: dict):
-    """Schedule a new pitch or technical meeting."""
-    meet_id = payload.get("id") or f"mtg-{str(uuid.uuid4())[:8]}"
-    record = {
-        "id": meet_id,
-        "title": payload.get("title", "Investor Pitch & Technical Sync"),
-        "meeting_type": payload.get("meeting_type", "Pitch Sync"),
-        "participant": payload.get("participant", "Investor Partner"),
-        "investor_name": payload.get("investor_name", "Michael Chen"),
-        "investor_firm": payload.get("investor_firm", "Apex Ventures"),
-        "founder_name": payload.get("founder_name", "Sarah Lin"),
-        "startup_name": payload.get("startup_name", "EcoTrace AI"),
-        "time": payload.get("time", "Tomorrow, 3:30 PM EST"),
-        "scheduled_at": payload.get("scheduled_at") or datetime.now(timezone.utc).isoformat(),
-        "meeting_link": payload.get("meeting_link") or f"https://meet.google.com/i2i-{str(uuid.uuid4())[:6]}",
-        "status": payload.get("status", "Confirmed"),
-        "agenda": payload.get("agenda", "Review 92.5% Founder Readiness Score, dual-tier hiring architecture, and term sheet parameters."),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    db.insert("meetings", record)
-    db.log_audit("Meeting Scheduled", payload.get("founder_id", "founder"), f"Scheduled {record['meeting_type']} with {record['investor_name']}")
-    return {"success": True, "message": "Meeting scheduled successfully", "data": record}
 
 
 
