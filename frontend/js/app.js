@@ -9156,6 +9156,7 @@ class App {
           const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
           triggerSimulatedReply(contactId, contactName, contactAvatar);
+        });
       }
     }
 
@@ -9694,7 +9695,12 @@ class App {
   }
 }
 
-// Instantiate on DOM load
-window.addEventListener('DOMContentLoaded', () => {
+// Instantiate on DOM load or immediately if DOM is already ready
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', () => {
+    new App();
+  });
+} else {
   new App();
-});
+}
+

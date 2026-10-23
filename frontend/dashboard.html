@@ -8,7 +8,7 @@
   
   <!-- Immediate Auth Guard: if not authenticated, redirect to login.html -->
   <script>
-    if (!localStorage.getItem('i2i_token')) {
+    if (!localStorage.getItem('i2i_token') || !localStorage.getItem('i2i_user')) {
       window.location.replace('login.html');
     }
   </script>
