@@ -2334,7 +2334,8 @@ class ApiService {
         const rName = (m.receiver_name || '').toLowerCase().trim();
         return sId === cId || rId === cId || sName === cId || rName === cId ||
                sId.includes(cId) || rId.includes(cId) || sName.includes(cId) || rName.includes(cId) ||
-               (cId.length > 3 && (cId.includes(sId) || cId.includes(rId) || cId.includes(sName) || cId.includes(rName)));
+               (cId.length > 3 && (cId.includes(sId) || cId.includes(rId) || cId.includes(sName) || cId.includes(rName))) ||
+               (cId.includes('rushikesh') && (sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh')));
       });
     }
     return res.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -2342,14 +2343,15 @@ class ApiService {
 
   async sendMessage(data) {
     const key = 'i2i_messages';
+    const isHrSender = data.sender_role === 'hr';
     let record = {
       id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      sender_id: data.sender_id || 'hr-01',
+      sender_id: data.sender_id || (isHrSender ? 'hr-koomal123456' : 'cand-rushikesh12345'),
       receiver_id: data.receiver_id,
-      sender_role: data.sender_role || 'hr',
-      receiver_role: data.receiver_role || 'candidate',
-      sender_name: data.sender_name || 'Elena Rostova',
-      receiver_name: data.receiver_name || '',
+      sender_role: data.sender_role || (data.receiver_role === 'hr' ? 'candidate' : 'hr'),
+      receiver_role: data.receiver_role || (data.sender_role === 'hr' ? 'candidate' : 'hr'),
+      sender_name: data.sender_name || (isHrSender ? 'koomal@123456' : 'rushikesh@12345'),
+      receiver_name: data.receiver_name || (isHrSender ? 'rushikesh@12345' : 'koomal@123456'),
       text: data.text,
       channel: data.channel || 'candidate',
       timestamp: data.timestamp || new Date().toISOString(),

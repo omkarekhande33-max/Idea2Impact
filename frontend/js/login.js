@@ -233,7 +233,7 @@ class LoginController {
           this.showAlert('Account created successfully! Launching your workspace...', 'success');
           state.setAuth(res.user, res.token);
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = `dashboard.html?role=${encodeURIComponent(res.user.role || 'candidate')}`;
           }, 600);
         } catch (err) {
           this.showAlert(err.message || 'Registration failed. Username or email may already be in use.', 'error');
@@ -252,7 +252,7 @@ class LoginController {
       this.showAlert(`Welcome back, ${res.user.full_name || res.user.username}! Loading workspace...`, 'success');
       state.setAuth(res.user, res.token);
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        window.location.href = `dashboard.html?role=${encodeURIComponent(res.user.role || 'candidate')}`;
       }, 500);
     } catch (err) {
       const msg = (err.message || '').toLowerCase();

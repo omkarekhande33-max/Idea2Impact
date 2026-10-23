@@ -9,20 +9,35 @@ export const DEFAULT_USERS = {
 
 class StateManager {
   constructor() {
-    this.authToken = localStorage.getItem('i2i_token') || null;
+    // 1. Read tab-scoped session first, with seamless localStorage fallback
+    this.authToken = sessionStorage.getItem('i2i_token') || localStorage.getItem('i2i_token') || null;
     let savedUser = null;
     try {
-      const uStr = localStorage.getItem('i2i_user');
+      const uStr = sessionStorage.getItem('i2i_user') || localStorage.getItem('i2i_user');
       if (uStr) savedUser = JSON.parse(uStr);
     } catch (e) {
       savedUser = null;
     }
     this.authUser = savedUser;
 
+    const urlParams = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search) : null;
+    const urlRole = urlParams ? urlParams.get('role') : null;
+
     // Requirement: When user initially visits website, show ONLY login/register page!
     // When authenticated, open their specific mode (candidate, founder, hr, investor).
     if (this.isAuthenticated()) {
-      const savedRole = localStorage.getItem('i2i_role') || this.authUser.role || 'candidate';
+      let savedRole = urlRole || sessionStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || localStorage.getItem('i2i_role') || 'candidate';
+
+      // If URL specified a role and the current user's role doesn't match, check DEFAULT_USERS for instant switch
+      if (urlRole && DEFAULT_USERS[urlRole] && this.authUser && this.authUser.role !== urlRole) {
+        this.authUser = DEFAULT_USERS[urlRole];
+        savedRole = urlRole;
+        try {
+          sessionStorage.setItem('i2i_user', JSON.stringify(this.authUser));
+          sessionStorage.setItem('i2i_role', savedRole);
+        } catch(e) {}
+      }
+
       this.currentRole = savedRole;
       this.activeUser = {
         id: this.authUser.id,
@@ -39,7 +54,7 @@ class StateManager {
       this.activeUser = null;
     }
 
-    const savedRole = localStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || 'candidate';
+    const savedRole = urlRole || sessionStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || localStorage.getItem('i2i_role') || 'candidate';
     this.activeTab = (savedRole === 'candidate') ? 'jobs' : (savedRole === 'investor' ? 'shared-pitches' : 'overview');
     this.authMode = 'landing'; // 'landing' | 'signin' | 'role-pick' | 'register'
     this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
@@ -57,12 +72,24 @@ class StateManager {
   setAuth(user, token) {
     this.authToken = token;
     this.authUser = user;
-    localStorage.setItem('i2i_token', token);
-    localStorage.setItem('i2i_user', JSON.stringify(user));
 
     const role = user.role || 'candidate';
     this.currentRole = role;
-    localStorage.setItem('i2i_role', role);
+
+    // Tab-scoped storage (prevents Candidate tab and HR tab from clobbering each other!)
+    try {
+      sessionStorage.setItem('i2i_token', token);
+      sessionStorage.setItem('i2i_user', JSON.stringify(user));
+      sessionStorage.setItem('i2i_role', role);
+    } catch (e) {}
+
+    // Global localStorage fallback
+    try {
+      localStorage.setItem('i2i_token', token);
+      localStorage.setItem('i2i_user', JSON.stringify(user));
+      localStorage.setItem('i2i_role', role);
+    } catch (e) {}
+
     this.activeUser = {
       id: user.id,
       name: user.full_name || user.name || user.username,
@@ -81,9 +108,14 @@ class StateManager {
   logout() {
     this.authToken = null;
     this.authUser = null;
-    localStorage.removeItem('i2i_token');
-    localStorage.removeItem('i2i_user');
-    localStorage.removeItem('i2i_role');
+    try {
+      sessionStorage.removeItem('i2i_token');
+      sessionStorage.removeItem('i2i_user');
+      sessionStorage.removeItem('i2i_role');
+      localStorage.removeItem('i2i_token');
+      localStorage.removeItem('i2i_user');
+      localStorage.removeItem('i2i_role');
+    } catch (e) {}
     this.currentRole = 'candidate';
     this.authMode = 'landing';
     this.activeUser = null;

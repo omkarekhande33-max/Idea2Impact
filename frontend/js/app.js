@@ -988,7 +988,7 @@ class App {
         api.getMyApplications(candidateId),
         api.getSkills(),
         api.getCandidateSkills(candidateId).catch(() => []),
-        api.getMessages('candidate', candidateId).catch(() => []),
+        api.getMessages('candidate').catch(() => []),
         api.getMeetings(candidateId).catch(() => [])
       ]);
     } catch (e) {
@@ -1905,9 +1905,22 @@ class App {
     const candIdLower = (myCandId || '').toLowerCase().trim();
     const candNameLower = (myCandName || '').toLowerCase().trim();
 
+    const isRushikeshKoomalMsg = (m) => {
+      if (m.channel !== 'candidate') return false;
+      const sId = (m.sender_id || '').toLowerCase();
+      const rId = (m.receiver_id || '').toLowerCase();
+      const sName = (m.sender_name || '').toLowerCase();
+      const rName = (m.receiver_name || '').toLowerCase();
+      const hasRushi = sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh') || sId === candIdLower || rId === candIdLower || sName === candNameLower || rName === candNameLower;
+      const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                    sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                    sId === 'hr-koomal123456' || rId === 'hr-koomal123456' || m.sender_role === 'hr' || m.receiver_role === 'hr';
+      return hasRushi && hasHr;
+    };
+
     const thread = (messages || []).filter(m => {
       if (m.channel !== 'candidate') return false;
-      return this.isMessageBetween(
+      return isRushikeshKoomalMsg(m) || this.isMessageBetween(
         m,
         'candidate', myCandId, myCandName, state.activeUser?.username, myCandEmail,
         'hr', activeHr.id, activeHr.name, activeHr.name, activeHr.email
@@ -2080,6 +2093,75 @@ class App {
         </div>
       </div>
     `;
+  }
+
+  updateCandidateChatMessages(messages) {
+    const candMsgBox = document.getElementById('cand-chat-messages-container');
+    if (!candMsgBox) return;
+
+    const myCandId = state.activeUser?.id || 'cand-rushikesh12345';
+    const myCandName = state.activeUser?.name || state.activeUser?.full_name || 'rushikesh@12345';
+    const myCandEmail = state.activeUser?.email || 'rushikesh@12345';
+    const candIdLower = (myCandId || '').toLowerCase().trim();
+    const candNameLower = (myCandName || '').toLowerCase().trim();
+    const activeHrName = 'koomal@123456';
+    const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+    const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(myCandName)}`;
+
+    const isRushikeshKoomalMsg = (m) => {
+      if (m.channel !== 'candidate') return false;
+      const sId = (m.sender_id || '').toLowerCase();
+      const rId = (m.receiver_id || '').toLowerCase();
+      const sName = (m.sender_name || '').toLowerCase();
+      const rName = (m.receiver_name || '').toLowerCase();
+      const hasRushi = sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh') || sId === candIdLower || rId === candIdLower || sName === candNameLower || rName === candNameLower;
+      const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                    sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                    sId === 'hr-koomal123456' || rId === 'hr-koomal123456' || m.sender_role === 'hr' || m.receiver_role === 'hr';
+      return hasRushi && hasHr;
+    };
+
+    const thread = (messages || []).filter(m => {
+      if (m.channel !== 'candidate') return false;
+      return isRushikeshKoomalMsg(m) || this.isMessageBetween(
+        m,
+        'candidate', myCandId, myCandName, state.activeUser?.username, myCandEmail,
+        'hr', 'hr-koomal123456', activeHrName, activeHrName, activeHrName
+      );
+    }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const html = `
+      <div class="hr-chat-date-pill">Direct Thread with ${activeHrName} (HR)</div>
+      ${thread.length === 0 ? `
+        <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+          <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+          <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your conversation with ${activeHrName} (HR)</h4>
+          <p style="font-size:0.85rem;">Reach out to ${activeHrName} regarding open roles, your verified assessment scores, or to coordinate an interview.</p>
+        </div>
+      ` : thread.map(m => {
+        const isFromCandidate = m.sender_role === 'candidate' ||
+          (m.sender_id && (m.sender_id.toLowerCase().trim() === candIdLower || m.sender_id.toLowerCase().includes('rushikesh'))) ||
+          (m.sender_name && (m.sender_name.toLowerCase().trim() === candNameLower || m.sender_name.toLowerCase().includes('rushikesh')));
+        const senderAvatar = isFromCandidate ? candAvatar : hrAvatar;
+        const senderLabel = isFromCandidate ? `You (${myCandName})` : `${m.sender_name || activeHrName} (HR)`;
+        const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+        return `
+          <div class="hr-msg-row ${isFromCandidate ? 'outgoing' : 'incoming'}">
+            <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+            <div class="hr-msg-content">
+              <span class="hr-msg-sender-name">${senderLabel}</span>
+              <div class="hr-msg-bubble">${m.text}</div>
+              <span class="hr-msg-time">${timeDisplay}</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      <div id="cand-chat-typing-slot"></div>
+    `;
+
+    candMsgBox.innerHTML = html;
+    candMsgBox.scrollTop = candMsgBox.scrollHeight;
   }
 
   renderCandidateMeetHrTab(data) {
@@ -2866,8 +2948,15 @@ class App {
       window._candChatSyncAttached = true;
       let lastKnownCandSig = '';
       const refreshCandidateIfActive = async () => {
-        if (state.currentRole === 'candidate' && state.activeTab === 'hr-messages') {
-          await this.renderCandidateDashboard();
+        const isCandRole = state.currentRole === 'candidate' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'candidate');
+        if (isCandRole && state.activeTab === 'hr-messages') {
+          const candMsgBox = document.getElementById('cand-chat-messages-container');
+          if (candMsgBox) {
+            const latest = await api.getMessages('candidate');
+            this.updateCandidateChatMessages(latest);
+          } else {
+            await this.renderCandidateDashboard();
+          }
         }
       };
 
@@ -2875,6 +2964,10 @@ class App {
         if (e.key === 'i2i_messages' || !e.key) {
           refreshCandidateIfActive();
         }
+      });
+
+      window.addEventListener('i2i_message_sent', () => {
+        refreshCandidateIfActive();
       });
 
       try {
@@ -2889,10 +2982,10 @@ class App {
       } catch (e) {}
 
       setInterval(async () => {
-        if (state.currentRole === 'candidate' && state.activeTab === 'hr-messages') {
+        const isCandRole = state.currentRole === 'candidate' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'candidate');
+        if (isCandRole && state.activeTab === 'hr-messages') {
           try {
-            const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
-            const latest = await api.getMessages('candidate', myCandId);
+            const latest = await api.getMessages('candidate');
             if (Array.isArray(latest)) {
               const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
               if (sig !== lastKnownCandSig) {
@@ -2902,7 +2995,7 @@ class App {
             }
           } catch (e) {}
         }
-      }, 2000);
+      }, 1500);
     }
 
     // Chat with HR logic
@@ -7094,9 +7187,11 @@ class App {
 
     // Guaranteed bidirectional fast-path for Rushikesh (Candidate) and Koomal (HR) direct communication
     const msgHasRushikesh = msgSender.includes('rushikesh') || msgReceiver.includes('rushikesh');
-    const msgHasKoomal = msgSender.includes('koomal') || msgReceiver.includes('koomal') || msgSender.includes('komal') || msgReceiver.includes('komal');
+    const msgHasKoomal = msgSender.includes('koomal') || msgReceiver.includes('koomal') || msgSender.includes('komal') || msgReceiver.includes('komal') ||
+                         msgSender.startsWith('hr') || msgReceiver.startsWith('hr') || msg.sender_role === 'hr' || msg.receiver_role === 'hr';
     const queryHasRushikesh = queryA.includes('rushikesh') || queryB.includes('rushikesh');
-    const queryHasKoomal = queryA.includes('koomal') || queryB.includes('koomal') || queryA.includes('komal') || queryB.includes('komal');
+    const queryHasKoomal = queryA.includes('koomal') || queryB.includes('koomal') || queryA.includes('komal') || queryB.includes('komal') ||
+                           queryA.includes('hr') || queryB.includes('hr') || roleA === 'hr' || roleB === 'hr';
 
     if (msgHasRushikesh && msgHasKoomal && queryHasRushikesh && queryHasKoomal) {
       return true;
@@ -8580,22 +8675,31 @@ class App {
     }
     const activeContact = contacts.find(c => c.id === activeId) || (contacts.length > 0 ? contacts[0] : null);
 
-    const threadMessages = activeContact ? allMessages.filter(m =>
-      m.channel === channel &&
-      (
-        this.isMessageBetween(
-          m,
-          channel, activeContact.id, activeContact.name, activeContact.name, activeContact.email,
-          'hr', hrId || 'hr-koomal123456', state.activeUser?.name || 'koomal@123456', state.activeUser?.username, state.activeUser?.email
-        ) ||
-        m.sender_id === activeContact.id ||
-        m.receiver_id === activeContact.id ||
-        (activeContact.name && (
-          (m.sender_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim() ||
-          (m.receiver_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim()
-        ))
-      )
-    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) : [];
+    const threadMessages = activeContact ? allMessages.filter(m => {
+      if (m.channel !== channel) return false;
+      if (isCandidate && ((activeContact.name || '').includes('rushikesh') || (activeContact.id || '').includes('rushikesh'))) {
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.receiver_id || '').toLowerCase();
+        const sName = (m.sender_name || '').toLowerCase();
+        const rName = (m.receiver_name || '').toLowerCase();
+        const hasRushi = sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh');
+        const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                      sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                      sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr';
+        if (hasRushi && hasHr) return true;
+      }
+      return this.isMessageBetween(
+        m,
+        channel, activeContact.id, activeContact.name, activeContact.name, activeContact.email,
+        'hr', hrId || 'hr-koomal123456', state.activeUser?.name || 'koomal@123456', state.activeUser?.username, state.activeUser?.email
+      ) ||
+      m.sender_id === activeContact.id ||
+      m.receiver_id === activeContact.id ||
+      (activeContact.name && (
+        (m.sender_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim() ||
+        (m.receiver_name || '').toLowerCase().trim() === activeContact.name.toLowerCase().trim()
+      ));
+    }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) : [];
 
     const quickChips = channel === 'candidate' ? [
       '📅 Schedule Technical Interview',
@@ -8638,16 +8742,16 @@ class App {
 
           <div class="hr-contacts-list" id="hr-contacts-list">
             ${contacts.map(c => {
-              const cMsgs = allMessages.filter(m =>
-                m.channel === channel && (
-                  m.sender_id === c.id || m.receiver_id === c.id ||
-                  (c.name && (
-                    (m.sender_name || '').toLowerCase().trim() === c.name.toLowerCase().trim() ||
-                    (m.receiver_name || '').toLowerCase().trim() === c.name.toLowerCase().trim() ||
-                    ((c.name || '').includes('rushikesh') && ((m.sender_name || '').includes('rushikesh') || (m.receiver_name || '').includes('rushikesh')))
-                  ))
-                )
-              ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+              const cName = (c.name || '').toLowerCase().trim();
+              const cId = (c.id || '').toLowerCase().trim();
+              const cMsgs = allMessages.filter(m => {
+                if (m.channel !== channel) return false;
+                const sId = (m.sender_id || '').toLowerCase().trim();
+                const rId = (m.receiver_id || '').toLowerCase().trim();
+                const sName = (m.sender_name || '').toLowerCase().trim();
+                const rName = (m.receiver_name || '').toLowerCase().trim();
+                return sId === cId || rId === cId || sName === cName || rName === cName;
+              }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
               const last = cMsgs[cMsgs.length - 1];
               const unread = cMsgs.filter(m => !m.is_read && m.sender_role !== 'hr').length;
               const isActive = c.id === activeContact.id;
@@ -8736,11 +8840,12 @@ class App {
                 <p style="font-size:0.85rem;">Send a direct message below to start coordinating with ${activeContact.name}.</p>
               </div>
             ` : threadMessages.map(m => {
-              const isHr = m.sender_role === 'hr';
+              const isHr = m.sender_role === 'hr' || (m.sender_id && m.sender_id.includes('koomal')) || (m.sender_name && m.sender_name.includes('koomal'));
               const senderAvatar = isHr
-                ? (state.activeUser.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150')
+                ? (state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150')
                 : activeContact.avatar;
-              const senderLabel = isHr ? 'You (Elena Rostova • HR)' : `${activeContact.name} (${isCandidate ? 'Candidate' : 'Founder'})`;
+              const currentHr = state.activeUser?.name || 'koomal@123456';
+              const senderLabel = isHr ? `You (${currentHr} • HR)` : `${activeContact.name} (${isCandidate ? 'Candidate' : 'Founder'})`;
               const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
               return `
@@ -8782,6 +8887,89 @@ class App {
         </div>
       </div>
     `;
+  }
+
+  updateHrChatMessages(messages, channel = 'candidate') {
+    const hrMsgBox = document.getElementById('hr-chat-messages-container');
+    const contactsList = document.getElementById('hr-contacts-list');
+    if (!hrMsgBox) return;
+
+    const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
+    const contactId = activeContactEl ? activeContactEl.dataset.contactId : (channel === 'candidate' ? 'cand-rushikesh12345' : 'found-01');
+    const contactName = activeContactEl ? activeContactEl.dataset.contactName : (channel === 'candidate' ? 'rushikesh@12345' : 'Sarah Lin');
+    const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : (channel === 'candidate' ? 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
+
+    const hrId = state.activeUser?.id || 'hr-koomal123456';
+    const hrName = state.activeUser?.name || 'koomal@123456';
+    const hrAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+    const isCandidate = channel === 'candidate';
+
+    const thread = (messages || []).filter(m => {
+      if (m.channel !== channel) return false;
+      if (isCandidate && (contactName.includes('rushikesh') || contactId.includes('rushikesh'))) {
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.receiver_id || '').toLowerCase();
+        const sName = (m.sender_name || '').toLowerCase();
+        const rName = (m.receiver_name || '').toLowerCase();
+        const hasRushi = sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh');
+        const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                      sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                      sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr';
+        if (hasRushi && hasHr) return true;
+      }
+      return this.isMessageBetween(
+        m,
+        channel, contactId, contactName, contactName, '',
+        'hr', hrId, hrName, hrName, ''
+      ) ||
+      m.sender_id === contactId || m.receiver_id === contactId ||
+      (contactName && ((m.sender_name || '').toLowerCase().trim() === contactName.toLowerCase().trim() || (m.receiver_name || '').toLowerCase().trim() === contactName.toLowerCase().trim()));
+    }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const html = `
+      <div class="hr-chat-date-pill">Conversation with ${contactName}</div>
+      ${thread.length === 0 ? `
+        <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+          <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+          <h4 style="color:var(--primary); margin-bottom:0.25rem;">No messages exchanged yet</h4>
+          <p style="font-size:0.85rem;">Send a direct message below to start coordinating with ${contactName}.</p>
+        </div>
+      ` : thread.map(m => {
+        const isHr = m.sender_role === 'hr' || (m.sender_id && m.sender_id.includes('koomal')) || (m.sender_name && m.sender_name.includes('koomal'));
+        const senderAvatar = isHr ? hrAvatar : contactAvatar;
+        const senderLabel = isHr ? `You (${hrName} • HR)` : `${contactName} (${isCandidate ? 'Candidate' : 'Founder'})`;
+        const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+        return `
+          <div class="hr-msg-row ${isHr ? 'outgoing' : 'incoming'}">
+            <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
+            <div class="hr-msg-content">
+              <span class="hr-msg-sender-name">${senderLabel}</span>
+              <div class="hr-msg-bubble">${m.text}</div>
+              <span class="hr-msg-time">${timeDisplay}</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      <div id="hr-chat-typing-slot"></div>
+    `;
+
+    hrMsgBox.innerHTML = html;
+    hrMsgBox.scrollTop = hrMsgBox.scrollHeight;
+
+    // Update the active contact's last message snippet in sidebar
+    if (activeContactEl && thread.length > 0) {
+      const last = thread[thread.length - 1];
+      const lastMsgEl = activeContactEl.querySelector('.hr-contact-last-msg');
+      if (lastMsgEl) {
+        const prefix = (last.sender_role === 'hr' || (last.sender_name && last.sender_name.includes('koomal'))) ? 'You: ' : '';
+        lastMsgEl.innerText = `${prefix}${last.text}`;
+      }
+      const timeEl = activeContactEl.querySelector('.hr-contact-time');
+      if (timeEl && last.timestamp) {
+        timeEl.innerText = new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      }
+    }
   }
 
   async attachHrEvents(data) {
@@ -9632,7 +9820,8 @@ class App {
         if (!messagesBox) return;
         const isHr = senderRole === 'hr';
         const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-        const senderLabel = isHr ? 'You (Elena Rostova • HR)' : `${senderName} (${isCandidate ? 'Candidate' : 'Founder'})`;
+        const currentHr = state.activeUser?.name || 'koomal@123456';
+        const senderLabel = isHr ? `You (${currentHr} • HR)` : `${senderName} (${isCandidate ? 'Candidate' : 'Founder'})`;
 
         const row = document.createElement('div');
         row.className = `hr-msg-row ${isHr ? 'outgoing' : 'incoming'}`;
@@ -10057,8 +10246,16 @@ class App {
       window._hrChatSyncAttached = true;
       let lastKnownHrSig = '';
       const refreshHrIfActive = async () => {
-        if (state.currentRole === 'hr' && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
-          await this.renderHrDashboard();
+        const isHrRole = state.currentRole === 'hr' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'hr');
+        if (isHrRole) {
+          const hrMsgBox = document.getElementById('hr-chat-messages-container');
+          const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
+          if (hrMsgBox) {
+            const latest = await api.getMessages(ch);
+            this.updateHrChatMessages(latest, ch);
+          } else if (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline') {
+            await this.renderHrDashboard();
+          }
         }
       };
 
@@ -10066,6 +10263,10 @@ class App {
         if (e.key === 'i2i_messages' || !e.key) {
           refreshHrIfActive();
         }
+      });
+
+      window.addEventListener('i2i_message_sent', () => {
+        refreshHrIfActive();
       });
 
       try {
@@ -10080,7 +10281,8 @@ class App {
       } catch (e) {}
 
       setInterval(async () => {
-        if (state.currentRole === 'hr' && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
+        const isHrRole = state.currentRole === 'hr' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'hr');
+        if (isHrRole && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
           try {
             const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
             const latest = await api.getMessages(ch);
@@ -10093,7 +10295,7 @@ class App {
             }
           } catch (e) {}
         }
-      }, 2000);
+      }, 1500);
     }
   }
 
