@@ -64,6 +64,18 @@ INITIAL_DATA = {
             "created_at": "2026-01-20T11:00:00Z"
         },
         {
+            "id": "inv-prasad12345",
+            "full_name": "prasad@12345",
+            "username": "prasad@12345",
+            "email": "prasad@12345",
+            "role": "investor",
+            "firm": "Apex Frontier Ventures",
+            "title": "General Partner • Apex Frontier Ventures",
+            "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=prasad",
+            "bio": "General Partner at Apex Frontier Ventures. Backing early-stage AI, Sustainability, and Enterprise SaaS.",
+            "created_at": "2026-03-01T08:00:00Z"
+        },
+        {
             "id": "inv-01",
             "full_name": "Victoria Sterling",
             "email": "v.sterling@apexfrontier.vc",
@@ -908,6 +920,45 @@ INITIAL_DATA = {
             "channel": "investor",
             "timestamp": "2026-03-03T11:00:00Z",
             "is_read": True
+        },
+        {
+            "id": "msg-prasad-hi-01",
+            "sender_id": "inv-prasad12345",
+            "sender_role": "investor",
+            "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+            "receiver_id": "found-omkar12345",
+            "receiver_role": "founder",
+            "receiver_name": "omkar@12345",
+            "text": "hi",
+            "channel": "investor",
+            "timestamp": "2026-10-23T11:05:00Z",
+            "is_read": False
+        },
+        {
+            "id": "msg-prasad-hi-02",
+            "sender_id": "inv-prasad12345",
+            "sender_role": "investor",
+            "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+            "receiver_id": "found-omkar12345",
+            "receiver_role": "founder",
+            "receiver_name": "omkar@12345",
+            "text": "hi Omkar, reviewed your EcoTrace AI proposal. Let's schedule a pitch meeting on Google Meet.",
+            "channel": "investor",
+            "timestamp": "2026-10-23T11:06:00Z",
+            "is_read": False
+        },
+        {
+            "id": "msg-prasad-hi-03",
+            "sender_id": "found-omkar12345",
+            "sender_role": "founder",
+            "sender_name": "omkar@12345",
+            "receiver_id": "inv-prasad12345",
+            "receiver_role": "investor",
+            "receiver_name": "prasad@12345 (Apex Frontier Ventures)",
+            "text": "Hi Prasad! Thank you for reaching out. We would love to schedule a pitch meeting on Google Meet.",
+            "channel": "investor",
+            "timestamp": "2026-10-23T11:10:00Z",
+            "is_read": True
         }
     ],
     "meetings": [
@@ -972,6 +1023,10 @@ class Database:
                     for k, v in INITIAL_DATA.items():
                         if k not in self._data:
                             self._data[k] = json.loads(json.dumps(v))
+                    existing_profile_ids = {p.get("id") for p in self._data.get("profiles", [])}
+                    for p in INITIAL_DATA.get("profiles", []):
+                        if p.get("id") not in existing_profile_ids:
+                            self._data.setdefault("profiles", []).append(p)
                     existing_msg_ids = {m.get("id") for m in self._data.get("messages", [])}
                     for m in INITIAL_DATA.get("messages", []):
                         if m.get("id") not in existing_msg_ids:

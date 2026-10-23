@@ -32,8 +32,10 @@ const DEMO_ACCOUNTS = {
   omkar: { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on Idea2Impact platform.' },
   hr: { id: 'hr-01', username: 'hr', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
   elena: { id: 'hr-01', username: 'elena', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
-  investor: { id: 'inv-01', username: 'investor', full_name: 'Victoria Sterling', role: 'investor', title: 'Partner, Apex Frontier VC', email: 'v.sterling@apexfrontier.vc', avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150', bio: 'Early-stage deeptech and AI investor looking for verified traction.' },
-  victoria: { id: 'inv-01', username: 'victoria', full_name: 'Victoria Sterling', role: 'investor', title: 'Partner, Apex Frontier VC', email: 'v.sterling@apexfrontier.vc', avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150', bio: 'Early-stage deeptech and AI investor looking for verified traction.' }
+  investor: { id: 'inv-prasad12345', username: 'prasad@12345', full_name: 'prasad@12345', name: 'prasad@12345', role: 'investor', firm: 'Apex Frontier Ventures', title: 'General Partner, Apex Frontier Ventures', email: 'prasad@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad', bio: 'General Partner at Apex Frontier Ventures. Backing early-stage AI, Climate Tech, and Enterprise SaaS.' },
+  'prasad@12345': { id: 'inv-prasad12345', username: 'prasad@12345', full_name: 'prasad@12345', name: 'prasad@12345', role: 'investor', firm: 'Apex Frontier Ventures', title: 'General Partner, Apex Frontier Ventures', email: 'prasad@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad', bio: 'General Partner at Apex Frontier Ventures. Backing early-stage AI, Climate Tech, and Enterprise SaaS.' },
+  prasad: { id: 'inv-prasad12345', username: 'prasad@12345', full_name: 'prasad@12345', name: 'prasad@12345', role: 'investor', firm: 'Apex Frontier Ventures', title: 'General Partner, Apex Frontier Ventures', email: 'prasad@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad', bio: 'General Partner at Apex Frontier Ventures. Backing early-stage AI, Climate Tech, and Enterprise SaaS.' },
+  victoria: { id: 'inv-03', username: 'victoria', full_name: 'Victoria Sterling', role: 'investor', title: 'Partner, Apex Frontier VC', email: 'v.sterling@apexfrontier.vc', avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150', bio: 'Early-stage deeptech and AI investor looking for verified traction.' }
 };
 
 export const DEFAULT_CANDIDATE_PROFILES = [
@@ -163,6 +165,20 @@ export const DEFAULT_FOUNDER_PROFILES = [
 ];
 
 export const DEFAULT_INVESTOR_PROFILES = [
+  {
+    id: 'inv-prasad12345',
+    name: 'prasad@12345',
+    full_name: 'prasad@12345',
+    username: 'prasad@12345',
+    role: 'investor',
+    firm: 'Apex Frontier Ventures',
+    roleTitle: 'General Partner • Apex Frontier Ventures',
+    badge: 'Lead Seed ($1.5M)',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad',
+    email: 'prasad@12345',
+    meetLink: 'https://meet.google.com/i2i-apex-pitch'
+  },
   {
     id: 'inv-01',
     name: 'Michael Chen',
@@ -2175,6 +2191,45 @@ class ApiService {
         text: "Hello Sarah, loving the Gemini Pro role generation specs you published. Would love to connect for a 30-min intro sync on Thursday.",
         channel: "investor",
         timestamp: "2026-03-03T11:00:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-prasad-hi-01",
+        sender_id: "inv-prasad12345",
+        sender_role: "investor",
+        sender_name: "prasad@12345 (Apex Frontier Ventures)",
+        receiver_id: "found-omkar12345",
+        receiver_role: "founder",
+        receiver_name: "omkar@12345",
+        text: "hi",
+        channel: "investor",
+        timestamp: "2026-10-23T11:05:00Z",
+        is_read: false
+      },
+      {
+        id: "msg-prasad-hi-02",
+        sender_id: "inv-prasad12345",
+        sender_role: "investor",
+        sender_name: "prasad@12345 (Apex Frontier Ventures)",
+        receiver_id: "found-omkar12345",
+        receiver_role: "founder",
+        receiver_name: "omkar@12345",
+        text: "hi Omkar, reviewed your EcoTrace AI proposal. Let's schedule a pitch meeting on Google Meet.",
+        channel: "investor",
+        timestamp: "2026-10-23T11:06:00Z",
+        is_read: false
+      },
+      {
+        id: "msg-prasad-hi-03",
+        sender_id: "found-omkar12345",
+        sender_role: "founder",
+        sender_name: "omkar@12345",
+        receiver_id: "inv-prasad12345",
+        receiver_role: "investor",
+        receiver_name: "prasad@12345 (Apex Frontier Ventures)",
+        text: "Hi Prasad! Thank you for reaching out. We would love to schedule a pitch meeting on Google Meet.",
+        channel: "investor",
+        timestamp: "2026-10-23T11:10:00Z",
         is_read: true
       }
     ];

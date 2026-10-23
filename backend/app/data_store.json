@@ -73,6 +73,20 @@
       "auth_provider": "local"
     },
     {
+      "id": "inv-prasad12345",
+      "full_name": "prasad@12345",
+      "username": "prasad@12345",
+      "email": "prasad@12345",
+      "role": "investor",
+      "firm": "Apex Frontier Ventures",
+      "title": "General Partner • Apex Frontier Ventures",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=prasad",
+      "bio": "General Partner at Apex Frontier Ventures. Backing early-stage AI, Sustainability, and Enterprise SaaS.",
+      "created_at": "2026-03-01T08:00:00Z",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
+    },
+    {
       "id": "inv-01",
       "full_name": "Victoria Sterling",
       "email": "v.sterling@apexfrontier.vc",
@@ -8511,6 +8525,13 @@
       "user_id": "found-omkar12345",
       "details": "Message sent from founder to investor (investor channel)",
       "timestamp": "2026-10-23T12:51:54.383427+00:00"
+    },
+    {
+      "id": "log-eb6256d0",
+      "event": "Direct Message Sent",
+      "user_id": "inv-prasad12345",
+      "details": "Message sent from investor to founder (investor channel)",
+      "timestamp": "2026-10-23T13:51:31.379141+00:00"
     }
   ],
   "match_results": [
@@ -19751,6 +19772,58 @@
       "channel": "investor",
       "timestamp": "2026-10-23T12:51:54.350834+00:00",
       "is_read": true
+    },
+    {
+      "id": "msg-prasad-hi-01",
+      "sender_id": "inv-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "hi",
+      "channel": "investor",
+      "timestamp": "2026-10-23T13:00:00.000000+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-prasad-hi-02",
+      "sender_id": "inv-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "hi Omkar, reviewed your EcoTrace AI proposal. Let's schedule a pitch meeting on Google Meet.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T13:01:00.000000+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-prasad-hi-03",
+      "sender_id": "found-omkar12345",
+      "sender_role": "founder",
+      "sender_name": "omkar@12345",
+      "receiver_id": "inv-prasad12345",
+      "receiver_role": "investor",
+      "receiver_name": "prasad@12345 (Apex Frontier Ventures)",
+      "text": "Hi Prasad! Thank you for reaching out. We would love to schedule a pitch meeting on Google Meet.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T11:10:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-2eeff248",
+      "sender_id": "inv-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "hi Omkar, are you free for a 15-min call?",
+      "channel": "investor",
+      "timestamp": "2026-10-23T13:51:31.354090+00:00",
+      "is_read": false
     }
   ]
 }

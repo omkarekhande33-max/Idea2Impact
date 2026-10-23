@@ -4489,6 +4489,7 @@ class App {
     const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Founder';
     const founderUsername = state.activeUser?.username || '';
     const founderEmail = state.activeUser?.email || '';
+    const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
     let startups = [];
     let messages = [];
@@ -4540,7 +4541,7 @@ class App {
           <!-- Sidebar -->
           <div class="sidebar">
             <div class="user-badge-card">
-              <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150" class="user-avatar" alt="Founder"/>
+              <img src="${founderAvatar}" class="user-avatar" alt="${founderName}"/>
               <div class="user-info">
                 <h4>${state.activeUser.name}</h4>
                 <p>Founder Mode</p>
@@ -5098,9 +5099,12 @@ class App {
 
     const investors = this.getAllInvestorsList(registeredInvestors, messages);
 
-    const activeInvestor = this._selectedInvestorContact && investors.some(i => i.id === this._selectedInvestorContact.id)
-      ? this._selectedInvestorContact
-      : (investors.length > 0 ? investors[0] : null);
+    let activeInvestor = null;
+    if (this._selectedInvestorContact && investors.some(i => i.id === this._selectedInvestorContact.id)) {
+      activeInvestor = investors.find(i => i.id === this._selectedInvestorContact.id);
+    } else {
+      activeInvestor = investors.length > 0 ? investors[0] : null;
+    }
 
     if (!activeInvestor) {
       return `
@@ -6329,6 +6333,7 @@ class App {
     // Real-time cross-mode listener
     if (!window._i2iFounderInvestorMessageSyncAttached) {
       window._i2iFounderInvestorMessageSyncAttached = true;
+      let lastKnownInvestorMsgCount = Array.isArray(messages) ? messages.filter(m => m.channel === 'investor').length : 0;
       const refreshIfActive = () => {
         if (state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
           this.renderFounderDashboard();
@@ -6344,6 +6349,18 @@ class App {
           refreshIfActive();
         }
       });
+      // Periodic background polling for cross-window / multi-session synchronization
+      setInterval(async () => {
+        if (state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
+          try {
+            const latest = await api.getMessages('investor');
+            if (Array.isArray(latest) && latest.length !== lastKnownInvestorMsgCount) {
+              lastKnownInvestorMsgCount = latest.length;
+              refreshIfActive();
+            }
+          } catch(e) {}
+        }
+      }, 3000);
     }
   }
 
@@ -6998,7 +7015,13 @@ class App {
       if (!tId && !tName && !tUser && !tEmail) return true;
 
       // Exact or direct substring match
-      if (tId && mId === tId) return true;
+      if (tId && mId === tId) {
+        if (!tName || !mName || mName.includes(tName) || tName.includes(mName)) return true;
+        const clean = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (clean(mName).includes(clean(tName)) || clean(tName).includes(clean(mName))) return true;
+        // Don't match if IDs are generic like 'inv-01' but names clearly conflict (e.g. Michael Chen vs prasad@12345)
+        return false;
+      }
       if (tName && (mName === tName || mName.includes(tName) || tName.includes(mName))) return true;
       if (tUser && (mId === tUser || mName === tUser || mName.includes(tUser))) return true;
       if (tEmail && (mId === tEmail || mName.includes(tEmail))) return true;
@@ -7204,7 +7227,7 @@ class App {
 
     const addInvestor = (raw) => {
       if (!raw) return;
-      const invId = raw.id || `inv-${(raw.username || raw.name || Math.random().toString(36).substring(2, 6)).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      let invId = raw.id || `inv-${(raw.username || raw.name || Math.random().toString(36).substring(2, 6)).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
       let invName = raw.full_name || raw.name || raw.username || 'Investor';
       let invFirm = raw.firm || 'Apex Frontier Ventures';
       
@@ -7217,16 +7240,33 @@ class App {
         invName = invName.replace(/\s*\(.*?\)\s*/g, '').trim();
       }
 
+      // If raw represents prasad@12345 or prasad persona, normalize strictly to prasad@12345
+      const rawCombined = `${raw.id || ''} ${raw.username || ''} ${raw.name || ''} ${raw.full_name || ''} ${raw.email || ''}`.toLowerCase();
+      if (rawCombined.includes('prasad')) {
+        invId = 'inv-prasad12345';
+        invName = 'prasad@12345';
+        invFirm = 'Apex Frontier Ventures';
+      }
+
       const invEmail = raw.email || (invName.includes('@') ? invName : `${invName.toLowerCase().replace(/[^a-z0-9]/g, '')}@apexfrontier.vc`);
       const invUsername = raw.username || (invName.includes('@') ? invName : invName.toLowerCase().replace(/[^a-z0-9]/g, ''));
 
-      // Check if already in list
-      const exists = list.some(inv =>
-        (inv.id && inv.id === invId) ||
-        (invEmail && inv.email && inv.email.toLowerCase() === invEmail.toLowerCase()) ||
-        (invUsername && inv.username && inv.username.toLowerCase() === invUsername.toLowerCase()) ||
-        (invName && inv.name && inv.name.toLowerCase().trim() === invName.toLowerCase().trim())
-      );
+      // Clean alphanumeric check to prevent generic ID collisions (e.g. inv-01) from dropping distinct investors
+      const clean = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const exists = list.some(inv => {
+        if (inv.id && inv.id === invId) {
+          const invClean = clean(inv.name || inv.username);
+          const rawClean = clean(invName || invUsername);
+          if (invClean && rawClean && !invClean.includes(rawClean) && !rawClean.includes(invClean)) {
+            return false; // Different names despite same ID -> NOT a duplicate!
+          }
+          return true;
+        }
+        if (invEmail && inv.email && inv.email.toLowerCase() === invEmail.toLowerCase()) return true;
+        if (invUsername && inv.username && inv.username.toLowerCase() === invUsername.toLowerCase()) return true;
+        if (invName && inv.name && inv.name.toLowerCase().trim() === invName.toLowerCase().trim()) return true;
+        return false;
+      });
       if (exists) return;
 
       const avatar = raw.avatar_url || raw.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(invName)}`;
@@ -7237,7 +7277,7 @@ class App {
         username: invUsername,
         firm: invFirm,
         roleTitle: raw.roleTitle || raw.title || `Partner • ${invFirm}`,
-        badge: raw.badge || 'Registered Investor',
+        badge: raw.badge || (invName.includes('prasad') ? 'Lead Seed ($1.5M)' : 'Registered Investor'),
         avatar: avatar,
         email: invEmail,
         meetLink: raw.meetLink || 'https://meet.google.com/i2i-apex-pitch'
@@ -7258,7 +7298,7 @@ class App {
       const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
       if (Array.isArray(localUsers)) {
         localUsers.forEach(lu => {
-          if (lu.role === 'investor' || (lu.username && lu.username.toLowerCase().includes('investor'))) {
+          if (lu.role === 'investor' || (lu.username && lu.username.toLowerCase().includes('investor')) || (lu.username && lu.username.toLowerCase().includes('prasad'))) {
             addInvestor(lu);
           }
         });
@@ -7275,7 +7315,7 @@ class App {
       const rawUser = localStorage.getItem('i2i_user');
       if (rawUser) {
         const u = JSON.parse(rawUser);
-        if (u && u.role === 'investor') {
+        if (u && (u.role === 'investor' || (u.username && u.username.toLowerCase().includes('prasad')))) {
           addInvestor(u);
         }
       }
@@ -7303,8 +7343,19 @@ class App {
       });
     }
 
-    // 6. Default catalog
+    // 6. Default catalog - prasad@12345 at top as verified lead investor
     const defaults = [
+      {
+        id: 'inv-prasad12345',
+        name: 'prasad@12345',
+        username: 'prasad@12345',
+        firm: 'Apex Frontier Ventures',
+        roleTitle: 'General Partner • Apex Frontier Ventures',
+        badge: 'Lead Seed ($1.5M)',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad',
+        email: 'prasad@12345',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      },
       {
         id: 'inv-01',
         name: 'Michael Chen',
@@ -7339,6 +7390,11 @@ class App {
 
     defaults.forEach(d => addInvestor(d));
 
+    // Ensure prasad@12345 exists in list
+    if (!list.some(inv => (inv.username && inv.username.toLowerCase().includes('prasad')) || (inv.name && inv.name.toLowerCase().includes('prasad')) || (inv.id && inv.id.toLowerCase().includes('prasad')))) {
+      addInvestor(defaults[0]);
+    }
+
     // 7. Smart sorting: if logged-in user is a founder, sort investors who messaged this founder first!
     if (state.currentRole === 'founder' && Array.isArray(allMessages) && allMessages.length > 0) {
       const founderId = state.activeUser?.id || '';
@@ -7357,9 +7413,18 @@ class App {
           this.isMessageBetween(m, 'founder', founderId, founderName, founderUser, founderEmail,
                                   'investor', b.id, b.name, b.username, b.email)
         );
+
+        if (msgsA.length > 0 && msgsB.length === 0) return -1;
+        if (msgsB.length > 0 && msgsA.length === 0) return 1;
+
         const latestA = msgsA.length ? new Date(msgsA[msgsA.length - 1].timestamp).getTime() : 0;
         const latestB = msgsB.length ? new Date(msgsB[msgsB.length - 1].timestamp).getTime() : 0;
-        return latestB - latestA;
+        if (latestB !== latestA) return latestB - latestA;
+
+        // If tie, prioritize prasad@12345
+        if (a.id === 'inv-prasad12345' || (a.name && a.name.includes('prasad'))) return -1;
+        if (b.id === 'inv-prasad12345' || (b.name && b.name.includes('prasad'))) return 1;
+        return 0;
       });
     }
 
@@ -10586,6 +10651,7 @@ class App {
     // Real-time listener for incoming messages
     if (!window._i2iInvestorMessageSyncAttached) {
       window._i2iInvestorMessageSyncAttached = true;
+      let lastKnownFounderMsgCount = Array.isArray(investorMessages) ? investorMessages.filter(m => m.channel === 'investor').length : 0;
       const refreshIfActive = () => {
         if (state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
           this.renderInvestorDashboard();
@@ -10601,6 +10667,18 @@ class App {
           refreshIfActive();
         }
       });
+      // Periodic background polling for cross-window / multi-session synchronization
+      setInterval(async () => {
+        if (state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
+          try {
+            const latest = await api.getMessages('investor');
+            if (Array.isArray(latest) && latest.length !== lastKnownFounderMsgCount) {
+              lastKnownFounderMsgCount = latest.length;
+              refreshIfActive();
+            }
+          } catch(e) {}
+        }
+      }, 3000);
     }
   }
 }
