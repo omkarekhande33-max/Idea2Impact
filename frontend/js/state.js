@@ -121,8 +121,10 @@ class StateManager {
   setTab(tab) {
     if (this.currentRole === 'founder' && !['overview', 'gemini-studio', 'meet-investor', 'meet-invester', 'hr-messages', 'investor-messages', 'invester-messages'].includes(tab)) {
       this.activeTab = 'overview';
-    } else if (this.currentRole === 'investor' && !['shared-pitches', 'pitch-calls'].includes(tab)) {
+    } else if (this.currentRole === 'investor' && !['shared-pitches', 'pitch-calls', 'investor-messages', 'invester-messages', 'founder-messages'].includes(tab)) {
       this.activeTab = 'shared-pitches';
+    } else if (this.currentRole === 'investor' && (tab === 'founder-messages' || tab === 'invester-messages')) {
+      this.activeTab = 'investor-messages';
     } else {
       this.activeTab = tab;
     }

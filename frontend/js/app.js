@@ -138,7 +138,8 @@ class App {
           ],
           investor: [
             { label: 'Shared Founder Pitches', tab: 'shared-pitches' },
-            { label: 'Founder Pitch Calls', tab: 'pitch-calls' }
+            { label: 'Founder Pitch Calls', tab: 'pitch-calls' },
+            { label: 'Founder Messages', tab: 'investor-messages' }
           ]
         };
         const links = modeNavLinks[state.currentRole] || modeNavLinks.candidate;
@@ -5078,38 +5079,7 @@ class App {
     const { messages = [], founderId = 'found-01', currentStartup } = data;
     const founderName = state.activeUser?.name || 'Sarah Lin';
 
-    const investors = [
-      {
-        id: 'inv-01',
-        name: 'Michael Chen',
-        firm: 'Apex Ventures',
-        roleTitle: 'General Partner • Apex Ventures',
-        badge: 'Lead Seed ($1.2M)',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-        email: 'm.chen@apexventures.vc',
-        meetLink: 'https://meet.google.com/i2i-apex-pitch'
-      },
-      {
-        id: 'inv-02',
-        name: 'Sophia Zhang',
-        firm: 'Horizon Capital',
-        roleTitle: 'Investment Partner • AI Growth',
-        badge: 'Climate & AI Fund',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-        email: 's.zhang@horizoncap.io',
-        meetLink: 'https://meet.google.com/i2i-horizon-dd'
-      },
-      {
-        id: 'inv-03',
-        name: 'Victoria Sterling',
-        firm: 'Apex Frontier VC',
-        roleTitle: 'Managing Director • Frontier Tech',
-        badge: 'Due Diligence Lead',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        email: 'v.sterling@apexfrontier.vc',
-        meetLink: 'https://meet.google.com/i2i-apex-pitch'
-      }
-    ];
+    const investors = this.getAllInvestorsList();
 
     const activeInvestor = this._selectedInvestorContact || investors[0];
 
@@ -6085,38 +6055,7 @@ class App {
     const founderName = state.activeUser?.name || 'Sarah Lin';
     const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
 
-    const investors = [
-      {
-        id: 'inv-01',
-        name: 'Michael Chen',
-        firm: 'Apex Ventures',
-        roleTitle: 'General Partner • Apex Ventures',
-        badge: 'Lead Seed ($1.2M)',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-        email: 'm.chen@apexventures.vc',
-        meetLink: 'https://meet.google.com/i2i-apex-pitch'
-      },
-      {
-        id: 'inv-02',
-        name: 'Sophia Zhang',
-        firm: 'Horizon Capital',
-        roleTitle: 'Investment Partner • AI Growth',
-        badge: 'Climate & AI Fund',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-        email: 's.zhang@horizoncap.io',
-        meetLink: 'https://meet.google.com/i2i-horizon-dd'
-      },
-      {
-        id: 'inv-03',
-        name: 'Victoria Sterling',
-        firm: 'Apex Frontier VC',
-        roleTitle: 'Managing Director • Frontier Tech',
-        badge: 'Due Diligence Lead',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        email: 'v.sterling@apexfrontier.vc',
-        meetLink: 'https://meet.google.com/i2i-apex-pitch'
-      }
-    ];
+    const investors = this.getAllInvestorsList();
 
     const activeInvestor = this._selectedInvestorContact || investors[0];
 
@@ -6275,6 +6214,9 @@ class App {
           timestamp: nowIso
         });
 
+        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: founderName, text } }));
+        window.dispatchEvent(new Event('storage'));
+
         triggerSimulatedInvestorReply();
       } catch (err) {
         state.showToast(err.message, 'danger');
@@ -6298,6 +6240,21 @@ class App {
     if (simulateBtn) {
       simulateBtn.addEventListener('click', () => {
         triggerSimulatedInvestorReply();
+      });
+    }
+
+    // Real-time cross-mode listener
+    if (!window._i2iFounderInvestorMessageSyncAttached) {
+      window._i2iFounderInvestorMessageSyncAttached = true;
+      window.addEventListener('i2i_message_sent', (e) => {
+        if (e.detail?.channel === 'investor' && state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
+          this.renderFounderDashboard();
+        }
+      });
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_messages' && state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
+          this.renderFounderDashboard();
+        }
       });
     }
   }
@@ -6934,6 +6891,225 @@ class App {
       state.showToast("Analysis saved to Business Proposal!", "success");
       state.setTab('proposal');
     });
+  }
+
+  // =========================================================================
+  getAllFoundersList(passedFounders = [], allMessages = []) {
+    const list = [...(passedFounders || [])];
+
+    // 1. Registered users from localStorage ('i2i_registered_users')
+    try {
+      const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+      localUsers.forEach(lu => {
+        if (lu.role === 'founder') {
+          const uName = lu.full_name || lu.name || lu.username;
+          if (!list.some(f => f.id === lu.id || (lu.email && f.email === lu.email) || (f.name && f.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
+            list.push({
+              id: lu.id,
+              name: uName,
+              company: lu.bio && lu.bio.length < 35 ? lu.bio : 'Portfolio Startup',
+              roleTitle: `Founder & CEO, ${lu.bio && lu.bio.length < 30 ? lu.bio : 'Startup'}`,
+              email: lu.email || `${lu.username || 'founder'}@idea2impact.dev`,
+              avatar: lu.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
+              badge: 'Registered Founder',
+              stage: 'Seed Stage',
+              ask: '$1,200,000 for 12% equity',
+              readiness: '92.5%',
+              industry: 'AI / Enterprise',
+              traction: 'Active Pilot Customers',
+              summary: lu.bio || 'Registered founder on Idea2Impact ecosystem.',
+              pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
+            });
+          }
+        }
+      });
+    } catch (e) {}
+
+    // 2. Active User if founder
+    if (state.activeUser && state.activeUser.role === 'founder') {
+      const u = state.activeUser;
+      const uName = u.name || u.full_name || 'Founder';
+      if (!list.some(f => f.id === u.id || (f.name && f.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
+        list.unshift({
+          id: u.id,
+          name: uName,
+          company: 'EcoTrace AI',
+          roleTitle: u.title || `Founder & CEO, ${uName}`,
+          email: u.email || 'founder@idea2impact.dev',
+          avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
+          badge: 'Current Account',
+          stage: 'Seed Stage',
+          ask: '$1,200,000 for 12% equity',
+          readiness: '92.5%',
+          industry: 'Climate Tech / AI',
+          traction: '8 Enterprise Pilots, $28k MRR',
+          summary: 'Founder actively communicating with venture syndicate.',
+          pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
+        });
+      }
+    }
+
+    // 3. Any founder in allMessages
+    if (Array.isArray(allMessages)) {
+      allMessages.forEach(m => {
+        if (m.channel === 'investor') {
+          const isFounderSender = m.sender_role === 'founder';
+          const fId = isFounderSender ? m.sender_id : (m.receiver_role === 'founder' ? m.receiver_id : null);
+          const fName = isFounderSender ? m.sender_name : (m.receiver_role === 'founder' ? m.receiver_name : null);
+          if (fId && fName) {
+            const cleanName = fName.replace(/\s*\(.*?\)\s*/g, '').trim();
+            if (!list.some(f => f.id === fId || (f.name && f.name.toLowerCase().trim() === cleanName.toLowerCase()))) {
+              list.unshift({
+                id: fId,
+                name: cleanName,
+                company: 'Venture Studio',
+                roleTitle: `Founder & CEO, ${cleanName}`,
+                email: `${cleanName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`,
+                avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}`,
+                badge: 'Active Inquiry',
+                stage: 'Seed Stage',
+                ask: '$1,200,000 for 12% equity',
+                readiness: '92.5%',
+                industry: 'AI / Enterprise',
+                traction: 'Active Traction',
+                summary: 'Founder actively communicating with venture syndicate.',
+                pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
+              });
+            }
+          }
+        }
+      });
+    }
+
+    // 4. Default founders catalog
+    const defaults = [
+      {
+        id: 'found-01',
+        name: 'Sarah Lin',
+        company: 'EcoTrace AI',
+        roleTitle: 'Founder & CEO, EcoTrace AI',
+        email: 'sarah.lin@ecotrace.ai',
+        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
+        badge: 'Seed Round ($1.2M)',
+        stage: 'Seed ($1.2M)',
+        ask: '$1,200,000 for 12% equity',
+        readiness: '92.5%',
+        industry: 'Climate Tech / AI',
+        traction: '8 Enterprise Pilots, $28k MRR',
+        summary: 'Autonomous carbon accounting and ESG supply-chain intelligence with Gemini Pro integration.',
+        pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
+      },
+      {
+        id: 'found-02',
+        name: 'Marcus Vance',
+        company: 'HyperScale Data',
+        roleTitle: 'Founder & CTO, HyperScale Data',
+        email: 'marcus@hyperscale.io',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        badge: 'Series A ($3.2M)',
+        stage: 'Series A ($3.2M)',
+        ask: '$3,200,000 for 15% equity',
+        readiness: '88.0%',
+        industry: 'Distributed Systems',
+        traction: '14 Production Deployments, $62k MRR',
+        summary: 'Next-gen distributed database layer with consensus protocol telemetry and real-time caching.',
+        pitchMeetLink: 'https://meet.google.com/hyperscale-investor-sync'
+      }
+    ];
+
+    defaults.forEach(d => {
+      if (!list.some(f => f.id === d.id || (d.email && f.email === d.email) || (f.name && f.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
+        list.push(d);
+      }
+    });
+
+    return list;
+  }
+
+  getAllInvestorsList(passedInvestors = []) {
+    const list = [...(passedInvestors || [])];
+
+    // 1. Registered investors from localStorage
+    try {
+      const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+      localUsers.forEach(lu => {
+        if (lu.role === 'investor') {
+          const uName = lu.full_name || lu.name || lu.username;
+          if (!list.some(inv => inv.id === lu.id || (lu.email && inv.email === lu.email) || (inv.name && inv.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
+            list.push({
+              id: lu.id,
+              name: uName,
+              firm: 'Apex Frontier Ventures',
+              roleTitle: 'Partner • Apex Frontier Ventures',
+              badge: 'Registered Investor',
+              avatar: lu.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
+              email: lu.email || `${lu.username || 'investor'}@apexfrontier.vc`,
+              meetLink: 'https://meet.google.com/i2i-apex-pitch'
+            });
+          }
+        }
+      });
+    } catch (e) {}
+
+    // 2. Active User if investor
+    if (state.activeUser && state.activeUser.role === 'investor') {
+      const u = state.activeUser;
+      const uName = u.name || u.full_name || 'Investor';
+      if (!list.some(inv => inv.id === u.id || (inv.name && inv.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
+        list.unshift({
+          id: u.id,
+          name: uName,
+          firm: 'Apex Frontier Ventures',
+          roleTitle: 'Active Investor • Shark Syndicate',
+          badge: 'Current Account',
+          avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
+          email: u.email || 'investor@apexfrontier.vc',
+          meetLink: 'https://meet.google.com/i2i-apex-pitch'
+        });
+      }
+    }
+
+    // 3. Default investors catalog
+    const defaults = [
+      {
+        id: 'inv-01',
+        name: 'Michael Chen',
+        firm: 'Apex Ventures',
+        roleTitle: 'General Partner • Apex Ventures',
+        badge: 'Lead Seed ($1.2M)',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        email: 'm.chen@apexventures.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      },
+      {
+        id: 'inv-02',
+        name: 'Sophia Zhang',
+        firm: 'Horizon Capital',
+        roleTitle: 'Investment Partner • AI Growth',
+        badge: 'Climate & AI Fund',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+        email: 's.zhang@horizoncap.io',
+        meetLink: 'https://meet.google.com/i2i-horizon-dd'
+      },
+      {
+        id: 'inv-03',
+        name: 'Victoria Sterling',
+        firm: 'Apex Frontier VC',
+        roleTitle: 'Managing Director • Frontier Tech',
+        badge: 'Due Diligence Lead',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        email: 'v.sterling@apexfrontier.vc',
+        meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      }
+    ];
+
+    defaults.forEach(d => {
+      if (!list.some(inv => inv.id === d.id || (d.email && inv.email === d.email) || (inv.name && inv.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
+        list.push(d);
+      }
+    });
+
+    return list;
   }
 
   // =========================================================================
@@ -9404,17 +9580,23 @@ class App {
     const investorId = state.activeUser.id;
     let meetings = [];
     let sharedPitches = [];
+    let investorMessages = [];
 
     try {
-      [meetings, sharedPitches] = await Promise.all([
+      [meetings, sharedPitches, investorMessages] = await Promise.all([
         api.getMeetings(investorId).catch(() => []),
-        api.getSharedPitches().catch(() => [])
+        api.getSharedPitches().catch(() => []),
+        api.getMessages('investor').catch(() => [])
       ]);
     } catch (e) {
       console.warn("Investor fetch error", e);
     }
 
-    const currentTab = (state.activeTab === 'pitch-calls') ? 'pitch-calls' : 'shared-pitches';
+    const currentTab = (state.activeTab === 'pitch-calls') ? 'pitch-calls' : (state.activeTab === 'investor-messages' || state.activeTab === 'founder-messages' ? 'investor-messages' : 'shared-pitches');
+
+    const unreadInvestorMessagesCount = (investorMessages || []).filter(m => m.channel === 'investor' && m.sender_role === 'founder' && !m.is_read).length;
+
+    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
 
     this.appContainer.innerHTML = `
       <div class="container">
@@ -9422,7 +9604,7 @@ class App {
           <!-- Sidebar -->
           <div class="sidebar">
             <div class="user-badge-card">
-              <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150" class="user-avatar" alt="Investor"/>
+              <img src="${investorAvatar}" class="user-avatar" alt="Investor"/>
               <div class="user-info">
                 <h4>${state.activeUser.name}</h4>
                 <p>Investor / Shark Mode</p>
@@ -9441,12 +9623,16 @@ class App {
                 <span class="sidebar-link-content">📅 Founder Pitch Calls</span>
                 <span class="sidebar-badge">${meetings.length}</span>
               </button>
+              <button class="sidebar-link ${currentTab === 'investor-messages' ? 'active' : ''}" data-tab="investor-messages">
+                <span class="sidebar-link-content">💬 Founder Messages</span>
+                ${unreadInvestorMessagesCount > 0 ? `<span class="sidebar-badge" style="background:#EF4444; color:#fff;">${unreadInvestorMessagesCount}</span>` : `<span class="sidebar-badge">${(investorMessages || []).length}</span>`}
+              </button>
             </nav>
           </div>
 
           <!-- Main Content -->
           <div class="dashboard-content" id="investor-content-area">
-            ${this.renderInvestorTabContent(currentTab, { meetings, sharedPitches, investorId })}
+            ${this.renderInvestorTabContent(currentTab, { meetings, sharedPitches, investorMessages, investorId })}
           </div>
         </div>
       </div>
@@ -9456,11 +9642,15 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachInvestorEvents({ sharedPitches, investorId });
+    this.attachInvestorEvents({ sharedPitches, investorId, investorMessages });
   }
 
   renderInvestorTabContent(tab, data) {
-    const { meetings, sharedPitches, investorId } = data;
+    const { meetings, sharedPitches, investorId, investorMessages } = data;
+
+    if (tab === 'investor-messages' || tab === 'founder-messages') {
+      return this.renderInvestorMessagesTab(data);
+    }
 
     if (tab === 'pitch-calls') {
       const pitchMeetings = (meetings && meetings.length > 0) ? meetings : [
@@ -9664,8 +9854,228 @@ class App {
     `;
   }
 
+  renderInvestorMessagesTab(data) {
+    const { investorMessages = [], investorId } = data;
+    const founders = this.getAllFoundersList([], investorMessages);
+    const activeFounder = this._selectedFounderContact || founders[0];
+
+    // Filter messages between this founder and investor
+    const founderMessages = (investorMessages || []).filter(m => {
+      if (m.channel !== 'investor') return false;
+      const matchId = (m.sender_id === activeFounder.id || m.receiver_id === activeFounder.id);
+      const matchName = (m.sender_name && m.sender_name.toLowerCase().includes(activeFounder.name.toLowerCase())) ||
+                        (m.receiver_name && m.receiver_name.toLowerCase().includes(activeFounder.name.toLowerCase()));
+      const matchRole = (m.sender_role === 'founder' || m.receiver_role === 'founder');
+      return matchId || matchName || (matchRole && founders.length === 1);
+    }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const quickChips = [
+      '📈 We reviewed your ARR metrics and want to lead the $1.2M Seed Round',
+      '🤝 Let\'s schedule a 45-minute Google Meet pitch to discuss cap table terms',
+      '📊 Please share your unit economics breakdown and customer acquisition cost',
+      '✅ Term sheet draft is being reviewed by our investment committee'
+    ];
+
+    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
+    const investorName = state.activeUser?.name || 'Victoria Sterling';
+
+    return `
+      <div class="dashboard-header" style="margin-bottom:0.75rem;">
+        <div class="dashboard-title">
+          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+            💬 Founder Messages &amp; Venture Direct Inquiries
+          </h2>
+          <p style="font-size:0.85rem; color:#64748B; margin:0;">
+            Direct communications with vetted founders. Review pitch details, answer diligence inquiries, and schedule live pitch meetings.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <a href="${activeFounder.pitchMeetLink || 'https://meet.google.com/ecotrace-apex-seed'}" target="_blank" class="btn btn-primary btn-sm" style="background:#10B981; border:none; display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+            🎥 Start Google Meet Pitch →
+          </a>
+        </div>
+      </div>
+
+      <div class="hr-messages-wrapper" id="investor-founder-messages-wrapper" style="margin-top:0.5rem;">
+        <!-- Left: Founders Contacts List -->
+        <div class="hr-messages-sidebar" style="width:310px; min-width:280px;">
+          <div class="hr-contacts-header">
+            <div class="hr-contacts-search">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="investor-founder-contacts-search" placeholder="Search startup founders..." />
+            </div>
+          </div>
+
+          <div class="hr-contacts-list" id="investor-founder-contacts-list">
+            ${founders.map(f => {
+              const fMsgs = (investorMessages || []).filter(m =>
+                m.channel === 'investor' &&
+                (m.sender_id === f.id || m.receiver_id === f.id ||
+                 (m.sender_name && m.sender_name.toLowerCase().includes(f.name.toLowerCase())) ||
+                 (m.receiver_name && m.receiver_name.toLowerCase().includes(f.name.toLowerCase())))
+              ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+              const last = fMsgs[fMsgs.length - 1];
+              const unread = fMsgs.filter(m => !m.is_read && m.sender_role === 'founder').length;
+              const isActive = f.id === activeFounder.id;
+              const timeStr = last ? new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
+
+              return `
+                <div class="hr-contact-item ${isActive ? 'active' : ''} investor-founder-contact-item" data-id="${f.id}">
+                  <div class="hr-contact-avatar-wrap">
+                    <img src="${f.avatar}" alt="${f.name}" class="hr-contact-avatar" />
+                    <span class="hr-contact-status-dot"></span>
+                  </div>
+                  <div class="hr-contact-info">
+                    <div class="hr-contact-top-row">
+                      <span class="hr-contact-name">${f.name}</span>
+                      <span class="hr-contact-time">${timeStr}</span>
+                    </div>
+                    <div class="hr-contact-sub">
+                      <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.65rem; padding:0.1rem 0.35rem;">
+                        ${f.company || f.badge}
+                      </span>
+                      <span>${f.stage || 'Seed'}</span>
+                    </div>
+                    <span class="hr-contact-last-msg">
+                      ${last ? (last.sender_role === 'investor' ? 'You: ' : '') + last.text : 'Start pitch inquiry...'}
+                    </span>
+                  </div>
+                  ${unread > 0 ? `<span class="hr-contact-unread-badge">${unread}</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Right: Chat Pane & Founder Profile Header -->
+        <div class="hr-chat-pane">
+          <!-- Top Chat Header with Full Founder Profile -->
+          <div class="hr-chat-header" style="padding:1rem 1.25rem; background:#fff; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div class="hr-chat-header-user" style="display:flex; align-items:center; gap:0.85rem;">
+              <div style="position:relative;">
+                <img src="${activeFounder.avatar}" alt="${activeFounder.name}" class="hr-chat-header-avatar" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;" />
+                <span style="position:absolute; bottom:0; right:0; width:12px; height:12px; background:#10B981; border:2px solid #fff; border-radius:50%;"></span>
+              </div>
+              <div class="hr-chat-header-details">
+                <h4 style="margin:0 0 0.2rem 0; font-size:1.05rem; font-weight:800; color:#0F172A; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  ${activeFounder.name}
+                  <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.7rem; font-weight:700;">
+                    ${activeFounder.badge || activeFounder.stage || 'Seed Founder'}
+                  </span>
+                  <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem; font-weight:700;">
+                    📈 ${activeFounder.readiness || '92.5%'} Feasibility
+                  </span>
+                </h4>
+                <p style="margin:0; font-size:0.82rem; color:#64748B; display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                  <span style="font-weight:600; color:#334155;">🏢 ${activeFounder.company || 'Portfolio Startup'}</span>
+                  <span>•</span>
+                  <span>💰 Ask: <strong style="color:#0F172A;">${activeFounder.ask || '$1.2M Seed'}</strong></span>
+                  <span>•</span>
+                  <span>✉️ ${activeFounder.email || 'founder@idea2impact.dev'}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="hr-chat-header-actions" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+              <a href="${activeFounder.pitchMeetLink || 'https://meet.google.com/ecotrace-apex-seed'}" target="_blank" class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+                🎥 Google Meet Pitch
+              </a>
+              <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="investor-simulate-founder-reply-btn" title="Simulate incoming reply from ${activeFounder.name}">
+                ⚡ Simulate Founder Reply
+              </button>
+            </div>
+          </div>
+
+          <!-- Founder Profile Dossier Strip -->
+          <div style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; padding:0.65rem 1.25rem; display:flex; gap:1.25rem; flex-wrap:wrap; align-items:center; font-size:0.78rem; color:#475569;">
+            <div>
+              <span style="color:#64748B; font-weight:600;">Startup:</span>
+              <strong style="color:#1E293B; margin-left:0.25rem;">${activeFounder.company}</strong>
+            </div>
+            <div>
+              <span style="color:#64748B; font-weight:600;">Industry:</span>
+              <span style="color:#1E293B; margin-left:0.25rem;">${activeFounder.industry || 'AI / Tech'}</span>
+            </div>
+            <div>
+              <span style="color:#64748B; font-weight:600;">Traction:</span>
+              <span style="color:#059669; font-weight:700; margin-left:0.25rem;">${activeFounder.traction || '8 Enterprise Pilots'}</span>
+            </div>
+            <div style="flex:1; min-width:200px;">
+              <span style="color:#64748B; font-weight:600;">Founder Bio:</span>
+              <span style="color:#334155; margin-left:0.25rem; font-style:italic;">"${activeFounder.summary || 'Verified Founder'}"</span>
+            </div>
+          </div>
+
+          <!-- Messages Thread Container -->
+          <div class="hr-chat-messages-container" id="investor-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
+            <div class="hr-chat-date-pill">Direct Syndicate Conversation with ${activeFounder.name} (${activeFounder.company})</div>
+
+            ${founderMessages.length === 0 ? `
+              <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+                <h4 style="color:var(--primary); margin-bottom:0.25rem;">No messages from ${activeFounder.name} yet</h4>
+                <p style="font-size:0.85rem;">When ${activeFounder.name} sends an inquiry from Founder Mode ("Investor Message" tab), their messages will appear here in real-time with their founder profile.</p>
+                <button class="btn btn-outline btn-sm" id="investor-empty-simulate-btn" style="margin-top:0.75rem;">
+                  ⚡ Simulate First Message from ${activeFounder.name}
+                </button>
+              </div>
+            ` : founderMessages.map(m => {
+              const isFounder = m.sender_role === 'founder' || m.sender_id === activeFounder.id;
+              const senderAvatar = isFounder ? activeFounder.avatar : investorAvatar;
+              const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • Apex Frontier)`;
+              const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+              return `
+                <div class="hr-msg-row ${isFounder ? 'incoming' : 'outgoing'}">
+                  <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" style="border:1.5px solid ${isFounder ? '#2563EB' : '#059669'};" />
+                  <div class="hr-msg-content">
+                    <span class="hr-msg-sender-name" style="color:${isFounder ? '#1D4ED8' : '#047857'}; font-weight:700;">
+                      ${senderLabel}
+                    </span>
+                    <div class="hr-msg-bubble">${m.text}</div>
+                    <span class="hr-msg-time">${timeDisplay}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            <div id="investor-typing-slot"></div>
+          </div>
+
+          <!-- Quick Pitch Chips Bar -->
+          <div class="hr-quick-replies-bar">
+            <span style="font-size:0.75rem; color:#94A3B8; font-weight:700; align-self:center; margin-right:0.25rem;">Quick:</span>
+            ${quickChips.map(chip => `
+              <button type="button" class="hr-quick-chip investor-msg-quick-chip" data-text="${chip}">${chip}</button>
+            `).join('')}
+          </div>
+
+          <!-- Input Area -->
+          <div class="hr-chat-input-area">
+            <input
+              type="text"
+              class="hr-chat-input-field"
+              id="investor-chat-input"
+              placeholder="Reply directly to founder ${activeFounder.name} (${activeFounder.company})... (Press Enter to send)"
+              autocomplete="off"
+            />
+            <button class="hr-chat-send-btn" id="investor-chat-send-btn">
+              <span>Send</span> ✈️
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   attachInvestorEvents(data) {
-    const { investorId } = data;
+    const { investorId, investorMessages = [] } = data;
+
+    // Attach messages events if on messages tab
+    if (state.activeTab === 'investor-messages' || state.activeTab === 'founder-messages') {
+      this.attachInvestorMessagesEvents(data);
+    }
 
     // Express Shark Interest on Shared Founder Pitches
     this.appContainer.querySelectorAll('.share-pitch-interest-btn').forEach(btn => {
@@ -9692,6 +10102,197 @@ class App {
         }
       });
     });
+  }
+
+  attachInvestorMessagesEvents(data) {
+    const { investorId, investorMessages = [] } = data;
+    const founders = this.getAllFoundersList([], investorMessages);
+    const activeFounder = this._selectedFounderContact || founders[0];
+    const investorName = state.activeUser?.name || 'Victoria Sterling';
+    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
+
+    // Contact selection
+    this.appContainer.querySelectorAll('.investor-founder-contact-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const fId = item.dataset.id;
+        const target = founders.find(f => f.id === fId) || founders[0];
+        this._selectedFounderContact = target;
+        await this.renderInvestorDashboard();
+      });
+    });
+
+    // Contacts search filtering
+    const searchInput = this.appContainer.querySelector('#investor-founder-contacts-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        this.appContainer.querySelectorAll('.investor-founder-contact-item').forEach(item => {
+          const text = item.innerText.toLowerCase();
+          item.style.display = text.includes(query) ? 'flex' : 'none';
+        });
+      });
+    }
+
+    const msgBox = this.appContainer.querySelector('#investor-messages-container');
+    const input = this.appContainer.querySelector('#investor-chat-input');
+    const sendBtn = this.appContainer.querySelector('#investor-chat-send-btn');
+    const simulateBtn = this.appContainer.querySelector('#investor-simulate-founder-reply-btn');
+    const emptySimulateBtn = this.appContainer.querySelector('#investor-empty-simulate-btn');
+    const typingSlot = this.appContainer.querySelector('#investor-typing-slot');
+
+    if (msgBox) {
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    // Quick chips
+    this.appContainer.querySelectorAll('.investor-msg-quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (input) {
+          input.value = chip.dataset.text;
+          input.focus();
+        }
+      });
+    });
+
+    const appendBubble = (senderRole, senderName, text, avatar, timestamp) => {
+      if (!msgBox) return;
+      const isFounder = senderRole === 'founder';
+      const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • Apex Frontier)`;
+
+      const row = document.createElement('div');
+      row.className = `hr-msg-row ${isFounder ? 'incoming' : 'outgoing'}`;
+      row.innerHTML = `
+        <img src="${avatar}" alt="${senderName}" class="hr-msg-avatar" style="border:1.5px solid ${isFounder ? '#2563EB' : '#059669'};" />
+        <div class="hr-msg-content">
+          <span class="hr-msg-sender-name" style="color:${isFounder ? '#1D4ED8' : '#047857'}; font-weight:700;">${senderLabel}</span>
+          <div class="hr-msg-bubble">${text}</div>
+          <span class="hr-msg-time">${timeDisplay}</span>
+        </div>
+      `;
+
+      if (typingSlot && typingSlot.parentNode === msgBox) {
+        msgBox.insertBefore(row, typingSlot);
+      } else {
+        msgBox.appendChild(row);
+      }
+      msgBox.scrollTop = msgBox.scrollHeight;
+    };
+
+    const triggerSimulatedFounderReply = async () => {
+      if (!typingSlot) return;
+
+      typingSlot.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+          <img src="${activeFounder.avatar}" style="width:28px; height:28px; border-radius:50%;" />
+          <div class="hr-typing-indicator">
+            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">${activeFounder.name} is typing</span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+            <span class="hr-typing-dot"></span>
+          </div>
+        </div>
+      `;
+      if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+
+      setTimeout(async () => {
+        typingSlot.innerHTML = '';
+
+        const founderReplies = [
+          `Hi! Thank you for reviewing ${activeFounder.company}. Our 75/25 engineering team has delivered $320k contracted ARR with 4 enterprise pilots converting next month. We would love to discuss lead terms on Google Meet.`,
+          `Thanks for reaching out! We are ready to walk you through our unit economics model and cap table. When is a good time for a 30-min pitch?`,
+          `Our customer acquisition cost payback is currently under 4 months with zero customer churn. We have shared our Gemini Pro pitch specs.`
+        ];
+        const replyText = founderReplies[Math.floor(Math.random() * founderReplies.length)];
+
+        const savedReply = await api.sendMessage({
+          sender_id: activeFounder.id,
+          sender_role: 'founder',
+          sender_name: `${activeFounder.name} (${activeFounder.company})`,
+          receiver_id: investorId || 'inv-01',
+          receiver_role: 'investor',
+          receiver_name: investorName,
+          text: replyText,
+          channel: 'investor',
+          timestamp: new Date().toISOString()
+        });
+
+        appendBubble('founder', activeFounder.name, replyText, activeFounder.avatar, savedReply.timestamp);
+        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: activeFounder.name, text: replyText } }));
+        window.dispatchEvent(new Event('storage'));
+        state.showToast(`📩 New message received from founder ${activeFounder.name}!`, 'info');
+      }, 1200);
+    };
+
+    const handleSend = async () => {
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.disabled = true;
+      if (sendBtn) sendBtn.disabled = true;
+
+      const nowIso = new Date().toISOString();
+      appendBubble('investor', investorName, text, investorAvatar, nowIso);
+
+      try {
+        await api.sendMessage({
+          sender_id: investorId || 'inv-01',
+          sender_role: 'investor',
+          sender_name: `${investorName} (Apex Frontier Ventures)`,
+          receiver_id: activeFounder.id,
+          receiver_role: 'founder',
+          receiver_name: activeFounder.name,
+          text: text,
+          channel: 'investor',
+          timestamp: nowIso
+        });
+
+        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: investorName, text } }));
+        window.dispatchEvent(new Event('storage'));
+
+        state.showToast(`✈️ Message sent to founder ${activeFounder.name}!`, 'success');
+      } catch (err) {
+        state.showToast(err.message, 'danger');
+      } finally {
+        input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+      }
+    };
+
+    if (sendBtn) sendBtn.addEventListener('click', handleSend);
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSend();
+        }
+      });
+    }
+
+    if (simulateBtn) {
+      simulateBtn.addEventListener('click', triggerSimulatedFounderReply);
+    }
+    if (emptySimulateBtn) {
+      emptySimulateBtn.addEventListener('click', triggerSimulatedFounderReply);
+    }
+
+    // Real-time listener for incoming messages
+    if (!window._i2iInvestorMessageSyncAttached) {
+      window._i2iInvestorMessageSyncAttached = true;
+      window.addEventListener('i2i_message_sent', (e) => {
+        if (e.detail?.channel === 'investor' && state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
+          this.renderInvestorDashboard();
+        }
+      });
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_messages' && state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
+          this.renderInvestorDashboard();
+        }
+      });
+    }
   }
 }
 
