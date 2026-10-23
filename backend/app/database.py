@@ -959,6 +959,19 @@ INITIAL_DATA = {
             "channel": "investor",
             "timestamp": "2026-10-23T11:10:00Z",
             "is_read": True
+        },
+        {
+            "id": "msg-2eeff248",
+            "sender_id": "inv-prasad12345",
+            "sender_role": "investor",
+            "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+            "receiver_id": "found-omkar12345",
+            "receiver_role": "founder",
+            "receiver_name": "omkar@12345",
+            "text": "hi Omkar, are you free for a 15-min call?",
+            "channel": "investor",
+            "timestamp": "2026-10-23T12:00:00Z",
+            "is_read": False
         }
     ],
     "meetings": [

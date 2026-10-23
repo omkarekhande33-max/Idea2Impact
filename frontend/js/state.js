@@ -2,7 +2,7 @@
 
 export const DEFAULT_USERS = {
   candidate: { id: "cand-01", name: "Alex Rivera", full_name: "Alex Rivera", username: "alex", role: "candidate", title: "Full-Stack Engineer", email: "alex.rivera@example.com" },
-  founder: { id: "found-01", name: "Sarah Lin", full_name: "Sarah Lin", username: "sarah", role: "founder", title: "Founder & CEO, EcoTrace AI", email: "sarah.lin@ecotrace.ai" },
+  founder: { id: "found-omkar12345", name: "omkar@12345", full_name: "omkar@12345", username: "omkar@12345", role: "founder", title: "Founder & CEO (omkar@12345)", email: "omkar@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=omkar" },
   hr: { id: "hr-01", name: "Elena Rostova", full_name: "Elena Rostova", username: "elena", role: "hr", title: "Head of Talent, NovaTech", email: "elena.rostova@novatech.io" },
   investor: { id: "inv-prasad12345", name: "prasad@12345", full_name: "prasad@12345", username: "prasad@12345", role: "investor", firm: "Apex Frontier Ventures", title: "General Partner, Apex Frontier Ventures", email: "prasad@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=prasad" }
 };

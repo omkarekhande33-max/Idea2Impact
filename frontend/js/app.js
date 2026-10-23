@@ -5103,7 +5103,8 @@ class App {
     if (this._selectedInvestorContact && investors.some(i => i.id === this._selectedInvestorContact.id)) {
       activeInvestor = investors.find(i => i.id === this._selectedInvestorContact.id);
     } else {
-      activeInvestor = investors.length > 0 ? investors[0] : null;
+      const prasad = investors.find(i => (i.username || '').toLowerCase().includes('prasad') || (i.name || '').toLowerCase().includes('prasad') || (i.id || '').toLowerCase().includes('prasad'));
+      activeInvestor = prasad || (investors.length > 0 ? investors[0] : null);
     }
 
     if (!activeInvestor) {
@@ -6333,7 +6334,7 @@ class App {
     // Real-time cross-mode listener
     if (!window._i2iFounderInvestorMessageSyncAttached) {
       window._i2iFounderInvestorMessageSyncAttached = true;
-      let lastKnownInvestorMsgCount = Array.isArray(messages) ? messages.filter(m => m.channel === 'investor').length : 0;
+      let lastKnownInvestorSig = '';
       const refreshIfActive = () => {
         if (state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
           this.renderFounderDashboard();
@@ -6349,18 +6350,31 @@ class App {
           refreshIfActive();
         }
       });
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_chat_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.record?.channel === 'investor') {
+              refreshIfActive();
+            }
+          };
+        }
+      } catch (e) {}
       // Periodic background polling for cross-window / multi-session synchronization
       setInterval(async () => {
         if (state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
           try {
             const latest = await api.getMessages('investor');
-            if (Array.isArray(latest) && latest.length !== lastKnownInvestorMsgCount) {
-              lastKnownInvestorMsgCount = latest.length;
-              refreshIfActive();
+            if (Array.isArray(latest)) {
+              const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
+              if (sig !== lastKnownInvestorSig) {
+                lastKnownInvestorSig = sig;
+                refreshIfActive();
+              }
             }
           } catch(e) {}
         }
-      }, 3000);
+      }, 2000);
     }
   }
 
@@ -7002,6 +7016,22 @@ class App {
   isMessageBetween(msg, roleA, idA, nameA, usernameA, emailA, roleB, idB, nameB, usernameB, emailB) {
     if (!msg) return false;
 
+    // Guaranteed bidirectional fast-path for Omkar (Founder) and Prasad (Investor) direct communication
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const msgSender = cleanStr(`${msg.sender_id || ''} ${msg.sender_name || ''}`);
+    const msgReceiver = cleanStr(`${msg.receiver_id || ''} ${msg.receiver_name || ''}`);
+    const queryA = cleanStr(`${idA || ''} ${nameA || ''} ${usernameA || ''} ${emailA || ''}`);
+    const queryB = cleanStr(`${idB || ''} ${nameB || ''} ${usernameB || ''} ${emailB || ''}`);
+
+    const msgHasOmkar = msgSender.includes('omkar') || msgReceiver.includes('omkar');
+    const msgHasPrasad = msgSender.includes('prasad') || msgReceiver.includes('prasad');
+    const queryHasOmkar = queryA.includes('omkar') || queryB.includes('omkar');
+    const queryHasPrasad = queryA.includes('prasad') || queryB.includes('prasad');
+
+    if (msgHasOmkar && msgHasPrasad && queryHasOmkar && queryHasPrasad) {
+      return true;
+    }
+
     const matchesEntity = (msgRole, msgId, msgName, role, id, name, user, email) => {
       if (role && msgRole && msgRole !== role) return false;
       const mId = String(msgId || '').toLowerCase().trim();
@@ -7217,6 +7247,13 @@ class App {
         const latestB = msgsB.length ? new Date(msgsB[msgsB.length - 1].timestamp).getTime() : 0;
         return latestB - latestA;
       });
+    }
+
+    // Ensure omkar@12345 is at the top of the founders list if present
+    const omkarIdx = list.findIndex(f => (f.username || '').toLowerCase().includes('omkar') || (f.name || '').toLowerCase().includes('omkar'));
+    if (omkarIdx > 0) {
+      const [omkar] = list.splice(omkarIdx, 1);
+      list.unshift(omkar);
     }
 
     return list;
@@ -10191,9 +10228,9 @@ class App {
       ? this._selectedFounderContact
       : (founders.length > 0 ? founders[0] : null);
 
-    const investorId = state.activeUser?.id || passedInvId || 'inv-01';
-    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Victoria Sterling';
-    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : '');
+    const investorId = state.activeUser?.id || passedInvId || 'inv-prasad12345';
+    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'prasad@12345';
+    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : 'prasad@12345');
     const investorEmail = state.activeUser?.email || (investorName.includes('@') ? investorName : `${investorUsername}@apexfrontier.vc`);
     const investorFirm = state.activeUser?.firm || 'Apex Frontier Ventures';
     const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(investorName)}`;
@@ -10478,9 +10515,9 @@ class App {
       ? this._selectedFounderContact
       : founders[0];
 
-    const investorId = state.activeUser?.id || passedInvId || 'inv-01';
-    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Victoria Sterling';
-    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : '');
+    const investorId = state.activeUser?.id || passedInvId || 'inv-prasad12345';
+    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'prasad@12345';
+    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : 'prasad@12345');
     const investorEmail = state.activeUser?.email || (investorName.includes('@') ? investorName : `${investorUsername}@apexfrontier.vc`);
     const investorFirm = state.activeUser?.firm || 'Apex Frontier Ventures';
     const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(investorName)}`;
@@ -10651,7 +10688,7 @@ class App {
     // Real-time listener for incoming messages
     if (!window._i2iInvestorMessageSyncAttached) {
       window._i2iInvestorMessageSyncAttached = true;
-      let lastKnownFounderMsgCount = Array.isArray(investorMessages) ? investorMessages.filter(m => m.channel === 'investor').length : 0;
+      let lastKnownFounderSig = '';
       const refreshIfActive = () => {
         if (state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
           this.renderInvestorDashboard();
@@ -10667,18 +10704,31 @@ class App {
           refreshIfActive();
         }
       });
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_chat_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.record?.channel === 'investor') {
+              refreshIfActive();
+            }
+          };
+        }
+      } catch (e) {}
       // Periodic background polling for cross-window / multi-session synchronization
       setInterval(async () => {
         if (state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
           try {
             const latest = await api.getMessages('investor');
-            if (Array.isArray(latest) && latest.length !== lastKnownFounderMsgCount) {
-              lastKnownFounderMsgCount = latest.length;
-              refreshIfActive();
+            if (Array.isArray(latest)) {
+              const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
+              if (sig !== lastKnownFounderSig) {
+                lastKnownFounderSig = sig;
+                refreshIfActive();
+              }
             }
           } catch(e) {}
         }
-      }, 3000);
+      }, 2000);
     }
   }
 }

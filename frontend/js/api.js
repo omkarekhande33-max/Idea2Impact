@@ -12,10 +12,15 @@ function resolveApiBase() {
     if (loc.protocol.startsWith('http') && !loc.hostname.includes('localhost') && !loc.hostname.includes('127.0.0.1')) {
       return `${loc.origin}/api`;
     }
+    // Local development with separate frontend server (Live Server 5500, Vite 5173, etc.)
+    if (loc.hostname) {
+      const proto = loc.protocol.startsWith('http') ? loc.protocol : 'http:';
+      return `${proto}//${loc.hostname}:8000/api`;
+    }
   } catch (e) {
     // fallback
   }
-  // Local development with separate frontend server (Live Server 5500, Vite 5173, file://, etc.)
+  // Local development fallback
   return 'http://127.0.0.1:8000/api';
 }
 
@@ -265,7 +270,7 @@ class ApiService {
     return Date.now() < this._backendOfflineUntil;
   }
 
-  markBackendOffline(cooldownMs = 12000) {
+  markBackendOffline(cooldownMs = 2000) {
     this._backendOfflineUntil = Date.now() + cooldownMs;
   }
 
@@ -273,7 +278,7 @@ class ApiService {
     this._backendOfflineUntil = 0;
   }
 
-  async request(endpoint, options = {}, timeoutMs = 1200) {
+  async request(endpoint, options = {}, timeoutMs = 5000) {
     // Fast Circuit Breaker: If backend is known to be offline, fail fast to local engine in 0ms
     if (this.isBackendOffline()) {
       throw new Error('Backend offline, using local engine');
@@ -315,7 +320,7 @@ class ApiService {
           error.message.includes('abort')
         ));
       if (isNetError) {
-        this.markBackendOffline(12000);
+        this.markBackendOffline(2000);
       }
       console.warn(`API call ${endpoint} error:`, error.message);
       throw error;
@@ -2240,7 +2245,7 @@ class ApiService {
       if (channel) q.push(`channel=${encodeURIComponent(channel)}`);
       if (contactId) q.push(`contact_id=${encodeURIComponent(contactId)}`);
       const qs = q.length ? `?${q.join('&')}` : '';
-      const serverMsgs = await this.request(`/messages${qs}`);
+      const serverMsgs = await this.request(`/messages${qs}`, {}, 5000);
       if (Array.isArray(serverMsgs)) {
         combined = [...serverMsgs];
       }
@@ -2248,16 +2253,27 @@ class ApiService {
       // Backend request silent fallback
     }
 
+    // Always merge in defaultMessages so demo seed conversations are never lost
+    defaultMessages.forEach(dm => {
+      if (!combined.some(cm => cm.id === dm.id)) {
+        combined.push(dm);
+      }
+    });
+
     try {
       const stored = localStorage.getItem(key);
-      const localMsgs = stored ? JSON.parse(stored) : defaultMessages;
-      if (Array.isArray(localMsgs)) {
-        localMsgs.forEach(lm => {
-          if (!combined.some(cm => cm.id === lm.id)) {
-            combined.push(lm);
-          }
-        });
+      if (stored) {
+        const localMsgs = JSON.parse(stored);
+        if (Array.isArray(localMsgs)) {
+          localMsgs.forEach(lm => {
+            if (!combined.some(cm => cm.id === lm.id)) {
+              combined.push(lm);
+            }
+          });
+        }
       }
+      // Keep localStorage synchronized with combined
+      localStorage.setItem(key, JSON.stringify(combined));
     } catch (e) {}
 
     let res = combined;
@@ -2295,12 +2311,12 @@ class ApiService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(record)
-      });
+      }, 5000);
       if (resp && resp.data) {
         record = resp.data;
       }
     } catch (e) {
-      // Backend fallback
+      console.warn('Backend message save fallback:', e);
     }
 
     try {
@@ -2309,7 +2325,9 @@ class ApiService {
       if (stored) {
         try { msgs = JSON.parse(stored) || []; } catch(err) { msgs = []; }
       }
-      msgs.push(record);
+      if (!msgs.some(m => m.id === record.id)) {
+        msgs.push(record);
+      }
       localStorage.setItem(key, JSON.stringify(msgs));
     } catch (e) {
       console.warn('LocalStorage save error:', e);
@@ -2318,6 +2336,10 @@ class ApiService {
     try {
       window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: record }));
       window.dispatchEvent(new Event('storage'));
+      if (window.BroadcastChannel) {
+        if (!this._msgBc) this._msgBc = new BroadcastChannel('i2i_chat_sync');
+        this._msgBc.postMessage({ type: 'message_sent', record });
+      }
     } catch (e) {}
 
     return record;

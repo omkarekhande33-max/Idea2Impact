@@ -8532,6 +8532,20 @@
       "user_id": "inv-prasad12345",
       "details": "Message sent from investor to founder (investor channel)",
       "timestamp": "2026-10-23T13:51:31.379141+00:00"
+    },
+    {
+      "id": "log-4611ab1b",
+      "event": "Direct Message Sent",
+      "user_id": "inv-prasad12345",
+      "details": "Message sent from investor to founder (investor channel)",
+      "timestamp": "2026-10-23T14:55:15.847894+00:00"
+    },
+    {
+      "id": "log-2910b74f",
+      "event": "Direct Message Sent",
+      "user_id": "found-omkar12345",
+      "details": "Message sent from founder to investor (investor channel)",
+      "timestamp": "2026-10-23T14:55:45.917225+00:00"
     }
   ],
   "match_results": [
@@ -19823,6 +19837,32 @@
       "text": "hi Omkar, are you free for a 15-min call?",
       "channel": "investor",
       "timestamp": "2026-10-23T13:51:31.354090+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-6dcf53a7",
+      "sender_id": "inv-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "Hello Omkar, can we finalize the term sheet terms today?",
+      "channel": "investor",
+      "timestamp": "2026-10-23T14:55:15.821158+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-738c2b54",
+      "sender_id": "found-omkar12345",
+      "receiver_id": "inv-prasad12345",
+      "sender_role": "founder",
+      "receiver_role": "investor",
+      "sender_name": "omkar@12345",
+      "receiver_name": "prasad@12345 (Apex Frontier Ventures)",
+      "text": "Yes Prasad, absolutely! I am available on Google Meet right now.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T14:55:45.885398+00:00",
       "is_read": false
     }
   ]
