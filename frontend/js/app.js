@@ -8490,10 +8490,11 @@ class App {
 
   renderHrMessagesTab(channel, data) {
     const { candidates, sharedHiringRequests, allMessages = [], hrId } = data;
+    const isCandidate = channel === 'candidate';
 
     // Contacts setup
     let contacts = [];
-    if (channel === 'candidate') {
+    if (isCandidate) {
       const allCandidateSources = [];
 
       // 1. Server profiles or profiles passed in candidates
@@ -8591,10 +8592,37 @@ class App {
         return lastB - lastA;
       });
     } else {
-      contacts = [
+      const allFounderSources = [];
+
+      // 1. LocalStorage registered users who are founders
+      try {
+        const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+        localUsers.forEach(u => {
+          if (u.role === 'founder') {
+            allFounderSources.push(u);
+          }
+        });
+      } catch (e) {}
+
+      // 2. Built-in founder catalog to ensure default founder omkar@12345 exists
+      const defaultFounders = [
+        {
+          id: 'found-omkar12345',
+          name: 'omkar@12345',
+          full_name: 'omkar@12345',
+          username: 'omkar@12345',
+          email: 'omkar@12345',
+          roleTitle: 'Founder & CEO (omkar@12345)',
+          company: 'AI Autonomous Systems',
+          stage: 'Seed Stage ($1.2M)',
+          badge: 'Verified Founder',
+          verifiedSkill: 'System Architecture & AI Models',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar'
+        },
         {
           id: 'found-01',
           name: 'Sarah Lin',
+          full_name: 'Sarah Lin',
           roleTitle: 'Founder & CEO, EcoTrace AI',
           company: 'EcoTrace AI',
           stage: 'Seed Round ($750k)',
@@ -8606,6 +8634,7 @@ class App {
         {
           id: 'found-02',
           name: 'Marcus Vance',
+          full_name: 'Marcus Vance',
           roleTitle: 'Founder & CTO, HyperScale Data',
           company: 'HyperScale Data',
           stage: 'Series A ($3.2M)',
@@ -8615,49 +8644,133 @@ class App {
           email: 'marcus@hyperscale.io'
         }
       ];
+      allFounderSources.push(...defaultFounders);
+
+      // 3. Active user if founder
+      if (state.activeUser && state.activeUser.role === 'founder') {
+        allFounderSources.unshift(state.activeUser);
+      }
+
+      // 4. Shared hiring requests from founders
       if (Array.isArray(sharedHiringRequests)) {
         sharedHiringRequests.forEach(req => {
           const fId = req.founder_id || `found-req-${req.id}`;
-          if (!contacts.some(fc => fc.id === fId || fc.name === req.founder_name)) {
-            contacts.push({
-              id: fId,
-              name: req.founder_name || 'Founder',
-              roleTitle: `Founder, ${req.idea_title || req.startup_name || 'Portfolio Startup'}`,
-              company: req.idea_title || req.startup_name || 'Venture',
-              stage: req.investment_required?.stage || 'Seed',
-              avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
-              badge: 'Gemini Spec Shared',
-              verifiedSkill: req.roles?.[0]?.title || 'Key Role Spec',
-              email: req.founder_email || 'founder@idea2impact.dev'
-            });
+          allFounderSources.push({
+            id: fId,
+            name: req.founder_name || 'Founder',
+            full_name: req.founder_name || 'Founder',
+            roleTitle: `Founder, ${req.idea_title || req.startup_name || 'Portfolio Startup'}`,
+            company: req.idea_title || req.startup_name || 'Venture',
+            stage: req.investment_required?.stage || 'Seed',
+            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
+            badge: 'Gemini Spec Shared',
+            verifiedSkill: req.roles?.[0]?.title || 'Key Role Spec',
+            email: req.founder_email || 'founder@idea2impact.dev'
+          });
+        });
+      }
+
+      // 5. Any founder found in allMessages
+      if (Array.isArray(allMessages)) {
+        allMessages.forEach(m => {
+          if (m.channel === 'founder') {
+            const isFounderSender = m.sender_role === 'founder';
+            const fId = isFounderSender ? m.sender_id : (m.receiver_role === 'founder' ? m.receiver_id : null);
+            const fName = isFounderSender ? m.sender_name : (m.receiver_role === 'founder' ? m.receiver_name : null);
+            if (fId && fName) {
+              allFounderSources.push({
+                id: fId,
+                name: fName,
+                full_name: fName,
+                roleTitle: 'Startup Founder',
+                company: 'Venture',
+                stage: 'Seed',
+                badge: 'Active Chat',
+                avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fName)}`
+              });
+            }
           }
         });
       }
+
+      // Deduplicate founders into contacts
+      allFounderSources.forEach(f => {
+        const fId = f.id;
+        const fName = f.full_name || f.name || f.username;
+        const fEmail = f.email || '';
+        if (!fId && !fName) return;
+
+        const exists = contacts.some(fc =>
+          (fId && fc.id === fId) ||
+          (fEmail && fc.email && fc.email.toLowerCase() === fEmail.toLowerCase()) ||
+          (fName && fc.name && fc.name.toLowerCase().trim() === fName.toLowerCase().trim())
+        );
+
+        if (!exists) {
+          contacts.push({
+            id: fId || `found-${Math.random().toString(36).substring(2, 8)}`,
+            name: fName || 'Founder',
+            roleTitle: f.roleTitle || f.title || `Founder, ${f.company || 'Startup'}`,
+            company: f.company || 'Venture',
+            stage: f.stage || 'Seed',
+            avatar: f.avatar_url || f.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fName || 'Founder')}`,
+            badge: f.badge || 'Verified Founder',
+            verifiedSkill: f.verifiedSkill || 'Executive Hiring Lead',
+            email: fEmail || `${(fName || 'founder').toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+          });
+        }
+      });
+
+      // Sort founder contacts: prioritize omkar@12345 and founders with recent messages
+      contacts.sort((a, b) => {
+        const aIsOmkar = (a.name || '').toLowerCase().includes('omkar') || (a.id || '').toLowerCase().includes('omkar');
+        const bIsOmkar = (b.name || '').toLowerCase().includes('omkar') || (b.id || '').toLowerCase().includes('omkar');
+        if (aIsOmkar && !bIsOmkar) return -1;
+        if (bIsOmkar && !aIsOmkar) return 1;
+
+        const aMsgs = allMessages.filter(m => m.channel === 'founder' && (
+          m.sender_id === a.id || m.receiver_id === a.id ||
+          (a.name && ((m.sender_name || '').toLowerCase().trim() === a.name.toLowerCase().trim() || (m.receiver_name || '').toLowerCase().trim() === a.name.toLowerCase().trim()))
+        ));
+        const bMsgs = allMessages.filter(m => m.channel === 'founder' && (
+          m.sender_id === b.id || m.receiver_id === b.id ||
+          (b.name && ((m.sender_name || '').toLowerCase().trim() === b.name.toLowerCase().trim() || (m.receiver_name || '').toLowerCase().trim() === b.name.toLowerCase().trim()))
+        ));
+        if (aMsgs.length > 0 && bMsgs.length === 0) return -1;
+        if (bMsgs.length > 0 && aMsgs.length === 0) return 1;
+        const lastA = aMsgs.length ? new Date(aMsgs[aMsgs.length - 1].timestamp).getTime() : 0;
+        const lastB = bMsgs.length ? new Date(bMsgs[bMsgs.length - 1].timestamp).getTime() : 0;
+        return lastB - lastA;
+      });
     }
 
     if (contacts.length === 0) {
       return `
         <div class="dashboard-header" style="margin-bottom:0.75rem;">
           <div class="dashboard-title">
-            <h2>💬 Candidate Direct Messages</h2>
-            <p>Communicate in real time with real registered candidate users.</p>
+            <h2>${isCandidate ? '💬 Candidate Direct Messages' : '🤝 Founder Direct Messages'}</h2>
+            <p>${isCandidate ? 'Communicate in real time with real registered candidate users.' : 'Collaborate in real time with startup founders on 75/25 hiring specifications.'}</p>
           </div>
-          <span class="badge badge-role" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
+          <span class="badge ${isCandidate ? 'badge-role' : 'badge-verified'}" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
             Real Users Only • AI Demo Accounts Excluded
           </span>
         </div>
 
         <div class="card" style="text-align:center; padding:4rem 2rem;">
-          <div style="font-size:3.5rem; margin-bottom:1rem;">👥</div>
-          <h3 style="font-size:1.35rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">No Registered Candidate Users Yet</h3>
+          <div style="font-size:3.5rem; margin-bottom:1rem;">${isCandidate ? '👥' : '🤝'}</div>
+          <h3 style="font-size:1.35rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">${isCandidate ? 'No Registered Candidate Users Yet' : 'No Founder Contacts Available'}</h3>
           <p style="color:var(--text-muted); max-width:520px; margin:0 auto 1.5rem; line-height:1.6;">
-            All AI demo accounts have been filtered out. Only real users who create an account on this website as a <b>Candidate</b> will appear here for direct 2-way messaging and interview scheduling.
+            ${isCandidate 
+              ? 'All AI demo accounts have been filtered out. Only real users who create an account on this website as a <b>Candidate</b> will appear here for direct 2-way messaging and interview scheduling.'
+              : 'Startup founders sharing hiring specifications or direct messages will appear here for 2-way communication.'}
           </p>
-          <div style="display:flex; justify-content:center; gap:1rem;">
-            <button class="btn btn-primary" onclick="state.openLogin('register', 'candidate');">
-              + Register a Real Candidate Account to Test
-            </button>
-          </div>
+          ${isCandidate ? `
+            <div style="display:flex; justify-content:center; gap:1rem;">
+              <button class="btn btn-primary" onclick="state.openLogin('register', 'candidate');">
+                + Register a Real Candidate Account to Test
+              </button>
+            </div>
+          ` : ''}
         </div>
       `;
     }
@@ -8665,11 +8778,12 @@ class App {
     this.activeContactId = this.activeContactId || {};
     let activeId = this.activeContactId[channel];
     if (!activeId || !contacts.some(c => c.id === activeId)) {
-      if (channel === 'candidate') {
+      if (isCandidate) {
         const rushi = contacts.find(c => (c.name || '').includes('rushikesh') || (c.id || '').includes('rushikesh'));
         activeId = rushi ? rushi.id : (contacts.length > 0 ? contacts[0].id : null);
       } else {
-        activeId = contacts.length > 0 ? contacts[0].id : null;
+        const omkar = contacts.find(c => (c.name || '').includes('omkar') || (c.id || '').includes('omkar'));
+        activeId = omkar ? omkar.id : (contacts.length > 0 ? contacts[0].id : null);
       }
       this.activeContactId[channel] = activeId;
     }
@@ -8687,6 +8801,18 @@ class App {
                       sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
                       sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr';
         if (hasRushi && hasHr) return true;
+      }
+      if (!isCandidate && ((activeContact.name || '').includes('omkar') || (activeContact.id || '').includes('omkar'))) {
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.receiver_id || '').toLowerCase();
+        const sName = (m.sender_name || '').toLowerCase();
+        const rName = (m.receiver_name || '').toLowerCase();
+        const hasOmkar = sId.includes('omkar') || rId.includes('omkar') || sName.includes('omkar') || rName.includes('omkar');
+        const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                      sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                      sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr' ||
+                      sName.includes('elena') || rName.includes('elena');
+        if (hasOmkar && hasHr) return true;
       }
       return this.isMessageBetween(
         m,
@@ -8712,8 +8838,6 @@ class App {
       '📊 Dual-Tier Competency Breakdown Ready',
       '🤝 Align on Interview Round Structure'
     ];
-
-    const isCandidate = channel === 'candidate';
 
     return `
       <div class="dashboard-header" style="margin-bottom:0.75rem;">
@@ -8895,9 +9019,9 @@ class App {
     if (!hrMsgBox) return;
 
     const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
-    const contactId = activeContactEl ? activeContactEl.dataset.contactId : (channel === 'candidate' ? 'cand-rushikesh12345' : 'found-01');
-    const contactName = activeContactEl ? activeContactEl.dataset.contactName : (channel === 'candidate' ? 'rushikesh@12345' : 'Sarah Lin');
-    const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : (channel === 'candidate' ? 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
+    const contactId = activeContactEl ? activeContactEl.dataset.contactId : (channel === 'candidate' ? 'cand-rushikesh12345' : 'found-omkar12345');
+    const contactName = activeContactEl ? activeContactEl.dataset.contactName : (channel === 'candidate' ? 'rushikesh@12345' : 'omkar@12345');
+    const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : (channel === 'candidate' ? 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' : 'https://api.dicebear.com/7.x/initials/svg?seed=omkar');
 
     const hrId = state.activeUser?.id || 'hr-koomal123456';
     const hrName = state.activeUser?.name || 'koomal@123456';
@@ -8916,6 +9040,18 @@ class App {
                       sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
                       sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr';
         if (hasRushi && hasHr) return true;
+      }
+      if (!isCandidate && (contactName.includes('omkar') || contactId.includes('omkar'))) {
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.receiver_id || '').toLowerCase();
+        const sName = (m.sender_name || '').toLowerCase();
+        const rName = (m.receiver_name || '').toLowerCase();
+        const hasOmkar = sId.includes('omkar') || rId.includes('omkar') || sName.includes('omkar') || rName.includes('omkar');
+        const hasHr = sId.includes('koomal') || rId.includes('koomal') || sName.includes('koomal') || rName.includes('koomal') ||
+                      sId.includes('komal') || rId.includes('komal') || sName.includes('komal') || rName.includes('komal') ||
+                      sId.startsWith('hr-') || rId.startsWith('hr-') || m.sender_role === 'hr' || m.receiver_role === 'hr' ||
+                      sName.includes('elena') || rName.includes('elena');
+        if (hasOmkar && hasHr) return true;
       }
       return this.isMessageBetween(
         m,

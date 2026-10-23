@@ -161,6 +161,8 @@ class StateManager {
       this.activeTab = 'shared-pitches';
     } else if (this.currentRole === 'investor' && (tab === 'founder-messages' || tab === 'invester-messages')) {
       this.activeTab = 'investor-messages';
+    } else if (this.currentRole === 'hr' && !['overview', 'hiring-requests', 'create-job', 'candidates', 'candidate-messages', 'founder-messages', 'interviews', 'pipeline'].includes(tab)) {
+      this.activeTab = 'overview';
     } else {
       this.activeTab = tab;
     }
