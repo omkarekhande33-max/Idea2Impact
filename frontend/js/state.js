@@ -26,7 +26,9 @@ class StateManager {
       this.currentRole = savedRole;
       this.activeUser = {
         id: this.authUser.id,
-        name: this.authUser.full_name,
+        name: this.authUser.full_name || this.authUser.name || this.authUser.username,
+        username: this.authUser.username,
+        firm: this.authUser.firm,
         role: this.authUser.role,
         title: this.authUser.title || `${this.authUser.role.charAt(0).toUpperCase() + this.authUser.role.slice(1)} Member`,
         email: this.authUser.email,
@@ -63,7 +65,9 @@ class StateManager {
     localStorage.setItem('i2i_role', role);
     this.activeUser = {
       id: user.id,
-      name: user.full_name,
+      name: user.full_name || user.name || user.username,
+      username: user.username,
+      firm: user.firm,
       role: role,
       title: user.title || `${role.charAt(0).toUpperCase() + role.slice(1)} Member`,
       email: user.email,

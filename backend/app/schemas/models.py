@@ -164,10 +164,16 @@ class MessageCreate(BaseModel):
     id: Optional[str] = None
     sender_id: str
     receiver_id: str
-    sender_role: str = "hr" # "hr", "candidate", "founder"
-    receiver_role: str = "candidate" # "candidate", "founder", "hr"
+    sender_role: str = "hr" # "hr", "candidate", "founder", "investor"
+    receiver_role: str = "candidate" # "candidate", "founder", "hr", "investor"
     sender_name: Optional[str] = None
     receiver_name: Optional[str] = None
     text: str
-    channel: Optional[str] = "candidate" # "candidate" or "founder"
+    channel: Optional[str] = "candidate" # "candidate", "founder", "investor"
     timestamp: Optional[str] = None
+
+class MessagesReadRequest(BaseModel):
+    channel: Optional[str] = "investor"
+    sender_id: Optional[str] = None
+    receiver_id: Optional[str] = None
+

@@ -14,7 +14,7 @@ from ..schemas.models import (
     JobCreate, JobApplicationCreate, ApplicationStatusUpdate,
     CandidateSkillCreate,
     IdeaAnalyzeRequest, StartupCreate, ProposalShareRequest,
-    InvestorInterestRequest, MeetingRequest, MessageCreate,
+    InvestorInterestRequest, MeetingRequest, MessageCreate, MessagesReadRequest,
     GeminiIdeaPromptRequest, ShareToHrRequest, ConvertRoleToJobRequest, ShareToInvestorRequest
 )
 from ..security.auth import (
@@ -1642,7 +1642,7 @@ def list_messages(
     contact_id: Optional[str] = Query(None),
     user_id: Optional[str] = Query(None)
 ):
-    """Retrieve messages filtered by channel (candidate / founder) or contact ID."""
+    """Retrieve messages filtered by channel (candidate / founder / investor) or contact ID."""
     messages = db.get_table("messages")
     filtered = messages
     if channel and isinstance(channel, str):
@@ -1651,26 +1651,30 @@ def list_messages(
         cid = contact_id.lower().strip()
         filtered = [
             m for m in filtered
-            if (m.get("sender_id", "").lower().strip() == cid or
-                m.get("receiver_id", "").lower().strip() == cid or
-                m.get("sender_name", "").lower().strip() == cid or
-                m.get("receiver_name", "").lower().strip() == cid)
+            if (cid == m.get("sender_id", "").lower().strip() or
+                cid == m.get("receiver_id", "").lower().strip() or
+                cid in m.get("sender_id", "").lower() or
+                cid in m.get("receiver_id", "").lower() or
+                cid in m.get("sender_name", "").lower() or
+                cid in m.get("receiver_name", "").lower())
         ]
     if user_id and isinstance(user_id, str):
         uid = user_id.lower().strip()
         filtered = [
             m for m in filtered
-            if (m.get("sender_id", "").lower().strip() == uid or
-                m.get("receiver_id", "").lower().strip() == uid or
-                m.get("sender_name", "").lower().strip() == uid or
-                m.get("receiver_name", "").lower().strip() == uid)
+            if (uid == m.get("sender_id", "").lower().strip() or
+                uid == m.get("receiver_id", "").lower().strip() or
+                uid in m.get("sender_id", "").lower() or
+                uid in m.get("receiver_id", "").lower() or
+                uid in m.get("sender_name", "").lower() or
+                uid in m.get("receiver_name", "").lower())
         ]
     return sorted(filtered, key=lambda m: m.get("timestamp", ""))
 
 @router.post("/messages")
 def send_message(payload: MessageCreate):
-    """Send a direct message between HR and Candidate/Founder."""
-    msg_id = f"msg-{str(uuid.uuid4())[:8]}"
+    """Send a direct message between HR, Candidate, Founder, and Investor."""
+    msg_id = payload.id or f"msg-{str(uuid.uuid4())[:8]}"
     now_iso = datetime.now(timezone.utc).isoformat()
     record = {
         "id": msg_id,
@@ -1688,6 +1692,31 @@ def send_message(payload: MessageCreate):
     db.insert("messages", record)
     db.log_audit("Direct Message Sent", payload.sender_id, f"Message sent from {payload.sender_role} to {payload.receiver_role} ({payload.channel} channel)")
     return {"success": True, "message": "Message sent successfully", "data": record}
+
+@router.patch("/messages/read")
+def mark_messages_read(payload: MessagesReadRequest):
+    """Mark messages as read between two contacts."""
+    messages = db.get_table("messages")
+    count = 0
+    sid = (payload.sender_id or "").lower().strip()
+    rid = (payload.receiver_id or "").lower().strip()
+    for m in messages:
+        if payload.channel and m.get("channel") != payload.channel:
+            continue
+        m_sid = m.get("sender_id", "").lower().strip()
+        m_rid = m.get("receiver_id", "").lower().strip()
+        m_sname = m.get("sender_name", "").lower().strip()
+        m_rname = m.get("receiver_name", "").lower().strip()
+        
+        match_sender = not sid or (sid == m_sid or sid in m_sid or sid in m_sname)
+        match_receiver = not rid or (rid == m_rid or rid in m_rid or rid in m_rname)
+        if match_sender and match_receiver and not m.get("is_read"):
+            m["is_read"] = True
+            count += 1
+    if count > 0:
+        db.save()
+    return {"success": True, "marked_count": count}
+
 
 
 

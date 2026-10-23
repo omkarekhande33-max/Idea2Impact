@@ -4485,16 +4485,22 @@ class App {
   // 3. FOUNDER DASHBOARD (Section 6.3 & 2.2)
   // =========================================================================
   async renderFounderDashboard() {
-    const founderId = state.activeUser?.id || 'found-01';
+    const founderId = state.activeUser?.id || 'found-omkar12345';
+    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Founder';
+    const founderUsername = state.activeUser?.username || '';
+    const founderEmail = state.activeUser?.email || '';
+
     let startups = [];
     let messages = [];
     let meetings = [];
+    let registeredInvestors = [];
 
     try {
-      [startups, messages, meetings] = await Promise.all([
+      [startups, messages, meetings, registeredInvestors] = await Promise.all([
         api.getStartups().catch(() => []),
         api.getMessages().catch(() => []),
-        api.getMeetings().catch(() => [])
+        api.getMeetings().catch(() => []),
+        api.getProfiles('investor').catch(() => [])
       ]);
     } catch (e) {
       console.warn("Founder data fetch error", e);
@@ -4509,6 +4515,13 @@ class App {
       currentTab = 'overview';
       state.activeTab = 'overview';
     }
+
+    const unreadInvestorMessagesCount = (messages || []).filter(m =>
+      m.channel === 'investor' &&
+      m.sender_role === 'investor' &&
+      !m.is_read &&
+      this.isMessageBetween(m, 'founder', founderId, founderName, founderUsername, founderEmail, 'investor', '', '', '', '')
+    ).length;
 
     const currentStartup = startups[0] || {
       id: "stp-01",
@@ -4555,14 +4568,14 @@ class App {
               </button>
               <button class="sidebar-link ${currentTab === 'investor-messages' ? 'active' : ''}" data-tab="investor-messages">
                 <span class="sidebar-link-content">💼 Investor Message</span>
-                <span class="sidebar-badge" style="background:#8B5CF6; color:#fff;">VC</span>
+                ${unreadInvestorMessagesCount > 0 ? `<span class="sidebar-badge" style="background:#EF4444; color:#fff;">${unreadInvestorMessagesCount}</span>` : `<span class="sidebar-badge" style="background:#8B5CF6; color:#fff;">VC</span>`}
               </button>
             </nav>
           </div>
 
           <!-- Main Content -->
           <div class="dashboard-content" id="founder-content-area">
-            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, founderId, messages, meetings })}
+            ${this.renderFounderTabContent(currentTab, { currentStartup, startups, founderId, messages, meetings, registeredInvestors })}
           </div>
         </div>
       </div>
@@ -4572,7 +4585,7 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachFounderEvents({ currentStartup, founderId, messages, meetings, currentTab });
+    this.attachFounderEvents({ currentStartup, founderId, messages, meetings, registeredInvestors, currentTab });
   }
 
   renderFounderTabContent(tab, data) {
@@ -5076,20 +5089,57 @@ class App {
   }
 
   renderFounderInvestorMessagesTab(data) {
-    const { messages = [], currentStartup } = data;
+    const { messages = [], currentStartup, registeredInvestors = [] } = data;
     const founderId = state.activeUser?.id || data.founderId || 'found-omkar12345';
-    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Omkar Ekhande';
+    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'omkar@12345';
+    const founderUsername = state.activeUser?.username || (founderName.includes('@') ? founderName : 'omkar@12345');
+    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@idea2impact.dev`);
     const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
-    const investors = this.getAllInvestorsList();
+    const investors = this.getAllInvestorsList(registeredInvestors, messages);
 
-    const activeInvestor = this._selectedInvestorContact || investors[0];
+    const activeInvestor = this._selectedInvestorContact && investors.some(i => i.id === this._selectedInvestorContact.id)
+      ? this._selectedInvestorContact
+      : (investors.length > 0 ? investors[0] : null);
 
-    // Filter investor messages for active contact
+    if (!activeInvestor) {
+      return `
+        <div class="dashboard-header" style="margin-bottom:0.75rem;">
+          <div class="dashboard-title">
+            <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+              💼 Investor Message — Venture Direct Messaging
+            </h2>
+            <p style="font-size:0.85rem; color:#64748B; margin:0;">
+              Send and receive direct messages with venture partners regarding seed funding, term sheet negotiation, enterprise ARR traction, and Google Meet pitch scheduling.
+            </p>
+          </div>
+        </div>
+        <div class="card" style="padding:3.5rem 2rem; text-align:center; background:#fff; border-radius:var(--radius-lg); border:1px solid #E2E8F0; margin-top:1rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">💼</div>
+          <h3 style="font-size:1.25rem; font-weight:800; color:#0F172A; margin-bottom:0.5rem;">No Investors Available</h3>
+          <p style="color:#64748B; max-width:480px; margin:0 auto 1.5rem; font-size:0.9rem; line-height:1.6;">
+            When investors register or send inquiries to your startup profile, their venture dossiers and message threads will appear here.
+          </p>
+        </div>
+      `;
+    }
+
+    // Filter investor messages strictly for active contact with this founder
     const investorMessages = (messages || []).filter(m =>
       m.channel === 'investor' &&
-      (m.sender_id === activeInvestor.id || m.receiver_id === activeInvestor.id || m.sender_name?.includes(activeInvestor.name) || m.receiver_name?.includes(activeInvestor.name))
+      this.isMessageBetween(m, 'founder', founderId, founderName, founderUsername, founderEmail,
+                              'investor', activeInvestor.id, activeInvestor.name, activeInvestor.username, activeInvestor.email)
     ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Mark unread messages from active investor as read
+    if (investorMessages.some(m => !m.is_read && m.sender_role === 'investor')) {
+      api.markMessagesAsRead(m =>
+        m.channel === 'investor' &&
+        m.sender_role === 'investor' &&
+        this.isMessageBetween(m, 'founder', founderId, founderName, founderUsername, founderEmail,
+                                'investor', activeInvestor.id, activeInvestor.name, activeInvestor.username, activeInvestor.email)
+      );
+    }
 
     const quickChips = [
       '📊 Current ARR is $320k with 4 enterprise pilots converting next month',
@@ -5128,12 +5178,15 @@ class App {
           <div class="hr-contacts-list" id="founder-inv-contacts-list">
             ${investors.map(inv => {
               const invMsgs = (messages || []).filter(m =>
-                m.channel === 'investor' && (m.sender_id === inv.id || m.receiver_id === inv.id || m.sender_name?.includes(inv.name) || m.receiver_name?.includes(inv.name))
+                m.channel === 'investor' &&
+                this.isMessageBetween(m, 'founder', founderId, founderName, founderUsername, founderEmail,
+                                        'investor', inv.id, inv.name, inv.username, inv.email)
               ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
               const last = invMsgs[invMsgs.length - 1];
               const unread = invMsgs.filter(m => !m.is_read && m.sender_role === 'investor').length;
               const isActive = inv.id === activeInvestor.id;
               const timeStr = last ? new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
+
 
               return `
                 <div class="hr-contact-item ${isActive ? 'active' : ''} founder-inv-contact-item" data-id="${inv.id}">
@@ -5189,6 +5242,30 @@ class App {
               <button class="btn btn-outline btn-sm hr-chat-simulate-btn" id="founder-inv-simulate-btn" title="Simulate incoming reply from ${activeInvestor.name}">
                 ⚡ Simulate Reply
               </button>
+            </div>
+          </div>
+
+          <!-- Investor Profile Dossier Strip -->
+          <div style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; padding:0.65rem 1.25rem; display:flex; gap:1.25rem; flex-wrap:wrap; align-items:center; font-size:0.78rem; color:#475569;">
+            <div>
+              <span style="color:#64748B; font-weight:600;">Venture Firm:</span>
+              <strong style="color:#1E293B; margin-left:0.25rem;">${activeInvestor.firm}</strong>
+            </div>
+            <div>
+              <span style="color:#64748B; font-weight:600;">Role:</span>
+              <span style="color:#1E293B; margin-left:0.25rem;">${activeInvestor.roleTitle || 'Venture Partner'}</span>
+            </div>
+            <div>
+              <span style="color:#64748B; font-weight:600;">Status:</span>
+              <span style="color:#059669; font-weight:700; margin-left:0.25rem;">Verified Investor</span>
+            </div>
+            <div>
+              <span style="color:#64748B; font-weight:600;">Account:</span>
+              <strong style="color:#0F172A; margin-left:0.25rem;">${activeInvestor.username || activeInvestor.name}</strong>
+            </div>
+            <div style="flex:1; min-width:180px; text-align:right;">
+              <span style="color:#64748B; font-weight:600;">Investor ID:</span>
+              <code style="color:#7C3AED; margin-left:0.25rem; font-size:0.75rem;">${activeInvestor.id}</code>
             </div>
           </div>
 
@@ -6051,13 +6128,19 @@ class App {
   }
 
   attachFounderInvestorMessagesEvents(data) {
+    const { messages = [], registeredInvestors = [] } = data || {};
     const founderId = state.activeUser?.id || data?.founderId || 'found-omkar12345';
-    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Omkar Ekhande';
+    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'omkar@12345';
+    const founderUsername = state.activeUser?.username || (founderName.includes('@') ? founderName : 'omkar@12345');
+    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@idea2impact.dev`);
     const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
-    const investors = this.getAllInvestorsList();
+    const investors = this.getAllInvestorsList(registeredInvestors, messages);
+    const activeInvestor = this._selectedInvestorContact && investors.some(i => i.id === this._selectedInvestorContact.id)
+      ? this._selectedInvestorContact
+      : (investors.length > 0 ? investors[0] : null);
 
-    const activeInvestor = this._selectedInvestorContact || investors[0];
+    if (!activeInvestor) return;
 
     // Jump to Meet Investor tab
     const jumpMeetBtn = this.appContainer.querySelector('#founder-jump-meet-investor-btn');
@@ -6154,29 +6237,32 @@ class App {
         const repliesByInvestor = {
           'inv-01': [
             "Hi Sarah! We reviewed your updated $320k ARR metrics and 4 enterprise pilot conversions. Apex Ventures is ready to lead the $1.2M Seed Round. Let's finalize terms in our Google Meet pitch this Thursday.",
-            "That's great validation, Sarah. The 75/25 technical team architecture reducing onboarding to 3 days gives us high conviction in your execution velocity.",
+            "That's great validation. The 75/25 technical team architecture reducing onboarding gives us high conviction in your execution velocity.",
             "Understood! Let's schedule 45 minutes on Google Meet to review the cap table and milestone disbursement schedule.",
             "Looking forward to our sync on Thursday! I'm bringing our principal engineer into the Google Meet to review the Gemini Pro architecture."
           ],
           'inv-02': [
-            "Hello Sarah, Horizon Capital loves the ESG continuous telemetry benchmarks. We'd love to join the Seed round as a co-investor alongside Apex.",
-            "The enterprise compliance metrics you sent are stellar. Looking forward to our Google Meet due diligence sync on Friday!",
+            "Hello, Horizon Capital loves the continuous telemetry benchmarks. We'd love to join the Seed round as a co-investor alongside Apex.",
+            "The compliance metrics you sent are stellar. Looking forward to our Google Meet due diligence sync on Friday!",
             "Thanks for sharing the unit economics model. The customer acquisition cost payback period looks very favorable."
           ],
           'inv-03': [
-            "Sarah, impressive work on the 92.5% Founder Readiness Score. Let's connect on Google Meet to go over governance and board observer seats.",
+            "Impressive work on the Founder Readiness Score. Let's connect on Google Meet to go over governance and board observer seats.",
             "We've circulated your seed deck with our investment committee and received positive unanimous feedback."
           ]
         };
 
-        const replyList = repliesByInvestor[activeInvestor.id] || repliesByInvestor['inv-01'];
+        const replyList = repliesByInvestor[activeInvestor.id] || [
+          `Hi! Thank you for the update. Apex Frontier Ventures reviewed your metrics and we would love to connect for a Google Meet pitch sync.`,
+          `We received your proposal and traction breakdown. Let's schedule 30 minutes on Google Meet to discuss term sheet details.`
+        ];
         const replyText = replyList[Math.floor(Math.random() * replyList.length)];
 
         const savedReply = await api.sendMessage({
           sender_id: activeInvestor.id,
           sender_role: 'investor',
           sender_name: `${activeInvestor.name} (${activeInvestor.firm})`,
-          receiver_id: founderId || 'found-01',
+          receiver_id: founderId,
           receiver_role: 'founder',
           receiver_name: founderName,
           text: replyText,
@@ -6214,10 +6300,7 @@ class App {
           timestamp: nowIso
         });
 
-        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: founderName, text } }));
-        window.dispatchEvent(new Event('storage'));
-
-        triggerSimulatedInvestorReply();
+        state.showToast(`✈️ Message sent to ${activeInvestor.name}!`, 'success');
       } catch (err) {
         state.showToast(err.message, 'danger');
       } finally {
@@ -6246,14 +6329,19 @@ class App {
     // Real-time cross-mode listener
     if (!window._i2iFounderInvestorMessageSyncAttached) {
       window._i2iFounderInvestorMessageSyncAttached = true;
-      window.addEventListener('i2i_message_sent', (e) => {
-        if (e.detail?.channel === 'investor' && state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
+      const refreshIfActive = () => {
+        if (state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
           this.renderFounderDashboard();
+        }
+      };
+      window.addEventListener('i2i_message_sent', (e) => {
+        if (e.detail?.channel === 'investor') {
+          refreshIfActive();
         }
       });
       window.addEventListener('storage', (e) => {
-        if (e.key === 'i2i_messages' && state.currentRole === 'founder' && state.activeTab === 'investor-messages') {
-          this.renderFounderDashboard();
+        if (e.key === 'i2i_messages' || !e.key) {
+          refreshIfActive();
         }
       });
     }
@@ -6894,6 +6982,56 @@ class App {
   }
 
   // =========================================================================
+  isMessageBetween(msg, roleA, idA, nameA, usernameA, emailA, roleB, idB, nameB, usernameB, emailB) {
+    if (!msg) return false;
+
+    const matchesEntity = (msgRole, msgId, msgName, role, id, name, user, email) => {
+      if (role && msgRole && msgRole !== role) return false;
+      const mId = String(msgId || '').toLowerCase().trim();
+      const mName = String(msgName || '').toLowerCase().trim();
+      const tId = String(id || '').toLowerCase().trim();
+      const tName = String(name || '').toLowerCase().trim();
+      const tUser = String(user || '').toLowerCase().trim();
+      const tEmail = String(email || '').toLowerCase().trim();
+
+      // If no targets were specified for this entity, treat as wildcard match
+      if (!tId && !tName && !tUser && !tEmail) return true;
+
+      // Exact or direct substring match
+      if (tId && mId === tId) return true;
+      if (tName && (mName === tName || mName.includes(tName) || tName.includes(mName))) return true;
+      if (tUser && (mId === tUser || mName === tUser || mName.includes(tUser))) return true;
+      if (tEmail && (mId === tEmail || mName.includes(tEmail))) return true;
+
+      // Clean alphanumeric matching (handles e.g. omkar@12345 vs found-omkar12345 or prasad@12345 vs inv-prasad12345)
+      const clean = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const cmId = clean(mId);
+      const cmName = clean(mName);
+      const ctId = clean(tId);
+      const ctName = clean(tName);
+      const ctUser = clean(tUser);
+      const ctEmail = clean(tEmail);
+
+      const targets = [ctId, ctName, ctUser, ctEmail].filter(t => t && t.length >= 3);
+      for (const t of targets) {
+        if (cmId && (cmId === t || (t.length >= 4 && (cmId.includes(t) || t.includes(cmId))))) return true;
+        if (cmName && (cmName === t || (t.length >= 4 && (cmName.includes(t) || t.includes(cmName))))) return true;
+      }
+      return false;
+    };
+
+    // Case 1: Entity A is Sender, Entity B is Receiver
+    const aSentToB = matchesEntity(msg.sender_role, msg.sender_id, msg.sender_name, roleA, idA, nameA, usernameA, emailA) &&
+                     matchesEntity(msg.receiver_role, msg.receiver_id, msg.receiver_name, roleB, idB, nameB, usernameB, emailB);
+
+    // Case 2: Entity B is Sender, Entity A is Receiver
+    const bSentToA = matchesEntity(msg.sender_role, msg.sender_id, msg.sender_name, roleB, idB, nameB, usernameB, emailB) &&
+                     matchesEntity(msg.receiver_role, msg.receiver_id, msg.receiver_name, roleA, idA, nameA, usernameA, emailA);
+
+    return aSentToB || bSentToA;
+  }
+
+  // =========================================================================
   getAllFoundersList(passedFounders = [], allMessages = []) {
     const list = [];
 
@@ -6954,7 +7092,7 @@ class App {
         readiness: raw.readiness || (raw.readiness_score ? `${raw.readiness_score}%` : '94.0%'),
         industry: raw.industry || 'AI / SaaS',
         traction: raw.traction || 'Active Pilot Customers',
-        summary: bio || 'Registered founder on Idea2Impact ecosystem.',
+        summary: bio || 'Registered founder on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
         pitchMeetLink: raw.pitchMeetLink || 'https://meet.google.com/ecotrace-apex-seed'
       });
     };
@@ -7034,56 +7172,138 @@ class App {
       });
     }
 
-    // NOTE: DO NOT ADD DEFAULTS (Sarah Lin, Marcus Vance) as requested by user:
-    // "dont show ai generated demo profiles"
+    // 7. Smart sorting: if logged-in user is an investor, sort founders who messaged this investor first!
+    if (state.currentRole === 'investor' && Array.isArray(allMessages) && allMessages.length > 0) {
+      const investorId = state.activeUser?.id || '';
+      const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || '';
+      const investorUser = state.activeUser?.username || '';
+      const investorEmail = state.activeUser?.email || '';
+
+      list.sort((a, b) => {
+        const msgsA = allMessages.filter(m =>
+          m.channel === 'investor' &&
+          this.isMessageBetween(m, 'founder', a.id, a.name, a.username, a.email,
+                                  'investor', investorId, investorName, investorUser, investorEmail)
+        );
+        const msgsB = allMessages.filter(m =>
+          m.channel === 'investor' &&
+          this.isMessageBetween(m, 'founder', b.id, b.name, b.username, b.email,
+                                  'investor', investorId, investorName, investorUser, investorEmail)
+        );
+        const latestA = msgsA.length ? new Date(msgsA[msgsA.length - 1].timestamp).getTime() : 0;
+        const latestB = msgsB.length ? new Date(msgsB[msgsB.length - 1].timestamp).getTime() : 0;
+        return latestB - latestA;
+      });
+    }
 
     return list;
   }
 
-  getAllInvestorsList(passedInvestors = []) {
-    const list = [...(passedInvestors || [])];
+  getAllInvestorsList(passedInvestors = [], allMessages = []) {
+    const list = [];
 
-    // 1. Registered investors from localStorage
+    const addInvestor = (raw) => {
+      if (!raw) return;
+      const invId = raw.id || `inv-${(raw.username || raw.name || Math.random().toString(36).substring(2, 6)).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      let invName = raw.full_name || raw.name || raw.username || 'Investor';
+      let invFirm = raw.firm || 'Apex Frontier Ventures';
+      
+      // If firm is embedded in name like "Michael Chen (Apex Ventures)", separate it
+      if (invName.includes('(') && invName.includes(')')) {
+        const firmMatch = invName.match(/\((.*?)\)/);
+        if (firmMatch && firmMatch[1]) {
+          invFirm = firmMatch[1];
+        }
+        invName = invName.replace(/\s*\(.*?\)\s*/g, '').trim();
+      }
+
+      const invEmail = raw.email || (invName.includes('@') ? invName : `${invName.toLowerCase().replace(/[^a-z0-9]/g, '')}@apexfrontier.vc`);
+      const invUsername = raw.username || (invName.includes('@') ? invName : invName.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+      // Check if already in list
+      const exists = list.some(inv =>
+        (inv.id && inv.id === invId) ||
+        (invEmail && inv.email && inv.email.toLowerCase() === invEmail.toLowerCase()) ||
+        (invUsername && inv.username && inv.username.toLowerCase() === invUsername.toLowerCase()) ||
+        (invName && inv.name && inv.name.toLowerCase().trim() === invName.toLowerCase().trim())
+      );
+      if (exists) return;
+
+      const avatar = raw.avatar_url || raw.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(invName)}`;
+
+      list.push({
+        id: invId,
+        name: invName,
+        username: invUsername,
+        firm: invFirm,
+        roleTitle: raw.roleTitle || raw.title || `Partner • ${invFirm}`,
+        badge: raw.badge || 'Registered Investor',
+        avatar: avatar,
+        email: invEmail,
+        meetLink: raw.meetLink || 'https://meet.google.com/i2i-apex-pitch'
+      });
+    };
+
+    // 1. Process server passed investors
+    if (Array.isArray(passedInvestors)) {
+      passedInvestors.forEach(pi => {
+        if (pi.role === 'investor' || !pi.role) {
+          addInvestor(pi);
+        }
+      });
+    }
+
+    // 2. Process registered users from localStorage
     try {
       const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
-      localUsers.forEach(lu => {
-        if (lu.role === 'investor') {
-          const uName = lu.full_name || lu.name || lu.username;
-          if (!list.some(inv => inv.id === lu.id || (lu.email && inv.email === lu.email) || (inv.name && inv.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
-            list.push({
-              id: lu.id,
-              name: uName,
-              firm: 'Apex Frontier Ventures',
-              roleTitle: 'Partner • Apex Frontier Ventures',
-              badge: 'Registered Investor',
-              avatar: lu.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
-              email: lu.email || `${lu.username || 'investor'}@apexfrontier.vc`,
-              meetLink: 'https://meet.google.com/i2i-apex-pitch'
+      if (Array.isArray(localUsers)) {
+        localUsers.forEach(lu => {
+          if (lu.role === 'investor' || (lu.username && lu.username.toLowerCase().includes('investor'))) {
+            addInvestor(lu);
+          }
+        });
+      }
+    } catch (e) {}
+
+    // 3. Process activeUser if investor
+    if (state.activeUser && state.activeUser.role === 'investor') {
+      addInvestor(state.activeUser);
+    }
+
+    // 4. Process currently stored user in i2i_user if investor
+    try {
+      const rawUser = localStorage.getItem('i2i_user');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && u.role === 'investor') {
+          addInvestor(u);
+        }
+      }
+    } catch (e) {}
+
+    // 5. Extract investors from allMessages
+    if (Array.isArray(allMessages)) {
+      allMessages.forEach(m => {
+        if (m.channel === 'investor') {
+          if (m.sender_role === 'investor' && m.sender_id && m.sender_name) {
+            addInvestor({
+              id: m.sender_id,
+              name: m.sender_name,
+              firm: m.sender_name.includes('(') ? m.sender_name.match(/\((.*?)\)/)?.[1] : 'Apex Frontier Ventures'
+            });
+          }
+          if (m.receiver_role === 'investor' && m.receiver_id && m.receiver_name) {
+            addInvestor({
+              id: m.receiver_id,
+              name: m.receiver_name,
+              firm: m.receiver_name.includes('(') ? m.receiver_name.match(/\((.*?)\)/)?.[1] : 'Apex Frontier Ventures'
             });
           }
         }
       });
-    } catch (e) {}
-
-    // 2. Active User if investor
-    if (state.activeUser && state.activeUser.role === 'investor') {
-      const u = state.activeUser;
-      const uName = u.name || u.full_name || 'Investor';
-      if (!list.some(inv => inv.id === u.id || (inv.name && inv.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
-        list.unshift({
-          id: u.id,
-          name: uName,
-          firm: 'Apex Frontier Ventures',
-          roleTitle: 'Active Investor • Shark Syndicate',
-          badge: 'Current Account',
-          avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
-          email: u.email || 'investor@apexfrontier.vc',
-          meetLink: 'https://meet.google.com/i2i-apex-pitch'
-        });
-      }
     }
 
-    // 3. Default investors catalog
+    // 6. Default catalog
     const defaults = [
       {
         id: 'inv-01',
@@ -7117,11 +7337,31 @@ class App {
       }
     ];
 
-    defaults.forEach(d => {
-      if (!list.some(inv => inv.id === d.id || (d.email && inv.email === d.email) || (inv.name && inv.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
-        list.push(d);
-      }
-    });
+    defaults.forEach(d => addInvestor(d));
+
+    // 7. Smart sorting: if logged-in user is a founder, sort investors who messaged this founder first!
+    if (state.currentRole === 'founder' && Array.isArray(allMessages) && allMessages.length > 0) {
+      const founderId = state.activeUser?.id || '';
+      const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || '';
+      const founderUser = state.activeUser?.username || '';
+      const founderEmail = state.activeUser?.email || '';
+
+      list.sort((a, b) => {
+        const msgsA = allMessages.filter(m =>
+          m.channel === 'investor' &&
+          this.isMessageBetween(m, 'founder', founderId, founderName, founderUser, founderEmail,
+                                  'investor', a.id, a.name, a.username, a.email)
+        );
+        const msgsB = allMessages.filter(m =>
+          m.channel === 'investor' &&
+          this.isMessageBetween(m, 'founder', founderId, founderName, founderUser, founderEmail,
+                                  'investor', b.id, b.name, b.username, b.email)
+        );
+        const latestA = msgsA.length ? new Date(msgsA[msgsA.length - 1].timestamp).getTime() : 0;
+        const latestB = msgsB.length ? new Date(msgsB[msgsB.length - 1].timestamp).getTime() : 0;
+        return latestB - latestA;
+      });
+    }
 
     return list;
   }
@@ -9591,7 +9831,11 @@ class App {
   // 5. INVESTOR / SHARKS MODE DASHBOARD (Section 6.5 & 2.4)
   // =========================================================================
   async renderInvestorDashboard() {
-    const investorId = state.activeUser.id;
+    const investorId = state.activeUser?.id || 'inv-01';
+    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || '';
+    const investorUsername = state.activeUser?.username || '';
+    const investorEmail = state.activeUser?.email || '';
+    const investorFirm = state.activeUser?.firm || 'Apex Frontier Ventures';
     let meetings = [];
     let sharedPitches = [];
     let investorMessages = [];
@@ -9610,7 +9854,12 @@ class App {
 
     const currentTab = (state.activeTab === 'pitch-calls') ? 'pitch-calls' : (state.activeTab === 'investor-messages' || state.activeTab === 'founder-messages' ? 'investor-messages' : 'shared-pitches');
 
-    const unreadInvestorMessagesCount = (investorMessages || []).filter(m => m.channel === 'investor' && m.sender_role === 'founder' && !m.is_read).length;
+    const unreadInvestorMessagesCount = (investorMessages || []).filter(m =>
+      m.channel === 'investor' &&
+      m.sender_role === 'founder' &&
+      !m.is_read &&
+      this.isMessageBetween(m, 'founder', '', '', '', '', 'investor', investorId, investorName, investorUsername, investorEmail)
+    ).length;
 
     const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
 
@@ -9625,7 +9874,7 @@ class App {
                 <h4>${state.activeUser.name}</h4>
                 <p>Investor / Shark Mode</p>
                 <span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#B45309; margin-top:0.35rem; font-size:0.7rem;">
-                  Apex Frontier Ventures
+                  ${investorFirm}
                 </span>
               </div>
             </div>
@@ -9871,11 +10120,18 @@ class App {
   }
 
   renderInvestorMessagesTab(data) {
-    const { investorMessages = [], investorId, registeredFounders = [] } = data;
+    const { investorMessages = [], investorId: passedInvId, registeredFounders = [] } = data;
     const founders = this.getAllFoundersList(registeredFounders, investorMessages);
     const activeFounder = this._selectedFounderContact && founders.some(f => f.id === this._selectedFounderContact.id)
       ? this._selectedFounderContact
       : (founders.length > 0 ? founders[0] : null);
+
+    const investorId = state.activeUser?.id || passedInvId || 'inv-01';
+    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Victoria Sterling';
+    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : '');
+    const investorEmail = state.activeUser?.email || (investorName.includes('@') ? investorName : `${investorUsername}@apexfrontier.vc`);
+    const investorFirm = state.activeUser?.firm || 'Apex Frontier Ventures';
+    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(investorName)}`;
 
     if (!activeFounder) {
       return `
@@ -9899,17 +10155,22 @@ class App {
       `;
     }
 
-    // Filter messages between this founder and investor (excluding demo profiles)
+    // Filter messages strictly between this founder and this investor
     const founderMessages = (investorMessages || []).filter(m => {
       if (m.channel !== 'investor') return false;
-      const isDemoMsg = (m.sender_name && (m.sender_name.toLowerCase().includes('sarah lin') || m.sender_name.toLowerCase().includes('marcus vance'))) ||
-                        (m.receiver_name && (m.receiver_name.toLowerCase().includes('sarah lin') || m.receiver_name.toLowerCase().includes('marcus vance')));
-      if (isDemoMsg) return false;
-      const matchId = (m.sender_id === activeFounder.id || m.receiver_id === activeFounder.id);
-      const matchName = (m.sender_name && m.sender_name.toLowerCase().includes(activeFounder.name.toLowerCase())) ||
-                        (m.receiver_name && m.receiver_name.toLowerCase().includes(activeFounder.name.toLowerCase()));
-      return matchId || matchName;
+      return this.isMessageBetween(m, 'founder', activeFounder.id, activeFounder.name, activeFounder.username, activeFounder.email,
+                                      'investor', investorId, investorName, investorUsername, investorEmail);
     }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Mark unread messages from active founder as read
+    if (founderMessages.some(m => !m.is_read && m.sender_role === 'founder')) {
+      api.markMessagesAsRead(m =>
+        m.channel === 'investor' &&
+        m.sender_role === 'founder' &&
+        this.isMessageBetween(m, 'founder', activeFounder.id, activeFounder.name, activeFounder.username, activeFounder.email,
+                                'investor', investorId, investorName, investorUsername, investorEmail)
+      );
+    }
 
     const quickChips = [
       `📈 We reviewed ${activeFounder.company} and want to lead your Seed Round`,
@@ -9917,9 +10178,6 @@ class App {
       `📊 Please share your unit economics breakdown and customer acquisition cost`,
       `✅ Term sheet draft is being reviewed by our investment committee`
     ];
-
-    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
-    const investorName = state.activeUser?.name || 'Victoria Sterling';
 
     return `
       <div class="dashboard-header" style="margin-bottom:0.75rem;">
@@ -9952,9 +10210,8 @@ class App {
             ${founders.map(f => {
               const fMsgs = (investorMessages || []).filter(m =>
                 m.channel === 'investor' &&
-                (m.sender_id === f.id || m.receiver_id === f.id ||
-                 (m.sender_name && m.sender_name.toLowerCase().includes(f.name.toLowerCase())) ||
-                 (m.receiver_name && m.receiver_name.toLowerCase().includes(f.name.toLowerCase())))
+                this.isMessageBetween(m, 'founder', f.id, f.name, f.username, f.email,
+                                        'investor', investorId, investorName, investorUsername, investorEmail)
               ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
               const last = fMsgs[fMsgs.length - 1];
@@ -10067,7 +10324,7 @@ class App {
             ` : founderMessages.map(m => {
               const isFounder = m.sender_role === 'founder' || m.sender_id === activeFounder.id;
               const senderAvatar = isFounder ? activeFounder.avatar : investorAvatar;
-              const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • Apex Frontier)`;
+              const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • ${investorFirm})`;
               const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
               return `
@@ -10149,14 +10406,19 @@ class App {
   }
 
   attachInvestorMessagesEvents(data) {
-    const { investorId, investorMessages = [], registeredFounders = [] } = data;
+    const { investorId: passedInvId, investorMessages = [], registeredFounders = [] } = data;
     const founders = this.getAllFoundersList(registeredFounders, investorMessages);
     if (!founders || founders.length === 0) return;
     const activeFounder = this._selectedFounderContact && founders.some(f => f.id === this._selectedFounderContact.id)
       ? this._selectedFounderContact
       : founders[0];
-    const investorName = state.activeUser?.name || 'Victoria Sterling';
-    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
+
+    const investorId = state.activeUser?.id || passedInvId || 'inv-01';
+    const investorName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Victoria Sterling';
+    const investorUsername = state.activeUser?.username || (investorName.includes('@') ? investorName : '');
+    const investorEmail = state.activeUser?.email || (investorName.includes('@') ? investorName : `${investorUsername}@apexfrontier.vc`);
+    const investorFirm = state.activeUser?.firm || 'Apex Frontier Ventures';
+    const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(investorName)}`;
 
     // Contact selection
     this.appContainer.querySelectorAll('.investor-founder-contact-item').forEach(item => {
@@ -10205,7 +10467,7 @@ class App {
       if (!msgBox) return;
       const isFounder = senderRole === 'founder';
       const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-      const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • Apex Frontier)`;
+      const senderLabel = isFounder ? `${activeFounder.name} (Founder &amp; CEO, ${activeFounder.company})` : `You (${investorName} • ${investorFirm})`;
 
       const row = document.createElement('div');
       row.className = `hr-msg-row ${isFounder ? 'incoming' : 'outgoing'}`;
@@ -10256,7 +10518,7 @@ class App {
           sender_id: activeFounder.id,
           sender_role: 'founder',
           sender_name: `${activeFounder.name} (${activeFounder.company})`,
-          receiver_id: investorId || 'inv-01',
+          receiver_id: investorId,
           receiver_role: 'investor',
           receiver_name: investorName,
           text: replyText,
@@ -10265,8 +10527,6 @@ class App {
         });
 
         appendBubble('founder', activeFounder.name, replyText, activeFounder.avatar, savedReply.timestamp);
-        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: activeFounder.name, text: replyText } }));
-        window.dispatchEvent(new Event('storage'));
         state.showToast(`📩 New message received from founder ${activeFounder.name}!`, 'info');
       }, 1200);
     };
@@ -10285,9 +10545,9 @@ class App {
 
       try {
         await api.sendMessage({
-          sender_id: investorId || 'inv-01',
+          sender_id: investorId,
           sender_role: 'investor',
-          sender_name: `${investorName} (Apex Frontier Ventures)`,
+          sender_name: `${investorName} (${investorFirm})`,
           receiver_id: activeFounder.id,
           receiver_role: 'founder',
           receiver_name: activeFounder.name,
@@ -10295,9 +10555,6 @@ class App {
           channel: 'investor',
           timestamp: nowIso
         });
-
-        window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: { channel: 'investor', senderName: investorName, text } }));
-        window.dispatchEvent(new Event('storage'));
 
         state.showToast(`✈️ Message sent to founder ${activeFounder.name}!`, 'success');
       } catch (err) {
@@ -10329,14 +10586,19 @@ class App {
     // Real-time listener for incoming messages
     if (!window._i2iInvestorMessageSyncAttached) {
       window._i2iInvestorMessageSyncAttached = true;
-      window.addEventListener('i2i_message_sent', (e) => {
-        if (e.detail?.channel === 'investor' && state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
+      const refreshIfActive = () => {
+        if (state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
           this.renderInvestorDashboard();
+        }
+      };
+      window.addEventListener('i2i_message_sent', (e) => {
+        if (e.detail?.channel === 'investor') {
+          refreshIfActive();
         }
       });
       window.addEventListener('storage', (e) => {
-        if (e.key === 'i2i_messages' && state.currentRole === 'investor' && state.activeTab === 'investor-messages') {
-          this.renderInvestorDashboard();
+        if (e.key === 'i2i_messages' || !e.key) {
+          refreshIfActive();
         }
       });
     }

@@ -162,6 +162,52 @@ export const DEFAULT_FOUNDER_PROFILES = [
   }
 ];
 
+export const DEFAULT_INVESTOR_PROFILES = [
+  {
+    id: 'inv-01',
+    name: 'Michael Chen',
+    full_name: 'Michael Chen',
+    username: 'michaelchen',
+    role: 'investor',
+    firm: 'Apex Ventures',
+    roleTitle: 'General Partner • Apex Ventures',
+    badge: 'Lead Seed ($1.2M)',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    email: 'm.chen@apexventures.vc',
+    meetLink: 'https://meet.google.com/i2i-apex-pitch'
+  },
+  {
+    id: 'inv-02',
+    name: 'Sophia Zhang',
+    full_name: 'Sophia Zhang',
+    username: 'sophiazhang',
+    role: 'investor',
+    firm: 'Horizon Capital',
+    roleTitle: 'Investment Partner • AI Growth',
+    badge: 'Climate & AI Fund',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+    email: 's.zhang@horizoncap.io',
+    meetLink: 'https://meet.google.com/i2i-horizon-dd'
+  },
+  {
+    id: 'inv-03',
+    name: 'Victoria Sterling',
+    full_name: 'Victoria Sterling',
+    username: 'victoria',
+    role: 'investor',
+    firm: 'Apex Frontier VC',
+    roleTitle: 'Managing Director • Frontier Tech',
+    badge: 'Due Diligence Lead',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    email: 'v.sterling@apexfrontier.vc',
+    meetLink: 'https://meet.google.com/i2i-apex-pitch'
+  }
+];
+
+
 function getLocalUsers() {
   let list = [];
   try {
@@ -475,6 +521,14 @@ class ApiService {
       DEFAULT_FOUNDER_PROFILES.forEach(df => {
         if (!combined.some(cp => cp.id === df.id || (df.email && cp.email === df.email) || (df.username && cp.username === df.username))) {
           combined.push(df);
+        }
+      });
+    }
+
+    if (!role || role === 'investor') {
+      DEFAULT_INVESTOR_PROFILES.forEach(di => {
+        if (!combined.some(cp => cp.id === di.id || (di.email && cp.email === di.email) || (di.username && cp.username === di.username))) {
+          combined.push(di);
         }
       });
     }
@@ -2195,15 +2249,63 @@ class ApiService {
     }
 
     try {
-      const msgs = JSON.parse(localStorage.getItem(key) || '[]');
+      const stored = localStorage.getItem(key);
+      let msgs = [];
+      if (stored) {
+        try { msgs = JSON.parse(stored) || []; } catch(err) { msgs = []; }
+      }
       msgs.push(record);
       localStorage.setItem(key, JSON.stringify(msgs));
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
 
+    try {
+      window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: record }));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {}
+
     return record;
+  }
+
+  async markMessagesAsRead(conditionFn) {
+    const key = 'i2i_messages';
+    let changed = false;
+    let targetMsg = null;
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const msgs = JSON.parse(stored);
+        if (Array.isArray(msgs)) {
+          msgs.forEach(m => {
+            if (!m.is_read && conditionFn(m)) {
+              m.is_read = true;
+              changed = true;
+              targetMsg = m;
+            }
+          });
+          if (changed) {
+            localStorage.setItem(key, JSON.stringify(msgs));
+          }
+        }
+      }
+    } catch (e) {}
+
+    if (changed && targetMsg) {
+      try {
+        await this.request('/messages/read', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel: targetMsg.channel || 'investor',
+            sender_id: targetMsg.sender_id,
+            receiver_id: targetMsg.receiver_id
+          })
+        });
+      } catch (e) {}
+    }
   }
 }
 
 export const api = new ApiService();
+

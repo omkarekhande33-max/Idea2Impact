@@ -8483,6 +8483,34 @@
       "user_id": "cand-15d122",
       "details": "User aaravpatel registered as candidate",
       "timestamp": "2026-10-22T20:43:30.202079+00:00"
+    },
+    {
+      "id": "log-4db0fb56",
+      "event": "Direct Message Sent",
+      "user_id": "inve-prasad12345",
+      "details": "Message sent from investor to founder (investor channel)",
+      "timestamp": "2026-10-23T12:47:41.876111+00:00"
+    },
+    {
+      "id": "log-84d9ccc4",
+      "event": "Direct Message Sent",
+      "user_id": "found-omkar12345",
+      "details": "Message sent from founder to investor (investor channel)",
+      "timestamp": "2026-10-23T12:47:41.942454+00:00"
+    },
+    {
+      "id": "log-02ad782b",
+      "event": "Direct Message Sent",
+      "user_id": "inve-prasad12345",
+      "details": "Message sent from investor to founder (investor channel)",
+      "timestamp": "2026-10-23T12:51:33.580168+00:00"
+    },
+    {
+      "id": "log-83407377",
+      "event": "Direct Message Sent",
+      "user_id": "found-omkar12345",
+      "details": "Message sent from founder to investor (investor channel)",
+      "timestamp": "2026-10-23T12:51:54.383427+00:00"
     }
   ],
   "match_results": [
@@ -19671,6 +19699,58 @@
       "channel": "candidate",
       "timestamp": "2026-10-22T20:20:50.275801+00:00",
       "is_read": false
+    },
+    {
+      "id": "msg-2936b802",
+      "sender_id": "inve-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "Hello Founder Omkar! We reviewed your  ARR and want to lead your seed round.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T12:47:41.835451+00:00",
+      "is_read": true
+    },
+    {
+      "id": "msg-1b8d9eab",
+      "sender_id": "found-omkar12345",
+      "receiver_id": "inve-prasad12345",
+      "sender_role": "founder",
+      "receiver_role": "investor",
+      "sender_name": "omkar@12345",
+      "receiver_name": "prasad@12345 (Apex Frontier Ventures)",
+      "text": "Hi Prasad! Thank you for reaching out. We would love to schedule a pitch meeting on Google Meet.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T12:47:41.912266+00:00",
+      "is_read": true
+    },
+    {
+      "id": "msg-9c99f62c",
+      "sender_id": "inve-prasad12345",
+      "receiver_id": "found-omkar12345",
+      "sender_role": "investor",
+      "receiver_role": "founder",
+      "sender_name": "prasad@12345 (Apex Frontier Ventures)",
+      "receiver_name": "omkar@12345",
+      "text": "Hi Omkar, term sheet is ready for signing!",
+      "channel": "investor",
+      "timestamp": "2026-10-23T12:51:33.534413+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-7e83faa4",
+      "sender_id": "found-omkar12345",
+      "receiver_id": "inve-prasad12345",
+      "sender_role": "founder",
+      "receiver_role": "investor",
+      "sender_name": "omkar@12345",
+      "receiver_name": "prasad@12345 (Apex Frontier Ventures)",
+      "text": "Thank you Prasad! I have reviewed the term sheet and am ready to sign.",
+      "channel": "investor",
+      "timestamp": "2026-10-23T12:51:54.350834+00:00",
+      "is_read": true
     }
   ]
 }
