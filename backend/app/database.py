@@ -45,6 +45,16 @@ INITIAL_DATA = {
             "created_at": "2026-01-05T08:00:00Z"
         },
         {
+            "id": "found-omkar12345",
+            "full_name": "Omkar Ekhande",
+            "username": "omkar@12345",
+            "email": "omkar@12345.com",
+            "role": "founder",
+            "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Omkar%20Ekhande",
+            "bio": "Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.",
+            "created_at": "2026-03-01T08:00:00Z"
+        },
+        {
             "id": "hr-01",
             "full_name": "Elena Rostova",
             "email": "elena.rostova@novatech.io",
@@ -96,6 +106,13 @@ INITIAL_DATA = {
             "industry": "CleanTech / AI",
             "stage": "Seed",
             "pitch_deck_url": "https://ecotrace.ai/deck.pdf"
+        },
+        {
+            "founder_id": "found-omkar12345",
+            "company_name": "Impact AI Studio",
+            "industry": "AI / SaaS",
+            "stage": "Seed Stage",
+            "pitch_deck_url": "https://idea2impact.dev/deck.pdf"
         }
     ],
     "hr_profiles": [

@@ -28,6 +28,8 @@ const DEMO_ACCOUNTS = {
   alex: { id: 'cand-01', username: 'alex', full_name: 'Alex Rivera', role: 'candidate', title: 'Full-Stack Engineer', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', bio: 'Full-stack AI developer with verified Python & React credentials.' },
   founder: { id: 'found-01', username: 'founder', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
   sarah: { id: 'found-01', username: 'sarah', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
+  'omkar@12345': { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'Omkar Ekhande', name: 'Omkar Ekhande', role: 'founder', title: 'Founder & CEO', email: 'omkar@12345.com', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Omkar%20Ekhande', bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.' },
+  omkar: { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'Omkar Ekhande', name: 'Omkar Ekhande', role: 'founder', title: 'Founder & CEO', email: 'omkar@12345.com', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Omkar%20Ekhande', bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.' },
   hr: { id: 'hr-01', username: 'hr', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
   elena: { id: 'hr-01', username: 'elena', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
   investor: { id: 'inv-01', username: 'investor', full_name: 'Victoria Sterling', role: 'investor', title: 'Partner, Apex Frontier VC', email: 'v.sterling@apexfrontier.vc', avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150', bio: 'Early-stage deeptech and AI investor looking for verified traction.' },
@@ -136,13 +138,47 @@ export const DEFAULT_CANDIDATE_PROFILES = [
   }
 ];
 
+export const DEFAULT_FOUNDER_PROFILES = [
+  {
+    id: 'found-omkar12345',
+    username: 'omkar@12345',
+    full_name: 'Omkar Ekhande',
+    name: 'Omkar Ekhande',
+    role: 'founder',
+    title: 'Founder & CEO',
+    email: 'omkar@12345.com',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Omkar%20Ekhande',
+    bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
+    summary: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
+    company: 'Impact AI Studio',
+    badge: 'Registered Founder',
+    stage: 'Seed Stage',
+    ask: '$1,200,000 for 12% equity',
+    readiness: '94.0%',
+    industry: 'AI / SaaS',
+    traction: 'Active Pilot Customers',
+    pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed',
+    is_registered: true
+  }
+];
+
 function getLocalUsers() {
+  let list = [];
   try {
     const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    list = raw ? JSON.parse(raw) : [];
   } catch (e) {
-    return [];
+    list = [];
   }
+
+  // Ensure default registered founder profile (omkar@12345) exists in local registry
+  DEFAULT_FOUNDER_PROFILES.forEach(df => {
+    if (!list.some(u => u.id === df.id || (df.username && (u.username || '').toLowerCase() === df.username.toLowerCase()) || (df.email && (u.email || '').toLowerCase() === df.email.toLowerCase()))) {
+      list.push(df);
+    }
+  });
+
+  return list;
 }
 
 function saveLocalUser(user) {
@@ -431,6 +467,14 @@ class ApiService {
       DEFAULT_CANDIDATE_PROFILES.forEach(dp => {
         if (!combined.some(cp => cp.id === dp.id || (dp.email && cp.email === dp.email) || (dp.username && cp.username === dp.username))) {
           combined.push(dp);
+        }
+      });
+    }
+
+    if (!role || role === 'founder') {
+      DEFAULT_FOUNDER_PROFILES.forEach(df => {
+        if (!combined.some(cp => cp.id === df.id || (df.email && cp.email === df.email) || (df.username && cp.username === df.username))) {
+          combined.push(df);
         }
       });
     }

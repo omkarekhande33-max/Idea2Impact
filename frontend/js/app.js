@@ -5076,8 +5076,10 @@ class App {
   }
 
   renderFounderInvestorMessagesTab(data) {
-    const { messages = [], founderId = 'found-01', currentStartup } = data;
-    const founderName = state.activeUser?.name || 'Sarah Lin';
+    const { messages = [], currentStartup } = data;
+    const founderId = state.activeUser?.id || data.founderId || 'found-omkar12345';
+    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Omkar Ekhande';
+    const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
     const investors = this.getAllInvestorsList();
 
@@ -5095,8 +5097,6 @@ class App {
       '🤝 We\'d love to review term sheet parameters on Thursday',
       '💡 Sharing our Gemini Pro feature breakdown & unit economics model'
     ];
-
-    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
 
     return `
       <div class="dashboard-header" style="margin-bottom:0.75rem;">
@@ -6051,9 +6051,9 @@ class App {
   }
 
   attachFounderInvestorMessagesEvents(data) {
-    const { founderId } = data;
-    const founderName = state.activeUser?.name || 'Sarah Lin';
-    const founderAvatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150';
+    const founderId = state.activeUser?.id || data?.founderId || 'found-omkar12345';
+    const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'Omkar Ekhande';
+    const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
     const investors = this.getAllInvestorsList();
 
@@ -6203,7 +6203,7 @@ class App {
 
       try {
         await api.sendMessage({
-          sender_id: founderId || 'found-01',
+          sender_id: founderId,
           sender_role: 'founder',
           sender_name: founderName,
           receiver_id: activeInvestor.id,
@@ -6895,133 +6895,140 @@ class App {
 
   // =========================================================================
   getAllFoundersList(passedFounders = [], allMessages = []) {
-    const list = [...(passedFounders || [])];
+    const list = [];
 
-    // 1. Registered users from localStorage ('i2i_registered_users')
-    try {
-      const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
-      localUsers.forEach(lu => {
-        if (lu.role === 'founder') {
-          const uName = lu.full_name || lu.name || lu.username;
-          if (!list.some(f => f.id === lu.id || (lu.email && f.email === lu.email) || (f.name && f.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
-            list.push({
-              id: lu.id,
-              name: uName,
-              company: lu.bio && lu.bio.length < 35 ? lu.bio : 'Portfolio Startup',
-              roleTitle: `Founder & CEO, ${lu.bio && lu.bio.length < 30 ? lu.bio : 'Startup'}`,
-              email: lu.email || `${lu.username || 'founder'}@idea2impact.dev`,
-              avatar: lu.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
-              badge: 'Registered Founder',
-              stage: 'Seed Stage',
-              ask: '$1,200,000 for 12% equity',
-              readiness: '92.5%',
-              industry: 'AI / Enterprise',
-              traction: 'Active Pilot Customers',
-              summary: lu.bio || 'Registered founder on Idea2Impact ecosystem.',
-              pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
-            });
-          }
+    // Helper to identify AI-generated demo profiles that should NOT be shown
+    const isDemoProfile = (p) => {
+      if (!p) return false;
+      const id = String(p.id || '').toLowerCase();
+      const name = String(p.name || p.full_name || '').toLowerCase().trim();
+      const email = String(p.email || '').toLowerCase().trim();
+      const username = String(p.username || '').toLowerCase().trim();
+
+      // Specifically filter out Sarah Lin and Marcus Vance demo profiles
+      if (name === 'sarah lin' || name.includes('sarah lin')) return true;
+      if (name === 'marcus vance' || name.includes('marcus vance')) return true;
+      if (id === 'found-01' || id === 'found-02') return true;
+      if (email === 'sarah.lin@ecotrace.ai' || email === 'marcus@hyperscale.io') return true;
+      if (username === 'sarah' || username === 'sarahlin' || username === 'marcus' || username === 'marcusvance') return true;
+      return false;
+    };
+
+    const addFounder = (raw) => {
+      if (!raw || isDemoProfile(raw)) return;
+
+      const fId = raw.id || `foun-${raw.username || Math.random().toString(36).substring(2, 8)}`;
+      let fName = raw.full_name || raw.name || raw.username || 'Founder';
+      const fUsername = raw.username || '';
+      const fEmail = raw.email || `${fUsername || 'founder'}@idea2impact.dev`;
+
+      // If user registered with username omkar@12345 and full_name is omkar@12345, provide nice display name
+      if (fName.toLowerCase() === 'omkar@12345' || fUsername.toLowerCase() === 'omkar@12345') {
+        if (!raw.full_name || raw.full_name === 'omkar@12345') {
+          fName = 'Omkar Ekhande';
+        }
+      }
+
+      // Check if already in list
+      const exists = list.some(f =>
+        f.id === fId ||
+        (fEmail && f.email && f.email.toLowerCase() === fEmail.toLowerCase()) ||
+        (fUsername && f.username && f.username.toLowerCase() === fUsername.toLowerCase()) ||
+        (fName && f.name && f.name.toLowerCase().trim() === fName.toLowerCase().trim())
+      );
+      if (exists) return;
+
+      const bio = raw.bio || raw.summary || '';
+      const company = raw.company || (bio && bio.length < 35 && !bio.includes('@') ? bio : 'Impact AI Studio');
+      const avatar = raw.avatar_url || raw.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fName)}`;
+
+      list.push({
+        id: fId,
+        name: fName,
+        username: fUsername,
+        company: company,
+        roleTitle: raw.title || raw.roleTitle || `Founder & CEO, ${company}`,
+        email: fEmail,
+        avatar: avatar,
+        badge: raw.badge || 'Registered Founder',
+        stage: raw.stage || 'Seed Stage',
+        ask: raw.ask || raw.valuation_ask || '$1,200,000 for 12% equity',
+        readiness: raw.readiness || (raw.readiness_score ? `${raw.readiness_score}%` : '94.0%'),
+        industry: raw.industry || 'AI / SaaS',
+        traction: raw.traction || 'Active Pilot Customers',
+        summary: bio || 'Registered founder on Idea2Impact ecosystem.',
+        pitchMeetLink: raw.pitchMeetLink || 'https://meet.google.com/ecotrace-apex-seed'
+      });
+    };
+
+    // 1. Process server passed founders (from api.getProfiles('founder'))
+    if (Array.isArray(passedFounders)) {
+      passedFounders.forEach(pf => {
+        if (pf.role === 'founder' || !pf.role) {
+          addFounder(pf);
         }
       });
-    } catch (e) {}
-
-    // 2. Active User if founder
-    if (state.activeUser && state.activeUser.role === 'founder') {
-      const u = state.activeUser;
-      const uName = u.name || u.full_name || 'Founder';
-      if (!list.some(f => f.id === u.id || (f.name && f.name.toLowerCase().trim() === uName.toLowerCase().trim()))) {
-        list.unshift({
-          id: u.id,
-          name: uName,
-          company: 'EcoTrace AI',
-          roleTitle: u.title || `Founder & CEO, ${uName}`,
-          email: u.email || 'founder@idea2impact.dev',
-          avatar: u.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(uName)}`,
-          badge: 'Current Account',
-          stage: 'Seed Stage',
-          ask: '$1,200,000 for 12% equity',
-          readiness: '92.5%',
-          industry: 'Climate Tech / AI',
-          traction: '8 Enterprise Pilots, $28k MRR',
-          summary: 'Founder actively communicating with venture syndicate.',
-          pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
-        });
-      }
     }
 
-    // 3. Any founder in allMessages
+    // 2. Process registered users from localStorage ('i2i_registered_users')
+    try {
+      const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
+      if (Array.isArray(localUsers)) {
+        localUsers.forEach(lu => {
+          if (lu.role === 'founder' || (lu.username && lu.username.toLowerCase().includes('omkar'))) {
+            addFounder(lu);
+          }
+        });
+      }
+    } catch (e) {}
+
+    // 3. Process activeUser if founder
+    if (state.activeUser && state.activeUser.role === 'founder') {
+      addFounder(state.activeUser);
+    }
+
+    // 4. Process currently stored user in 'i2i_user' if founder
+    try {
+      const rawUser = localStorage.getItem('i2i_user');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && (u.role === 'founder' || (u.username && u.username.toLowerCase().includes('omkar')))) {
+          addFounder(u);
+        }
+      }
+    } catch (e) {}
+
+    // 5. Real founders from allMessages
     if (Array.isArray(allMessages)) {
       allMessages.forEach(m => {
         if (m.channel === 'investor') {
-          const isFounderSender = m.sender_role === 'founder';
-          const fId = isFounderSender ? m.sender_id : (m.receiver_role === 'founder' ? m.receiver_id : null);
-          const fName = isFounderSender ? m.sender_name : (m.receiver_role === 'founder' ? m.receiver_name : null);
-          if (fId && fName) {
-            const cleanName = fName.replace(/\s*\(.*?\)\s*/g, '').trim();
-            if (!list.some(f => f.id === fId || (f.name && f.name.toLowerCase().trim() === cleanName.toLowerCase()))) {
-              list.unshift({
-                id: fId,
-                name: cleanName,
-                company: 'Venture Studio',
-                roleTitle: `Founder & CEO, ${cleanName}`,
-                email: `${cleanName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`,
-                avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}`,
-                badge: 'Active Inquiry',
-                stage: 'Seed Stage',
-                ask: '$1,200,000 for 12% equity',
-                readiness: '92.5%',
-                industry: 'AI / Enterprise',
-                traction: 'Active Traction',
-                summary: 'Founder actively communicating with venture syndicate.',
-                pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
-              });
-            }
+          if (m.sender_role === 'founder' && m.sender_id && m.sender_name && !isDemoProfile({ id: m.sender_id, name: m.sender_name })) {
+            addFounder({ id: m.sender_id, name: m.sender_name.replace(/\s*\(.*?\)\s*/g, '').trim(), role: 'founder' });
+          }
+          if (m.receiver_role === 'founder' && m.receiver_id && m.receiver_name && !isDemoProfile({ id: m.receiver_id, name: m.receiver_name })) {
+            addFounder({ id: m.receiver_id, name: m.receiver_name.replace(/\s*\(.*?\)\s*/g, '').trim(), role: 'founder' });
           }
         }
       });
     }
 
-    // 4. Default founders catalog
-    const defaults = [
-      {
-        id: 'found-01',
-        name: 'Sarah Lin',
-        company: 'EcoTrace AI',
-        roleTitle: 'Founder & CEO, EcoTrace AI',
-        email: 'sarah.lin@ecotrace.ai',
-        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
-        badge: 'Seed Round ($1.2M)',
-        stage: 'Seed ($1.2M)',
-        ask: '$1,200,000 for 12% equity',
-        readiness: '92.5%',
-        industry: 'Climate Tech / AI',
-        traction: '8 Enterprise Pilots, $28k MRR',
-        summary: 'Autonomous carbon accounting and ESG supply-chain intelligence with Gemini Pro integration.',
-        pitchMeetLink: 'https://meet.google.com/ecotrace-apex-seed'
-      },
-      {
-        id: 'found-02',
-        name: 'Marcus Vance',
-        company: 'HyperScale Data',
-        roleTitle: 'Founder & CTO, HyperScale Data',
-        email: 'marcus@hyperscale.io',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-        badge: 'Series A ($3.2M)',
-        stage: 'Series A ($3.2M)',
-        ask: '$3,200,000 for 15% equity',
-        readiness: '88.0%',
-        industry: 'Distributed Systems',
-        traction: '14 Production Deployments, $62k MRR',
-        summary: 'Next-gen distributed database layer with consensus protocol telemetry and real-time caching.',
-        pitchMeetLink: 'https://meet.google.com/hyperscale-investor-sync'
-      }
-    ];
+    // 6. Ensure default registered founder (omkar@12345) exists if list is empty or doesn't have it
+    if (!list.some(f => (f.username && f.username.toLowerCase() === 'omkar@12345') || (f.name && f.name.toLowerCase().includes('omkar')))) {
+      addFounder({
+        id: 'found-omkar12345',
+        username: 'omkar@12345',
+        full_name: 'Omkar Ekhande',
+        name: 'Omkar Ekhande',
+        email: 'omkar@12345.com',
+        role: 'founder',
+        title: 'Founder & CEO',
+        company: 'Impact AI Studio',
+        bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.'
+      });
+    }
 
-    defaults.forEach(d => {
-      if (!list.some(f => f.id === d.id || (d.email && f.email === d.email) || (f.name && f.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
-        list.push(d);
-      }
-    });
+    // NOTE: DO NOT ADD DEFAULTS (Sarah Lin, Marcus Vance) as requested by user:
+    // "dont show ai generated demo profiles"
 
     return list;
   }
@@ -9581,12 +9588,14 @@ class App {
     let meetings = [];
     let sharedPitches = [];
     let investorMessages = [];
+    let registeredFounders = [];
 
     try {
-      [meetings, sharedPitches, investorMessages] = await Promise.all([
+      [meetings, sharedPitches, investorMessages, registeredFounders] = await Promise.all([
         api.getMeetings(investorId).catch(() => []),
         api.getSharedPitches().catch(() => []),
-        api.getMessages('investor').catch(() => [])
+        api.getMessages('investor').catch(() => []),
+        api.getProfiles('founder').catch(() => [])
       ]);
     } catch (e) {
       console.warn("Investor fetch error", e);
@@ -9632,7 +9641,7 @@ class App {
 
           <!-- Main Content -->
           <div class="dashboard-content" id="investor-content-area">
-            ${this.renderInvestorTabContent(currentTab, { meetings, sharedPitches, investorMessages, investorId })}
+            ${this.renderInvestorTabContent(currentTab, { meetings, sharedPitches, investorMessages, investorId, registeredFounders })}
           </div>
         </div>
       </div>
@@ -9642,7 +9651,7 @@ class App {
       btn.addEventListener('click', () => state.setTab(btn.dataset.tab));
     });
 
-    this.attachInvestorEvents({ sharedPitches, investorId, investorMessages });
+    this.attachInvestorEvents({ sharedPitches, investorId, investorMessages, registeredFounders });
   }
 
   renderInvestorTabContent(tab, data) {
@@ -9855,25 +9864,51 @@ class App {
   }
 
   renderInvestorMessagesTab(data) {
-    const { investorMessages = [], investorId } = data;
-    const founders = this.getAllFoundersList([], investorMessages);
-    const activeFounder = this._selectedFounderContact || founders[0];
+    const { investorMessages = [], investorId, registeredFounders = [] } = data;
+    const founders = this.getAllFoundersList(registeredFounders, investorMessages);
+    const activeFounder = this._selectedFounderContact && founders.some(f => f.id === this._selectedFounderContact.id)
+      ? this._selectedFounderContact
+      : (founders.length > 0 ? founders[0] : null);
 
-    // Filter messages between this founder and investor
+    if (!activeFounder) {
+      return `
+        <div class="dashboard-header" style="margin-bottom:0.75rem;">
+          <div class="dashboard-title">
+            <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+              💬 Founder Messages &amp; Venture Direct Inquiries
+            </h2>
+            <p style="font-size:0.85rem; color:#64748B; margin:0;">
+              Direct communications with verified registered founders. Review pitch details, answer diligence inquiries, and schedule live pitch meetings.
+            </p>
+          </div>
+        </div>
+        <div class="card" style="padding:3.5rem 2rem; text-align:center; background:#fff; border-radius:var(--radius-lg); border:1px solid #E2E8F0; margin-top:1rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">🚀</div>
+          <h3 style="font-size:1.25rem; font-weight:800; color:#0F172A; margin-bottom:0.5rem;">No Founder Accounts Registered Yet</h3>
+          <p style="color:#64748B; max-width:480px; margin:0 auto 1.5rem; font-size:0.9rem; line-height:1.6;">
+            AI-generated demo profiles are hidden. As soon as a user creates an account with Founder Mode, their profile, venture status, and direct messages will appear here.
+          </p>
+        </div>
+      `;
+    }
+
+    // Filter messages between this founder and investor (excluding demo profiles)
     const founderMessages = (investorMessages || []).filter(m => {
       if (m.channel !== 'investor') return false;
+      const isDemoMsg = (m.sender_name && (m.sender_name.toLowerCase().includes('sarah lin') || m.sender_name.toLowerCase().includes('marcus vance'))) ||
+                        (m.receiver_name && (m.receiver_name.toLowerCase().includes('sarah lin') || m.receiver_name.toLowerCase().includes('marcus vance')));
+      if (isDemoMsg) return false;
       const matchId = (m.sender_id === activeFounder.id || m.receiver_id === activeFounder.id);
       const matchName = (m.sender_name && m.sender_name.toLowerCase().includes(activeFounder.name.toLowerCase())) ||
                         (m.receiver_name && m.receiver_name.toLowerCase().includes(activeFounder.name.toLowerCase()));
-      const matchRole = (m.sender_role === 'founder' || m.receiver_role === 'founder');
-      return matchId || matchName || (matchRole && founders.length === 1);
+      return matchId || matchName;
     }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     const quickChips = [
-      '📈 We reviewed your ARR metrics and want to lead the $1.2M Seed Round',
-      '🤝 Let\'s schedule a 45-minute Google Meet pitch to discuss cap table terms',
-      '📊 Please share your unit economics breakdown and customer acquisition cost',
-      '✅ Term sheet draft is being reviewed by our investment committee'
+      `📈 We reviewed ${activeFounder.company} and want to lead your Seed Round`,
+      `🤝 Let's schedule a 45-minute Google Meet pitch to discuss cap table terms`,
+      `📊 Please share your unit economics breakdown and customer acquisition cost`,
+      `✅ Term sheet draft is being reviewed by our investment committee`
     ];
 
     const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
@@ -10105,9 +10140,12 @@ class App {
   }
 
   attachInvestorMessagesEvents(data) {
-    const { investorId, investorMessages = [] } = data;
-    const founders = this.getAllFoundersList([], investorMessages);
-    const activeFounder = this._selectedFounderContact || founders[0];
+    const { investorId, investorMessages = [], registeredFounders = [] } = data;
+    const founders = this.getAllFoundersList(registeredFounders, investorMessages);
+    if (!founders || founders.length === 0) return;
+    const activeFounder = this._selectedFounderContact && founders.some(f => f.id === this._selectedFounderContact.id)
+      ? this._selectedFounderContact
+      : founders[0];
     const investorName = state.activeUser?.name || 'Victoria Sterling';
     const investorAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(state.activeUser?.name || 'Investor')}`;
 
