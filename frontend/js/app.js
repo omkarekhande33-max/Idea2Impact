@@ -6918,15 +6918,13 @@ class App {
       if (!raw || isDemoProfile(raw)) return;
 
       const fId = raw.id || `foun-${raw.username || Math.random().toString(36).substring(2, 8)}`;
-      let fName = raw.full_name || raw.name || raw.username || 'Founder';
       const fUsername = raw.username || '';
+      let fName = raw.full_name || raw.name || raw.username || 'Founder';
       const fEmail = raw.email || `${fUsername || 'founder'}@idea2impact.dev`;
 
-      // If user registered with username omkar@12345 and full_name is omkar@12345, provide nice display name
-      if (fName.toLowerCase() === 'omkar@12345' || fUsername.toLowerCase() === 'omkar@12345') {
-        if (!raw.full_name || raw.full_name === 'omkar@12345') {
-          fName = 'Omkar Ekhande';
-        }
+      // If user registered with username omkar@12345 or omkar, strictly show account handle omkar@12345
+      if (fUsername.toLowerCase() === 'omkar@12345' || fName.toLowerCase() === 'omkar@12345' || fName.toLowerCase() === 'omkar ekhande') {
+        fName = 'omkar@12345';
       }
 
       // Check if already in list
@@ -6945,7 +6943,7 @@ class App {
       list.push({
         id: fId,
         name: fName,
-        username: fUsername,
+        username: fUsername || 'omkar@12345',
         company: company,
         roleTitle: raw.title || raw.roleTitle || `Founder & CEO, ${company}`,
         email: fEmail,
@@ -6974,11 +6972,20 @@ class App {
     try {
       const localUsers = JSON.parse(localStorage.getItem('i2i_registered_users') || '[]');
       if (Array.isArray(localUsers)) {
+        let changed = false;
         localUsers.forEach(lu => {
+          if (lu.username && lu.username.toLowerCase() === 'omkar@12345') {
+            lu.full_name = 'omkar@12345';
+            lu.name = 'omkar@12345';
+            changed = true;
+          }
           if (lu.role === 'founder' || (lu.username && lu.username.toLowerCase().includes('omkar'))) {
             addFounder(lu);
           }
         });
+        if (changed) {
+          localStorage.setItem('i2i_registered_users', JSON.stringify(localUsers));
+        }
       }
     } catch (e) {}
 
@@ -7013,15 +7020,15 @@ class App {
     }
 
     // 6. Ensure default registered founder (omkar@12345) exists if list is empty or doesn't have it
-    if (!list.some(f => (f.username && f.username.toLowerCase() === 'omkar@12345') || (f.name && f.name.toLowerCase().includes('omkar')))) {
+    if (!list.some(f => (f.username && f.username.toLowerCase() === 'omkar@12345') || (f.name && f.name.toLowerCase() === 'omkar@12345'))) {
       addFounder({
         id: 'found-omkar12345',
         username: 'omkar@12345',
-        full_name: 'Omkar Ekhande',
-        name: 'Omkar Ekhande',
-        email: 'omkar@12345.com',
+        full_name: 'omkar@12345',
+        name: 'omkar@12345',
+        email: 'omkar@12345',
         role: 'founder',
-        title: 'Founder & CEO',
+        title: 'Founder & CEO (omkar@12345)',
         company: 'Impact AI Studio',
         bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.'
       });
@@ -9967,8 +9974,8 @@ class App {
                       <span class="hr-contact-time">${timeStr}</span>
                     </div>
                     <div class="hr-contact-sub">
-                      <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.65rem; padding:0.1rem 0.35rem;">
-                        ${f.company || f.badge}
+                      <span class="badge" style="background:#EDE9FE; color:#7C3AED; font-size:0.65rem; padding:0.1rem 0.35rem; font-weight:700;">
+                        ${f.username ? `@${f.username}` : (f.company || f.badge)}
                       </span>
                       <span>${f.stage || 'Seed'}</span>
                     </div>
@@ -9999,15 +10006,17 @@ class App {
                     ${activeFounder.badge || activeFounder.stage || 'Seed Founder'}
                   </span>
                   <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem; font-weight:700;">
-                    📈 ${activeFounder.readiness || '92.5%'} Feasibility
+                    📈 ${activeFounder.readiness || '94.0%'} Feasibility
                   </span>
                 </h4>
                 <p style="margin:0; font-size:0.82rem; color:#64748B; display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
                   <span style="font-weight:600; color:#334155;">🏢 ${activeFounder.company || 'Portfolio Startup'}</span>
                   <span>•</span>
+                  <span>👤 Account: <strong style="color:#0F172A;">${activeFounder.username || activeFounder.name}</strong></span>
+                  <span>•</span>
                   <span>💰 Ask: <strong style="color:#0F172A;">${activeFounder.ask || '$1.2M Seed'}</strong></span>
                   <span>•</span>
-                  <span>✉️ ${activeFounder.email || 'founder@idea2impact.dev'}</span>
+                  <span>✉️ ${activeFounder.email || 'omkar@12345'}</span>
                 </p>
               </div>
             </div>

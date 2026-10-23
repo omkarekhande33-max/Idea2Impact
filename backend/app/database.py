@@ -46,11 +46,11 @@ INITIAL_DATA = {
         },
         {
             "id": "found-omkar12345",
-            "full_name": "Omkar Ekhande",
+            "full_name": "omkar@12345",
             "username": "omkar@12345",
-            "email": "omkar@12345.com",
+            "email": "omkar@12345",
             "role": "founder",
-            "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Omkar%20Ekhande",
+            "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=omkar",
             "bio": "Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.",
             "created_at": "2026-03-01T08:00:00Z"
         },
