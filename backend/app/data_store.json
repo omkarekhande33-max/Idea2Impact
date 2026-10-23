@@ -622,6 +622,32 @@
       "bio": "Full Stack Developer with Python, React and Cloud experience",
       "auth_provider": "local",
       "created_at": "2026-10-22T20:43:30.125907+00:00"
+    },
+    {
+      "id": "cand-rushikesh12345",
+      "full_name": "rushikesh@12345",
+      "username": "rushikesh@12345",
+      "email": "rushikesh@12345",
+      "role": "candidate",
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh",
+      "bio": "Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.",
+      "created_at": "2026-03-01T08:00:00Z",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
+    },
+    {
+      "id": "hr-koomal123456",
+      "full_name": "koomal@123456",
+      "username": "koomal@123456",
+      "email": "koomal@123456",
+      "role": "hr",
+      "firm": "NovaTech Systems",
+      "title": "Executive Recruiter • NovaTech Talent Intelligence",
+      "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+      "bio": "Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.",
+      "created_at": "2026-03-01T08:00:00Z",
+      "password_hash": "pbkdf2_sha256$100000$6929868ed2e09973f14b5f46175ffe38$8321975221776dc7e96eddeb0dc4a0e96622bf6c533c529fb86cc6ac7142006e",
+      "auth_provider": "local"
     }
   ],
   "candidate_profiles": [
@@ -675,6 +701,14 @@
       "target_role": "Software Engineer",
       "summary": "Full Stack Developer with Python, React and Cloud experience",
       "id": "cand-90521057"
+    },
+    {
+      "candidate_id": "cand-rushikesh12345",
+      "education": "B.Tech in Computer Science & AI Systems",
+      "experience_years": 4,
+      "portfolio_url": "https://github.com/rushikesh-wagh",
+      "target_role": "Senior Software Engineer specializing in AI",
+      "summary": "Senior Software Engineer specializing in AI, distributed systems, and modern full-stack architectures. Verified 75/25 passport rating."
     }
   ],
   "founder_profiles": [
@@ -851,6 +885,12 @@
       "hr_id": "hr-01",
       "company_name": "NovaTech Systems",
       "position": "Director of Engineering Talent",
+      "website": "https://novatech.io"
+    },
+    {
+      "hr_id": "hr-koomal123456",
+      "company_name": "NovaTech Systems",
+      "position": "Executive Recruiter • NovaTech Talent Intelligence",
       "website": "https://novatech.io"
     }
   ],
@@ -8546,6 +8586,27 @@
       "user_id": "found-omkar12345",
       "details": "Message sent from founder to investor (investor channel)",
       "timestamp": "2026-10-23T14:55:45.917225+00:00"
+    },
+    {
+      "id": "log-3286b94d",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-23T16:07:02.059085+00:00"
+    },
+    {
+      "id": "log-c59deab4",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-23T16:07:13.280622+00:00"
+    },
+    {
+      "id": "log-eff52e9c",
+      "event": "Direct Message Sent",
+      "user_id": "hr-koomal123456",
+      "details": "Message sent from hr to candidate (candidate channel)",
+      "timestamp": "2026-10-23T16:07:23.727333+00:00"
     }
   ],
   "match_results": [
@@ -19863,6 +19924,71 @@
       "text": "Yes Prasad, absolutely! I am available on Google Meet right now.",
       "channel": "investor",
       "timestamp": "2026-10-23T14:55:45.885398+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-rushikesh-koomal-01",
+      "sender_id": "cand-rushikesh12345",
+      "sender_role": "candidate",
+      "sender_name": "rushikesh@12345",
+      "receiver_id": "hr-koomal123456",
+      "receiver_role": "hr",
+      "receiver_name": "koomal@123456",
+      "text": "Hi Koomal! I'm reaching out regarding the open AI Systems & Full-Stack roles at NovaTech.",
+      "channel": "candidate",
+      "timestamp": "2026-10-23T11:00:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-rushikesh-koomal-02",
+      "sender_id": "hr-koomal123456",
+      "sender_role": "hr",
+      "sender_name": "koomal@123456",
+      "receiver_id": "cand-rushikesh12345",
+      "receiver_role": "candidate",
+      "receiver_name": "rushikesh@12345",
+      "text": "Hello Rushikesh! Great to connect. Your verified 75/25 assessment rating is outstanding. Let's coordinate a technical interview.",
+      "channel": "candidate",
+      "timestamp": "2026-10-23T11:05:00Z",
+      "is_read": true
+    },
+    {
+      "id": "msg-5b246a92",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Test message from Rushikesh candidate mode to Koomal HR mode!",
+      "channel": "candidate",
+      "timestamp": "2026-10-23T16:07:02.031992+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-9a24d5c5",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Test message from Rushikesh candidate mode to Koomal HR mode!",
+      "channel": "candidate",
+      "timestamp": "2026-10-23T16:07:13.229995+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-5fadf530",
+      "sender_id": "hr-koomal123456",
+      "receiver_id": "cand-rushikesh12345",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "koomal@123456",
+      "receiver_name": "rushikesh@12345",
+      "text": "Reply from Koomal HR mode: Received your message Rushikesh, looking forward to meeting!",
+      "channel": "candidate",
+      "timestamp": "2026-10-23T16:07:23.693761+00:00",
       "is_read": false
     }
   ]

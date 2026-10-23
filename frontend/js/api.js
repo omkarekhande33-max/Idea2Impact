@@ -29,13 +29,17 @@ const LOCAL_USERS_KEY = 'i2i_registered_users';
 
 // Pre-seeded demo accounts available out-of-the-box
 const DEMO_ACCOUNTS = {
-  candidate: { id: 'cand-01', username: 'candidate', full_name: 'Alex Rivera', role: 'candidate', title: 'Full-Stack Engineer', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', bio: 'Full-stack AI developer with verified Python & React credentials.' },
+  candidate: { id: 'cand-rushikesh12345', username: 'rushikesh@12345', full_name: 'rushikesh@12345', name: 'rushikesh@12345', role: 'candidate', title: 'Senior Software Engineer (AI)', email: 'rushikesh@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh', bio: 'Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.' },
+  'rushikesh@12345': { id: 'cand-rushikesh12345', username: 'rushikesh@12345', full_name: 'rushikesh@12345', name: 'rushikesh@12345', role: 'candidate', title: 'Senior Software Engineer (AI)', email: 'rushikesh@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh', bio: 'Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.' },
+  rushikesh: { id: 'cand-rushikesh12345', username: 'rushikesh@12345', full_name: 'rushikesh@12345', name: 'rushikesh@12345', role: 'candidate', title: 'Senior Software Engineer (AI)', email: 'rushikesh@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh', bio: 'Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.' },
   alex: { id: 'cand-01', username: 'alex', full_name: 'Alex Rivera', role: 'candidate', title: 'Full-Stack Engineer', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', bio: 'Full-stack AI developer with verified Python & React credentials.' },
   founder: { id: 'found-01', username: 'founder', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
   sarah: { id: 'found-01', username: 'sarah', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
   'omkar@12345': { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on Idea2Impact platform.' },
   omkar: { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on Idea2Impact platform.' },
-  hr: { id: 'hr-01', username: 'hr', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
+  hr: { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
+  'koomal@123456': { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
+  koomal: { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
   elena: { id: 'hr-01', username: 'elena', full_name: 'Elena Rostova', role: 'hr', title: 'Head of Talent, NovaTech', email: 'elena.rostova@novatech.io', avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', bio: 'Technical recruiter using explainable skills-first matching.' },
   investor: { id: 'inv-prasad12345', username: 'prasad@12345', full_name: 'prasad@12345', name: 'prasad@12345', role: 'investor', firm: 'Apex Frontier Ventures', title: 'General Partner, Apex Frontier Ventures', email: 'prasad@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad', bio: 'General Partner at Apex Frontier Ventures. Backing early-stage AI, Climate Tech, and Enterprise SaaS.' },
   'prasad@12345': { id: 'inv-prasad12345', username: 'prasad@12345', full_name: 'prasad@12345', name: 'prasad@12345', role: 'investor', firm: 'Apex Frontier Ventures', title: 'General Partner, Apex Frontier Ventures', email: 'prasad@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=prasad', bio: 'General Partner at Apex Frontier Ventures. Backing early-stage AI, Climate Tech, and Enterprise SaaS.' },
@@ -44,6 +48,23 @@ const DEMO_ACCOUNTS = {
 };
 
 export const DEFAULT_CANDIDATE_PROFILES = [
+  {
+    id: 'cand-rushikesh12345',
+    username: 'rushikesh@12345',
+    full_name: 'rushikesh@12345',
+    name: 'rushikesh@12345',
+    role: 'candidate',
+    target_role: 'Senior Software Engineer specializing in AI',
+    title: 'Senior Software Engineer specializing in AI',
+    email: 'rushikesh@12345',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh',
+    bio: 'Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.',
+    summary: 'Senior Software Engineer specializing in AI, distributed systems, and modern full-stack architectures. Verified 75/25 passport rating.',
+    experience_years: 4,
+    education: 'B.Tech in Computer Science & AI Systems',
+    skills: ['Python & FastAPI', 'AI & LLM Integration', 'Cloud Architecture', 'Distributed Systems'],
+    is_registered: true
+  },
   {
     id: 'cand-01',
     username: 'alexrivera',
@@ -1978,6 +1999,32 @@ class ApiService {
     const key = 'i2i_messages';
     const defaultMessages = [
       {
+        id: "msg-rushikesh-koomal-01",
+        sender_id: "cand-rushikesh12345",
+        sender_role: "candidate",
+        sender_name: "rushikesh@12345",
+        receiver_id: "hr-koomal123456",
+        receiver_role: "hr",
+        receiver_name: "koomal@123456",
+        text: "Hi Koomal! I'm reaching out regarding the open AI Systems & Full-Stack roles at NovaTech.",
+        channel: "candidate",
+        timestamp: "2026-10-23T11:00:00Z",
+        is_read: true
+      },
+      {
+        id: "msg-rushikesh-koomal-02",
+        sender_id: "hr-koomal123456",
+        sender_role: "hr",
+        sender_name: "koomal@123456",
+        receiver_id: "cand-rushikesh12345",
+        receiver_role: "candidate",
+        receiver_name: "rushikesh@12345",
+        text: "Hello Rushikesh! Great to connect. Your verified 75/25 assessment rating is outstanding. Let's coordinate a technical interview.",
+        channel: "candidate",
+        timestamp: "2026-10-23T11:05:00Z",
+        is_read: true
+      },
+      {
         id: "msg-01",
         sender_id: "cand-01",
         sender_role: "candidate",
@@ -2280,12 +2327,15 @@ class ApiService {
     if (channel) res = res.filter(m => m.channel === channel);
     if (contactId) {
       const cId = contactId.toLowerCase().trim();
-      res = res.filter(m =>
-        (m.sender_id || '').toLowerCase().trim() === cId ||
-        (m.receiver_id || '').toLowerCase().trim() === cId ||
-        (m.sender_name || '').toLowerCase().trim() === cId ||
-        (m.receiver_name || '').toLowerCase().trim() === cId
-      );
+      res = res.filter(m => {
+        const sId = (m.sender_id || '').toLowerCase().trim();
+        const rId = (m.receiver_id || '').toLowerCase().trim();
+        const sName = (m.sender_name || '').toLowerCase().trim();
+        const rName = (m.receiver_name || '').toLowerCase().trim();
+        return sId === cId || rId === cId || sName === cId || rName === cId ||
+               sId.includes(cId) || rId.includes(cId) || sName.includes(cId) || rName.includes(cId) ||
+               (cId.length > 3 && (cId.includes(sId) || cId.includes(rId) || cId.includes(sName) || cId.includes(rName)));
+      });
     }
     return res.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   }

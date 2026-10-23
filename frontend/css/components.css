@@ -4754,6 +4754,35 @@
   margin-left: auto;
 }
 
+/* Candidate Mode HR Chat Card Layout - Prevents Input Clipping */
+.cand-chat-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 680px !important;
+  max-height: calc(100vh - 180px) !important;
+  min-height: 520px !important;
+  overflow: hidden !important;
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+#cand-chat-messages-container {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+.cand-chat-card .hr-quick-replies-bar {
+  flex-shrink: 0 !important;
+}
+
+.cand-chat-card .hr-chat-input-area {
+  flex-shrink: 0 !important;
+}
+
+
 
 
 

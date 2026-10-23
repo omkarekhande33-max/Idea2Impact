@@ -1,9 +1,9 @@
 // Idea2Impact - Client State Management
 
 export const DEFAULT_USERS = {
-  candidate: { id: "cand-01", name: "Alex Rivera", full_name: "Alex Rivera", username: "alex", role: "candidate", title: "Full-Stack Engineer", email: "alex.rivera@example.com" },
+  candidate: { id: "cand-rushikesh12345", name: "rushikesh@12345", full_name: "rushikesh@12345", username: "rushikesh@12345", role: "candidate", title: "Senior Software Engineer (AI)", email: "rushikesh@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh" },
   founder: { id: "found-omkar12345", name: "omkar@12345", full_name: "omkar@12345", username: "omkar@12345", role: "founder", title: "Founder & CEO (omkar@12345)", email: "omkar@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=omkar" },
-  hr: { id: "hr-01", name: "Elena Rostova", full_name: "Elena Rostova", username: "elena", role: "hr", title: "Head of Talent, NovaTech", email: "elena.rostova@novatech.io" },
+  hr: { id: "hr-koomal123456", name: "koomal@123456", full_name: "koomal@123456", username: "koomal@123456", role: "hr", firm: "NovaTech Systems", title: "Executive Recruiter • NovaTech Talent Intelligence", email: "koomal@123456", avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" },
   investor: { id: "inv-prasad12345", name: "prasad@12345", full_name: "prasad@12345", username: "prasad@12345", role: "investor", firm: "Apex Frontier Ventures", title: "General Partner, Apex Frontier Ventures", email: "prasad@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=prasad" }
 };
 

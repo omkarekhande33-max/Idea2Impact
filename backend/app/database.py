@@ -64,6 +64,28 @@ INITIAL_DATA = {
             "created_at": "2026-01-20T11:00:00Z"
         },
         {
+            "id": "cand-rushikesh12345",
+            "full_name": "rushikesh@12345",
+            "username": "rushikesh@12345",
+            "email": "rushikesh@12345",
+            "role": "candidate",
+            "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh",
+            "bio": "Senior Software Engineer (AI Systems & Distributed Platforms). Verified 75/25 competency passport credentials.",
+            "created_at": "2026-03-01T08:00:00Z"
+        },
+        {
+            "id": "hr-koomal123456",
+            "full_name": "koomal@123456",
+            "username": "koomal@123456",
+            "email": "koomal@123456",
+            "role": "hr",
+            "firm": "NovaTech Systems",
+            "title": "Executive Recruiter • NovaTech Talent Intelligence",
+            "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+            "bio": "Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.",
+            "created_at": "2026-03-01T08:00:00Z"
+        },
+        {
             "id": "inv-prasad12345",
             "full_name": "prasad@12345",
             "username": "prasad@12345",
@@ -109,6 +131,14 @@ INITIAL_DATA = {
             "portfolio_url": "https://jordanlee.design",
             "target_role": "Frontend Software Engineer",
             "summary": "Passionate about accessible UI systems, micro-animations, and fast client-side rendering."
+        },
+        {
+            "candidate_id": "cand-rushikesh12345",
+            "education": "B.Tech in Computer Science & AI Systems",
+            "experience_years": 4,
+            "portfolio_url": "https://github.com/rushikesh-wagh",
+            "target_role": "Senior Software Engineer specializing in AI",
+            "summary": "Senior Software Engineer specializing in AI, distributed systems, and modern full-stack architectures. Verified 75/25 passport rating."
         }
     ],
     "founder_profiles": [
@@ -132,6 +162,12 @@ INITIAL_DATA = {
             "hr_id": "hr-01",
             "company_name": "NovaTech Systems",
             "position": "Director of Engineering Talent",
+            "website": "https://novatech.io"
+        },
+        {
+            "hr_id": "hr-koomal123456",
+            "company_name": "NovaTech Systems",
+            "position": "Executive Recruiter • NovaTech Talent Intelligence",
             "website": "https://novatech.io"
         }
     ],
@@ -700,6 +736,32 @@ INITIAL_DATA = {
         }
     ],
     "messages": [
+        {
+            "id": "msg-rushikesh-koomal-01",
+            "sender_id": "cand-rushikesh12345",
+            "sender_role": "candidate",
+            "sender_name": "rushikesh@12345",
+            "receiver_id": "hr-koomal123456",
+            "receiver_role": "hr",
+            "receiver_name": "koomal@123456",
+            "text": "Hi Koomal! I'm reaching out regarding the open AI Systems & Full-Stack roles at NovaTech.",
+            "channel": "candidate",
+            "timestamp": "2026-10-23T11:00:00Z",
+            "is_read": True
+        },
+        {
+            "id": "msg-rushikesh-koomal-02",
+            "sender_id": "hr-koomal123456",
+            "sender_role": "hr",
+            "sender_name": "koomal@123456",
+            "receiver_id": "cand-rushikesh12345",
+            "receiver_role": "candidate",
+            "receiver_name": "rushikesh@12345",
+            "text": "Hello Rushikesh! Great to connect. Your verified 75/25 assessment rating is outstanding. Let's coordinate a technical interview.",
+            "channel": "candidate",
+            "timestamp": "2026-10-23T11:05:00Z",
+            "is_read": True
+        },
         {
             "id": "msg-01",
             "sender_id": "cand-01",

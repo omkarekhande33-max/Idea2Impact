@@ -1883,23 +1883,35 @@ class App {
   }
 
   renderCandidateHrMessagesTab(data) {
-    const { messages = [], candidateId = 'cand-01', candidateName = 'Alex Rivera' } = data;
+    const { messages = [], candidateId = 'cand-rushikesh12345', candidateName = 'rushikesh@12345' } = data;
+
+    const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+    const myCandName = state.activeUser?.name || state.activeUser?.full_name || candidateName || 'rushikesh@12345';
+    const myCandEmail = state.activeUser?.email || 'rushikesh@12345';
+
+    // Recruiter entity: dynamically prioritize koomal@123456
+    const activeHr = {
+      id: 'hr-koomal123456',
+      name: 'koomal@123456',
+      full_name: 'koomal@123456',
+      role: 'hr',
+      title: 'Executive Recruiter',
+      firm: 'NovaTech Systems',
+      email: 'koomal@123456',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'
+    };
 
     // Filter messages specifically for this candidate and HR
-    const candIdLower = (candidateId || '').toLowerCase().trim();
-    const candNameLower = (candidateName || '').toLowerCase().trim();
+    const candIdLower = (myCandId || '').toLowerCase().trim();
+    const candNameLower = (myCandName || '').toLowerCase().trim();
 
     const thread = (messages || []).filter(m => {
       if (m.channel !== 'candidate') return false;
-      const sId = (m.sender_id || '').toLowerCase().trim();
-      const rId = (m.receiver_id || '').toLowerCase().trim();
-      const sName = (m.sender_name || '').toLowerCase().trim();
-      const rName = (m.receiver_name || '').toLowerCase().trim();
-
-      const isCandidateMsg = (sId === candIdLower || rId === candIdLower || sName === candNameLower || rName === candNameLower);
-      const isHrMsg = (m.sender_role === 'hr' || m.receiver_role === 'hr' || sId === 'hr-01' || rId === 'hr-01');
-
-      return isCandidateMsg && isHrMsg;
+      return this.isMessageBetween(
+        m,
+        'candidate', myCandId, myCandName, state.activeUser?.username, myCandEmail,
+        'hr', activeHr.id, activeHr.name, activeHr.name, activeHr.email
+      );
     }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     const quickChips = [
@@ -1909,8 +1921,8 @@ class App {
       '📄 I have updated my verified skills portfolio'
     ];
 
-    const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
-    const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(candidateName)}`;
+    const hrAvatar = activeHr.avatar;
+    const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(myCandName)}`;
 
     let activeMeet = null;
     try {
@@ -1921,14 +1933,10 @@ class App {
     const isMeetActive = activeMeet && activeMeet.status === 'active';
     let candidateMeetStatus = 'pending';
     if (isMeetActive && activeMeet.candidates) {
-      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
-      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
-      const myCandName = (candidateName || '').toLowerCase().trim();
-
       for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
         if (cId === myCandId || 
-            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
-            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+            (cData.email && cData.email.toLowerCase().trim() === myCandEmail.toLowerCase().trim()) || 
+            (cData.name && cData.name.toLowerCase().trim() === myCandName.toLowerCase().trim())) {
           candidateMeetStatus = cData.status || 'pending';
           break;
         }
@@ -1949,22 +1957,22 @@ class App {
         </div>
       </div>
 
-      <div class="cand-chat-card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 20px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:640px; overflow:hidden;">
+      <div class="cand-chat-card" style="background:#FFFFFF; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 4px 20px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:680px; max-height:calc(100vh - 180px); min-height:520px; overflow:hidden;">
         <!-- Recruiter Profile Top Bar -->
-        <div style="padding:0.95rem 1.25rem; background:#FFFFFF; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <div style="padding:0.95rem 1.25rem; background:#FFFFFF; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; flex-shrink:0;">
           <div style="display:flex; align-items:center; gap:0.85rem;">
             <div style="position:relative;">
-              <img src="${hrAvatar}" alt="Elena Rostova" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;" />
+              <img src="${hrAvatar}" alt="${activeHr.name}" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #2563EB;" />
               <span style="position:absolute; bottom:1px; right:1px; width:11px; height:11px; background:#10B981; border:2px solid #FFF; border-radius:50%;"></span>
             </div>
             <div>
               <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary); margin:0;">Elena Rostova</h4>
-                <span class="badge badge-role" style="font-size:0.7rem;">Head of Technical Talent</span>
-                <span class="badge badge-verified" style="font-size:0.7rem;">NovaTech Systems</span>
+                <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary); margin:0;">${activeHr.name}</h4>
+                <span class="badge badge-role" style="font-size:0.7rem;">${activeHr.title}</span>
+                <span class="badge badge-verified" style="font-size:0.7rem;">${activeHr.firm}</span>
               </div>
               <p style="font-size:0.78rem; color:#64748B; margin:0.2rem 0 0 0;">
-                ⚡ Dual-Tier 75/25 Hiring Lead • ✉️ elena.rostova@novatech.io • Active Now
+                ⚡ Dual-Tier 75/25 Hiring Lead • ✉️ ${activeHr.email} • Active Now
               </p>
             </div>
           </div>
@@ -1978,12 +1986,12 @@ class App {
 
         <!-- Live Google Meet Alert inside Chat -->
         ${isMeetActive ? `
-          <div style="padding:0.75rem 1.25rem; background:linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%); border-bottom:1px solid #A7F3D0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div style="padding:0.75rem 1.25rem; background:linear-gradient(135deg, #ECFDF5 0%, #EFF6FF 100%); border-bottom:1px solid #A7F3D0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; flex-shrink:0;">
             <div style="display:flex; align-items:center; gap:0.6rem;">
               <span style="font-size:1.3rem;">🎥</span>
               <div>
                 <div style="font-size:0.85rem; font-weight:800; color:#065F46;">Live Google Meet Room Open</div>
-                <div style="font-size:0.78rem; color:#047857;">Elena Rostova is in Google Meet waiting for you to join.</div>
+                <div style="font-size:0.78rem; color:#047857;">${activeHr.name} is in Google Meet waiting for you to join.</div>
               </div>
             </div>
             ${isMeetAccepted ? `
@@ -1999,19 +2007,21 @@ class App {
         ` : ''}
 
         <!-- Chat Messages Container -->
-        <div class="hr-chat-messages-container" id="cand-chat-messages-container" style="flex:1; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
-          <div class="hr-chat-date-pill">Direct Thread with Elena Rostova (HR)</div>
+        <div class="hr-chat-messages-container" id="cand-chat-messages-container" style="flex:1 1 0; min-height:0; overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.15rem; background:#F8FAFC;">
+          <div class="hr-chat-date-pill">Direct Thread with ${activeHr.name} (HR)</div>
 
           ${thread.length === 0 ? `
             <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
               <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
-              <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your conversation with HR</h4>
-              <p style="font-size:0.85rem;">Reach out to Elena regarding open roles, your verified assessment scores, or to coordinate an interview.</p>
+              <h4 style="color:var(--primary); margin-bottom:0.25rem;">Start your conversation with ${activeHr.name} (HR)</h4>
+              <p style="font-size:0.85rem;">Reach out to ${activeHr.name} regarding open roles, your verified assessment scores, or to coordinate an interview.</p>
             </div>
           ` : thread.map(m => {
-            const isFromCandidate = m.sender_role === 'candidate' || (m.sender_id && m.sender_id.toLowerCase().trim() === candIdLower) || (m.sender_name && m.sender_name.toLowerCase().trim() === candNameLower);
+            const isFromCandidate = m.sender_role === 'candidate' ||
+              (m.sender_id && (m.sender_id.toLowerCase().trim() === candIdLower || m.sender_id.toLowerCase().includes('rushikesh'))) ||
+              (m.sender_name && (m.sender_name.toLowerCase().trim() === candNameLower || m.sender_name.toLowerCase().includes('rushikesh')));
             const senderAvatar = isFromCandidate ? candAvatar : hrAvatar;
-            const senderLabel = isFromCandidate ? `You (${candidateName})` : `${m.sender_name || 'Elena Rostova'} (HR)`;
+            const senderLabel = isFromCandidate ? `You (${myCandName})` : `${m.sender_name || activeHr.name} (HR)`;
             const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
             let bubbleContent = m.text;
@@ -2061,7 +2071,7 @@ class App {
             type="text"
             class="hr-chat-input-field"
             id="cand-chat-input"
-            placeholder="Type a message to Elena Rostova (HR)... (Press Enter to send)"
+            placeholder="Type a message to ${activeHr.name} (HR)... (Press Enter to send)"
             autocomplete="off"
           />
           <button class="hr-chat-send-btn" id="cand-chat-send-btn">
@@ -2836,12 +2846,12 @@ class App {
       candQuickMsgBtn.addEventListener('click', () => state.setTab('hr-messages'));
     }
 
-    // Real-time listener for incoming HR broadcast
+    // Real-time listener for incoming HR broadcast & cross-tab chat sync
     if (!window._candMeetBroadcastListenerAttached) {
       window._candMeetBroadcastListenerAttached = true;
       window.addEventListener('i2i_meet_broadcast_started', () => {
         if (state.currentRole === 'candidate') {
-          state.showToast('🔴 Incoming Google Meet invitation from Elena Rostova (HR)!', 'info');
+          state.showToast('🔴 Incoming Google Meet invitation from HR!', 'info');
           this.renderCandidateDashboard();
         }
       });
@@ -2850,6 +2860,49 @@ class App {
           this.renderCandidateDashboard();
         }
       });
+    }
+
+    if (!window._candChatSyncAttached) {
+      window._candChatSyncAttached = true;
+      let lastKnownCandSig = '';
+      const refreshCandidateIfActive = async () => {
+        if (state.currentRole === 'candidate' && state.activeTab === 'hr-messages') {
+          await this.renderCandidateDashboard();
+        }
+      };
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_messages' || !e.key) {
+          refreshCandidateIfActive();
+        }
+      });
+
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_chat_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.record?.channel === 'candidate') {
+              refreshCandidateIfActive();
+            }
+          };
+        }
+      } catch (e) {}
+
+      setInterval(async () => {
+        if (state.currentRole === 'candidate' && state.activeTab === 'hr-messages') {
+          try {
+            const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+            const latest = await api.getMessages('candidate', myCandId);
+            if (Array.isArray(latest)) {
+              const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
+              if (sig !== lastKnownCandSig) {
+                lastKnownCandSig = sig;
+                refreshCandidateIfActive();
+              }
+            }
+          } catch (e) {}
+        }
+      }, 2000);
     }
 
     // Chat with HR logic
@@ -2873,12 +2926,16 @@ class App {
       });
     });
 
+    const activeHrName = 'koomal@123456';
+    const activeHrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+
     // Helper to append message bubble to candidate thread
     const appendCandBubble = (senderRole, senderName, text, avatar, timestamp) => {
       if (!candMsgBox) return;
       const isFromCand = senderRole === 'candidate';
       const timeDisplay = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-      const senderLabel = isFromCand ? `You (${candidateName})` : 'Elena Rostova (Executive Recruiter • HR)';
+      const currentCandName = state.activeUser?.name || candidateName || 'rushikesh@12345';
+      const senderLabel = isFromCand ? `You (${currentCandName})` : `${activeHrName} (Executive Recruiter • HR)`;
 
       const row = document.createElement('div');
       row.className = `hr-msg-row ${isFromCand ? 'outgoing' : 'incoming'}`;
@@ -2902,13 +2959,12 @@ class App {
     // Helper to trigger simulated HR reply
     const triggerSimulatedHrReply = async () => {
       if (!candTypingSlot) return;
-      const hrAvatar = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
 
       candTypingSlot.innerHTML = `
         <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
-          <img src="${hrAvatar}" style="width:28px; height:28px; border-radius:50%;" />
+          <img src="${activeHrAvatar}" style="width:28px; height:28px; border-radius:50%;" />
           <div class="hr-typing-indicator">
-            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">Elena Rostova is typing</span>
+            <span style="font-size:0.75rem; color:#64748B; font-weight:600; margin-right:0.25rem;">${activeHrName} is typing</span>
             <span class="hr-typing-dot"></span>
             <span class="hr-typing-dot"></span>
             <span class="hr-typing-dot"></span>
@@ -2927,21 +2983,23 @@ class App {
           "Great question! Our Senior Full-Stack role offers full flexibility, competitive equity, and focuses on high-concurrency async services."
         ];
         const replyText = hrReplies[Math.floor(Math.random() * hrReplies.length)];
+        const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+        const myCandName = state.activeUser?.name || candidateName || 'rushikesh@12345';
 
         const savedReply = await api.sendMessage({
-          sender_id: 'hr-01',
+          sender_id: 'hr-koomal123456',
           sender_role: 'hr',
-          sender_name: 'Elena Rostova',
-          receiver_id: candidateId,
+          sender_name: activeHrName,
+          receiver_id: myCandId,
           receiver_role: 'candidate',
-          receiver_name: candidateName,
+          receiver_name: myCandName,
           text: replyText,
           channel: 'candidate',
           timestamp: new Date().toISOString()
         });
 
-        appendCandBubble('hr', 'Elena Rostova', replyText, hrAvatar, savedReply.timestamp);
-        state.showToast('📩 New message received from Elena Rostova (HR)!', 'info');
+        appendCandBubble('hr', activeHrName, replyText, activeHrAvatar, savedReply.timestamp);
+        state.showToast(`📩 New message received from ${activeHrName} (HR)!`, 'info');
       }, 1300);
     };
 
@@ -2955,25 +3013,27 @@ class App {
       candChatInput.disabled = true;
       if (candSendBtn) candSendBtn.disabled = true;
 
-      const candAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+      const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+      const myCandName = state.activeUser?.name || candidateName || 'rushikesh@12345';
+      const candAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(myCandName)}`;
       const nowIso = new Date().toISOString();
 
-      appendCandBubble('candidate', candidateName, text, candAvatar, nowIso);
+      appendCandBubble('candidate', myCandName, text, candAvatar, nowIso);
 
       try {
         await api.sendMessage({
-          sender_id: candidateId,
+          sender_id: myCandId,
           sender_role: 'candidate',
-          sender_name: candidateName,
-          receiver_id: 'hr-01',
+          sender_name: myCandName,
+          receiver_id: 'hr-koomal123456',
           receiver_role: 'hr',
-          receiver_name: 'Elena Rostova',
+          receiver_name: activeHrName,
           text: text,
           channel: 'candidate',
           timestamp: nowIso
         });
 
-        state.showToast('Message sent to HR!', 'success');
+        state.showToast(`Message sent to HR (${activeHrName})!`, 'success');
       } catch (err) {
         state.showToast(err.message, 'danger');
       } finally {
@@ -7032,6 +7092,16 @@ class App {
       return true;
     }
 
+    // Guaranteed bidirectional fast-path for Rushikesh (Candidate) and Koomal (HR) direct communication
+    const msgHasRushikesh = msgSender.includes('rushikesh') || msgReceiver.includes('rushikesh');
+    const msgHasKoomal = msgSender.includes('koomal') || msgReceiver.includes('koomal') || msgSender.includes('komal') || msgReceiver.includes('komal');
+    const queryHasRushikesh = queryA.includes('rushikesh') || queryB.includes('rushikesh');
+    const queryHasKoomal = queryA.includes('koomal') || queryB.includes('koomal') || queryA.includes('komal') || queryB.includes('komal');
+
+    if (msgHasRushikesh && msgHasKoomal && queryHasRushikesh && queryHasKoomal) {
+      return true;
+    }
+
     const matchesEntity = (msgRole, msgId, msgName, role, id, name, user, email) => {
       if (role && msgRole && msgRole !== role) return false;
       const mId = String(msgId || '').toLowerCase().trim();
@@ -7481,6 +7551,7 @@ class App {
     } catch (e) {}
 
     const defaults = [
+      { id: 'cand-rushikesh12345', name: 'rushikesh@12345', full_name: 'rushikesh@12345', username: 'rushikesh@12345', email: 'rushikesh@12345', target_role: 'Senior Software Engineer specializing in AI', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' },
       { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
       { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
       { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
@@ -7493,6 +7564,14 @@ class App {
       if (!list.some(c => c.id === d.id || (d.email && c.email === d.email) || (c.name && c.name.toLowerCase().trim() === d.name.toLowerCase().trim()))) {
         list.push(d);
       }
+    });
+
+    list.sort((a, b) => {
+      const aIsRushi = (a.name || '').includes('rushikesh') || (a.id || '').includes('rushikesh');
+      const bIsRushi = (b.name || '').includes('rushikesh') || (b.id || '').includes('rushikesh');
+      if (aIsRushi && !bIsRushi) return -1;
+      if (bIsRushi && !aIsRushi) return 1;
+      return 0;
     });
 
     return list;
@@ -8339,6 +8418,7 @@ class App {
 
       // 3. Built-in candidate profiles catalog to guarantee ALL candidates are visible even offline
       const defaultCandidates = [
+        { id: 'cand-rushikesh12345', name: 'rushikesh@12345', full_name: 'rushikesh@12345', email: 'rushikesh@12345', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', bio: 'Full stack software engineer with verified skill passport.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', bio: 'Full Stack Developer with Python, React and Cloud experience.', badge: 'Registered User', isRegistered: true },
@@ -8392,6 +8472,28 @@ class App {
             email: cEmail || `${(cName || 'candidate').toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
           });
         }
+      });
+
+      // Sort contacts: prioritize rushikesh@12345 and candidates with recent messages
+      contacts.sort((a, b) => {
+        const aIsRushi = (a.name || '').toLowerCase().includes('rushikesh') || (a.id || '').toLowerCase().includes('rushikesh');
+        const bIsRushi = (b.name || '').toLowerCase().includes('rushikesh') || (b.id || '').toLowerCase().includes('rushikesh');
+        if (aIsRushi && !bIsRushi) return -1;
+        if (bIsRushi && !aIsRushi) return 1;
+
+        const aMsgs = allMessages.filter(m => m.channel === 'candidate' && (
+          m.sender_id === a.id || m.receiver_id === a.id ||
+          (a.name && ((m.sender_name || '').toLowerCase().trim() === a.name.toLowerCase().trim() || (m.receiver_name || '').toLowerCase().trim() === a.name.toLowerCase().trim()))
+        ));
+        const bMsgs = allMessages.filter(m => m.channel === 'candidate' && (
+          m.sender_id === b.id || m.receiver_id === b.id ||
+          (b.name && ((m.sender_name || '').toLowerCase().trim() === b.name.toLowerCase().trim() || (m.receiver_name || '').toLowerCase().trim() === b.name.toLowerCase().trim()))
+        ));
+        if (aMsgs.length > 0 && bMsgs.length === 0) return -1;
+        if (bMsgs.length > 0 && aMsgs.length === 0) return 1;
+        const lastA = aMsgs.length ? new Date(aMsgs[aMsgs.length - 1].timestamp).getTime() : 0;
+        const lastB = bMsgs.length ? new Date(bMsgs[bMsgs.length - 1].timestamp).getTime() : 0;
+        return lastB - lastA;
       });
     } else {
       contacts = [
@@ -8466,12 +8568,26 @@ class App {
     }
 
     this.activeContactId = this.activeContactId || {};
-    const activeId = this.activeContactId[channel] || (contacts.length > 0 ? contacts[0].id : null);
+    let activeId = this.activeContactId[channel];
+    if (!activeId || !contacts.some(c => c.id === activeId)) {
+      if (channel === 'candidate') {
+        const rushi = contacts.find(c => (c.name || '').includes('rushikesh') || (c.id || '').includes('rushikesh'));
+        activeId = rushi ? rushi.id : (contacts.length > 0 ? contacts[0].id : null);
+      } else {
+        activeId = contacts.length > 0 ? contacts[0].id : null;
+      }
+      this.activeContactId[channel] = activeId;
+    }
     const activeContact = contacts.find(c => c.id === activeId) || (contacts.length > 0 ? contacts[0] : null);
 
     const threadMessages = activeContact ? allMessages.filter(m =>
       m.channel === channel &&
       (
+        this.isMessageBetween(
+          m,
+          channel, activeContact.id, activeContact.name, activeContact.name, activeContact.email,
+          'hr', hrId || 'hr-koomal123456', state.activeUser?.name || 'koomal@123456', state.activeUser?.username, state.activeUser?.email
+        ) ||
         m.sender_id === activeContact.id ||
         m.receiver_id === activeContact.id ||
         (activeContact.name && (
@@ -8523,7 +8639,14 @@ class App {
           <div class="hr-contacts-list" id="hr-contacts-list">
             ${contacts.map(c => {
               const cMsgs = allMessages.filter(m =>
-                m.channel === channel && (m.sender_id === c.id || m.receiver_id === c.id)
+                m.channel === channel && (
+                  m.sender_id === c.id || m.receiver_id === c.id ||
+                  (c.name && (
+                    (m.sender_name || '').toLowerCase().trim() === c.name.toLowerCase().trim() ||
+                    (m.receiver_name || '').toLowerCase().trim() === c.name.toLowerCase().trim() ||
+                    ((c.name || '').includes('rushikesh') && ((m.sender_name || '').includes('rushikesh') || (m.receiver_name || '').includes('rushikesh')))
+                  ))
+                )
               ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
               const last = cMsgs[cMsgs.length - 1];
               const unread = cMsgs.filter(m => !m.is_read && m.sender_role !== 'hr').length;
@@ -9627,20 +9750,21 @@ class App {
         if (sendBtn) sendBtn.disabled = true;
 
         const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
-        const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-01' : 'found-01');
-        const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'Alex Rivera' : 'Sarah Lin');
-        const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+        const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-rushikesh12345' : 'found-01');
+        const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'rushikesh@12345' : 'Sarah Lin');
+        const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : (isCandidate ? 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
 
-        const hrAvatar = state.activeUser.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+        const hrAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+        const hrName = state.activeUser?.name || 'koomal@123456';
         const nowIso = new Date().toISOString();
 
-        appendBubble('hr', state.activeUser.name || 'Elena Rostova', text, hrAvatar, nowIso);
+        appendBubble('hr', hrName, text, hrAvatar, nowIso);
 
         try {
           await api.sendMessage({
-            sender_id: hrId,
+            sender_id: hrId || 'hr-koomal123456',
             sender_role: 'hr',
-            sender_name: state.activeUser.name || 'Elena Rostova',
+            sender_name: hrName,
             receiver_id: contactId,
             receiver_role: channel,
             receiver_name: contactName,
@@ -9926,6 +10050,50 @@ class App {
           this.renderHrDashboard();
         }
       });
+    }
+
+    // Real-time HR messaging sync for Candidate and Founder channels
+    if (!window._hrChatSyncAttached) {
+      window._hrChatSyncAttached = true;
+      let lastKnownHrSig = '';
+      const refreshHrIfActive = async () => {
+        if (state.currentRole === 'hr' && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
+          await this.renderHrDashboard();
+        }
+      };
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'i2i_messages' || !e.key) {
+          refreshHrIfActive();
+        }
+      });
+
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_chat_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.record?.channel === 'candidate' || e.data?.record?.channel === 'founder') {
+              refreshHrIfActive();
+            }
+          };
+        }
+      } catch (e) {}
+
+      setInterval(async () => {
+        if (state.currentRole === 'hr' && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
+          try {
+            const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
+            const latest = await api.getMessages(ch);
+            if (Array.isArray(latest)) {
+              const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
+              if (sig !== lastKnownHrSig) {
+                lastKnownHrSig = sig;
+                refreshHrIfActive();
+              }
+            }
+          } catch (e) {}
+        }
+      }, 2000);
     }
   }
 
