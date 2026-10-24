@@ -282,9 +282,66 @@ function saveLocalUser(user) {
   }
 }
 
+const CLOUD_RELAY_TOPIC = 'i2i_chat_sync_prod_global_2026';
+const CLOUD_RELAY_URL = `https://ntfy.sh/${CLOUD_RELAY_TOPIC}`;
+
 class ApiService {
   constructor() {
     this._backendOfflineUntil = 0;
+    this._relayInitialized = false;
+    this.initCloudRelay();
+  }
+
+  initCloudRelay() {
+    if (this._relayInitialized || typeof window === 'undefined') return;
+    this._relayInitialized = true;
+
+    try {
+      if (window.EventSource) {
+        const es = new EventSource(`${CLOUD_RELAY_URL}/sse`);
+        es.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.event === 'message' && data.message) {
+              const record = JSON.parse(data.message);
+              if (record && record.id) {
+                this.saveIncomingMessageLocally(record);
+              }
+            }
+          } catch (e) {}
+        };
+      }
+    } catch (e) {}
+  }
+
+  saveIncomingMessageLocally(record) {
+    if (!record || !record.id) return;
+    const key = 'i2i_messages';
+    let msgs = [];
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) msgs = JSON.parse(stored) || [];
+    } catch (e) {
+      msgs = [];
+    }
+    const idx = msgs.findIndex(m => m.id === record.id);
+    if (idx >= 0) {
+      msgs[idx] = { ...msgs[idx], ...record };
+    } else {
+      msgs.push(record);
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(msgs));
+    } catch (e) {}
+
+    try {
+      window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: record }));
+      window.dispatchEvent(new Event('storage'));
+      if (window.BroadcastChannel) {
+        if (!this._msgBc) this._msgBc = new BroadcastChannel('i2i_chat_sync');
+        this._msgBc.postMessage({ type: 'message_sent', record });
+      }
+    } catch (e) {}
   }
 
   isBackendOffline() {
@@ -2287,12 +2344,13 @@ class ApiService {
     ];
 
     let combined = [];
+    // 1. Attempt FastAPI backend fetch with short 1.2s timeout
     try {
       let q = [];
       if (channel) q.push(`channel=${encodeURIComponent(channel)}`);
       if (contactId) q.push(`contact_id=${encodeURIComponent(contactId)}`);
       const qs = q.length ? `?${q.join('&')}` : '';
-      const serverMsgs = await this.request(`/messages${qs}`, {}, 5000);
+      const serverMsgs = await this.request(`/messages${qs}`, {}, 1200);
       if (Array.isArray(serverMsgs)) {
         combined = [...serverMsgs];
       }
@@ -2300,13 +2358,35 @@ class ApiService {
       // Backend request silent fallback
     }
 
-    // Always merge in defaultMessages so demo seed conversations are never lost
+    // 2. Fetch recent messages from Cloud Relay to ensure cross-window & incognito sync
+    try {
+      const relayRes = await fetch(`${CLOUD_RELAY_URL}/json?poll=1`, { signal: AbortSignal.timeout(1200) }).catch(() => null);
+      if (relayRes && relayRes.ok) {
+        const text = await relayRes.text();
+        const lines = text.trim().split('\n');
+        for (const line of lines) {
+          if (!line) continue;
+          try {
+            const item = JSON.parse(line);
+            if (item.event === 'message' && item.message) {
+              const rec = JSON.parse(item.message);
+              if (rec && rec.id && !combined.some(c => c.id === rec.id)) {
+                combined.push(rec);
+              }
+            }
+          } catch(err) {}
+        }
+      }
+    } catch (e) {}
+
+    // 3. Always merge in defaultMessages so demo seed conversations are never lost
     defaultMessages.forEach(dm => {
       if (!combined.some(cm => cm.id === dm.id)) {
         combined.push(dm);
       }
     });
 
+    // 4. Merge in localStorage messages
     try {
       const stored = localStorage.getItem(key);
       if (stored) {
@@ -2342,10 +2422,9 @@ class ApiService {
   }
 
   async sendMessage(data) {
-    const key = 'i2i_messages';
     const isHrSender = data.sender_role === 'hr';
     let record = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      id: data.id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       sender_id: data.sender_id || (isHrSender ? 'hr-koomal123456' : 'cand-rushikesh12345'),
       receiver_id: data.receiver_id,
       sender_role: data.sender_role || (data.receiver_role === 'hr' ? 'candidate' : 'hr'),
@@ -2358,39 +2437,28 @@ class ApiService {
       is_read: false
     };
 
+    // 1. Immediately store in localStorage & trigger local UI updates
+    this.saveIncomingMessageLocally(record);
+
+    // 2. Publish to Cloud Relay (cross-tab, cross-window, cross-device, incognito-safe)
+    try {
+      fetch(CLOUD_RELAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      }).catch(() => {});
+    } catch (e) {}
+
+    // 3. Attempt FastAPI backend save (if server is running, 1.2s timeout)
     try {
       const resp = await this.request('/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(record)
-      }, 5000);
+      }, 1200).catch(() => null);
       if (resp && resp.data) {
         record = resp.data;
-      }
-    } catch (e) {
-      console.warn('Backend message save fallback:', e);
-    }
-
-    try {
-      const stored = localStorage.getItem(key);
-      let msgs = [];
-      if (stored) {
-        try { msgs = JSON.parse(stored) || []; } catch(err) { msgs = []; }
-      }
-      if (!msgs.some(m => m.id === record.id)) {
-        msgs.push(record);
-      }
-      localStorage.setItem(key, JSON.stringify(msgs));
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
-
-    try {
-      window.dispatchEvent(new CustomEvent('i2i_message_sent', { detail: record }));
-      window.dispatchEvent(new Event('storage'));
-      if (window.BroadcastChannel) {
-        if (!this._msgBc) this._msgBc = new BroadcastChannel('i2i_chat_sync');
-        this._msgBc.postMessage({ type: 'message_sent', record });
+        this.saveIncomingMessageLocally(record);
       }
     } catch (e) {}
 

@@ -2146,12 +2146,24 @@ class App {
         const senderLabel = isFromCandidate ? `You (${myCandName})` : `${m.sender_name || activeHrName} (HR)`;
         const timeDisplay = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
+        let bubbleContent = m.text;
+        if (typeof m.text === 'string' && m.text.includes('meet.google.com')) {
+          bubbleContent = `
+            <div>${m.text}</div>
+            <div style="margin-top:0.65rem;">
+              <a href="https://meet.google.com/nova-tech-interview" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
+                🎥 Join Google Meet
+              </a>
+            </div>
+          `;
+        }
+
         return `
           <div class="hr-msg-row ${isFromCandidate ? 'outgoing' : 'incoming'}">
             <img src="${senderAvatar}" alt="${m.sender_name}" class="hr-msg-avatar" />
             <div class="hr-msg-content">
               <span class="hr-msg-sender-name">${senderLabel}</span>
-              <div class="hr-msg-bubble">${m.text}</div>
+              <div class="hr-msg-bubble">${bubbleContent}</div>
               <span class="hr-msg-time">${timeDisplay}</span>
             </div>
           </div>
@@ -2947,12 +2959,12 @@ class App {
     if (!window._candChatSyncAttached) {
       window._candChatSyncAttached = true;
       let lastKnownCandSig = '';
-      const refreshCandidateIfActive = async () => {
+      const refreshCandidateIfActive = async (cachedMsgs = null) => {
         const isCandRole = state.currentRole === 'candidate' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'candidate');
         if (isCandRole && state.activeTab === 'hr-messages') {
           const candMsgBox = document.getElementById('cand-chat-messages-container');
           if (candMsgBox) {
-            const latest = await api.getMessages('candidate');
+            const latest = cachedMsgs || await api.getMessages('candidate');
             this.updateCandidateChatMessages(latest);
           } else {
             await this.renderCandidateDashboard();
@@ -2990,12 +3002,12 @@ class App {
               const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
               if (sig !== lastKnownCandSig) {
                 lastKnownCandSig = sig;
-                refreshCandidateIfActive();
+                refreshCandidateIfActive(latest);
               }
             }
           } catch (e) {}
         }
-      }, 1500);
+      }, 1200);
     }
 
     // Chat with HR logic
@@ -9106,6 +9118,36 @@ class App {
         timeEl.innerText = new Date(last.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
       }
     }
+
+    // Also update all contacts in sidebar if messages array contains updates for them
+    if (contactsList && Array.isArray(messages)) {
+      contactsList.querySelectorAll('.hr-contact-item').forEach(item => {
+        const cId = (item.dataset.contactId || '').toLowerCase().trim();
+        const cName = (item.dataset.contactName || '').toLowerCase().trim();
+        const cMsgs = messages.filter(m => {
+          if (m.channel !== channel) return false;
+          const sId = (m.sender_id || '').toLowerCase().trim();
+          const rId = (m.receiver_id || '').toLowerCase().trim();
+          const sName = (m.sender_name || '').toLowerCase().trim();
+          const rName = (m.receiver_name || '').toLowerCase().trim();
+          return sId === cId || rId === cId || sName === cName || rName === cName ||
+            (cName.includes('rushikesh') && (sId.includes('rushikesh') || rId.includes('rushikesh') || sName.includes('rushikesh') || rName.includes('rushikesh')));
+        }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        if (cMsgs.length > 0) {
+          const lastM = cMsgs[cMsgs.length - 1];
+          const lastEl = item.querySelector('.hr-contact-last-msg');
+          if (lastEl) {
+            const prefix = (lastM.sender_role === 'hr' || (lastM.sender_name && lastM.sender_name.includes('koomal'))) ? 'You: ' : '';
+            lastEl.innerText = `${prefix}${lastM.text}`;
+          }
+          const timeEl = item.querySelector('.hr-contact-time');
+          if (timeEl && lastM.timestamp) {
+            timeEl.innerText = new Date(lastM.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+          }
+        }
+      });
+    }
   }
 
   async attachHrEvents(data) {
@@ -10044,7 +10086,7 @@ class App {
             sender_name: contactName,
             receiver_id: hrId,
             receiver_role: 'hr',
-            receiver_name: state.activeUser.name || 'Elena Rostova',
+            receiver_name: state.activeUser?.name || 'koomal@123456',
             text: replyText,
             channel: channel,
             timestamp: new Date().toISOString()
@@ -10334,15 +10376,16 @@ class App {
         const cName = btn.dataset.candidateName;
         const meetUrl = 'https://meet.google.com/nova-tech-interview';
 
+        const currentHrName = state.activeUser?.name || 'koomal@123456';
         await api.sendMessage({
-          sender_id: hrId || 'hr-01',
+          sender_id: hrId || 'hr-koomal123456',
           sender_role: 'hr',
-          sender_name: state.activeUser?.name || 'Elena Rostova',
+          sender_name: currentHrName,
           receiver_id: cId,
           receiver_role: 'candidate',
           receiver_name: cName,
           channel: 'candidate',
-          text: `🔔 Reminder: Elena Rostova is waiting in Google Meet room: ${meetUrl}. Please join the session.`,
+          text: `🔔 Reminder: ${currentHrName} is waiting in Google Meet room: ${meetUrl}. Please join the session.`,
           timestamp: new Date().toISOString()
         }).catch(() => {});
 
@@ -10381,13 +10424,13 @@ class App {
     if (!window._hrChatSyncAttached) {
       window._hrChatSyncAttached = true;
       let lastKnownHrSig = '';
-      const refreshHrIfActive = async () => {
+      const refreshHrIfActive = async (cachedMsgs = null) => {
         const isHrRole = state.currentRole === 'hr' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'hr');
         if (isHrRole) {
           const hrMsgBox = document.getElementById('hr-chat-messages-container');
           const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
           if (hrMsgBox) {
-            const latest = await api.getMessages(ch);
+            const latest = cachedMsgs || await api.getMessages(ch);
             this.updateHrChatMessages(latest, ch);
           } else if (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline') {
             await this.renderHrDashboard();
@@ -10426,12 +10469,12 @@ class App {
               const sig = latest.map(m => m.id + (m.is_read ? '1' : '0')).join('|');
               if (sig !== lastKnownHrSig) {
                 lastKnownHrSig = sig;
-                refreshHrIfActive();
+                refreshHrIfActive(latest);
               }
             }
           } catch (e) {}
         }
-      }, 1500);
+      }, 1200);
     }
   }
 
