@@ -1,20 +1,38 @@
-/* Idea2Impact - Global CSS Design System */
+/* Idea2Impact - Global CSS Design System (Forest Pine & Sage Green Theme) */
 :root {
-  /* Color Palette - Idea2Impact UI/UX Spec */
-  --primary: #14213D;
-  --primary-light: #1E2E4F;
-  --secondary: #2563EB;
-  --secondary-hover: #1D4ED8;
-  --accent: #14B8A6;
-  --accent-light: #CCFBF1;
-  --accent-dark: #0F766E;
-  --background: #F8FAFC;
-  --card-bg: #FFFFFF;
-  --text-main: #1E293B;
-  --text-muted: #64748B;
-  --border: #E2E8F0;
-  --border-focus: #94A3B8;
+  /* Color Palette - Idea2Impact Forest & Sage Green Spec */
+  --primary: #143D2B;
+  --primary-light: #1E4F39;
+  --primary-dark: #0D281C;
+  --secondary: #1B4A34;
+  --secondary-hover: #143D2B;
+  --accent: #22C55E;
+  --accent-light: #E8F5ED;
+  --accent-dark: #15803D;
   
+  /* Surfaces & Backgrounds */
+  --background: #DCE7DE;
+  --card-bg: #FFFFFF;
+  --card-bg-glossy: rgba(255, 255, 255, 0.95);
+  --card-surface-soft: #F6FAF7;
+  
+  /* Typography & Colors */
+  --text-main: #143D2B;
+  --text-dark: #0D261B;
+  --text-muted: #527160;
+  --text-subtle: #6D8B7B;
+  --border: #CFDFD3;
+  --border-light: rgba(20, 61, 43, 0.08);
+  --border-focus: #143D2B;
+  
+  /* Forest Sidebar Tokens */
+  --forest-bg: #143D2B;
+  --forest-gradient: linear-gradient(180deg, #17422F 0%, #113624 100%);
+  --forest-active: #25573E;
+  --forest-text: #FFFFFF;
+  --forest-muted: #A3C7B2;
+  --forest-border: rgba(255, 255, 255, 0.08);
+
   /* Status Colors */
   --success: #16A34A;
   --success-bg: #DCFCE7;
@@ -22,24 +40,28 @@
   --warning-bg: #FEF3C7;
   --danger: #DC2626;
   --danger-bg: #FEE2E2;
-  --info: #0284C7;
-  --info-bg: #E0F2FE;
+  --info: #0D9488;
+  --info-bg: #E6FFFA;
 
   /* Typography */
-  --font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Elevations */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+  /* Glossy Elevations & Shadows */
+  --shadow-sm: 0 1px 3px 0 rgba(20, 61, 43, 0.05);
+  --shadow-md: 0 4px 10px -1px rgba(20, 61, 43, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 25px -4px rgba(20, 61, 43, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 35px -5px rgba(20, 61, 43, 0.12), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 8px 24px -4px rgba(20, 61, 43, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-glow: 0 0 24px rgba(34, 197, 94, 0.25);
+  --glossy-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 
   /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -53,26 +75,33 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--background);
   color: var(--text-main);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 a {
-  color: var(--secondary);
+  color: var(--primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--secondary-hover);
+  color: var(--primary-light);
 }
 
 button {
@@ -84,7 +113,7 @@ button {
 
 input, select, textarea {
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 /* Helpers */
@@ -98,18 +127,18 @@ input, select, textarea {
 .text-center { text-align: center; }
 .w-full { width: 100%; }
 
-/* Scrollbar */
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: rgba(20, 61, 43, 0.05);
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #B5C9BC;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #8FAEA0;
 }

@@ -54,9 +54,9 @@
   overflow: hidden;
   padding: 5rem 1.5rem 4rem;
   background:
-    radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(248, 250, 252, 1) 0%, transparent 100%);
+    radial-gradient(circle at 10% 20%, rgba(34, 197, 94, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(20, 61, 43, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 100%);
   text-align: center;
 }
 
@@ -73,18 +73,19 @@
   gap: 0.5rem;
   padding: 0.4rem 1rem;
   border-radius: var(--radius-full);
-  background: #EFF6FF;
-  border: 1px solid rgba(37, 99, 235, 0.25);
-  color: var(--secondary);
+  background: #EAF3EC;
+  border: 1px solid rgba(20, 61, 43, 0.2);
+  color: var(--primary);
   font-size: 0.85rem;
   font-weight: 700;
   margin-bottom: 1.75rem;
   animation: heroPulse 3s infinite ease-in-out;
+  box-shadow: 0 2px 6px rgba(20, 61, 43, 0.06);
 }
 
 @keyframes heroPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.2); }
-  50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
 }
 
 .hero-title {
@@ -126,19 +127,20 @@
   gap: 0.5rem;
   padding: 0.85rem 1.75rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--secondary), var(--secondary-hover));
+  background: linear-gradient(135deg, #143D2B 0%, #1A4D36 100%);
   color: #fff;
   font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 10px 20px -5px rgba(20, 61, 43, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transition: all var(--transition-normal);
 }
 
 .hero-btn-primary:hover {
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -5px rgba(37, 99, 235, 0.5);
+  background: linear-gradient(135deg, #0D281C 0%, #143D2B 100%);
+  box-shadow: 0 14px 28px -5px rgba(20, 61, 43, 0.45);
 }
 
 .hero-btn-secondary {
@@ -277,8 +279,8 @@
 
 .persona-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.1);
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 16px 32px -8px rgba(20, 61, 43, 0.12);
 }
 
 .persona-card:hover::before {
@@ -294,7 +296,7 @@
   justify-content: center;
   font-size: 1.6rem;
   margin-bottom: 1.25rem;
-  background: var(--card-bg-tint, rgba(37, 99, 235, 0.08));
+  background: var(--card-bg-tint, rgba(20, 61, 43, 0.08));
 }
 
 .persona-role-badge {
@@ -512,8 +514,8 @@
 }
 
 .landing-mobile-link:hover {
-  background: rgba(37, 99, 235, 0.06);
-  color: var(--secondary);
+  background: rgba(20, 61, 43, 0.08);
+  color: var(--primary);
 }
 
 .landing-mobile-actions {

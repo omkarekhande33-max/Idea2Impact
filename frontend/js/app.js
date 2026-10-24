@@ -168,13 +168,14 @@ class App {
           `<button type="button" class="mobile-tab-chip ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</button>`
         ).join('');
 
-        const quickActionLabel = state.currentRole === 'candidate' ? '⚡ Take Assessment' : '+ Post Job';
+        const userInitials = (state.activeUser?.name || 'RU').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'RU';
+        const quickActionLabel = state.currentRole === 'candidate' ? '★ Take Assessment' : '+ Post Job';
         const roleEmoji = { candidate: '🎓', hr: '💼' };
 
         navbar.innerHTML = `
           <div class="nav-container">
             <a href="dashboard.html" class="brand" id="brand-link" title="Dashboard Overview">
-              <div class="brand-icon">I²</div>
+              <div class="brand-icon">🌱</div>
               <span>Idea<span class="impact-text">2Impact</span></span>
             </a>
 
@@ -183,24 +184,32 @@ class App {
               ${navLinksHtml}
             </ul>
 
-            <!-- Desktop User Actions -->
+            <!-- Desktop User Actions (Mockup: Bell, Avatar RU, Take Assessment) -->
             <div class="flex items-center gap-3 nav-actions-desktop">
-              <div class="flex items-center gap-2" style="background: rgba(255,255,255,0.08); padding: 0.25rem 0.65rem 0.25rem 0.35rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.15);">
-                <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
-                <span style="font-size: 0.82rem; font-weight: 600; color: #fff;">${state.activeUser ? state.activeUser.name : 'User'}</span>
-                <span class="badge badge-role" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">${state.currentRole.toUpperCase()}</span>
+              <button type="button" class="nav-notif-btn" id="nav-notif-bell" title="Notifications">
+                <span>🔔</span>
+                <span class="nav-bell-dot"></span>
+              </button>
+              <div class="nav-user-circle" title="${state.activeUser ? state.activeUser.name : 'User'}">
+                ${userInitials}
               </div>
-              <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: transparent;">
+              <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-color:#CFDFD3; color:#143D2B; background:#FFFFFF; border-radius:var(--radius-full); font-size:0.78rem; padding:0.35rem 0.8rem;">
                 Sign Out
               </button>
-              <button class="btn btn-primary btn-sm" id="quick-action-btn">
+              <button class="btn btn-primary btn-sm btn-take-assessment" id="quick-action-btn">
                 ${quickActionLabel}
               </button>
             </div>
 
             <!-- Mobile Controls -->
-            <div class="flex items-center gap-2 mobile-controls" style="display: none;">
-              <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.3);">
+            <div class="flex items-center gap-2 mobile-controls">
+              <button type="button" class="nav-notif-btn" title="Notifications" style="width:34px; height:34px; font-size:0.9rem;">
+                <span>🔔</span>
+                <span class="nav-bell-dot"></span>
+              </button>
+              <div class="nav-user-circle" style="width:34px; height:34px; font-size:0.78rem;">
+                ${userInitials}
+              </div>
               <button type="button" class="dashboard-mobile-toggle" id="dashboard-mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -209,30 +218,44 @@ class App {
             </div>
           </div>
 
-          <!-- Mobile Dropdown / Drawer -->
+          <!-- Mobile Menu Drawer (Matches 'Mobile - Menu Open' in Mockup!) -->
           <div class="dashboard-mobile-drawer" id="dashboard-mobile-drawer">
             <div class="dashboard-mobile-drawer-content">
-              <div class="dashboard-mobile-user-card">
-                <img src="${state.activeUser ? (state.activeUser.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=' + state.activeUser.name) : ''}" alt="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 700; font-size: 0.92rem; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${state.activeUser ? state.activeUser.name : 'User'}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${state.activeUser ? state.activeUser.email : ''}</div>
+              <div class="dashboard-mobile-drawer-header">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <span style="font-size:1.5rem;">🌱</span>
+                  <span style="font-size:1.25rem; font-weight:800; color:#FFFFFF;">Idea2Impact</span>
                 </div>
-                <span class="badge badge-role" style="font-size: 0.7rem;">${roleEmoji[state.currentRole] || ''} ${state.currentRole.toUpperCase()}</span>
+                <button type="button" class="dashboard-mobile-close-btn" id="mobile-drawer-close-btn" title="Close Menu">&times;</button>
               </div>
 
-              <button class="btn btn-primary w-full" id="mobile-quick-action-btn" style="padding: 0.75rem; justify-content: center;">
-                ${quickActionLabel}
-              </button>
+              <div class="dashboard-mobile-user-card">
+                <div class="nav-user-circle" style="width:48px; height:48px; font-size:1.15rem; background:#0D281C;">
+                  ${userInitials}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 800; font-size: 0.95rem; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${state.activeUser ? state.activeUser.name : 'rushikesh@12345'}
+                  </div>
+                  <div style="font-size: 0.72rem; color: #4ADE80; font-weight:700; margin-top:2px;">
+                    ✔ VERIFIED CANDIDATE
+                  </div>
+                </div>
+              </div>
 
               <ul class="dashboard-mobile-links">
                 ${mobileDrawerLinksHtml}
               </ul>
 
-              <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem;">
-                <a href="index.html" class="btn btn-outline btn-sm w-full text-center" style="text-decoration:none;">Landing Page</a>
-                <a href="roadmap.html" class="btn btn-outline btn-sm w-full text-center" style="text-decoration:none;">Roadmap</a>
-                <button class="btn btn-outline btn-sm w-full" id="mobile-nav-logout-btn" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.3);">
+              <button class="btn btn-primary w-full" id="mobile-quick-action-btn" style="padding: 0.75rem; justify-content: center; margin-top:0.5rem; font-weight:800;">
+                ${quickActionLabel}
+              </button>
+
+              <div style="margin-top:auto; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; color:#A3D4B3; font-size:0.82rem; font-weight:700;">
+                  <span>🌿</span> <span>Better Skills · Bigger Opportunities</span>
+                </div>
+                <button class="btn btn-outline btn-sm w-full" id="mobile-nav-logout-btn" style="color: #FCA5A5; border-color: rgba(239, 68, 68, 0.4); background:rgba(239, 68, 68, 0.12);">
                   Sign Out
                 </button>
               </div>
@@ -299,7 +322,15 @@ class App {
               mobileToggle.classList.remove('open');
               mobileToggle.setAttribute('aria-expanded', 'false');
             }
-          });
+          // Close on close button click
+          const closeDrawerBtn = navbar.querySelector('#mobile-drawer-close-btn');
+          if (closeDrawerBtn) {
+            closeDrawerBtn.addEventListener('click', () => {
+              mobileDrawer.classList.remove('open');
+              mobileToggle.classList.remove('open');
+              mobileToggle.setAttribute('aria-expanded', 'false');
+            });
+          }
         }
 
         // Logout handlers (desktop & mobile)
@@ -1333,46 +1364,56 @@ class App {
           </div>
         ` : ''}
 
-        <!-- Top 3 Stats Row (Matches Image 2) -->
-        <div class="sb-stats-row">
-          <div class="sb-stat-card">
-            <div class="sb-stat-icon-wrapper sb-stat-icon-brown">💼</div>
-            <div class="sb-stat-info">
-              <span class="sb-stat-value">${activeJobsCount}</span>
-              <span class="sb-stat-label">ACTIVE JOB FEEDS</span>
+        <!-- Top 3 Stats Row (Shown on Overview) -->
+        ${currentTab === 'overview' ? `
+          <div class="sb-stats-row">
+            <div class="sb-stat-card">
+              <div class="sb-stat-icon-wrapper sb-stat-icon-brown">💼</div>
+              <div class="sb-stat-info">
+                <span class="sb-stat-value">${activeJobsCount}</span>
+                <span class="sb-stat-label">ACTIVE JOB FEEDS</span>
+              </div>
+            </div>
+            <div class="sb-stat-card">
+              <div class="sb-stat-icon-wrapper sb-stat-icon-yellow">⚡</div>
+              <div class="sb-stat-info">
+                <span class="sb-stat-value">${taggedSkillsCount}</span>
+                <span class="sb-stat-label">TAGGED SKILLS</span>
+              </div>
+            </div>
+            <div class="sb-stat-card">
+              <div class="sb-stat-icon-wrapper sb-stat-icon-red">🎯</div>
+              <div class="sb-stat-info">
+                <span class="sb-stat-value">${avgMatch > 0 ? avgMatch + '%' : '--%'}</span>
+                <span class="sb-stat-label">AVERAGE MATCH</span>
+              </div>
             </div>
           </div>
-          <div class="sb-stat-card">
-            <div class="sb-stat-icon-wrapper sb-stat-icon-yellow">⚡</div>
-            <div class="sb-stat-info">
-              <span class="sb-stat-value">${taggedSkillsCount}</span>
-              <span class="sb-stat-label">TAGGED SKILLS</span>
-            </div>
-          </div>
-          <div class="sb-stat-card">
-            <div class="sb-stat-icon-wrapper sb-stat-icon-red">🎯</div>
-            <div class="sb-stat-info">
-              <span class="sb-stat-value">${avgMatch > 0 ? avgMatch + '%' : '--%'}</span>
-              <span class="sb-stat-label">AVERAGE MATCH</span>
-            </div>
-          </div>
-        </div>
+        ` : ''}
 
-        <div class="dashboard-layout" style="display:grid; grid-template-columns: 280px 1fr; gap:1.75rem; align-items:start;">
+        <div class="dashboard-layout">
           
-          <!-- Clean Candidate Sidebar (Matches Images 2, 3, 4) -->
+          <!-- Candidate Forest Pine Sidebar (Matches Image Mockup) -->
           <div class="sidebar">
+            <div class="sb-sidebar-brand">
+              <span class="sb-sidebar-leaf-icon">🌱</span>
+              <div class="sb-sidebar-brand-text">
+                <span class="sb-sidebar-brand-title">Idea2Impact</span>
+                <span class="sb-sidebar-brand-sub">Your Skills. Real Opportunities.</span>
+              </div>
+            </div>
+
             <div class="sb-sidebar-card">
               <div class="sb-avatar-initials">${initials}</div>
               <h3 class="sb-candidate-name">${candidateName}</h3>
-              <span class="sb-verified-candidate-badge">VERIFIED CANDIDATE</span>
+              <span class="sb-verified-candidate-badge">✔ VERIFIED CANDIDATE</span>
               
               <div class="sb-verified-skills-box">
-                <span>Verified Skills:</span>
+                <span>Verified Skills</span>
                 <span class="sb-verified-skills-count">${taggedSkillsCount}</span>
               </div>
 
-              <button type="button" class="btn btn-outline btn-xs" id="candidate-edit-profile-btn" style="width:100%; border-color:#CBD5E1; color:#334155; margin-bottom:0.75rem; font-size:0.78rem;">
+              <button type="button" class="btn btn-outline btn-xs" id="candidate-edit-profile-btn" style="width:100%;">
                 ✏️ Edit Candidate Profile
               </button>
 
@@ -1382,7 +1423,7 @@ class App {
                   <span>Analyze & Match (Jobs)</span>
                 </button>
                 <button class="sb-nav-link ${currentTab === 'competencies' ? 'active' : ''}" data-tab="competencies">
-                  <span class="sb-nav-icon">🛠️</span>
+                  <span class="sb-nav-icon">★</span>
                   <span>My Competencies</span>
                 </button>
                 <button class="sb-nav-link ${currentTab === 'applications' ? 'active' : ''}" data-tab="applications">
@@ -1397,9 +1438,18 @@ class App {
                 <button class="sb-nav-link ${currentTab === 'meet-hr' ? 'active' : ''}" data-tab="meet-hr">
                   <span class="sb-nav-icon">📅</span>
                   <span>Meet with HR</span>
-                  ${upcomingMeetingsCount > 0 ? `<span class="sb-badge-unread" style="background:#10B981;">${upcomingMeetingsCount}</span>` : ''}
+                  <span class="sb-nav-live-dot"></span>
                 </button>
               </nav>
+
+              <!-- Bottom Brand Leaf Graphic -->
+              <div class="sb-sidebar-footer">
+                <span class="sb-footer-leaf">🌿</span>
+                <div>
+                  <div class="sb-footer-tagline">Better Skills</div>
+                  <div class="sb-footer-tagline-sub">Bigger Opportunities</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1594,146 +1644,122 @@ class App {
     if (tab === 'competencies') {
       const allComp = candidateSkills && candidateSkills.length > 0 ? candidateSkills : (passport?.verified_skills || []);
       return `
-        <div style="margin-bottom:1.5rem;">
-          <h2 style="font-size:1.35rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">Manage Skill Competencies</h2>
-          <p style="font-size:0.85rem; color:#64748B; margin:0;">Tag verified technical skills to maximize your job match percentages</p>
-        </div>
-
-        <!-- Card 1: AI Resume Parsing (Matches Image 3) -->
-        <div class="sb-competency-card">
-          <div class="sb-competency-card-title">
-            <span>AI Resume Parsing</span>
-            <span class="sb-ai-pill">⚡ AI Powered</span>
-          </div>
-          <p style="font-size:0.85rem; color:#64748B; margin:0 0 1rem 0;">
-            Upload your PDF resume to automatically extract and tag your skills.
-          </p>
-          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-            <input type="file" id="resume-upload-input" accept=".pdf" style="display:none;" />
-            <button type="button" class="btn btn-outline btn-sm" id="browse-resume-file-btn" style="border-color:#CBD5E1; color:#1E293B; background:#fff; font-size:0.82rem; padding:0.45rem 0.9rem;">
-              📄 Select PDF Resume
-            </button>
-            <span id="resume-file-chosen-label" style="font-size:0.82rem; color:#64748B;">No file selected</span>
-          </div>
-          <div id="resume-parse-feedback" style="margin-top:0.75rem; display:none;"></div>
-        </div>
-
-        <!-- Card 2: + Add New Competency Manually (Supports 1 or more skills) -->
+        <!-- Card 1: + Add Technical Competencies & Skills (Matches Mockup Image) -->
         <div class="sb-competency-card">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.85rem;">
             <div>
-              <h3 style="font-size:1.05rem; font-weight:800; color:#0F172A; margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--primary); margin:0 0 0.25rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
                 + Add Technical Competencies & Skills
               </h3>
-              <p style="font-size:0.82rem; color:#64748B; margin:0;">
+              <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
                 Select one or more skills to take an AI camera-proctored verification test (75%+ required to officially verify for profile).
               </p>
             </div>
-            <span class="sb-ai-pill" style="background:#EEF2FF; color:#4338CA; border:1px solid #C7D2FE;">
-              📹 Proctored Camera & Anti-Cheat AI
+            <span class="sb-ai-pill">
+              🛡️ Proctored Camera & Anti-Cheat AI
             </span>
           </div>
 
           <form id="add-candidate-skill-form" class="sb-manual-form-grid">
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Competency / Technology</label>
-              <select class="form-select" id="new-comp-name" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
-                <option value="" disabled selected>Select competency to add...</option>
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#1E3D2C;">Competency / Technology</label>
+              <select class="form-select" id="new-comp-name" style="border-radius:10px; padding:0.6rem 0.85rem; font-size:0.88rem; width:100%;">
+                <option value="" disabled selected>Select competency</option>
                 ${skillList.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
               </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Proficiency Level</label>
-              <select class="form-select" id="new-comp-level" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;">
-                <option value="Intermediate" selected>Intermediate (Production-capable)</option>
-                <option value="Beginner">Beginner (Foundational)</option>
-                <option value="Advanced">Advanced (Senior)</option>
-                <option value="Expert">Expert (Staff / Architect)</option>
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#1E3D2C;">Proficiency Level</label>
+              <select class="form-select" id="new-comp-level" style="border-radius:10px; padding:0.6rem 0.85rem; font-size:0.88rem; width:100%;">
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Expert">Expert</option>
               </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#475569;">Years of Hands-On Experience</label>
-              <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="30" style="border-radius:0.6rem; padding:0.5rem 0.75rem; font-size:0.85rem; width:100%;" />
+              <label class="form-label" style="font-size:0.78rem; font-weight:700; color:#1E3D2C;">Years of Hands-On Experience</label>
+              <input type="number" class="form-input" id="new-comp-years" value="2" min="0" max="30" style="border-radius:10px; padding:0.6rem 0.85rem; font-size:0.88rem; width:100%;" />
             </div>
-            <div style="display:flex; gap:0.45rem; align-items:flex-end;">
-              <button type="submit" id="btn-add-profile-submit" class="btn btn-primary" style="background:#4F46E5; border-color:#4F46E5; height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap;">
+            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+              <button type="submit" id="btn-add-profile-submit" class="btn btn-primary" style="height:40px; border-radius:10px; font-weight:700; white-space:nowrap;">
                 ⚡ Take Test & Add to Profile
               </button>
-              <button type="button" id="btn-quick-add-profile" class="btn btn-outline" style="height:38px; border-radius:0.6rem; font-weight:700; white-space:nowrap; border-color:#CBD5E1; color:#334155; background:#FFF;" title="Add competency to profile as pending verification">
+              <button type="button" id="btn-quick-add-profile" class="btn btn-outline" style="height:40px; border-radius:10px; font-weight:700; white-space:nowrap;" title="Add competency to profile as pending verification">
                 + Add Direct
               </button>
             </div>
           </form>
 
           <!-- Selected Skills Multi-Selection Basket -->
-          <div id="selected-skills-basket" style="margin-top:0.85rem; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:0.75rem; padding:0.75rem 0.95rem;">
+          <div id="selected-skills-basket" style="margin-top:1rem; background:#F4FAF6; border:1.5px dashed #CFDFD3; border-radius:12px; padding:0.75rem 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
               <div style="display:flex; align-items:center; gap:0.4rem;">
-                <span style="font-size:0.78rem; font-weight:800; color:#334155; text-transform:uppercase; letter-spacing:0.5px;">
-                  Selected Skills to Add & Verify (<span id="selected-skills-count">0</span>):
+                <span style="font-size:0.78rem; font-weight:800; color:#1E3D2C; text-transform:uppercase; letter-spacing:0.5px;">
+                  SELECTED SKILLS TO ADD & VERIFY (<span id="selected-skills-count">0</span>):
                 </span>
-                <span style="font-size:0.72rem; color:#64748B;">(Click chips or pick from dropdown)</span>
+                <span style="font-size:0.72rem; color:var(--text-muted);">(Click chips or pick from dropdown)</span>
               </div>
-              <button type="button" id="clear-selected-skills-btn" style="background:none; border:none; color:#64748B; font-size:0.72rem; cursor:pointer; text-decoration:underline;">
+              <button type="button" id="clear-selected-skills-btn" style="background:none; border:none; color:var(--text-muted); font-size:0.72rem; cursor:pointer; text-decoration:underline;">
                 Clear All
               </button>
             </div>
             <div id="selected-skills-tags-list" style="display:flex; flex-wrap:wrap; gap:0.45rem; min-height:28px; align-items:center;">
-              <span id="selected-skills-empty-hint" style="font-size:0.78rem; color:#94A3B8; font-style:italic;">
+              <span id="selected-skills-empty-hint" style="font-size:0.78rem; color:#789985; font-style:italic;">
                 No skills selected yet. Select from the dropdown or click any skill badge below to add one or more skills.
               </span>
             </div>
           </div>
+        </div>
 
-          <!-- Quick Skill Quiz Generator Chips -->
-          <div style="margin-top:1.15rem; padding-top:0.95rem; border-top:1px solid #F1F5F9;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.4rem;">
-              <span style="font-size:0.78rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px;">
-                ⚡ CLICK ANY SKILL TO TAKE QUIZ & VERIFY FOR PROFILE (75%+ SCORE REQUIRED):
-              </span>
-              <span style="font-size:0.72rem; color:#4F46E5; font-weight:600;">
-                Click badge to add to selection · Click '⚡ Take Test' for instant proctored quiz
-              </span>
-            </div>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="quick-skills-chips-container">
-              ${[
-                { name: 'Python & FastAPI', icon: '🐍', tag: 'Core Backend' },
-                { name: 'PostgreSQL & Database Design', icon: '🐘', tag: 'Database' },
-                { name: 'Distributed Systems', icon: '🌐', tag: 'Architecture' },
-                { name: 'Docker & Kubernetes', icon: '🐳', tag: 'DevOps' },
-                { name: 'Redis Caching', icon: '⚡', tag: 'Caching' },
-                { name: 'Cloud Architecture', icon: '☁️', tag: 'Cloud' },
-                { name: 'JavaScript', icon: '🟨' },
-                { name: 'React', icon: '⚛️' },
-                { name: 'TypeScript', icon: '🔷' },
-                { name: 'Node.js', icon: '🟢' },
-                { name: 'C++', icon: '⚡' },
-                { name: 'Java', icon: '☕' },
-                { name: 'SQL', icon: '🗄️' },
-                { name: 'Docker', icon: '🐳' },
-                { name: 'Git', icon: '📦' }
-              ].map(s => `
-                <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip ${s.tag ? 'critical-skill-chip' : ''}" data-skill="${s.name}" title="Click to select ${s.name} or click '⚡ Take Test' to start proctored exam">
-                  <span>${s.icon}</span>
-                  <span style="font-weight:700;">${s.name}</span>
-                  ${s.tag ? `<span style="font-size:0.64rem; background:rgba(79,70,229,0.12); color:#4F46E5; padding:0.08rem 0.35rem; border-radius:3px; font-weight:700;">${s.tag}</span>` : ''}
-                  <span class="sb-chip-check" style="display:none; color:#10B981; font-weight:800; font-size:0.8rem;">✓</span>
-                  <span class="direct-test-pill" data-direct-skill="${s.name}" style="font-size:0.68rem; color:#4F46E5; font-weight:800; background:#EEF2FF; padding:0.12rem 0.45rem; border-radius:4px; margin-left:0.25rem;">⚡ Take Test</span>
-                </button>
-              `).join('')}
-            </div>
+        <!-- Card 2: Quick Skill Quiz Generator Chips (Matches Mockup Image) -->
+        <div class="sb-competency-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.4rem;">
+            <span style="font-size:0.8rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px;">
+              ⚡ CLICK ANY SKILL TO TAKE QUIZ & VERIFY FOR PROFILE (75%+ SCORE REQUIRED):
+            </span>
+            <span style="font-size:0.74rem; color:var(--text-muted); font-weight:600;">
+              Click badge to add to selection · Click '⚡ Take Test' for instant proctored quiz
+            </span>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.6rem;" id="quick-skills-chips-container">
+            ${[
+              { name: 'Python & FastAPI', icon: '🐍' },
+              { name: 'PostgreSQL & Database Design', icon: '🐘' },
+              { name: 'Distributed Systems', icon: '🌐' },
+              { name: 'Redis Caching', icon: '⚡' },
+              { name: 'Docker & Kubernetes', icon: '🐳', tag: 'DevOps' },
+              { name: 'JavaScript', icon: '⚡' },
+              { name: 'React', icon: '⚛️' },
+              { name: 'TypeScript', icon: '📘' },
+              { name: 'Node.js', icon: '🟢' },
+              { name: 'C++', icon: '⚙️' },
+              { name: 'Java', icon: '☕' },
+              { name: 'Docker', icon: '📦' },
+              { name: 'Git', icon: '🐙' }
+            ].map(s => `
+              <button type="button" class="sb-skill-quiz-trigger-chip quick-quiz-chip ${s.tag ? 'critical-skill-chip' : ''}" data-skill="${s.name}" title="Click to select ${s.name} or click '⚡ Take Test' to start proctored exam">
+                <span>${s.icon}</span>
+                <span style="font-weight:700;">${s.name}</span>
+                ${s.tag ? `<span style="font-size:0.64rem; background:#E8F3EA; color:#143D2B; padding:0.1rem 0.4rem; border-radius:4px; font-weight:700;">${s.tag}</span>` : ''}
+                <span class="sb-chip-check" style="display:none; color:#22C55E; font-weight:800; font-size:0.8rem;">✓</span>
+                <span class="direct-test-pill" data-direct-skill="${s.name}" style="font-size:0.72rem; color:#143D2B; font-weight:800; background:#E8F3EA; padding:0.15rem 0.5rem; border-radius:999px; margin-left:0.25rem;">⚡ Take Test</span>
+              </button>
+            `).join('')}
           </div>
         </div>
 
-        <!-- Card 3: My Verified Skills (Matches Image 3) -->
+        <!-- Card 3: My Verified Skills (Matches Mockup Image) -->
         <div class="sb-competency-card">
           <div class="sb-competency-card-title">
-            <span>My Verified Skills</span>
-            <span class="sb-ai-pill">${allComp.length} Skills Tagged</span>
+            <span style="display:flex; align-items:center; gap:0.45rem;">
+              <span style="color:#22C55E;">✔</span> <span>My Verified Skills</span>
+            </span>
+            <a href="#" id="view-all-verified-skills-link" style="font-size:0.82rem; font-weight:700; color:var(--primary); text-decoration:none;">View All →</a>
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:0.55rem; margin-top:0.75rem;">
             ${allComp.length === 0 ? `
-              <p style="font-size:0.85rem; color:#94A3B8; margin:0;">
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
                 No verified skills tagged yet. Click any skill above to generate a quiz. Scoring 75%+ will officially verify and add it to your profile!
               </p>
             ` : allComp.map(c => {
@@ -1751,6 +1777,27 @@ class App {
             }).join('')}
           </div>
         </div>
+
+        <!-- Collapsible Resume Parser (Preserves All Functions!) -->
+        <details class="sb-competency-card" style="padding:1.25rem 1.75rem; cursor:pointer;">
+          <summary style="font-size:0.9rem; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; user-select:none;">
+            <span>📄 Need to extract skills from PDF? Click to open AI Resume Parser</span>
+            <span class="sb-ai-pill">⚡ AI Powered</span>
+          </summary>
+          <div style="margin-top:1rem; cursor:default;">
+            <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 0.85rem 0;">
+              Upload your PDF resume to automatically extract and tag your skills.
+            </p>
+            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+              <input type="file" id="resume-upload-input" accept=".pdf" style="display:none;" />
+              <button type="button" class="btn btn-outline btn-sm" id="browse-resume-file-btn" style="border-color:#CFDFD3; color:var(--primary); background:#fff; font-size:0.82rem; padding:0.45rem 0.9rem;">
+                📄 Select PDF Resume
+              </button>
+              <span id="resume-file-chosen-label" style="font-size:0.82rem; color:var(--text-muted);">No file selected</span>
+            </div>
+            <div id="resume-parse-feedback" style="margin-top:0.75rem; display:none;"></div>
+          </div>
+        </details>
       `;
     }
 

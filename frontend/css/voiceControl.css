@@ -1,15 +1,15 @@
 /* Idea2Impact - Voice Monitoring & Voice Control Accessibility Suite */
 
 :root {
-  --voice-primary: #2563EB;
-  --voice-accent: #14B8A6;
+  --voice-primary: #143D2B;
+  --voice-accent: #22C55E;
   --voice-active: #10B981;
   --voice-processing: #F59E0B;
-  --voice-speaking: #6366F1;
-  --voice-bg-dark: rgba(15, 23, 42, 0.94);
+  --voice-speaking: #143D2B;
+  --voice-bg-dark: rgba(20, 61, 43, 0.96);
   --voice-border-dark: rgba(255, 255, 255, 0.16);
-  --voice-glow-active: 0 0 24px rgba(16, 185, 129, 0.45), 0 0 4px rgba(16, 185, 129, 0.8);
-  --voice-glow-idle: 0 8px 24px rgba(15, 23, 42, 0.35);
+  --voice-glow-active: 0 0 24px rgba(34, 197, 94, 0.45), 0 0 4px rgba(34, 197, 94, 0.8);
+  --voice-glow-idle: 0 8px 24px rgba(20, 61, 43, 0.35);
 }
 
 /* Floating Voice Control Widget Container (Draggable) */
@@ -306,8 +306,8 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1E293B, #0F172A);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #1E4F39, #143D2B);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   color: #FFFFFF;
   display: flex;
   align-items: center;
