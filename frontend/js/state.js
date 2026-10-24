@@ -2,10 +2,10 @@
 
 export const DEFAULT_USERS = {
   candidate: { id: "cand-rushikesh12345", name: "rushikesh@12345", full_name: "rushikesh@12345", username: "rushikesh@12345", role: "candidate", title: "Senior Software Engineer (AI)", email: "rushikesh@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh" },
-  founder: { id: "found-omkar12345", name: "omkar@12345", full_name: "omkar@12345", username: "omkar@12345", role: "founder", title: "Founder & CEO (omkar@12345)", email: "omkar@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=omkar" },
-  hr: { id: "hr-koomal123456", name: "koomal@123456", full_name: "koomal@123456", username: "koomal@123456", role: "hr", firm: "NovaTech Systems", title: "Executive Recruiter • NovaTech Talent Intelligence", email: "koomal@123456", avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" },
-  investor: { id: "inv-prasad12345", name: "prasad@12345", full_name: "prasad@12345", username: "prasad@12345", role: "investor", firm: "Apex Frontier Ventures", title: "General Partner, Apex Frontier Ventures", email: "prasad@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=prasad" }
+  hr: { id: "hr-koomal123456", name: "koomal@123456", full_name: "koomal@123456", username: "koomal@123456", role: "hr", firm: "NovaTech Systems", title: "Executive Recruiter • NovaTech Talent Intelligence", email: "koomal@123456", avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" }
 };
+
+const VALID_ROLES = ['candidate', 'hr'];
 
 class StateManager {
   constructor() {
@@ -24,9 +24,12 @@ class StateManager {
     const urlRole = urlParams ? urlParams.get('role') : null;
 
     // Requirement: When user initially visits website, show ONLY login/register page!
-    // When authenticated, open their specific mode (candidate, founder, hr, investor).
+    // When authenticated, open their specific mode (candidate, hr).
     if (this.isAuthenticated()) {
       let savedRole = urlRole || sessionStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || localStorage.getItem('i2i_role') || 'candidate';
+      if (!VALID_ROLES.includes(savedRole)) {
+        savedRole = 'candidate';
+      }
 
       // If URL specified a role and the current user's role doesn't match, check DEFAULT_USERS for instant switch
       if (urlRole && DEFAULT_USERS[urlRole] && this.authUser && this.authUser.role !== urlRole) {
@@ -35,6 +38,15 @@ class StateManager {
         try {
           sessionStorage.setItem('i2i_user', JSON.stringify(this.authUser));
           sessionStorage.setItem('i2i_role', savedRole);
+        } catch(e) {}
+      } else if (this.authUser && !VALID_ROLES.includes(this.authUser.role)) {
+        this.authUser = DEFAULT_USERS.candidate;
+        savedRole = 'candidate';
+        try {
+          sessionStorage.setItem('i2i_user', JSON.stringify(this.authUser));
+          sessionStorage.setItem('i2i_role', savedRole);
+          localStorage.setItem('i2i_user', JSON.stringify(this.authUser));
+          localStorage.setItem('i2i_role', savedRole);
         } catch(e) {}
       }
 
@@ -54,10 +66,11 @@ class StateManager {
       this.activeUser = null;
     }
 
-    const savedRole = urlRole || sessionStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || localStorage.getItem('i2i_role') || 'candidate';
-    this.activeTab = (savedRole === 'candidate') ? 'jobs' : (savedRole === 'investor' ? 'shared-pitches' : 'overview');
+    let savedRole = urlRole || sessionStorage.getItem('i2i_role') || (this.authUser && this.authUser.role) || localStorage.getItem('i2i_role') || 'candidate';
+    if (!VALID_ROLES.includes(savedRole)) savedRole = 'candidate';
+    this.activeTab = (savedRole === 'candidate') ? 'jobs' : 'overview';
     this.authMode = 'landing'; // 'landing' | 'signin' | 'role-pick' | 'register'
-    this.selectedAuthRole = 'candidate'; // 'candidate', 'hr', 'founder', 'investor'
+    this.selectedAuthRole = 'candidate'; // 'candidate', 'hr'
     this.tabSwitchCount = 0;
     this.isExamActive = false;
     this.listeners = [];
@@ -73,7 +86,11 @@ class StateManager {
     this.authToken = token;
     this.authUser = user;
 
-    const role = user.role || 'candidate';
+    let role = user.role || 'candidate';
+    if (!VALID_ROLES.includes(role)) {
+      role = 'candidate';
+      user.role = 'candidate';
+    }
     this.currentRole = role;
 
     // Tab-scoped storage (prevents Candidate tab and HR tab from clobbering each other!)
@@ -100,7 +117,7 @@ class StateManager {
       email: user.email,
       avatar_url: user.avatar_url
     };
-    this.activeTab = (role === 'candidate') ? 'jobs' : (role === 'investor' ? 'shared-pitches' : 'overview');
+    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
     this.showToast(`Signed in successfully! Entering ${role.toUpperCase()} Mode.`, 'success');
     this.notify();
   }
@@ -129,7 +146,7 @@ class StateManager {
 
   openLogin(mode = 'signin', role = 'candidate') {
     this.authMode = mode;
-    this.selectedAuthRole = role;
+    this.selectedAuthRole = VALID_ROLES.includes(role) ? role : 'candidate';
     this.currentRole = 'login';
     this.notify();
   }
@@ -141,6 +158,9 @@ class StateManager {
       this.notify();
       return;
     }
+    if (!VALID_ROLES.includes(role)) {
+      role = 'candidate';
+    }
     // ROLE LOCK: Authenticated users are locked to their registered role.
     // They cannot switch to another mode without signing out first.
     const registeredRole = this.authUser && this.authUser.role;
@@ -149,20 +169,16 @@ class StateManager {
       return;
     }
     this.currentRole = role;
-    this.activeTab = (role === 'candidate') ? 'jobs' : (role === 'investor' ? 'shared-pitches' : 'overview');
+    this.activeTab = (role === 'candidate') ? 'jobs' : 'overview';
     localStorage.setItem('i2i_role', role);
     this.notify();
   }
 
   setTab(tab) {
-    if (this.currentRole === 'founder' && !['overview', 'gemini-studio', 'meet-investor', 'meet-invester', 'hr-messages', 'investor-messages', 'invester-messages'].includes(tab)) {
+    if (this.currentRole === 'hr' && !['overview', 'create-job', 'candidates', 'candidate-messages', 'interviews', 'pipeline'].includes(tab)) {
       this.activeTab = 'overview';
-    } else if (this.currentRole === 'investor' && !['shared-pitches', 'pitch-calls', 'investor-messages', 'invester-messages', 'founder-messages'].includes(tab)) {
-      this.activeTab = 'shared-pitches';
-    } else if (this.currentRole === 'investor' && (tab === 'founder-messages' || tab === 'invester-messages')) {
-      this.activeTab = 'investor-messages';
-    } else if (this.currentRole === 'hr' && !['overview', 'hiring-requests', 'create-job', 'candidates', 'candidate-messages', 'founder-messages', 'interviews', 'pipeline'].includes(tab)) {
-      this.activeTab = 'overview';
+    } else if (this.currentRole === 'candidate' && !['jobs', 'competencies', 'applications', 'hr-messages', 'meet-hr', 'assessments', 'roadmap'].includes(tab)) {
+      this.activeTab = 'jobs';
     } else {
       this.activeTab = tab;
     }

@@ -25,7 +25,7 @@ class LoginController {
 
     if (state.isAuthenticated() && state.authUser) {
       banner.classList.remove('hidden');
-      const emojiMap = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
+      const emojiMap = { candidate: '🎓', hr: '💼' };
       const nameEl = document.getElementById('already-auth-name');
       const roleEl = document.getElementById('already-auth-role');
       const emojiEl = document.getElementById('already-auth-emoji');
@@ -52,7 +52,7 @@ class LoginController {
     const mode = params.get('mode');
     const role = params.get('role');
 
-    if (role && ['candidate', 'hr', 'founder', 'investor'].includes(role.toLowerCase())) {
+    if (role && ['candidate', 'hr'].includes(role.toLowerCase())) {
       this.selectRole(role.toLowerCase());
     }
 
@@ -137,7 +137,7 @@ class LoginController {
 
     const googleRegText = document.getElementById('google-reg-text');
     if (googleRegText) {
-      const labelMap = { candidate: 'Candidate', hr: 'HR / Recruiter', founder: 'Founder', investor: 'Investor' };
+      const labelMap = { candidate: 'Candidate', hr: 'HR / Recruiter' };
       googleRegText.textContent = `Sign up with Google as ${labelMap[role] || 'User'}`;
     }
   }

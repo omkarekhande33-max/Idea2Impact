@@ -79,8 +79,8 @@ class App {
         roleBar.style.display = 'none';
       } else {
         // Authenticated: Show ONLY the user's active role — no cross-role switching
-        const roleEmoji = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
-        const roleLabel = { candidate: 'Candidate Mode', hr: 'HR / Recruiter Mode', founder: 'Founder Mode', investor: 'Investor / Shark Mode' };
+        const roleEmoji = { candidate: '🎓', hr: '💼' };
+        const roleLabel = { candidate: 'Candidate Mode', hr: 'HR / Recruiter Mode' };
         roleBar.style.display = 'flex';
         roleBar.innerHTML = `
           <div class="role-bar-left">
@@ -106,7 +106,7 @@ class App {
             </a>
             <div style="font-size:0.85rem; font-weight:600; color:#94A3B8; display:flex; align-items:center; gap:0.5rem;">
               <span>🔒</span>
-              <span>Secure Gateway: Candidate · HR · Founder · Investor</span>
+              <span>Secure Gateway: Candidate · HR Recruiter</span>
             </div>
           </div>
         `;
@@ -122,24 +122,10 @@ class App {
           ],
           hr: [
             { label: 'Executive Dashboard', tab: 'overview' },
-            { label: 'Founder Hiring Specs', tab: 'hiring-requests' },
             { label: 'Post 75/25 Job', tab: 'create-job' },
             { label: 'Candidate Dossier', tab: 'candidates' },
             { label: 'Candidate Messages', tab: 'candidate-messages' },
-            { label: 'Founder Messages', tab: 'founder-messages' },
             { label: 'Interviews & Offers', tab: 'interviews' }
-          ],
-          founder: [
-            { label: 'Startup Overview', tab: 'overview' },
-            { label: '✦ Google Gemini Pro', tab: 'gemini-studio' },
-            { label: 'Meet Investor', tab: 'meet-investor' },
-            { label: 'HR Message', tab: 'hr-messages' },
-            { label: 'Investor Message', tab: 'investor-messages' }
-          ],
-          investor: [
-            { label: 'Shared Founder Pitches', tab: 'shared-pitches' },
-            { label: 'Founder Pitch Calls', tab: 'pitch-calls' },
-            { label: 'Founder Messages', tab: 'investor-messages' }
           ]
         };
         const links = modeNavLinks[state.currentRole] || modeNavLinks.candidate;
@@ -158,8 +144,8 @@ class App {
           `<button type="button" class="mobile-tab-chip ${state.activeTab === l.tab ? 'active' : ''}" data-tab="${l.tab}">${l.label}</button>`
         ).join('');
 
-        const quickActionLabel = state.currentRole === 'founder' ? '✦ Launch Gemini Pro' : state.currentRole === 'candidate' ? '⚡ Take Assessment' : state.currentRole === 'hr' ? '+ Post Job' : state.currentRole === 'investor' ? '🦈 Shared Pitches' : 'Explore';
-        const roleEmoji = { candidate: '🎓', hr: '💼', founder: '🚀', investor: '🦈' };
+        const quickActionLabel = state.currentRole === 'candidate' ? '⚡ Take Assessment' : '+ Post Job';
+        const roleEmoji = { candidate: '🎓', hr: '💼' };
 
         navbar.innerHTML = `
           <div class="nav-container">
@@ -312,9 +298,7 @@ class App {
         // Quick action handlers (desktop & mobile)
         const handleQuickAction = () => {
           if (state.currentRole === 'candidate') state.setTab('assessments');
-          else if (state.currentRole === 'founder') state.setTab('gemini-studio');
           else if (state.currentRole === 'hr') state.setTab('create-job');
-          else if (state.currentRole === 'investor') state.setTab('shared-pitches');
         };
 
         const quickBtn = navbar.querySelector('#quick-action-btn');
@@ -346,10 +330,6 @@ class App {
       await this.renderCandidateDashboard();
     } else if (state.currentRole === 'hr') {
       await this.renderHrDashboard();
-    } else if (state.currentRole === 'founder') {
-      await this.renderFounderDashboard();
-    } else if (state.currentRole === 'investor') {
-      await this.renderInvestorDashboard();
     } else {
       await this.renderCandidateDashboard();
     }
@@ -368,9 +348,7 @@ class App {
 
     const roleMeta = {
       candidate: { emoji: '🎓', label: 'Candidate', color: '#2563EB', colorBg: 'rgba(37,99,235,0.08)', desc: 'Take timed assessments, earn verified skill passports and unlock explainable job match scores.' },
-      hr: { emoji: '💼', label: 'HR / Recruiter', color: '#D97706', colorBg: 'rgba(217,119,6,0.08)', desc: 'Post weighted engineering jobs, review applicant compatibility and hire verified technical talent.' },
-      founder: { emoji: '🚀', label: 'Founder', color: '#16A34A', colorBg: 'rgba(22,163,74,0.08)', desc: 'Transform raw ideas into business plans with AI Copilot, evaluate feasibility and export pitch decks.' },
-      investor: { emoji: '🦈', label: 'Shark Investor', color: '#7C3AED', colorBg: 'rgba(124,58,237,0.08)', desc: 'Discover vetted startups, review AI due diligence reports and issue direct lead round term sheets.' }
+      hr: { emoji: '💼', label: 'HR / Recruiter', color: '#D97706', colorBg: 'rgba(217,119,6,0.08)', desc: 'Post weighted engineering jobs, review applicant compatibility and hire verified technical talent.' }
     };
     const meta = roleMeta[activeRole] || roleMeta.candidate;
 
@@ -388,9 +366,7 @@ class App {
             <p class="auth-landing-tagline">From Ideas to Innovation · From Talent to Impact</p>
             <div class="auth-landing-modes">
               <div class="auth-landing-mode-pill">🎓 <span>Candidate</span></div>
-              <div class="auth-landing-mode-pill">💼 <span>HR</span></div>
-              <div class="auth-landing-mode-pill">🚀 <span>Founder</span></div>
-              <div class="auth-landing-mode-pill">🦈 <span>Investor</span></div>
+              <div class="auth-landing-mode-pill">💼 <span>HR / Recruiter</span></div>
             </div>
             <div id="auth-alert-container"></div>
             <div class="auth-landing-actions">
@@ -688,24 +664,6 @@ class App {
             </div>
             <span class="badge" style="background:#FEF3C7; color:#B45309; font-size:0.7rem;">💼 Open HR Mode</span>
           </div>
-
-          <div class="google-acc-item" data-email="sarah.lin@gmail.com" data-name="Sarah Lin" data-role="founder" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
-            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
-            <div style="flex:1;">
-              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Sarah Lin</div>
-              <div style="font-size:0.75rem; color:#64748B;">sarah.lin@gmail.com</div>
-            </div>
-            <span class="badge" style="background:#DCFCE7; color:#15803D; font-size:0.7rem;">🚀 Open Founder</span>
-          </div>
-
-          <div class="google-acc-item" data-email="v.sterling@gmail.com" data-name="Victoria Sterling" data-role="investor" style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); cursor:pointer; transition:all 150ms;">
-            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&auto=format&fit=crop&q=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
-            <div style="flex:1;">
-              <div style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Victoria Sterling</div>
-              <div style="font-size:0.75rem; color:#64748B;">v.sterling@gmail.com</div>
-            </div>
-            <span class="badge" style="background:#F3E8FF; color:#7E22CE; font-size:0.7rem;">🦈 Open Investor</span>
-          </div>
         </div>
 
         <div style="border-top:1px solid #E2E8F0; padding-top:0.85rem;">
@@ -716,8 +674,6 @@ class App {
             <select id="custom-google-role" style="padding:0.55rem; border:1px solid #E2E8F0; border-radius:var(--radius-md); font-size:0.85rem;">
               <option value="candidate" ${defaultRole === 'candidate' ? 'selected' : ''}>Target: 🎓 Candidate Mode</option>
               <option value="hr" ${defaultRole === 'hr' ? 'selected' : ''}>Target: 💼 HR Recruiter Mode</option>
-              <option value="founder" ${defaultRole === 'founder' ? 'selected' : ''}>Target: 🚀 Founder Mode</option>
-              <option value="investor" ${defaultRole === 'investor' ? 'selected' : ''}>Target: 🦈 Shark Investor Mode</option>
             </select>
             <button type="submit" class="btn btn-primary btn-sm" style="width:100%; margin-top:0.25rem;">
               Sign In with Google & Open Workspace
@@ -796,9 +752,6 @@ class App {
             <button class="btn btn-secondary btn-lg" id="landing-hero-candidate-btn">
               🎓 Verify Skills (Candidate)
             </button>
-            <button class="btn btn-primary btn-lg" id="landing-hero-founder-btn">
-              🚀 Structure Pitch (Founder)
-            </button>
             <button class="btn btn-outline btn-lg" id="landing-hero-hr-btn">
               💼 Explainable Matching (HR)
             </button>
@@ -813,40 +766,40 @@ class App {
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; position:relative;">
             <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
-              <div style="font-size:1.6rem; margin-bottom:0.5rem;">💡</div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">1. Idea</h4>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Founder inputs problem, market, and business model</p>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
-              <div style="font-size:1.6rem; margin-bottom:0.5rem;">🤖</div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">2. AI Copilot</h4>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Structures feasibility, unit economics & 90-day plan</p>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
-              <div style="font-size:1.6rem; margin-bottom:0.5rem;">🦈</div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">3. Investment</h4>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Investors review AI risk analysis & express interest</p>
-            </div>
-            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
               <div style="font-size:1.6rem; margin-bottom:0.5rem;">🛡️</div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">4. Verified Talent</h4>
+              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">1. Assessment</h4>
               <p style="font-size:0.8rem; color:var(--text-muted);">Candidates pass 75% proctored assessments</p>
             </div>
             <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
+              <div style="font-size:1.6rem; margin-bottom:0.5rem;">📜</div>
+              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">2. Skill Passport</h4>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Earn cryptographically verified credentials</p>
+            </div>
+            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
+              <div style="font-size:1.6rem; margin-bottom:0.5rem;">💼</div>
+              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">3. 75/25 Job Post</h4>
+              <p style="font-size:0.8rem; color:var(--text-muted);">HR posts weighted roles with mandatory & preferred skills</p>
+            </div>
+            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
               <div style="font-size:1.6rem; margin-bottom:0.5rem;">🎯</div>
-              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">5. Matching</h4>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Explainable algorithm bridges skill gaps and hires</p>
+              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">4. Matching</h4>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Explainable algorithm bridges skill gaps and scores fit</p>
+            </div>
+            <div style="background:#fff; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; box-shadow:var(--shadow-sm);">
+              <div style="font-size:1.6rem; margin-bottom:0.5rem;">🤝</div>
+              <h4 style="font-size:1rem; font-weight:700; color:var(--primary);">5. Direct Hiring</h4>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Conduct live interviews and issue formal offers</p>
             </div>
           </div>
         </div>
 
-        <!-- 4 Role Cards Section -->
+        <!-- 2 Role Cards Section -->
         <div style="margin-bottom:3.5rem;">
           <div style="text-align:center; margin-bottom:2rem;">
-            <h3 style="font-size:1.8rem; font-weight:800; color:var(--primary);">Choose Your Ecosystem Role</h3>
+            <h3 style="font-size:1.8rem; font-weight:800; color:var(--primary);">Two Dedicated Workspaces</h3>
             <p style="color:var(--text-muted); font-size:0.95rem;">Experience Idea2Impact tailored specifically to your stakeholder workflow:</p>
           </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:1.5rem;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; max-width:960px; margin:0 auto 2.5rem;">
             <!-- Candidate -->
             <div class="card" style="border-top:4px solid var(--secondary); display:flex; flex-direction:column; justify-content:space-between;">
               <div>
@@ -864,23 +817,6 @@ class App {
               <button class="btn btn-secondary w-full" id="role-card-candidate-btn">Launch Candidate Portal →</button>
             </div>
 
-            <!-- Founder -->
-            <div class="card" style="border-top:4px solid var(--accent); display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <span class="badge" style="background:rgba(20, 184, 166, 0.1); color:var(--accent-dark); margin-bottom:0.75rem;">Founder Mode</span>
-                <h3 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">AI Startup Copilot</h3>
-                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
-                  Transform raw concepts into complete business proposals, evaluate feasibility dimensions, formulate hiring needs, and export private investor PDFs.
-                </p>
-                <ul style="font-size:0.82rem; color:var(--text-main); list-style:none; display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.25rem;">
-                  <li>✓ Automated Feasibility Scoring</li>
-                  <li>✓ ReportLab PDF Proposal Export</li>
-                  <li>✓ Controlled Investor Sharing</li>
-                </ul>
-              </div>
-              <button class="btn btn-accent w-full" id="role-card-founder-btn">Launch Founder Studio →</button>
-            </div>
-
             <!-- HR -->
             <div class="card" style="border-top:4px solid var(--primary); display:flex; flex-direction:column; justify-content:space-between;">
               <div>
@@ -891,28 +827,11 @@ class App {
                 </p>
                 <ul style="font-size:0.82rem; color:var(--text-main); list-style:none; display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.25rem;">
                   <li>✓ Transparent Formula: (Matched / Total) * 100</li>
-                  <li>✓ Direct Candidate & Founder Messaging</li>
+                  <li>✓ Direct Candidate & Recruiter Messaging</li>
                   <li>✓ Interview Scheduler & Offer Delivery</li>
                 </ul>
               </div>
               <button class="btn btn-primary w-full" id="role-card-hr-btn">Launch Recruiter Hub →</button>
-            </div>
-
-            <!-- Investor -->
-            <div class="card" style="border-top:4px solid #F59E0B; display:flex; flex-direction:column; justify-content:space-between;">
-              <div>
-                <span class="badge" style="background:rgba(245, 158, 11, 0.1); color:#B45309; margin-bottom:0.75rem;">Investor / Sharks Mode</span>
-                <h3 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">Due Diligence Assistant</h3>
-                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
-                  Review incoming proposals with AI-assisted risk highlights, question generators, and 1-click meeting requests to back high-conviction ventures.
-                </p>
-                <ul style="font-size:0.82rem; color:var(--text-main); list-style:none; display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.25rem;">
-                  <li>✓ AI Risk & Assumption Analysis</li>
-                  <li>✓ Custom Founder Interview Prompts</li>
-                  <li>✓ Shark Interest & Pitch Meeting Requests</li>
-                </ul>
-              </div>
-              <button class="btn btn-outline w-full" id="role-card-investor-btn" style="border-color:#F59E0B; color:#B45309;">Launch Investor Room →</button>
             </div>
           </div>
         </div>
@@ -941,10 +860,10 @@ class App {
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon green">🚀</div>
+            <div class="stat-icon green">🎯</div>
             <div class="stat-info">
-              <h3>${stats.startups_count || 2}</h3>
-              <p>Startups Seeking Investment</p>
+              <h3>75/25</h3>
+              <p>Explainable Match Standard</p>
             </div>
           </div>
         </div>
@@ -958,12 +877,9 @@ class App {
     };
 
     bindBtn('landing-hero-candidate-btn', 'candidate');
-    bindBtn('landing-hero-founder-btn', 'founder');
     bindBtn('landing-hero-hr-btn', 'hr');
     bindBtn('role-card-candidate-btn', 'candidate');
-    bindBtn('role-card-founder-btn', 'founder');
     bindBtn('role-card-hr-btn', 'hr');
-    bindBtn('role-card-investor-btn', 'investor');
   }
 
   // =========================================================================
@@ -1680,7 +1596,7 @@ class App {
             <div class="card" style="text-align:center; padding:3.5rem 1.5rem; border:2px dashed #CBD5E1; background:#F8FAFC;">
               <div style="font-size:2.5rem; margin-bottom:0.5rem;">💼</div>
               <h3 style="font-size:1.15rem; font-weight:700; color:#1E293B; margin:0 0 0.4rem;">No Active Job Requisitions</h3>
-              <p style="color:#64748B; font-size:0.85rem; margin:0 0 1rem;">When HR or Founders publish a job opening, it will immediately appear here with your personalized match score.</p>
+              <p style="color:#64748B; font-size:0.85rem; margin:0 0 1rem;">When HR recruiters publish a job opening, it will immediately appear here with your personalized match score.</p>
               <button class="btn btn-outline btn-sm" onclick="window.location.reload()">🔄 Refresh Feed</button>
             </div>
           ` : jobs.map(job => {
@@ -7736,10 +7652,6 @@ class App {
               <button class="sidebar-link ${currentTab === 'overview' ? 'active' : ''}" data-tab="overview">
                 <span class="sidebar-link-content">📊 Overview & 75/25 KPIs</span>
               </button>
-              <button class="sidebar-link ${currentTab === 'hiring-requests' ? 'active' : ''}" data-tab="hiring-requests">
-                <span class="sidebar-link-content">📥 Founder Hiring Specs</span>
-                <span class="sidebar-badge">${sharedHiringRequests.length}</span>
-              </button>
               <button class="sidebar-link ${currentTab === 'create-job' ? 'active' : ''}" data-tab="create-job">
                 <span class="sidebar-link-content">⚙️ Post 75/25 Weighted Job</span>
               </button>
@@ -7750,10 +7662,6 @@ class App {
               <button class="sidebar-link ${currentTab === 'candidate-messages' ? 'active' : ''}" data-tab="candidate-messages">
                 <span class="sidebar-link-content">💬 Candidate Messages</span>
                 <span class="sidebar-badge" style="background:#2563EB; color:#fff;">${candidateUnread || 1}</span>
-              </button>
-              <button class="sidebar-link ${currentTab === 'founder-messages' ? 'active' : ''}" data-tab="founder-messages">
-                <span class="sidebar-link-content">🤝 Founder Messages</span>
-                <span class="sidebar-badge" style="background:#10B981; color:#fff;">${founderUnread || 1}</span>
               </button>
               <button class="sidebar-link ${currentTab === 'interviews' ? 'active' : ''}" data-tab="interviews">
                 <span class="sidebar-link-content">📅 Interviews & Offers</span>
