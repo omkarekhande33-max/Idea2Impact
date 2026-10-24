@@ -3076,13 +3076,28 @@ class App {
       });
     });
 
-    // Auto-sync when new job is published by HR
+    // Auto-sync when new job is published by HR across same window, cross-tab, and BroadcastChannel
     const onJobsUpdated = () => {
       if (state.currentRole === 'candidate') {
         this.renderCandidateDashboard();
       }
     };
-    window.addEventListener('i2i_jobs_updated', onJobsUpdated, { once: true });
+    window.addEventListener('i2i_jobs_updated', onJobsUpdated);
+    window.addEventListener('storage', (e) => {
+      if ((e.key === 'i2i_custom_jobs' || !e.key) && state.currentRole === 'candidate') {
+        this.renderCandidateDashboard();
+      }
+    });
+    if (window.BroadcastChannel) {
+      if (!this._jobsBc) {
+        this._jobsBc = new BroadcastChannel('i2i_jobs_sync');
+        this._jobsBc.onmessage = (msg) => {
+          if (msg.data?.type === 'job_created' && state.currentRole === 'candidate') {
+            this.renderCandidateDashboard();
+          }
+        };
+      }
+    }
 
     // =========================================================================
     // Candidate HR Messaging & Interview Meeting Event Handlers

@@ -15,7 +15,8 @@ function resolveApiBase() {
     // Local development with separate frontend server (Live Server 5500, Vite 5173, etc.)
     if (loc.hostname) {
       const proto = loc.protocol.startsWith('http') ? loc.protocol : 'http:';
-      return `${proto}//${loc.hostname}:8000/api`;
+      const host = (loc.hostname === 'localhost') ? '127.0.0.1' : loc.hostname;
+      return `${proto}//${host}:8000/api`;
     }
   } catch (e) {
     // fallback
@@ -1072,8 +1073,12 @@ class ApiService {
 
     // Sort newest first so HR's newly created job appears at the very top of Candidate feed!
     allJobs.sort((a, b) => {
-      const da = new Date(a.created_at || 0).getTime();
-      const db = new Date(b.created_at || 0).getTime();
+      if (a.is_new && !b.is_new) return -1;
+      if (!a.is_new && b.is_new) return 1;
+      const ta = new Date(a.created_at || 0).getTime();
+      const tb = new Date(b.created_at || 0).getTime();
+      const da = isNaN(ta) ? 0 : ta;
+      const db = isNaN(tb) ? 0 : tb;
       return db - da;
     });
 
@@ -1123,6 +1128,13 @@ class ApiService {
         // Dispatch instant cross-tab / cross-view sync event
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('i2i_jobs_updated', { detail: created }));
+          window.dispatchEvent(new Event('storage'));
+          if (window.BroadcastChannel) {
+            try {
+              const bc = new BroadcastChannel('i2i_jobs_sync');
+              bc.postMessage({ type: 'job_created', job: created });
+            } catch (e) {}
+          }
         }
       } catch (err) {
         console.warn('Could not save custom job to localStorage', err);

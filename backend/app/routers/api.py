@@ -576,25 +576,28 @@ def download_passport_pdf(candidate_id: str):
 def create_job(payload: JobCreate):
     sal_min = payload.salary_min or 80000
     sal_max = payload.salary_max or 150000
+    c_name = payload.company_name or payload.company or "NovaTech Systems"
+    e_type = payload.employment_type or payload.job_type or "Full-time"
+    loc = payload.location or "San Francisco, CA"
     new_job: Dict[str, Any] = {
         "id": f"job-{str(uuid.uuid4())[:6]}",
         "created_by": payload.created_by or "hr-01",
-        "company_name": payload.company_name,
-        "company": payload.company_name,
-        "title": payload.title,
-        "description": payload.description,
+        "company_name": c_name,
+        "company": c_name,
+        "title": payload.title or "Technical Role",
+        "description": payload.description or "",
         "experience_level": payload.experience_level or "Mid-Senior",
         "salary_min": sal_min,
         "salary_max": sal_max,
-        "salary_range": f"${sal_min:,} - ${sal_max:,}",
-        "location": payload.location or "San Francisco, CA",
+        "salary_range": payload.salary_range or f"${sal_min:,} - ${sal_max:,}",
+        "location": loc,
         "location_type": payload.location_type or "Hybrid",
-        "map_url": payload.map_url or f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(payload.location or 'San Francisco, CA')}",
-        "map_query": payload.map_query or payload.location or "San Francisco, CA",
+        "map_url": payload.map_url or f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(loc)}",
+        "map_query": payload.map_query or loc,
         "latitude": payload.latitude,
         "longitude": payload.longitude,
-        "employment_type": payload.employment_type or "full-time",
-        "job_type": payload.employment_type or "full-time",
+        "employment_type": e_type,
+        "job_type": e_type,
         "status": "Active",
         "created_at": datetime.now(timezone.utc).isoformat()
     }

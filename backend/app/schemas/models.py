@@ -49,19 +49,22 @@ class CandidateSkillCreate(BaseModel):
 
 class JobCreate(BaseModel):
     created_by: Optional[str] = "hr-01"
-    company_name: str
-    title: str
-    description: str
+    company_name: Optional[str] = "NovaTech Systems"
+    company: Optional[str] = None
+    title: Optional[str] = "Technical Role"
+    description: Optional[str] = ""
     experience_level: Optional[str] = "Mid-Senior"
     salary_min: Optional[int] = 80000
     salary_max: Optional[int] = 150000
-    location: str
+    salary_range: Optional[str] = None
+    location: Optional[str] = "San Francisco, CA"
     location_type: Optional[str] = "Hybrid"
     map_url: Optional[str] = None
     map_query: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    employment_type: Optional[str] = "full-time"
+    employment_type: Optional[str] = "Full-time"
+    job_type: Optional[str] = None
     required_skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # [{"skill_id": "sk-01", "is_required": True, "weight": 2.0}]
     skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # Alternate alias from SkillBridge
 
