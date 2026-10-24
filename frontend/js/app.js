@@ -1,5 +1,6 @@
 import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
+if (typeof window !== 'undefined') window.state = state;
 import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill, getQuizForSkills } from './quizData.js';
 // Acoustic Warning Alarm for Anti-Cheat Proctoring
 function playAcousticAlarm() {
