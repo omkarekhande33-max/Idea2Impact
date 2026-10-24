@@ -64,6 +64,16 @@ class App {
   }
 
   async init() {
+    // Proactively sanitize any stale meeting link in localStorage
+    try {
+      const staleMeet = localStorage.getItem('i2i_active_meet_request');
+      if (staleMeet && (staleMeet.includes('nova-tech-interview') || !staleMeet.includes('meet.google.com'))) {
+        const parsed = JSON.parse(staleMeet);
+        parsed.room_url = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        localStorage.setItem('i2i_active_meet_request', JSON.stringify(parsed));
+      }
+    } catch (e) {}
+
     // Subscribe to state changes
     state.subscribe(() => this.renderCurrentView());
     // Initial Render (renders top bars and active view)
@@ -892,7 +902,13 @@ class App {
     let activeMeet = null;
     try {
       const raw = localStorage.getItem('i2i_active_meet_request');
-      if (raw) activeMeet = JSON.parse(raw);
+      if (raw) {
+        activeMeet = JSON.parse(raw);
+        if (activeMeet && (!activeMeet.room_url || activeMeet.room_url.includes('nova-tech-interview'))) {
+          activeMeet.room_url = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+          localStorage.setItem('i2i_active_meet_request', JSON.stringify(activeMeet));
+        }
+      }
     } catch (e) {
       activeMeet = null;
     }
@@ -955,7 +971,7 @@ class App {
     // Render Popup Modal
     const hostName = activeMeet.host_name || 'koomal@123456';
     const hostRole = activeMeet.host_role || 'Executive Recruiter, NovaTech Systems';
-    const roomUrl = activeMeet.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+    let roomUrl = (activeMeet.room_url && !activeMeet.room_url.includes('nova-tech-interview')) ? activeMeet.room_url : (localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe');
     const agenda = activeMeet.agenda || 'Dual-Tier 75/25 competency evaluation, architecture screening, and team alignment.';
 
     const modal = document.createElement('div');
@@ -1001,9 +1017,12 @@ class App {
               <span class="detail-label">Platform:</span>
               <span class="detail-val" style="color:#16A34A; font-weight:700;">Google Meet Official</span>
             </div>
-            <div class="interview-detail-row">
-              <span class="detail-label">Room URL:</span>
-              <span class="detail-val"><a href="${roomUrl}" target="_blank" style="color:#2563EB; text-decoration:underline;">${roomUrl}</a></span>
+            <div class="interview-detail-row" style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:0.6rem 0.8rem; margin-top:0.4rem;">
+              <span class="detail-label" style="color:#1E40AF; font-weight:800;">Meeting Link:</span>
+              <span class="detail-val" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.4rem;">
+                <a href="${roomUrl}" target="_blank" style="color:#2563EB; font-weight:800; text-decoration:underline;">${roomUrl}</a>
+                <button type="button" class="btn btn-xs btn-outline" id="interview-popup-copy-url-btn" style="border-color:#93C5FD; color:#1E40AF; font-weight:700; background:#FFFFFF;">📋 Copy Link</button>
+              </span>
             </div>
           </div>
         </div>
@@ -1016,7 +1035,7 @@ class App {
             Later
           </button>
           <button type="button" class="btn btn-primary interview-popup-approve-btn" id="interview-popup-approve-btn">
-            <span>✅ Approve & Join Google Meet</span>
+            <span>✅ Join Google Meet Now</span>
             <span style="font-size:1.1rem;">→</span>
           </button>
         </div>
@@ -1049,6 +1068,19 @@ class App {
     const laterBtn = modal.querySelector('#interview-popup-later-btn');
     const viewTabBtn = modal.querySelector('#interview-popup-view-tab-btn');
     const approveBtn = modal.querySelector('#interview-popup-approve-btn');
+    const copyUrlBtn = modal.querySelector('#interview-popup-copy-url-btn');
+
+    if (copyUrlBtn) {
+      copyUrlBtn.addEventListener('click', () => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(roomUrl).then(() => {
+            state.showToast('📋 Google Meet link copied to clipboard!', 'info');
+          });
+        } else {
+          state.showToast('Meeting Link: ' + roomUrl, 'info');
+        }
+      });
+    }
 
     const dismissModal = () => {
       sessionStorage.setItem(`i2i_dismissed_meet_${activeMeet.id}`, 'true');
@@ -2230,19 +2262,32 @@ class App {
 
             let bubbleContent = m.text;
             if (typeof m.text === 'string' && m.text.includes('meet.google.com')) {
-              const detectedMeetUrl = (m.text.match(/https:\/\/meet\.google\.com\/[a-zA-Z0-9-]+/) || [])[0] || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+              let detectedMeetUrl = (m.text.match(/https:\/\/meet\.google\.com\/[a-zA-Z0-9-]+/) || [])[0] || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+              if (detectedMeetUrl.includes('nova-tech-interview')) {
+                detectedMeetUrl = 'https://meet.google.com/gdm-skqy-fwe';
+              }
               bubbleContent = `
-                <div>${m.text}</div>
-                <div style="margin-top:0.65rem;">
-                  ${isMeetAccepted ? `
-                    <a href="${detectedMeetUrl}" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
-                      🎥 Connected • Re-enter Meet
-                    </a>
-                  ` : `
-                    <button type="button" class="btn btn-xs btn-primary cand-accept-meet-btn" data-url="${detectedMeetUrl}" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
-                      ✅ Accept Request & Join Google Meet
+                <div style="font-size:0.88rem; line-height:1.5; white-space:pre-wrap;">${m.text}</div>
+                <div style="margin-top:0.75rem; background:#F0FDF4; border:1px solid #86EFAC; border-radius:8px; padding:0.85rem;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.45rem; flex-wrap:wrap; gap:0.4rem;">
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                      <span style="font-size:1.15rem;">🎥</span>
+                      <strong style="color:#166534; font-size:0.88rem;">Live Google Meet Invitation</strong>
+                    </div>
+                    <span class="badge" style="background:#16A34A; color:#FFFFFF; font-size:0.7rem; font-weight:800; padding:0.15rem 0.5rem;">ACTIVE CALL</span>
+                  </div>
+                  <div style="background:#FFFFFF; border:1px solid #BBF7D0; border-radius:6px; padding:0.5rem 0.75rem; margin-bottom:0.65rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                    <span style="font-size:0.82rem; font-weight:700; color:#15803D;">Meeting Link:</span>
+                    <a href="${detectedMeetUrl}" target="_blank" style="color:#2563EB; font-weight:800; font-size:0.86rem; text-decoration:underline;">${detectedMeetUrl}</a>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-sm btn-primary cand-accept-meet-btn" data-url="${detectedMeetUrl}" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+                      🎥 Join Google Meet Now →
                     </button>
-                  `}
+                    <button type="button" class="btn btn-sm btn-outline cand-copy-meet-btn" data-url="${detectedMeetUrl}" style="font-size:0.8rem; background:#FFFFFF; color:#166534; border-color:#86EFAC; font-weight:700;">
+                      📋 Copy Link
+                    </button>
+                  </div>
                 </div>
               `;
             }
@@ -2455,13 +2500,19 @@ class App {
                 Host: <strong>${hostName}</strong> (${hostRole}) • Candidate: <strong>${state.activeUser?.name || candidateName || 'rushikesh@12345'}</strong>
               </p>
 
-              <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.75rem 0.9rem; border:1px solid #E2E8F0; margin-bottom:0.85rem;">
+              <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.85rem 1rem; border:1px solid #E2E8F0; margin-bottom:0.85rem;">
                 <span style="font-size:0.78rem; font-weight:700; color:#334155;">Agenda:</span>
-                <p style="font-size:0.82rem; color:#475569; margin:0.15rem 0 0 0; line-height:1.5;">
+                <p style="font-size:0.82rem; color:#475569; margin:0.15rem 0 0.5rem 0; line-height:1.5;">
                   ${activeMeet.agenda || 'Review 75/25 competency fit, FastAPI production architecture, and engineering team timeline.'}
                 </p>
-                <div style="font-size:0.78rem; color:#059669; font-weight:700; margin-top:0.35rem;">
-                  🔗 Room URL: <a href="${activeMeet.room_url}" target="_blank" style="color:#059669; text-decoration:underline;">${activeMeet.room_url}</a>
+                <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:0.6rem 0.85rem; margin-top:0.6rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                  <div>
+                    <span style="font-size:0.8rem; font-weight:800; color:#166534;">🔗 Google Meet Link:</span>
+                    <a href="${activeMeet.room_url}" target="_blank" style="color:#2563EB; font-weight:800; font-size:0.86rem; text-decoration:underline; margin-left:0.35rem;">${activeMeet.room_url}</a>
+                  </div>
+                  <button type="button" class="btn btn-xs btn-outline cand-copy-meet-btn" data-url="${activeMeet.room_url}" style="background:#FFFFFF; color:#166534; border-color:#86EFAC; font-weight:700;">
+                    📋 Copy Link
+                  </button>
                 </div>
               </div>
 
@@ -2475,10 +2526,10 @@ class App {
                   </span>
                 ` : `
                   <button type="button" class="btn btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:0.92rem; padding:0.6rem 1.25rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer; box-shadow:0 4px 12px rgba(22,163,74,0.35);">
-                    ✅ Approve Request & Join Google Meet →
+                    🎥 Join Google Meet Now →
                   </button>
                   <span style="font-size:0.8rem; color:#64748B;">
-                    Approving request will launch Google Meet and notify ${hostName}.
+                    Clicking Join will open the live meeting and connect with ${hostName}.
                   </span>
                 `}
               </div>
@@ -3055,7 +3106,10 @@ class App {
           if (raw) activeMeet = JSON.parse(raw);
         } catch (e) {}
 
-        const targetUrl = roomUrl || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        let targetUrl = roomUrl || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        if (!targetUrl || targetUrl.includes('nova-tech-interview')) {
+          targetUrl = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        }
         const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
         const myCandName = (state.activeUser && state.activeUser.name) || candidateName || 'rushikesh@12345';
         const hrHostId = activeMeet?.host_id || 'hr-koomal123456';
@@ -3137,8 +3191,25 @@ class App {
     this.appContainer.querySelectorAll('.cand-accept-meet-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const url = btn.dataset.url || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        let url = btn.dataset.url || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        if (url.includes('nova-tech-interview')) {
+          url = 'https://meet.google.com/gdm-skqy-fwe';
+        }
         handleAcceptMeetRequest(url);
+      });
+    });
+
+    this.appContainer.querySelectorAll('.cand-copy-meet-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = btn.dataset.url || 'https://meet.google.com/gdm-skqy-fwe';
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+            state.showToast('📋 Google Meet link copied to clipboard!', 'info');
+          });
+        } else {
+          state.showToast('Google Meet Link: ' + url, 'info');
+        }
       });
     });
 
@@ -10588,7 +10659,7 @@ class App {
 
         // 2. Send official invitation message in the direct chat with this candidate
         const nowIso = new Date().toISOString();
-        const inviteText = `🎥 ${hrHostName} has opened the live Google Meet interview room! Please approve the joining request in 'Meet with HR' to communicate: ${meetUrl}`;
+        const inviteText = `🎥 ${hrHostName} (HR) has sent you a Google Meet joining request!\n\n🔗 Meeting Link: ${meetUrl}\n\nPlease click the link to join the meeting room and communicate directly.`;
         await api.sendMessage({
           sender_id: hrHostId,
           sender_role: 'hr',
