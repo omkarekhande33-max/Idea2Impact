@@ -32,10 +32,17 @@ async function getOrLoadCocoSsd() {
   if (!cocoScriptLoadingPromise) {
     cocoScriptLoadingPromise = new Promise((resolve) => {
       const loadCoco = () => {
+        if (window.cocoSsd) return resolve(window.cocoSsd);
         const s2 = document.createElement('script');
         s2.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js';
         s2.onload = () => resolve(window.cocoSsd || null);
-        s2.onerror = () => resolve(null);
+        s2.onerror = () => {
+          const s2fb = document.createElement('script');
+          s2fb.src = 'https://unpkg.com/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js';
+          s2fb.onload = () => resolve(window.cocoSsd || null);
+          s2fb.onerror = () => resolve(null);
+          document.body.appendChild(s2fb);
+        };
         document.body.appendChild(s2);
       };
 
@@ -43,7 +50,13 @@ async function getOrLoadCocoSsd() {
         const s1 = document.createElement('script');
         s1.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js';
         s1.onload = loadCoco;
-        s1.onerror = () => resolve(null);
+        s1.onerror = () => {
+          const s1fb = document.createElement('script');
+          s1fb.src = 'https://unpkg.com/@tensorflow/tfjs@4.20.0/dist/tf.min.js';
+          s1fb.onload = loadCoco;
+          s1fb.onerror = () => resolve(null);
+          document.body.appendChild(s1fb);
+        };
         document.body.appendChild(s1);
       } else {
         loadCoco();
@@ -4140,6 +4153,10 @@ class App {
           </span>
         </div>
         <div style="display:flex; align-items:center; gap:1.25rem;">
+          <!-- Camera Status Indicator & Request Trigger -->
+          <button type="button" id="proctor-camera-indicator" class="btn btn-xs" style="background:rgba(239,68,68,0.25); border:1px solid #EF4444; color:#FCA5A5; font-size:0.75rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:4px; cursor:pointer;" title="Click to allow or retry camera access">
+            🔴 Camera Required
+          </button>
           <div style="text-align:right;">
             <span style="font-size:0.72rem; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; display:block;">Time Remaining</span>
             <span id="exam-timer" style="font-family:var(--font-mono); font-size:1.25rem; font-weight:800; color:#38BDF8;">15:00</span>
@@ -4196,13 +4213,55 @@ class App {
         <div class="proctor-sidebar">
           <div>
             <div style="font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
-              <span>Vision Monitor</span>
-              <span style="font-size:0.7rem; color:#60A5FA;">COCO-SSD AI</span>
+              <span>Vision & Acoustic Guard</span>
+              <span style="font-size:0.7rem; color:#60A5FA;">COCO-SSD & WebAudio</span>
             </div>
             <div class="proctor-webcam-container">
               <video id="proctor-webcam-video" autoplay playsinline muted class="proctor-webcam-video"></video>
               <canvas id="proctor-webcam-canvas" class="proctor-webcam-canvas"></canvas>
-              <div class="proctor-telemetry-pill" id="proctor-telemetry-status">🟢 Initializing Vision...</div>
+              
+              <!-- Real-time HUD Status Bar -->
+              <div class="proctor-hud-top" id="proctor-hud-bar">
+                <span class="proctor-hud-pill status-green" id="hud-person-pill">
+                  <span>👤</span> <span id="hud-person-text">1 Person Verified</span>
+                </span>
+                <span class="proctor-hud-pill status-green" id="hud-gaze-pill">
+                  <span>👀</span> <span id="hud-gaze-text">Gaze: Centered</span>
+                </span>
+              </div>
+
+              <div class="proctor-telemetry-pill" id="proctor-telemetry-status">🟡 Initializing Vision...</div>
+
+              <!-- Camera Access Request & Troubleshoot Overlay -->
+              <div class="proctor-cam-permission-overlay" id="proctor-cam-permission-box">
+                <div class="proctor-cam-pulse" style="font-size:2.2rem; margin-bottom:0.25rem;">📷</div>
+                <div style="font-weight:800; font-size:0.88rem; color:#F8FAFC;">Camera & Mic Access Required</div>
+                <p style="font-size:0.72rem; color:#94A3B8; margin:0.35rem 0 0.75rem; text-align:center; max-width:220px; line-height:1.35;">
+                  AI Proctoring requires camera access to monitor face presence, gaze direction, multi-person presence, and unauthorized devices.
+                </p>
+                <button type="button" class="btn btn-primary btn-xs" id="proctor-grant-cam-btn" style="background:#2563EB; border-color:#3B82F6; font-weight:700; padding:0.4rem 0.85rem; border-radius:6px; cursor:pointer;">
+                  🎥 Allow Camera Access
+                </button>
+                <div id="proctor-cam-troubleshoot" style="display:none; font-size:0.7rem; color:#FCA5A5; margin-top:0.6rem; text-align:center; max-width:220px; line-height:1.35; background:rgba(220,38,38,0.18); border:1px solid rgba(239,68,68,0.35); padding:0.45rem; border-radius:4px;">
+                  ⚠️ Camera blocked by browser. Click the camera icon in your address bar to allow permission, then click below:
+                  <button type="button" class="btn btn-xs" id="proctor-retry-cam-btn" style="background:#DC2626; color:#FFF; border:none; margin-top:0.4rem; width:100%; font-weight:700; padding:0.3rem 0.5rem; border-radius:4px; cursor:pointer;">
+                    🔄 Retry Camera Access
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acoustic / Voice Guard Card -->
+            <div class="proctor-audio-meter-box" id="proctor-audio-meter-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; font-weight:700;">
+                <span style="color:#94A3B8; display:flex; align-items:center; gap:0.3rem;">
+                  <span id="audio-mic-icon">🎙️</span> Acoustic & Voice Guard
+                </span>
+                <span id="audio-meter-status" style="color:#10B981;">Silent (Acceptable)</span>
+              </div>
+              <div class="proctor-audio-meter-bar-track">
+                <div class="proctor-audio-meter-bar-fill" id="audio-meter-fill"></div>
+              </div>
             </div>
           </div>
 
@@ -4220,16 +4279,34 @@ class App {
             </div>
           </div>
 
-          <div style="margin-top:auto; background:#1E293B; border:1px solid #334155; border-radius:var(--radius-md); padding:0.9rem;">
-            <div style="font-size:0.78rem; font-weight:700; color:#CBD5E1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">
+          <div style="margin-top:auto; background:#1E293B; border:1px solid #334155; border-radius:var(--radius-md); padding:0.85rem;">
+            <div style="font-size:0.78rem; font-weight:700; color:#CBD5E1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.35rem;">
               Security Simulation Bench
             </div>
-            <p style="font-size:0.72rem; color:#94A3B8; margin-bottom:0.6rem; line-height:1.4;">
-              Demonstrate camera anti-cheat & mobile auto-submit behavior:
+            <p style="font-size:0.7rem; color:#94A3B8; margin-bottom:0.5rem; line-height:1.35;">
+              Test camera detection, multi-person, gaze deviation, and voice guards:
             </p>
-            <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <div style="display:flex; flex-direction:column; gap:0.35rem;">
+              <button type="button" class="btn btn-xs" id="sim-camera-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
+                📷 Simulate Camera Detection (Auto-Submit)
+              </button>
               <button type="button" class="btn btn-xs" id="sim-phone-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
                 📱 Simulate Phone Detection (Auto-Submit)
+              </button>
+              <button type="button" class="btn btn-xs" id="sim-multi-person-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
+                👥 Simulate Multiple People (Auto-Submit)
+              </button>
+              <button type="button" class="btn btn-xs" id="sim-gaze-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
+                👀 Simulate Gaze Deviation / Looking Away
+              </button>
+              <button type="button" class="btn btn-xs" id="sim-face-absent-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
+                👤 Simulate Face Absent (Candidate Out of Frame)
+              </button>
+              <button type="button" class="btn btn-xs" id="sim-voice-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
+                🎙️ Simulate Unauthorized Voice / Whispering
+              </button>
+              <button type="button" class="btn btn-xs" id="toggle-camera-btn" style="background:#1E3A8A; color:#BFDBFE; border:1px solid #3B82F6; width:100%; text-align:left; font-weight:700;">
+                🎥 Grant / Test Camera Permission
               </button>
               <button type="button" class="btn btn-xs" id="sim-tab-btn" style="background:#334155; color:#E2E8F0; border:1px solid #475569; width:100%; text-align:left;">
                 🪟 Simulate Tab Switch Violation
@@ -4455,57 +4532,174 @@ class App {
     window.addEventListener('blur', onWindowBlur);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    // Initialize Webcam & COCO-SSD
+    // Initialize Webcam, Audio Monitor & COCO-SSD Vision
     const videoEl = overlay.querySelector('#proctor-webcam-video');
     const canvasEl = overlay.querySelector('#proctor-webcam-canvas');
     const statusPill = overlay.querySelector('#proctor-telemetry-status');
 
-    const startWebcamAndProctor = async () => {
+    // Advanced Vision, Pose & Audio Tracking Variables
+    let audioContext = null;
+    let audioCheckInterval = null;
+    let multiPersonFrames = 0;
+    let gazeDeviationFrames = 0;
+    let absentFrames = 0;
+    let voiceAnomalyFrames = 0;
+
+    const startWebcamAndProctor = async (isManual = false) => {
+      const permBox = overlay.querySelector('#proctor-cam-permission-box');
+      const camIndicator = overlay.querySelector('#proctor-camera-indicator');
+      const troubleshoot = overlay.querySelector('#proctor-cam-troubleshoot');
+
       try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera API not available in this browser");
+        }
+
+        // Attempt requesting both video and audio for comprehensive proctoring
+        try {
+          videoStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
+            audio: true
+          });
+        } catch (avErr) {
+          console.warn("Combined video+audio failed, falling back to video only", avErr);
           videoStream = await navigator.mediaDevices.getUserMedia({
             video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
             audio: false
           });
-          videoEl.srcObject = videoStream;
-          await videoEl.play();
-          if (statusPill) statusPill.textContent = "🟢 Camera Live • AI Proctor Active";
-        } else {
-          throw new Error("Camera API not available");
+        }
+
+        videoEl.srcObject = videoStream;
+        await videoEl.play();
+
+        // Camera access granted successfully!
+        if (permBox) permBox.classList.add('hidden');
+        if (troubleshoot) troubleshoot.style.display = 'none';
+
+        if (camIndicator) {
+          camIndicator.style.background = 'rgba(16, 185, 129, 0.25)';
+          camIndicator.style.borderColor = '#10B981';
+          camIndicator.style.color = '#6EE7B7';
+          camIndicator.textContent = '🟢 Camera Live';
+          camIndicator.title = 'Camera is active and monitoring test integrity';
+        }
+
+        if (statusPill) statusPill.textContent = "🟢 Vision & Audio Guard Active";
+
+        // Stop fallback radar animation if it was running
+        if (simulatedCanvasInterval) {
+          clearInterval(simulatedCanvasInterval);
+          simulatedCanvasInterval = null;
+        }
+
+        // Setup real-time acoustic & voice monitor if audio track is active
+        const audioTracks = videoStream.getAudioTracks();
+        if (audioTracks.length > 0 && !audioCheckInterval) {
+          try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaStreamSource(videoStream);
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 128;
+            source.connect(analyser);
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            audioCheckInterval = setInterval(() => {
+              if (isTerminated) return;
+              analyser.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+              const average = sum / dataArray.length;
+              const percent = Math.min(100, Math.round((average / 128) * 100));
+
+              const fill = overlay.querySelector('#audio-meter-fill');
+              const meterStatus = overlay.querySelector('#audio-meter-status');
+              if (fill) fill.style.width = `${Math.max(4, percent)}%`;
+
+              if (percent > 65) {
+                voiceAnomalyFrames++;
+                if (meterStatus) {
+                  meterStatus.textContent = `🚨 High Noise / Voice (${percent}%)`;
+                  meterStatus.style.color = '#EF4444';
+                }
+                if (voiceAnomalyFrames >= 5) {
+                  voiceAnomalyFrames = 0;
+                  triggerSuspiciousActivity("HIGH ACOUSTIC NOISE / BACKGROUND VOICE DETECTED");
+                }
+              } else if (percent > 35) {
+                if (meterStatus) {
+                  meterStatus.textContent = `🟡 Moderate Sound (${percent}%)`;
+                  meterStatus.style.color = '#F59E0B';
+                }
+              } else {
+                voiceAnomalyFrames = Math.max(0, voiceAnomalyFrames - 1);
+                if (meterStatus) {
+                  meterStatus.textContent = "🟢 Silent / Acceptable";
+                  meterStatus.style.color = '#10B981';
+                }
+              }
+            }, 300);
+          } catch (audioInitErr) {
+            console.warn("AudioContext initialization error", audioInitErr);
+          }
+        }
+
+        if (isManual) {
+          state.showToast("📷 Camera & audio access granted! Vision monitor active.", "success");
         }
       } catch (camErr) {
-        console.warn("Webcam access unavailable, launching simulated camera feed", camErr);
-        if (statusPill) statusPill.textContent = "🟡 Emulated Camera Radar Active";
+        console.warn("Webcam access unavailable or permission denied:", camErr);
+        if (permBox) permBox.classList.remove('hidden');
+        if (troubleshoot) troubleshoot.style.display = 'block';
 
-        // Animated scanline radar on canvas
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        let scanY = 0;
-        simulatedCanvasInterval = setInterval(() => {
-          ctx.fillStyle = '#0F172A';
-          ctx.fillRect(0, 0, 320, 240);
-          ctx.fillStyle = '#1E293B';
-          ctx.beginPath();
-          ctx.arc(160, 120, 50, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#38BDF8';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(0, scanY);
-          ctx.lineTo(320, scanY);
-          ctx.stroke();
-          scanY = (scanY + 3) % 240;
-        }, 50);
+        if (camIndicator) {
+          camIndicator.style.background = 'rgba(239, 68, 68, 0.25)';
+          camIndicator.style.borderColor = '#EF4444';
+          camIndicator.style.color = '#FCA5A5';
+          camIndicator.textContent = '🔴 Camera Blocked';
+          camIndicator.title = 'Camera permission blocked. Click to allow/retry.';
+        }
+
+        if (statusPill) statusPill.textContent = "🔴 Camera Access Required";
+
+        // Fallback scanline radar on canvas
+        if (!simulatedCanvasInterval) {
+          const ctx = canvasEl.getContext('2d');
+          canvasEl.width = 320;
+          canvasEl.height = 240;
+          let scanY = 0;
+          simulatedCanvasInterval = setInterval(() => {
+            if (videoStream && videoStream.active) return;
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, 320, 240);
+            ctx.fillStyle = '#1E293B';
+            ctx.beginPath();
+            ctx.arc(160, 120, 50, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#EF4444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, scanY);
+            ctx.lineTo(320, scanY);
+            ctx.stroke();
+            scanY = (scanY + 3) % 240;
+          }, 50);
+        }
+
+        if (isManual) {
+          state.showToast("Camera access was not granted. Please check browser address bar permissions.", "warning");
+        }
       }
 
-      // Load COCO-SSD model & detect mobile phones (lazy-loaded on-demand)
+      // Load COCO-SSD model & detect mobile phones, cameras, multiple persons, & gaze
       try {
         const cocoSsdLib = await getOrLoadCocoSsd();
         if (cocoSsdLib) {
           cocoModel = await cocoSsdLib.load();
-          if (statusPill) statusPill.textContent = "🟢 Vision Active • Scanning for Devices";
+          if (videoStream && videoStream.active && statusPill) {
+            statusPill.textContent = "🟢 Vision Active • Scanning Integrity";
+          }
 
+          if (detectionInterval) clearInterval(detectionInterval);
           detectionInterval = setInterval(async () => {
             if (!cocoModel || !videoEl || videoEl.readyState < 2 || isTerminated) return;
             try {
@@ -4515,34 +4709,179 @@ class App {
               canvasEl.height = videoEl.videoHeight || 240;
               ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
+              const personPill = overlay.querySelector('#hud-person-pill');
+              const personText = overlay.querySelector('#hud-person-text');
+              const gazePill = overlay.querySelector('#hud-gaze-pill');
+              const gazeText = overlay.querySelector('#hud-gaze-text');
+              const camContainer = overlay.querySelector('.proctor-webcam-container');
+
+              // 1. Check for Unauthorized Hardware Devices (Camera or Mobile Phone)
               for (const p of predictions) {
                 const label = p.class.toLowerCase();
                 const [x, y, w, h] = p.bbox;
 
-                if (['cell phone', 'phone', 'mobile'].includes(label)) {
-                  // DRAW HIGHLIGHT BOX AROUND DETECTED PHONE
+                const isCamera = ['camera'].includes(label);
+                const isPhone = ['cell phone', 'phone', 'mobile'].includes(label);
+
+                if (isCamera || isPhone) {
+                  const deviceLabel = isCamera ? 'UNAUTHORIZED CAMERA' : 'CELL PHONE';
+                  const violationType = isCamera ? 'CAMERA_DETECTED' : 'MOBILE_PHONE_DETECTED';
+                  const reasonText = isCamera
+                    ? 'Unauthorized secondary camera or recording device detected in candidate video feed.'
+                    : 'Unauthorized mobile device detected in candidate video feed.';
+
+                  // DRAW HIGHLIGHT BOX AROUND DETECTED CAMERA / PHONE
                   ctx.strokeStyle = '#EF4444';
                   ctx.lineWidth = 4;
                   ctx.strokeRect(x, y, w, h);
                   ctx.fillStyle = '#DC2626';
-                  ctx.fillRect(x, Math.max(0, y - 24), Math.max(w, 220), 24);
+                  ctx.fillRect(x, Math.max(0, y - 24), Math.max(w, 240), 24);
                   ctx.fillStyle = '#FFFFFF';
                   ctx.font = 'bold 12px sans-serif';
-                  ctx.fillText(`🚨 CELL PHONE DETECTED (${Math.round(p.score * 100)}%)`, x + 6, Math.max(16, y - 7));
+                  ctx.fillText(`🚨 ${deviceLabel} DETECTED (${Math.round(p.score * 100)}%)`, x + 6, Math.max(16, y - 7));
 
-                  // AUTOSUBMIT THE TEST IMMEDIATELY WHEN MOBILE IS DETECTED!
+                  camContainer?.classList.add('proctor-feed-alert');
+
+                  // Flash alarm banner
+                  const banner = overlay.querySelector('#proctor-alarm-banner');
+                  const text = overlay.querySelector('#proctor-alarm-text');
+                  if (banner && text) {
+                    text.textContent = `🚨 MALPRACTICE VIOLATION: ${deviceLabel} DETECTED IN CAMERA FEED! TERMINATING & AUTO-SUBMITTING...`;
+                    banner.style.display = 'flex';
+                  }
+
+                  // AUTOSUBMIT THE TEST IMMEDIATELY WHEN CAMERA OR PHONE IS DETECTED!
                   autoSubmitDueToViolation(
-                    "MOBILE_PHONE_DETECTED",
-                    "Unauthorized mobile device detected in camera feed by AI vision engine.",
+                    violationType,
+                    reasonText,
                     Math.round(p.score * 100)
                   );
                   return;
                 }
               }
+
+              // 2. Multi-Person & Face Presence Analysis
+              const persons = predictions.filter(p => p.class.toLowerCase() === 'person' && p.score > 0.45);
+
+              if (persons.length > 1) {
+                multiPersonFrames++;
+                absentFrames = 0;
+                camContainer?.classList.add('proctor-feed-alert');
+
+                if (personPill && personText) {
+                  personPill.className = 'proctor-hud-pill status-red';
+                  personText.textContent = `🚨 ${persons.length} PEOPLE DETECTED`;
+                }
+
+                // Draw bounding boxes on all detected persons
+                for (let i = 0; i < persons.length; i++) {
+                  const [px, py, pw, ph] = persons[i].bbox;
+                  ctx.strokeStyle = i === 0 ? '#3B82F6' : '#EF4444';
+                  ctx.lineWidth = 3;
+                  ctx.strokeRect(px, py, pw, ph);
+                  ctx.fillStyle = i === 0 ? '#1D4ED8' : '#DC2626';
+                  ctx.fillRect(px, Math.max(0, py - 22), 175, 22);
+                  ctx.fillStyle = '#FFFFFF';
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.fillText(i === 0 ? 'PRIMARY CANDIDATE' : `🚨 UNAUTHORIZED PERSON #${i+1}`, px + 4, Math.max(15, py - 6));
+                }
+
+                // Trigger immediate malpractice auto-submission upon persistent multi-person detection (2 frames)
+                if (multiPersonFrames >= 2) {
+                  const banner = overlay.querySelector('#proctor-alarm-banner');
+                  const text = overlay.querySelector('#proctor-alarm-text');
+                  if (banner && text) {
+                    text.textContent = `🚨 MALPRACTICE VIOLATION: MULTIPLE PEOPLE DETECTED IN ROOM! AUTO-SUBMITTING...`;
+                    banner.style.display = 'flex';
+                  }
+
+                  autoSubmitDueToViolation(
+                    "MULTIPLE_PERSONS_DETECTED",
+                    `Multiple individuals (${persons.length} persons) detected in candidate camera frame. Anti-cheat regulations strictly prohibit unauthorized secondary persons.`,
+                    Math.round(persons[1].score * 100)
+                  );
+                  return;
+                }
+              } else if (persons.length === 1) {
+                multiPersonFrames = 0;
+                absentFrames = 0;
+                camContainer?.classList.remove('proctor-feed-alert');
+
+                if (personPill && personText) {
+                  personPill.className = 'proctor-hud-pill status-green';
+                  personText.textContent = '1 Candidate Verified';
+                }
+
+                const [px, py, pw, ph] = persons[0].bbox;
+                const frameWidth = canvasEl.width || 320;
+                const personCenterX = px + pw / 2;
+                const centerRatio = personCenterX / frameWidth;
+
+                // Candidate Reticle Bracket Corners
+                ctx.strokeStyle = '#10B981';
+                ctx.lineWidth = 2.5;
+                const cLen = 16;
+                // top-left
+                ctx.beginPath(); ctx.moveTo(px, py + cLen); ctx.lineTo(px, py); ctx.lineTo(px + cLen, py); ctx.stroke();
+                // top-right
+                ctx.beginPath(); ctx.moveTo(px + pw - cLen, py); ctx.lineTo(px + pw, py); ctx.lineTo(px + pw, py + cLen); ctx.stroke();
+                // bottom-left
+                ctx.beginPath(); ctx.moveTo(px, py + ph - cLen); ctx.lineTo(px, py + ph); ctx.lineTo(px + cLen, py + ph); ctx.stroke();
+                // bottom-right
+                ctx.beginPath(); ctx.moveTo(px + pw - cLen, py + ph); ctx.lineTo(px + pw, py + ph); ctx.lineTo(px + pw, py + ph - cLen); ctx.stroke();
+
+                // 3. Face Direction / Gaze Deviation Tracking
+                if (centerRatio < 0.26 || centerRatio > 0.74) {
+                  gazeDeviationFrames++;
+                  const dir = centerRatio < 0.26 ? 'Looking Left' : 'Looking Right';
+                  if (gazePill && gazeText) {
+                    gazePill.className = 'proctor-hud-pill status-yellow';
+                    gazeText.textContent = `Gaze: ${dir} (Off-Axis)`;
+                  }
+
+                  // Draw gaze deviation line indicator
+                  ctx.strokeStyle = '#F59E0B';
+                  ctx.lineWidth = 2;
+                  ctx.setLineDash([4, 4]);
+                  ctx.beginPath();
+                  ctx.moveTo(personCenterX, py + ph * 0.3);
+                  ctx.lineTo(centerRatio < 0.26 ? 10 : frameWidth - 10, py + ph * 0.3);
+                  ctx.stroke();
+                  ctx.setLineDash([]);
+
+                  if (gazeDeviationFrames >= 6) {
+                    gazeDeviationFrames = 0;
+                    triggerSuspiciousActivity(`FACE / GAZE DEVIATION: Candidate persistently looking away from screen (${dir})`);
+                  }
+                } else {
+                  gazeDeviationFrames = Math.max(0, gazeDeviationFrames - 1);
+                  if (gazePill && gazeText) {
+                    gazePill.className = 'proctor-hud-pill status-green';
+                    gazeText.textContent = 'Gaze: Centered';
+                  }
+                }
+              } else {
+                // No candidate detected in frame
+                absentFrames++;
+                multiPersonFrames = 0;
+                if (personPill && personText) {
+                  personPill.className = 'proctor-hud-pill status-red';
+                  personText.textContent = 'Face Not Detected';
+                }
+                if (gazePill && gazeText) {
+                  gazePill.className = 'proctor-hud-pill status-yellow';
+                  gazeText.textContent = 'Out of View';
+                }
+
+                if (absentFrames >= 8) {
+                  absentFrames = 0;
+                  triggerSuspiciousActivity("FACE ABSENT: Candidate left examination camera view");
+                }
+              }
             } catch (err) {
               console.warn("COCO-SSD detection frame error", err);
             }
-          }, 800);
+          }, 600);
         }
       } catch (modelErr) {
         console.warn("Could not load COCO-SSD model", modelErr);
@@ -4552,33 +4891,200 @@ class App {
 
     startWebcamAndProctor();
 
-    // Security Simulation Buttons
-    overlay.querySelector('#sim-phone-btn').addEventListener('click', () => {
-      const ctx = canvasEl.getContext('2d');
-      canvasEl.width = 320;
-      canvasEl.height = 240;
-      ctx.strokeStyle = '#EF4444';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(40, 40, 100, 150);
-      ctx.fillStyle = '#DC2626';
-      ctx.fillRect(40, 16, 220, 24);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillText('🚨 CELL PHONE DETECTED (96%)', 46, 32);
+    // Security Simulation Bench Handlers
+    // 1. Simulate Secondary Camera
+    const simCamBtn = overlay.querySelector('#sim-camera-btn');
+    if (simCamBtn) {
+      simCamBtn.addEventListener('click', () => {
+        const ctx = canvasEl.getContext('2d');
+        canvasEl.width = 320;
+        canvasEl.height = 240;
+        ctx.strokeStyle = '#EF4444';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(40, 40, 110, 110);
+        ctx.fillStyle = '#DC2626';
+        ctx.fillRect(40, 16, 240, 24);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('🚨 CAMERA DETECTED (98%)', 46, 32);
 
-      // Trigger immediate auto-submission
-      autoSubmitDueToViolation(
-        "MOBILE_PHONE_DETECTED",
-        "Unauthorized mobile phone detected in camera feed (Simulated Demo).",
-        96
-      );
-    });
+        autoSubmitDueToViolation(
+          "CAMERA_DETECTED",
+          "Unauthorized secondary camera or recording device detected in candidate camera feed (Simulated Demo).",
+          98
+        );
+      });
+    }
 
-    overlay.querySelector('#sim-tab-btn').addEventListener('click', () => {
+    // 2. Simulate Mobile Phone
+    const simPhoneBtn = overlay.querySelector('#sim-phone-btn');
+    if (simPhoneBtn) {
+      simPhoneBtn.addEventListener('click', () => {
+        const ctx = canvasEl.getContext('2d');
+        canvasEl.width = 320;
+        canvasEl.height = 240;
+        ctx.strokeStyle = '#EF4444';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(40, 40, 100, 150);
+        ctx.fillStyle = '#DC2626';
+        ctx.fillRect(40, 16, 220, 24);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('🚨 CELL PHONE DETECTED (96%)', 46, 32);
+
+        autoSubmitDueToViolation(
+          "MOBILE_PHONE_DETECTED",
+          "Unauthorized mobile phone detected in camera feed (Simulated Demo).",
+          96
+        );
+      });
+    }
+
+    // 3. Simulate Multiple People (Auto-Submit)
+    const simMultiBtn = overlay.querySelector('#sim-multi-person-btn');
+    if (simMultiBtn) {
+      simMultiBtn.addEventListener('click', () => {
+        const ctx = canvasEl.getContext('2d');
+        canvasEl.width = 320;
+        canvasEl.height = 240;
+        // Person 1 (Candidate)
+        ctx.strokeStyle = '#3B82F6';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(25, 40, 115, 180);
+        ctx.fillStyle = '#1D4ED8';
+        ctx.fillRect(25, 18, 135, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('PRIMARY CANDIDATE', 29, 33);
+
+        // Person 2 (Unauthorized secondary person)
+        ctx.strokeStyle = '#EF4444';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(165, 40, 125, 180);
+        ctx.fillStyle = '#DC2626';
+        ctx.fillRect(165, 18, 145, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('🚨 2ND PERSON DETECTED', 169, 33);
+
+        const personPill = overlay.querySelector('#hud-person-pill');
+        const personText = overlay.querySelector('#hud-person-text');
+        if (personPill && personText) {
+          personPill.className = 'proctor-hud-pill status-red';
+          personText.textContent = '🚨 2 PEOPLE DETECTED';
+        }
+
+        autoSubmitDueToViolation(
+          "MULTIPLE_PERSONS_DETECTED",
+          "Multiple individuals (2 people) detected in candidate camera frame. Anti-cheat rules strictly prohibit external assistance (Simulated Demo).",
+          97
+        );
+      });
+    }
+
+    // 4. Simulate Gaze Deviation / Looking Away
+    const simGazeBtn = overlay.querySelector('#sim-gaze-btn');
+    if (simGazeBtn) {
+      simGazeBtn.addEventListener('click', () => {
+        const ctx = canvasEl.getContext('2d');
+        canvasEl.width = 320;
+        canvasEl.height = 240;
+        ctx.strokeStyle = '#F59E0B';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(40, 40, 140, 170);
+        ctx.fillStyle = '#D97706';
+        ctx.fillRect(40, 18, 235, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('⚠️ GAZE DEVIATION: LOOKING AWAY', 44, 33);
+
+        // Draw off-screen sight line
+        ctx.strokeStyle = '#FBBF24';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(110, 90);
+        ctx.lineTo(10, 90);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const gazePill = overlay.querySelector('#hud-gaze-pill');
+        const gazeText = overlay.querySelector('#hud-gaze-text');
+        if (gazePill && gazeText) {
+          gazePill.className = 'proctor-hud-pill status-yellow';
+          gazeText.textContent = 'Gaze: Looking Left (Off-Axis)';
+        }
+
+        triggerSuspiciousActivity("FACE / GAZE DEVIATION: Candidate looking away from test interface (Simulated Demo)");
+      });
+    }
+
+    // 5. Simulate Face Absent / Out of Frame
+    const simAbsentBtn = overlay.querySelector('#sim-face-absent-btn');
+    if (simAbsentBtn) {
+      simAbsentBtn.addEventListener('click', () => {
+        const ctx = canvasEl.getContext('2d');
+        canvasEl.width = 320;
+        canvasEl.height = 240;
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, 320, 240);
+        ctx.strokeStyle = '#EF4444';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(50, 40, 220, 160);
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#DC2626';
+        ctx.fillRect(40, 18, 240, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('⚠️ FACE ABSENT: CANDIDATE OUT OF VIEW', 44, 33);
+
+        const personPill = overlay.querySelector('#hud-person-pill');
+        const personText = overlay.querySelector('#hud-person-text');
+        if (personPill && personText) {
+          personPill.className = 'proctor-hud-pill status-red';
+          personText.textContent = 'Face Not Detected';
+        }
+
+        triggerSuspiciousActivity("FACE ABSENT: Candidate left examination camera view (Simulated Demo)");
+      });
+    }
+
+    // 6. Simulate Unauthorized Voice / Whispering Detected
+    const simVoiceBtn = overlay.querySelector('#sim-voice-btn');
+    if (simVoiceBtn) {
+      simVoiceBtn.addEventListener('click', () => {
+        const fill = overlay.querySelector('#audio-meter-fill');
+        const meterStatus = overlay.querySelector('#audio-meter-status');
+        if (fill) fill.style.width = '94%';
+        if (meterStatus) {
+          meterStatus.textContent = '🚨 High Voice Activity (94%)';
+          meterStatus.style.color = '#EF4444';
+        }
+
+        triggerSuspiciousActivity("UNAUTHORIZED SPEECH / BACKGROUND VOICE DETECTED IN ROOM (Simulated Demo)");
+      });
+    }
+
+    // Camera Request / Permission Handlers
+    const triggerCamPermission = () => startWebcamAndProctor(true);
+    const grantBtn = overlay.querySelector('#proctor-grant-cam-btn');
+    if (grantBtn) grantBtn.addEventListener('click', triggerCamPermission);
+
+    const retryBtn = overlay.querySelector('#proctor-retry-cam-btn');
+    if (retryBtn) retryBtn.addEventListener('click', triggerCamPermission);
+
+    const toggleBtn = overlay.querySelector('#toggle-camera-btn');
+    if (toggleBtn) toggleBtn.addEventListener('click', triggerCamPermission);
+
+    const camInd = overlay.querySelector('#proctor-camera-indicator');
+    if (camInd) camInd.addEventListener('click', triggerCamPermission);
+
+    overlay.querySelector('#sim-tab-btn')?.addEventListener('click', () => {
       triggerSuspiciousActivity("SIMULATED TAB SWITCH DETECTED");
     });
 
-    overlay.querySelector('#sim-sound-btn').addEventListener('click', () => {
+    overlay.querySelector('#sim-sound-btn')?.addEventListener('click', () => {
       playAcousticAlarm();
       state.showToast("Acoustic alarm sounded (880Hz / 440Hz alert tone)", "info");
     });
@@ -4588,6 +5094,10 @@ class App {
       clearInterval(timerInterval);
       if (detectionInterval) clearInterval(detectionInterval);
       if (simulatedCanvasInterval) clearInterval(simulatedCanvasInterval);
+      if (audioCheckInterval) clearInterval(audioCheckInterval);
+      if (audioContext && audioContext.state !== 'closed') {
+        try { audioContext.close(); } catch(e) {}
+      }
       window.removeEventListener('blur', onWindowBlur);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       if (videoStream) {
@@ -4746,7 +5256,56 @@ class App {
   // MALPRACTICE VIOLATION AUTO-SUBMIT MESSAGE MODAL (MOBILE OR TAB SWITCH)
   // =========================================================================
   showMalpracticeAutoSubmitModal({ violationType, reasonText, confidence, skills = [] }) {
+    const isCamera = violationType === 'CAMERA_DETECTED' || violationType === 'CAMERA_DEVICE_DETECTED';
     const isPhone = violationType === 'MOBILE_PHONE_DETECTED';
+    const isMultiPerson = violationType === 'MULTIPLE_PERSONS_DETECTED';
+    const isAbsent = violationType === 'CANDIDATE_OUT_OF_FRAME' || violationType === 'FACE_ABSENT';
+    const isGaze = violationType === 'EXCESSIVE_GAZE_DEVIATION' || violationType === 'LOOKING_AWAY';
+    const isVoice = violationType === 'UNAUTHORIZED_VOICE' || violationType === 'AUDIO_ANOMALY';
+    const isTab = violationType === 'EXCESSIVE_TAB_SWITCHING';
+
+    let modalIcon = '🚨';
+    let modalTitle = 'Test Auto-Submitted: Malpractice Violation';
+    let modalDesc = 'In accordance with examination anti-cheat regulations, your test was terminated and automatically submitted immediately.';
+    let violationLabel = 'Proctoring Integrity Violation';
+
+    if (isCamera) {
+      modalIcon = '📷';
+      modalTitle = 'Test Auto-Submitted: Camera Detected in Vision Feed';
+      modalDesc = 'The AI Proctoring vision system detected an unauthorized camera / recording device in your video feed. In accordance with examination anti-cheat regulations, your test was terminated and automatically submitted immediately.';
+      violationLabel = 'Unauthorized Camera / Recording Device';
+    } else if (isPhone) {
+      modalIcon = '📱';
+      modalTitle = 'Test Auto-Submitted: Mobile Phone Detected';
+      modalDesc = 'The AI Proctoring vision system detected an unauthorized mobile phone in your camera feed. In accordance with examination anti-cheat regulations, your test was terminated and automatically submitted immediately.';
+      violationLabel = 'Unauthorized Mobile Device';
+    } else if (isMultiPerson) {
+      modalIcon = '👥';
+      modalTitle = 'Test Auto-Submitted: Multiple People Detected';
+      modalDesc = 'The AI Proctoring vision system detected multiple individuals in the candidate video feed. External assistance during proctored examinations is strictly forbidden.';
+      violationLabel = 'Multiple Individuals in Room';
+    } else if (isAbsent) {
+      modalIcon = '👤';
+      modalTitle = 'Test Auto-Submitted: Candidate Left Camera Frame';
+      modalDesc = 'The candidate was absent from the examination camera feed for an extended duration. Proctored exams require continuous face presence in frame.';
+      violationLabel = 'Candidate Absence / Face Not Detected';
+    } else if (isGaze) {
+      modalIcon = '👀';
+      modalTitle = 'Test Auto-Submitted: Persistent Gaze Deviation';
+      modalDesc = 'Multiple persistent gaze deviation strikes were recorded where the candidate looked away from the exam interface toward potential off-screen resources.';
+      violationLabel = 'Persistent Off-Screen Gaze Deviation';
+    } else if (isVoice) {
+      modalIcon = '🎙️';
+      modalTitle = 'Test Auto-Submitted: Unauthorized Voice Activity';
+      modalDesc = 'The acoustic proctoring monitor detected unauthorized speech, whispering, or verbal communication during the examination session.';
+      violationLabel = 'Acoustic Malpractice / Room Speech';
+    } else if (isTab) {
+      modalIcon = '🪟';
+      modalTitle = 'Test Auto-Submitted: Excessive Tab Switching';
+      modalDesc = 'Multiple unauthorized tab switching violations and window focus loss events were detected. In accordance with examination integrity regulations, your test was automatically submitted and disqualified.';
+      violationLabel = 'Tab Switching / Loss of Focus';
+    }
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.id = 'mobile-detected-modal';
@@ -4757,7 +5316,7 @@ class App {
         <!-- Pulsing Red Icon Badge -->
         <div style="position:relative; margin-bottom:1rem;">
           <div style="width:88px; height:88px; border-radius:50%; background:#FEF2F2; display:flex; align-items:center; justify-content:center; margin:0 auto; border:2.5px solid #F87171; box-shadow:0 0 25px rgba(239, 68, 68, 0.35);">
-            <span style="font-size:3.2rem; line-height:1;">${isPhone ? '📱' : '🪟'}</span>
+            <span style="font-size:3.2rem; line-height:1;">${modalIcon}</span>
           </div>
           <span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); background:#DC2626; color:#FFF; font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:999px; border:2px solid #FFF; white-space:nowrap; letter-spacing:0.5px;">
             🚨 MALPRACTICE VIOLATION
@@ -4766,12 +5325,10 @@ class App {
 
         <!-- Title -->
         <h3 style="font-size:1.45rem; font-weight:800; color:#991B1B; margin:0.5rem 0 0.35rem 0; font-family:'Plus Jakarta Sans', sans-serif;">
-          ${isPhone ? 'Test Auto-Submitted: Mobile Phone Detected' : 'Test Auto-Submitted: Excessive Tab Switching'}
+          ${modalTitle}
         </h3>
         <p style="font-size:0.88rem; color:#64748B; margin:0 0 1.25rem 0; line-height:1.5;">
-          ${isPhone
-            ? 'The AI Proctoring vision system detected an unauthorized mobile phone in your camera feed. In accordance with examination anti-cheat regulations, your test was terminated and automatically submitted immediately.'
-            : 'Multiple unauthorized tab switching violations were detected. In accordance with examination integrity regulations, your test was automatically submitted and disqualified.'}
+          ${modalDesc}
         </p>
 
         <!-- Incident Report Card -->
@@ -4782,7 +5339,7 @@ class App {
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; font-size:0.82rem;">
             <div>
               <span style="color:#64748B; display:block; font-size:0.72rem;">Violation Type:</span>
-              <strong style="color:#991B1B;">${isPhone ? 'Unauthorized Mobile Device' : 'Tab Switching / Loss of Focus'}</strong>
+              <strong style="color:#991B1B;">${violationLabel}</strong>
             </div>
             <div>
               <span style="color:#64748B; display:block; font-size:0.72rem;">AI Detection Engine:</span>

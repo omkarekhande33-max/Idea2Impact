@@ -1774,6 +1774,116 @@
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   border: 1px solid rgba(16, 185, 129, 0.4);
+  z-index: 12;
+}
+
+.proctor-cam-permission-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 15;
+  text-align: center;
+}
+
+.proctor-cam-permission-overlay.hidden {
+  display: none !important;
+}
+
+.proctor-cam-pulse {
+  animation: proctorCamPulse 2s infinite ease-in-out;
+}
+
+@keyframes proctorCamPulse {
+  0% { transform: scale(1); opacity: 0.88; }
+  50% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.88; }
+}
+
+.proctor-webcam-container.proctor-feed-alert {
+  border-color: #EF4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+  animation: proctorAlertPulse 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes proctorAlertPulse {
+  from { border-color: #EF4444; }
+  to { border-color: #B91C1C; }
+}
+
+.proctor-hud-top {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.proctor-hud-pill {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.proctor-hud-pill.status-green {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34D399;
+}
+
+.proctor-hud-pill.status-yellow {
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #FBBF24;
+}
+
+.proctor-hud-pill.status-red {
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #FCA5A5;
+  background: rgba(127, 29, 29, 0.88);
+}
+
+.proctor-audio-meter-box {
+  background: #111827;
+  border: 1px solid #1F2937;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.proctor-audio-meter-bar-track {
+  width: 100%;
+  height: 6px;
+  background: #1F2937;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+.proctor-audio-meter-bar-fill {
+  height: 100%;
+  width: 4%;
+  background: linear-gradient(90deg, #10B981 0%, #F59E0B 75%, #EF4444 100%);
+  border-radius: 999px;
+  transition: width 120ms ease;
 }
 
 .proctor-palette-grid {
