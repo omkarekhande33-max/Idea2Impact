@@ -1939,7 +1939,10 @@ class App {
                     </div>
                     <div class="sb-job-badges-row">
                       <span class="sb-meta-pill">🏢 ${companyName}</span>
-                      <span class="sb-meta-pill">📍 ${location}</span>
+                      <span class="sb-meta-pill cand-job-map-pill" data-id="${job.id}" data-location="${location}" data-title="${job.title}" data-company="${companyName}" style="cursor:pointer; display:inline-flex; align-items:center; gap:0.35rem;" title="Click to view Google Map for this job location">
+                        <span>📍 ${location}</span>
+                        <span style="color:#2563EB; font-weight:700; font-size:0.7rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:4px; padding:0.05rem 0.35rem;">🗺️ Map</span>
+                      </span>
                       <span class="sb-meta-pill">⏱️ ${employmentType}</span>
                       ${salaryText ? `<span class="sb-meta-pill">💰 ${salaryText}</span>` : ''}
                     </div>
@@ -3059,6 +3062,20 @@ class App {
       });
     });
 
+    // View Job Location on Google Maps pill buttons
+    this.appContainer.querySelectorAll('.cand-job-map-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const jobId = pill.dataset.id;
+        const job = jobs.find(j => j.id === jobId) || {
+          title: pill.dataset.title || 'Technical Role',
+          company_name: pill.dataset.company || 'NovaTech Systems',
+          location: pill.dataset.location || 'San Francisco, CA'
+        };
+        this.openJobMapModal(job);
+      });
+    });
+
     // Auto-sync when new job is published by HR
     const onJobsUpdated = () => {
       if (state.currentRole === 'candidate') {
@@ -3771,6 +3788,80 @@ class App {
   // =========================================================================
   // EXACT IMAGE 1: ANALYZE & MATCH MODAL (Red Skill Gaps with Roadmap Button)
   // =========================================================================
+  // =========================================================================
+  // Candidate Google Map Modal for Job Location
+  // =========================================================================
+  openJobMapModal(job) {
+    const company = job.company_name || job.company || 'Enterprise Partner';
+    const location = job.location || 'San Francisco, CA';
+    const cleanLocation = location.replace(/\((.*?)\)/g, '').trim() || location;
+    const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(cleanLocation)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+    const googleMapsUrl = job.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanLocation)}`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'cand-job-map-modal-overlay';
+    overlay.innerHTML = `
+      <div class="card" style="background:#FFFFFF; border-radius:1rem; max-width:620px; width:92vw; padding:1.5rem; box-shadow:0 20px 40px rgba(0,0,0,0.2); border:1px solid #E2E8F0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid #F1F5F9; padding-bottom:0.75rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem;">
+              <span style="font-size:1.2rem;">📍</span>
+              <h3 style="font-size:1.2rem; font-weight:800; color:#0F172A; margin:0;">${job.title}</h3>
+            </div>
+            <p style="font-size:0.85rem; color:#64748B; margin:0;">
+              ${company} • <strong>${location}</strong>
+            </p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="close-job-map-modal-btn" style="font-size:1.25rem; line-height:1; padding:0.2rem 0.5rem;">✕</button>
+        </div>
+
+        <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:8px; padding:0.6rem 0.85rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div style="font-size:0.82rem; color:#166534;">
+            <strong>Workplace Location:</strong> ${location}
+          </div>
+          <button type="button" class="btn btn-xs btn-outline cand-copy-job-location-btn" data-location="${cleanLocation}" style="background:#FFFFFF; border-color:#86EFAC; color:#166534; font-weight:700;">
+            📋 Copy Address
+          </button>
+        </div>
+
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #CBD5E1; height:280px; margin-bottom:1.25rem; box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">
+          <iframe width="100%" height="280" style="border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="${mapEmbedUrl}"></iframe>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <span style="font-size:0.78rem; color:#64748B;">
+            ⚡ Real-time Google Map • Pan, zoom, and check transit
+          </span>
+          <div style="display:flex; gap:0.5rem;">
+            <a href="${googleMapsUrl}" target="_blank" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:700;">
+              🗺️ Open in Google Maps ↗
+            </a>
+            <button type="button" class="btn btn-outline btn-sm" id="close-job-map-modal-btn-2">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeModal = () => overlay.remove();
+    overlay.querySelector('#close-job-map-modal-btn')?.addEventListener('click', closeModal);
+    overlay.querySelector('#close-job-map-modal-btn-2')?.addEventListener('click', closeModal);
+    overlay.querySelector('.cand-copy-job-location-btn')?.addEventListener('click', () => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(cleanLocation).then(() => {
+          state.showToast('📋 Location copied: ' + cleanLocation, 'info');
+        });
+      }
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+  }
+
   openGapAnalysisModal(job, candidateId, passport, candidateSkills = []) {
     // Real calculation: strictly compare candidate's verified skills against job requirements
     const realMatch = this.calculateRealJobMatch(job, candidateSkills, passport);
@@ -3829,6 +3920,28 @@ class App {
             <span class="sb-rating-formula">
               Formula: [75% * Mandatory Req Matched] + [25% * Preferred Pref Matched]
             </span>
+          </div>
+        </div>
+
+        <!-- Card: Job Location & Interactive Google Map -->
+        <div class="sb-job-map-box" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:0.9rem 1.15rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span style="font-size:1.15rem;">📍</span>
+              <span style="font-size:0.88rem; font-weight:800; color:#0F172A;">Office & Job Location:</span>
+              <strong style="font-size:0.88rem; color:#2563EB;">${locationDisplay}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <button type="button" class="btn btn-xs btn-outline cand-copy-job-location-btn" data-location="${locationDisplay.replace(/\((.*?)\)/g, '').trim()}" style="font-weight:700;">
+                📋 Copy
+              </button>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationDisplay.replace(/\((.*?)\)/g, '').trim())}" target="_blank" class="btn btn-xs btn-outline" style="border-color:#93C5FD; color:#2563EB; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+                🗺️ Open in Google Maps ↗
+              </a>
+            </div>
+          </div>
+          <div style="border-radius:8px; overflow:hidden; border:1px solid #CBD5E1; height:180px; box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">
+            <iframe width="100%" height="180" style="border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=${encodeURIComponent(locationDisplay.replace(/\((.*?)\)/g, '').trim())}&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
           </div>
         </div>
 
@@ -8304,6 +8417,65 @@ class App {
               </div>
             </div>
 
+            <!-- Google Maps Job Location Selector -->
+            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:1.25rem; margin:1.25rem 0; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="font-size:0.95rem; font-weight:800; color:#0F172A; display:flex; align-items:center; gap:0.4rem; margin:0;">
+                  <span>📍</span> Office Location &amp; Google Map Pin
+                </label>
+                <button type="button" class="btn btn-outline btn-xs" id="hr-detect-location-btn" style="color:#2563EB; border-color:#93C5FD; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
+                  <span>🧭</span> Use My Current Location
+                </button>
+              </div>
+
+              <div style="display:grid; grid-template-columns:2fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label" style="font-size:0.8rem;">City / Office Address</label>
+                  <div style="position:relative;">
+                    <input type="text" class="form-input" id="hr-job-location" value="San Francisco, CA" placeholder="e.g. San Francisco, CA or Bengaluru, India or 1600 Amphitheatre Pkwy" required style="padding-left:2.2rem;" />
+                    <span style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); font-size:1rem; pointer-events:none;">📍</span>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label" style="font-size:0.8rem;">Workplace Model</label>
+                  <select class="form-select" id="hr-job-loc-type">
+                    <option value="Hybrid" selected>Hybrid (Office + Remote)</option>
+                    <option value="On-site">On-site (Office)</option>
+                    <option value="Remote">Remote</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Quick Tech Hub Presets -->
+              <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+                <span style="font-size:0.72rem; font-weight:700; color:#64748B;">Popular Hubs:</span>
+                ${[
+                  'San Francisco, CA',
+                  'Bengaluru, India',
+                  'New York, NY',
+                  'London, UK',
+                  'Seattle, WA',
+                  'Austin, TX',
+                  'Berlin, Germany',
+                  'Singapore'
+                ].map(loc => `
+                  <button type="button" class="hr-map-preset-chip" data-loc="${loc}" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#334155; padding:0.18rem 0.55rem; border-radius:1rem; font-size:0.72rem; cursor:pointer; font-weight:600; transition:all 150ms;">
+                    📍 ${loc}
+                  </button>
+                `).join('')}
+              </div>
+
+              <!-- Interactive Google Map Live Embed -->
+              <div style="position:relative; border-radius:10px; overflow:hidden; border:1px solid #CBD5E1; background:#E2E8F0; min-height:220px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.06);">
+                <iframe id="hr-location-map-iframe" width="100%" height="220" style="border:0; display:block;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=San%20Francisco%2C%20CA&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+                <div style="position:absolute; bottom:8px; right:8px; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); padding:0.25rem 0.65rem; border-radius:6px; border:1px solid rgba(0,0,0,0.1); font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+                  <span id="hr-map-preview-tag" style="color:#0F172A;">📍 San Francisco, CA</span>
+                  <a id="hr-map-external-link" href="https://www.google.com/maps/search/?api=1&query=San+Francisco%2C+CA" target="_blank" style="color:#2563EB; text-decoration:underline;">Google Maps ↗</a>
+                </div>
+              </div>
+            </div>
+
             <!-- Interactive 75/25 Skill Weight Builder -->
             <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; margin:1.25rem 0;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
@@ -9707,6 +9879,93 @@ class App {
       });
     }
 
+    // Google Maps Location Picker interactivity in HR Job Builder
+    const locInput = this.appContainer.querySelector('#hr-job-location');
+    const mapIframe = this.appContainer.querySelector('#hr-location-map-iframe');
+    const mapPreviewTag = this.appContainer.querySelector('#hr-map-preview-tag');
+    const mapExternalLink = this.appContainer.querySelector('#hr-map-external-link');
+
+    let locTimer = null;
+    const updateHrMapPreview = (locQuery) => {
+      const query = (locQuery || '').trim() || 'San Francisco, CA';
+      const encoded = encodeURIComponent(query);
+      if (mapIframe) {
+        mapIframe.src = `https://maps.google.com/maps?q=${encoded}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+      }
+      if (mapPreviewTag) {
+        mapPreviewTag.textContent = `📍 ${query}`;
+      }
+      if (mapExternalLink) {
+        mapExternalLink.href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+      }
+    };
+
+    if (locInput) {
+      locInput.addEventListener('input', () => {
+        clearTimeout(locTimer);
+        locTimer = setTimeout(() => {
+          updateHrMapPreview(locInput.value);
+        }, 350);
+      });
+    }
+
+    this.appContainer.querySelectorAll('.hr-map-preset-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const loc = chip.dataset.loc;
+        if (locInput) {
+          locInput.value = loc;
+          updateHrMapPreview(loc);
+          state.showToast(`Selected location: ${loc}`, 'info');
+        }
+      });
+    });
+
+    const detectBtn = this.appContainer.querySelector('#hr-detect-location-btn');
+    if (detectBtn) {
+      detectBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          state.showToast('Geolocation is not supported by your browser', 'warning');
+          return;
+        }
+        detectBtn.disabled = true;
+        detectBtn.innerHTML = '<span>⏳ Detecting...</span>';
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            detectBtn.disabled = false;
+            detectBtn.innerHTML = '<span>🧭</span> Use My Current Location';
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            let resolvedName = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+              if (res.ok) {
+                const data = await res.json();
+                const addr = data.address || {};
+                const city = addr.city || addr.town || addr.village || addr.suburb || addr.county;
+                const stateName = addr.state;
+                const country = addr.country;
+                if (city && country) {
+                  resolvedName = `${city}, ${stateName ? stateName + ', ' : ''}${country}`;
+                }
+              }
+            } catch (e) {}
+
+            if (locInput) {
+              locInput.value = resolvedName;
+              updateHrMapPreview(resolvedName);
+              state.showToast(`📍 Detected location: ${resolvedName}`, 'success');
+            }
+          },
+          (err) => {
+            detectBtn.disabled = false;
+            detectBtn.innerHTML = '<span>🧭</span> Use My Current Location';
+            state.showToast('Could not access current location: ' + err.message, 'warning');
+          },
+          { timeout: 10000, enableHighAccuracy: true }
+        );
+      });
+    }
+
     // Create Job Form Submit
     const createJobForm = this.appContainer.querySelector('#hr-create-job-form');
     if (createJobForm) {
@@ -9755,6 +10014,11 @@ class App {
           }))
         ];
 
+        const locationCity = (createJobForm.querySelector('#hr-job-location')?.value || '').trim() || 'San Francisco, CA';
+        const locationType = createJobForm.querySelector('#hr-job-loc-type')?.value || 'Hybrid';
+        const fullLocation = `${locationCity} (${locationType})`;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationCity)}`;
+
         try {
           await api.createJob({
             created_by: hrId || 'hr-01',
@@ -9766,7 +10030,10 @@ class App {
             salary_min: salMin,
             salary_max: salMax,
             salary_range: `$${salMin.toLocaleString()} - $${salMax.toLocaleString()}`,
-            location: "San Francisco, CA / Hybrid",
+            location: fullLocation,
+            location_type: locationType,
+            map_query: locationCity,
+            map_url: mapUrl,
             employment_type: "Full-time",
             job_type: "Full-time",
             required_skills: skillsPayload,

@@ -1105,6 +1105,9 @@ class ApiService {
       created.salary_max = created.salary_max || data.salary_max || 160000;
       created.salary_range = created.salary_range || `$${created.salary_min.toLocaleString()} - $${created.salary_max.toLocaleString()}`;
       created.location = created.location || data.location || 'Remote / Hybrid';
+      created.location_type = created.location_type || data.location_type || 'Hybrid';
+      created.map_url = created.map_url || data.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(created.location)}`;
+      created.map_query = created.map_query || data.map_query || created.location;
       created.required_skills = created.required_skills || data.required_skills || data.skills || [];
       created.skills = created.skills || created.required_skills;
       created.is_new = true;

@@ -5944,6 +5944,221 @@
         "algorithm_version": "v4.2-dual-tier-75-25",
         "id": "matc-586e00b7"
       }
+    },
+    {
+      "id": "job-64ccec",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "company": "NovaTech Systems",
+      "title": "Lead Cloud & Systems Architect",
+      "description": "Design scalable cloud architecture and event-driven microservices.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 140000,
+      "salary_max": 190000,
+      "salary_range": "$140,000 - $190,000",
+      "location": "San Francisco, CA",
+      "employment_type": "full-time",
+      "job_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-24T14:08:56.195335+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-64ccec",
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-f2507cd0",
+          "name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-64ccec",
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-f2507cd0",
+          "name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Technical"
+          }
+        }
+      ],
+      "match": {
+        "candidate_id": "cand-01",
+        "job_id": "job-64ccec",
+        "score": 0.0,
+        "match_score_percentage": 0.0,
+        "mandatory_score_component": 0.0,
+        "preferred_score_component": 0.0,
+        "matched_skills": [],
+        "critical_skill_gaps": [
+          {
+            "skill_id": "sk-cloud-arch",
+            "skill_name": "Cloud Architecture",
+            "skill": {
+              "id": "sk-cloud-arch",
+              "name": "Cloud Architecture",
+              "category": "Cloud & Systems"
+            },
+            "category": "Cloud & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "proficiency_level": "none",
+            "candidate_assessment_score": 0.0,
+            "is_verified": false,
+            "verified_at": null
+          }
+        ],
+        "bonus_competencies": [],
+        "missing_skills": [
+          {
+            "skill_id": "sk-cloud-arch",
+            "skill_name": "Cloud Architecture",
+            "category": "Cloud & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "status": "Not Verified"
+          }
+        ],
+        "missing_preferred_skills": [],
+        "matched_count": 0,
+        "total_required_count": 1,
+        "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.75 weighted points), yielding a 0.0% compatibility score (100% Mandatory). Critical gaps: Cloud Architecture.",
+        "formula_breakdown": "100% Mandatory",
+        "learning_roadmap": [
+          {
+            "skill_name": "Cloud Architecture",
+            "urgency": "High",
+            "suggested_resource": "Complete the certified Cloud Architecture interactive track and hands-on lab.",
+            "practice_project": "Build an end-to-end sandbox project highlighting Cloud Architecture production patterns.",
+            "assessment_cta": "Take the Cloud Architecture 10-minute verification assessment to earn your badge.",
+            "roadmap_url": "roadmap.html?skill=Cloud+Architecture"
+          }
+        ],
+        "is_strong_fit": false,
+        "algorithm_version": "v4.2-dual-tier-75-25",
+        "id": "matc-3a03ee97"
+      }
+    },
+    {
+      "id": "job-b3ef42",
+      "created_by": "hr-01",
+      "company_name": "NovaTech Systems",
+      "company": "NovaTech Systems",
+      "title": "Lead Cloud & Systems Architect",
+      "description": "Design scalable cloud architecture and event-driven microservices.",
+      "experience_level": "Mid-Senior",
+      "salary_min": 140000,
+      "salary_max": 190000,
+      "salary_range": "$140,000 - $190,000",
+      "location": "San Francisco, CA",
+      "location_type": "Hybrid",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=San+Francisco%2C+CA",
+      "map_query": "San Francisco, CA",
+      "latitude": null,
+      "longitude": null,
+      "employment_type": "full-time",
+      "job_type": "full-time",
+      "status": "Active",
+      "created_at": "2026-10-24T14:10:52.134306+00:00",
+      "required_skills": [
+        {
+          "job_id": "job-b3ef42",
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-afe24e73",
+          "name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Technical"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "job_id": "job-b3ef42",
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "is_required": true,
+          "weight": 0.75,
+          "id": "job_-afe24e73",
+          "name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Technical"
+          }
+        }
+      ],
+      "match": {
+        "candidate_id": "cand-01",
+        "job_id": "job-b3ef42",
+        "score": 0.0,
+        "match_score_percentage": 0.0,
+        "mandatory_score_component": 0.0,
+        "preferred_score_component": 0.0,
+        "matched_skills": [],
+        "critical_skill_gaps": [
+          {
+            "skill_id": "sk-cloud-arch",
+            "skill_name": "Cloud Architecture",
+            "skill": {
+              "id": "sk-cloud-arch",
+              "name": "Cloud Architecture",
+              "category": "Cloud & Systems"
+            },
+            "category": "Cloud & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "proficiency_level": "none",
+            "candidate_assessment_score": 0.0,
+            "is_verified": false,
+            "verified_at": null
+          }
+        ],
+        "bonus_competencies": [],
+        "missing_skills": [
+          {
+            "skill_id": "sk-cloud-arch",
+            "skill_name": "Cloud Architecture",
+            "category": "Cloud & Systems",
+            "is_required": true,
+            "weight": 0.75,
+            "status": "Not Verified"
+          }
+        ],
+        "missing_preferred_skills": [],
+        "matched_count": 0,
+        "total_required_count": 1,
+        "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.75 weighted points), yielding a 0.0% compatibility score (100% Mandatory). Critical gaps: Cloud Architecture.",
+        "formula_breakdown": "100% Mandatory",
+        "learning_roadmap": [
+          {
+            "skill_name": "Cloud Architecture",
+            "urgency": "High",
+            "suggested_resource": "Complete the certified Cloud Architecture interactive track and hands-on lab.",
+            "practice_project": "Build an end-to-end sandbox project highlighting Cloud Architecture production patterns.",
+            "assessment_cta": "Take the Cloud Architecture 10-minute verification assessment to earn your badge.",
+            "roadmap_url": "roadmap.html?skill=Cloud+Architecture"
+          }
+        ],
+        "is_strong_fit": false,
+        "algorithm_version": "v4.2-dual-tier-75-25",
+        "id": "matc-62fd9605"
+      }
     }
   ],
   "job_required_skills": [
@@ -6722,6 +6937,22 @@
       "is_required": false,
       "weight": 0.25,
       "id": "job_-02b5e9e0"
+    },
+    {
+      "job_id": "job-64ccec",
+      "skill_id": "sk-cloud-arch",
+      "skill_name": "Cloud Architecture",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-f2507cd0"
+    },
+    {
+      "job_id": "job-b3ef42",
+      "skill_id": "sk-cloud-arch",
+      "skill_name": "Cloud Architecture",
+      "is_required": true,
+      "weight": 0.75,
+      "id": "job_-afe24e73"
     }
   ],
   "job_applications": [
@@ -7099,7 +7330,7 @@
       "meeting_type": "Technical Architecture Deep Dive",
       "scheduled_at": "2026-03-12T17:00:00Z",
       "status": "Confirmed",
-      "meeting_link": "https://meet.google.com/gdm-skqy-fwe",
+      "meeting_link": "https://meet.google.com/nova-tech-interview",
       "agenda": "FastAPI async pipeline design and PostgreSQL indexing strategy."
     },
     {
@@ -8740,6 +8971,20 @@
       "user_id": "hr-koomal123456",
       "details": "Message sent from hr to candidate (candidate channel)",
       "timestamp": "2026-10-24T11:28:57.739591+00:00"
+    },
+    {
+      "id": "log-61a6d478",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Lead Cloud & Systems Architect created for NovaTech Systems",
+      "timestamp": "2026-10-24T14:08:56.369520+00:00"
+    },
+    {
+      "id": "log-e25297c0",
+      "event": "Job Created",
+      "user_id": "hr-01",
+      "details": "Job Lead Cloud & Systems Architect created for NovaTech Systems",
+      "timestamp": "2026-10-24T14:10:52.226613+00:00"
     }
   ],
   "match_results": [
@@ -15829,6 +16074,118 @@
       "is_strong_fit": false,
       "algorithm_version": "v4.2-dual-tier-75-25",
       "id": "matc-30d51a04"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-64ccec",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Cloud & Systems"
+          },
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 0,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.75 weighted points), yielding a 0.0% compatibility score (100% Mandatory). Critical gaps: Cloud Architecture.",
+      "formula_breakdown": "100% Mandatory",
+      "learning_roadmap": [
+        {
+          "skill_name": "Cloud Architecture",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Architecture interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Architecture production patterns.",
+          "assessment_cta": "Take the Cloud Architecture 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Architecture"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-3a03ee97"
+    },
+    {
+      "candidate_id": "cand-01",
+      "job_id": "job-b3ef42",
+      "score": 0.0,
+      "match_score_percentage": 0.0,
+      "mandatory_score_component": 0.0,
+      "preferred_score_component": 0.0,
+      "matched_skills": [],
+      "critical_skill_gaps": [
+        {
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "skill": {
+            "id": "sk-cloud-arch",
+            "name": "Cloud Architecture",
+            "category": "Cloud & Systems"
+          },
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "proficiency_level": "none",
+          "candidate_assessment_score": 0.0,
+          "is_verified": false,
+          "verified_at": null
+        }
+      ],
+      "bonus_competencies": [],
+      "missing_skills": [
+        {
+          "skill_id": "sk-cloud-arch",
+          "skill_name": "Cloud Architecture",
+          "category": "Cloud & Systems",
+          "is_required": true,
+          "weight": 0.75,
+          "status": "Not Verified"
+        }
+      ],
+      "missing_preferred_skills": [],
+      "matched_count": 0,
+      "total_required_count": 1,
+      "explanation": "Candidate satisfies 0 of 1 mandatory skill requirements (0.0 of 0.75 weighted points), yielding a 0.0% compatibility score (100% Mandatory). Critical gaps: Cloud Architecture.",
+      "formula_breakdown": "100% Mandatory",
+      "learning_roadmap": [
+        {
+          "skill_name": "Cloud Architecture",
+          "urgency": "High",
+          "suggested_resource": "Complete the certified Cloud Architecture interactive track and hands-on lab.",
+          "practice_project": "Build an end-to-end sandbox project highlighting Cloud Architecture production patterns.",
+          "assessment_cta": "Take the Cloud Architecture 10-minute verification assessment to earn your badge.",
+          "roadmap_url": "roadmap.html?skill=Cloud+Architecture"
+        }
+      ],
+      "is_strong_fit": false,
+      "algorithm_version": "v4.2-dual-tier-75-25",
+      "id": "matc-62fd9605"
     }
   ],
   "gemini_sessions": [

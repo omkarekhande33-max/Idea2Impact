@@ -56,6 +56,11 @@ class JobCreate(BaseModel):
     salary_min: Optional[int] = 80000
     salary_max: Optional[int] = 150000
     location: str
+    location_type: Optional[str] = "Hybrid"
+    map_url: Optional[str] = None
+    map_query: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     employment_type: Optional[str] = "full-time"
     required_skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # [{"skill_id": "sk-01", "is_required": True, "weight": 2.0}]
     skills: Optional[List[Dict[str, Any]]] = Field(default_factory=list) # Alternate alias from SkillBridge
