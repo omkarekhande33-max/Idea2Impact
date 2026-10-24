@@ -1,4 +1,4 @@
-# Idea2Impact (I²)
+# TalentProof (TP)
 
 > **From Ideas to Innovation. From Talent to Growth.**  
 > A unified platform connecting candidates, founders, HR professionals, and investors through verified skills, AI-assisted startup development, recruitment, and investment discovery.
@@ -69,7 +69,7 @@ python -m unittest discover tests
 
 ## 📁 Repository Structure
 ```
-idea2impact/
+talentproof/
 ├── frontend/
 │   ├── index.html            # Main SPA entrypoint
 │   ├── css/

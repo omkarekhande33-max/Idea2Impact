@@ -1,4 +1,4 @@
-// Idea2Impact - Client State Management
+// TalentProof - Client State Management
 
 export const DEFAULT_USERS = {
   candidate: { id: "cand-rushikesh12345", name: "rushikesh@12345", full_name: "rushikesh@12345", username: "rushikesh@12345", role: "candidate", title: "Senior Software Engineer (AI)", email: "rushikesh@12345", avatar_url: "https://api.dicebear.com/7.x/initials/svg?seed=rushikesh" },

@@ -1,4 +1,4 @@
-"""Idea2Impact FastAPI Application Entrypoint."""
+"""TalentProof FastAPI Application Entrypoint."""
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +11,7 @@ from .routers.api import router as api_router
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    description="Idea2Impact: Unified Platform connecting Candidates, Founders, HR, and Investors through verified skills, AI startup copilot, and explainable recruitment."
+    description="TalentProof: Unified Platform connecting Candidates, Founders, HR, and Investors through verified skills, AI startup copilot, and explainable recruitment."
 )
 
 # Enable CORS

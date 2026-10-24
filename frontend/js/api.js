@@ -1,4 +1,4 @@
-// Idea2Impact - Client API Module with Dual-Engine (FastAPI Backend + Resilient Local Fallback)
+// TalentProof - Client API Module with Dual-Engine (FastAPI Backend + Resilient Local Fallback)
 import { SKILLS_CATALOG, QUIZ_BANKS, getQuizForSkill, getQuizForSkills } from './quizData.js';
 
 function resolveApiBase() {
@@ -36,8 +36,8 @@ const DEMO_ACCOUNTS = {
   alex: { id: 'cand-01', username: 'alex', full_name: 'Alex Rivera', role: 'candidate', title: 'Full-Stack Engineer', email: 'alex.rivera@example.com', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', bio: 'Full-stack AI developer with verified Python & React credentials.' },
   founder: { id: 'found-01', username: 'founder', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
   sarah: { id: 'found-01', username: 'sarah', full_name: 'Sarah Lin', role: 'founder', title: 'Founder & CEO, EcoTrace AI', email: 'sarah.lin@ecotrace.ai', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', bio: 'Building autonomous carbon accounting and ESG supply-chain intelligence.' },
-  'omkar@12345': { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on Idea2Impact platform.' },
-  omkar: { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on Idea2Impact platform.' },
+  'omkar@12345': { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on TalentProof platform.' },
+  omkar: { id: 'found-omkar12345', username: 'omkar@12345', full_name: 'omkar@12345', name: 'omkar@12345', role: 'founder', title: 'Founder & CEO (omkar@12345)', email: 'omkar@12345', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar', bio: 'Founder & Creator on TalentProof platform.' },
   hr: { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
   'koomal@123456': { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
   koomal: { id: 'hr-koomal123456', username: 'koomal@123456', full_name: 'koomal@123456', name: 'koomal@123456', role: 'hr', firm: 'NovaTech Systems', title: 'Executive Recruiter • NovaTech Talent Intelligence', email: 'koomal@123456', avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', bio: 'Executive Recruiter at NovaTech Talent Intelligence. Connecting top-tier 75/25 verified talent with high-growth teams.' },
@@ -177,8 +177,8 @@ export const DEFAULT_FOUNDER_PROFILES = [
     title: 'Founder & CEO (omkar@12345)',
     email: 'omkar@12345',
     avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=omkar',
-    bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
-    summary: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
+    bio: 'Founder & Creator on TalentProof platform. Building next-generation AI and venture ecosystems.',
+    summary: 'Founder & Creator on TalentProof platform. Building next-generation AI and venture ecosystems.',
     company: 'Impact AI Studio',
     badge: 'Registered Founder',
     stage: 'Seed Stage',
@@ -1208,7 +1208,7 @@ class ApiService {
             candidate: {
               id: cand.id,
               full_name: cand.full_name || cand.name || 'Candidate',
-              email: cand.email || 'candidate@idea2impact.dev',
+              email: cand.email || 'candidate@talentproof.dev',
               avatar_url: cand.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cand.full_name || cand.name || 'Candidate')}`,
               role: 'candidate',
               bio: cand.bio || cand.summary || '',

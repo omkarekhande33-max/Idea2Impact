@@ -125,8 +125,8 @@ class App {
         navbar.innerHTML = `
           <div class="nav-container">
             <a href="#" class="brand" id="brand-link" style="cursor:default;">
-              <div class="brand-icon">I²</div>
-              <span>Idea<span class="impact-text">2Impact</span></span>
+              <div class="brand-icon">TP</div>
+              <span>Talent<span class="impact-text">Proof</span></span>
             </a>
             <div style="font-size:0.85rem; font-weight:600; color:#94A3B8; display:flex; align-items:center; gap:0.5rem;">
               <span>🔒</span>
@@ -176,7 +176,7 @@ class App {
           <div class="nav-container">
             <a href="dashboard.html" class="brand" id="brand-link" title="Dashboard Overview">
               <div class="brand-icon">🌱</div>
-              <span>Idea<span class="impact-text">2Impact</span></span>
+              <span>Talent<span class="impact-text">Proof</span></span>
             </a>
 
             <!-- Desktop Nav Menu -->
@@ -224,7 +224,7 @@ class App {
               <div class="dashboard-mobile-drawer-header">
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                   <span style="font-size:1.5rem;">🌱</span>
-                  <span style="font-size:1.25rem; font-weight:800; color:#FFFFFF;">Idea2Impact</span>
+                  <span style="font-size:1.25rem; font-weight:800; color:#FFFFFF;">TalentProof</span>
                 </div>
                 <button type="button" class="dashboard-mobile-close-btn" id="mobile-drawer-close-btn" title="Close Menu">&times;</button>
               </div>
@@ -322,6 +322,8 @@ class App {
               mobileToggle.classList.remove('open');
               mobileToggle.setAttribute('aria-expanded', 'false');
             }
+          });
+
           // Close on close button click
           const closeDrawerBtn = navbar.querySelector('#mobile-drawer-close-btn');
           if (closeDrawerBtn) {
@@ -415,8 +417,8 @@ class App {
         <div class="auth-landing-wrapper">
           <div class="auth-landing-card">
             <div class="auth-landing-brand">
-              <div class="auth-landing-icon">I²</div>
-              <span class="auth-landing-brand-name">Idea<span>2Impact</span></span>
+              <div class="auth-landing-icon">TP</div>
+              <span class="auth-landing-brand-name">Talent<span>Proof</span></span>
             </div>
             <p class="auth-landing-tagline">From Ideas to Innovation · From Talent to Impact</p>
             <div class="auth-landing-modes">
@@ -450,7 +452,7 @@ class App {
           <div class="auth-card">
             <button class="auth-back-btn" id="auth-back-btn">← Back</button>
             <div class="auth-header">
-              <div class="brand-badge"><span>🛡️</span><span>Idea2Impact Secure Access</span></div>
+              <div class="brand-badge"><span>🛡️</span><span>TalentProof Secure Access</span></div>
               <h1>Welcome Back</h1>
               <p>Sign in with your username/email or Google account.</p>
             </div>
@@ -698,7 +700,7 @@ class App {
         </div>
 
         <p style="font-size:0.85rem; color:#64748B; margin-bottom:1.2rem;">
-          Choose an account and select your workspace mode to enter <strong>Idea2Impact</strong>:
+          Choose an account and select your workspace mode to enter <strong>TalentProof</strong>:
         </p>
 
         <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.25rem;">
@@ -801,7 +803,7 @@ class App {
             Turn <span style="color:var(--secondary);">Talent into Impact</span>.
           </h1>
           <p style="font-size:1.15rem; color:var(--text-muted); line-height:1.6; margin-bottom:2rem;">
-            Idea2Impact replaces resume guessing and disconnected tools with verified technical skill passports, AI-assisted business structuring, explainable hiring algorithms, and venture due diligence.
+            TalentProof replaces resume guessing and disconnected tools with verified technical skill passports, AI-assisted business structuring, explainable hiring algorithms, and venture due diligence.
           </p>
           <div class="flex items-center justify-between" style="justify-content:center; gap:1rem; flex-wrap:wrap;">
             <button class="btn btn-secondary btn-lg" id="landing-hero-candidate-btn">
@@ -852,7 +854,7 @@ class App {
         <div style="margin-bottom:3.5rem;">
           <div style="text-align:center; margin-bottom:2rem;">
             <h3 style="font-size:1.8rem; font-weight:800; color:var(--primary);">Two Dedicated Workspaces</h3>
-            <p style="color:var(--text-muted); font-size:0.95rem;">Experience Idea2Impact tailored specifically to your stakeholder workflow:</p>
+            <p style="color:var(--text-muted); font-size:0.95rem;">Experience TalentProof tailored specifically to your stakeholder workflow:</p>
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; max-width:960px; margin:0 auto 2.5rem;">
             <!-- Candidate -->
@@ -1398,7 +1400,7 @@ class App {
             <div class="sb-sidebar-brand">
               <span class="sb-sidebar-leaf-icon">🌱</span>
               <div class="sb-sidebar-brand-text">
-                <span class="sb-sidebar-brand-title">Idea2Impact</span>
+                <span class="sb-sidebar-brand-title">TalentProof</span>
                 <span class="sb-sidebar-brand-sub">Your Skills. Real Opportunities.</span>
               </div>
             </div>
@@ -4418,7 +4420,7 @@ class App {
     // Start exam session & integrity monitor
     state.startExam();
 
-    const candidateUser = state.activeUser || { name: 'Candidate', email: 'candidate@idea2impact.io' };
+    const candidateUser = state.activeUser || { name: 'Candidate', email: 'candidate@talentproof.io' };
     const watermarkText = `${candidateUser.email || candidateUser.name} · VERIFIED-EXAM · ${new Date().toISOString().slice(0, 19)}`;
 
     const overlay = document.createElement('div');
@@ -5719,7 +5721,7 @@ class App {
 
     return [
       `================================================================================`,
-      `IDEA2IMPACT AI VENTURE ARCHITECTURE BLUEPRINT`,
+      `TALENTPROOF AI VENTURE ARCHITECTURE BLUEPRINT`,
       `Startup: ${a.title || 'Startup Idea'}`,
       `Industry: ${a.industry || 'Technology'}`,
       `================================================================================`,
@@ -5737,7 +5739,7 @@ class App {
       `Runway Target: ${invest.runway_months || 18} Months`,
       `Target Valuation: ${invest.valuation_range || '$4.5M - $6.0M Post-Money'}`,
       ``,
-      `Generated by Idea2Impact Autonomous Gemini Pro Venture Architect`
+      `Generated by TalentProof Autonomous Gemini Pro Venture Architect`
     ].join('\n');
   }
 
@@ -6057,7 +6059,7 @@ class App {
               Conduct Live Google Meet with Investor
             </h3>
             <p style="font-size:0.85rem; color:#CBD5E1; margin:0; line-height:1.5;">
-              Open a secure, high-definition Google Meet pitch room directly from Idea2Impact. Share your screen to demo your <strong>${currentStartup?.name || 'EcoTrace AI'}</strong> unit economics and 75/25 engineering team roadmap.
+              Open a secure, high-definition Google Meet pitch room directly from TalentProof. Share your screen to demo your <strong>${currentStartup?.name || 'EcoTrace AI'}</strong> unit economics and 75/25 engineering team roadmap.
             </p>
           </div>
 
@@ -6354,7 +6356,7 @@ class App {
     const founderId = state.activeUser?.id || data.founderId || 'found-omkar12345';
     const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'omkar@12345';
     const founderUsername = state.activeUser?.username || (founderName.includes('@') ? founderName : 'omkar@12345');
-    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@idea2impact.dev`);
+    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@talentproof.dev`);
     const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
     const investors = this.getAllInvestorsList(registeredInvestors, messages);
@@ -7397,7 +7399,7 @@ class App {
     const founderId = state.activeUser?.id || data?.founderId || 'found-omkar12345';
     const founderName = state.activeUser?.full_name || state.activeUser?.name || state.activeUser?.username || 'omkar@12345';
     const founderUsername = state.activeUser?.username || (founderName.includes('@') ? founderName : 'omkar@12345');
-    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@idea2impact.dev`);
+    const founderEmail = state.activeUser?.email || (founderName.includes('@') ? founderName : `${founderUsername}@talentproof.dev`);
     const founderAvatar = state.activeUser?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(founderName)}`;
 
     const investors = this.getAllInvestorsList(registeredInvestors, messages);
@@ -8383,7 +8385,7 @@ class App {
       const fId = raw.id || `foun-${raw.username || Math.random().toString(36).substring(2, 8)}`;
       const fUsername = raw.username || '';
       let fName = raw.full_name || raw.name || raw.username || 'Founder';
-      const fEmail = raw.email || `${fUsername || 'founder'}@idea2impact.dev`;
+      const fEmail = raw.email || `${fUsername || 'founder'}@talentproof.dev`;
 
       // If user registered with username omkar@12345 or omkar, strictly show account handle omkar@12345
       if (fUsername.toLowerCase() === 'omkar@12345' || fName.toLowerCase() === 'omkar@12345' || fName.toLowerCase() === 'omkar ekhande') {
@@ -8417,7 +8419,7 @@ class App {
         readiness: raw.readiness || (raw.readiness_score ? `${raw.readiness_score}%` : '94.0%'),
         industry: raw.industry || 'AI / SaaS',
         traction: raw.traction || 'Active Pilot Customers',
-        summary: bio || 'Registered founder on Idea2Impact platform. Building next-generation AI and venture ecosystems.',
+        summary: bio || 'Registered founder on TalentProof platform. Building next-generation AI and venture ecosystems.',
         pitchMeetLink: raw.pitchMeetLink || 'https://meet.google.com/ecotrace-apex-seed'
       });
     };
@@ -8493,7 +8495,7 @@ class App {
         role: 'founder',
         title: 'Founder & CEO (omkar@12345)',
         company: 'Impact AI Studio',
-        bio: 'Founder & Creator on Idea2Impact platform. Building next-generation AI and venture ecosystems.'
+        bio: 'Founder & Creator on TalentProof platform. Building next-generation AI and venture ecosystems.'
       });
     }
 
@@ -9346,7 +9348,7 @@ class App {
                 Live Technical Screening & 75/25 Architecture Screen
               </h3>
               <p style="font-size:0.88rem; color:#CBD5E1; margin:0 0 0.75rem 0; line-height:1.5;">
-                When you click <strong>"Open Google Meet Room"</strong>, Idea2Impact instantly launches your video room and automatically dispatches a live interview joining request to all ${allCandidates.length} registered candidates. Candidates can immediately accept and communicate with you through Google Meet.
+                When you click <strong>"Open Google Meet Room"</strong>, TalentProof instantly launches your video room and automatically dispatches a live interview joining request to all ${allCandidates.length} registered candidates. Candidates can immediately accept and communicate with you through Google Meet.
               </p>
               <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; font-size:0.82rem; color:#94A3B8;">
                 <span>🔗 Room URL:</span>
@@ -9391,7 +9393,7 @@ class App {
                 Live Candidate Joining & Response Tracker
               </h3>
               <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
-                Real-time participation tracking across all candidate accounts registered in Idea2Impact.
+                Real-time participation tracking across all candidate accounts registered in TalentProof.
               </p>
             </div>
             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
@@ -9552,7 +9554,7 @@ class App {
                           <span class="badge badge-verified" style="font-size:0.7rem;">${req.status || 'New Request'}</span>
                         </div>
                         <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
-                          ✉️ <a href="mailto:${req.founder_email || 'founder@idea2impact.dev'}" style="color:var(--secondary); text-decoration:none;">${req.founder_email || 'founder@idea2impact.dev'}</a>
+                          ✉️ <a href="mailto:${req.founder_email || 'founder@talentproof.dev'}" style="color:var(--secondary); text-decoration:none;">${req.founder_email || 'founder@talentproof.dev'}</a>
                           • Shared: ${new Date(req.shared_at || Date.now()).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}
                         </div>
                       </div>
@@ -9729,7 +9731,7 @@ class App {
             avatar: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(finalName)}`,
             badge: 'Registered User',
             verifiedSkill: c.bio || c.summary || 'Verified Candidate Account',
-            email: finalEmail || `${finalName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+            email: finalEmail || `${finalName.toLowerCase().replace(/\s+/g, '.')}@talentproof.dev`
           });
         }
       });
@@ -9829,7 +9831,7 @@ class App {
             avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
             badge: 'Gemini Spec Shared',
             verifiedSkill: req.roles?.[0]?.title || 'Key Role Spec',
-            email: req.founder_email || 'founder@idea2impact.dev'
+            email: req.founder_email || 'founder@talentproof.dev'
           });
         });
       }
@@ -9880,7 +9882,7 @@ class App {
             avatar: f.avatar_url || f.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fName || 'Founder')}`,
             badge: f.badge || 'Verified Founder',
             verifiedSkill: f.verifiedSkill || 'Executive Hiring Lead',
-            email: fEmail || `${(fName || 'founder').toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+            email: fEmail || `${(fName || 'founder').toLowerCase().replace(/\s+/g, '.')}@talentproof.dev`
           });
         }
       });
@@ -10772,7 +10774,7 @@ class App {
             candidatesMap.set(cId, {
               candidate_id: cId,
               full_name: rm.candidate?.full_name || rm.name || 'Candidate',
-              email: rm.candidate?.email || 'candidate@idea2impact.io',
+              email: rm.candidate?.email || 'candidate@talentproof.io',
               username: rm.candidate?.username || '',
               avatar_url: rm.candidate?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rm.candidate?.full_name || rm.name || 'Candidate')}`,
               target_role: rm.candidate?.target_role || rm.profile?.target_role || 'Software Engineer',
@@ -10833,7 +10835,7 @@ class App {
               candidatesMap.set(cId, {
                 candidate_id: cId,
                 full_name: cand.full_name || cand.name || 'Candidate',
-                email: cand.email || 'candidate@idea2impact.dev',
+                email: cand.email || 'candidate@talentproof.dev',
                 username: cand.username || '',
                 avatar_url: cand.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cand.full_name || cand.name || 'Candidate')}`,
                 target_role: cand.target_role || 'Registered Candidate',
@@ -11013,7 +11015,7 @@ class App {
 
                           <!-- Candidate Bio / Summary Box -->
                           <div style="font-size:0.88rem; color:#334155; line-height:1.5; margin:0.4rem 0 0.6rem; background:#F8FAFC; padding:0.6rem 0.85rem; border-radius:var(--radius-sm); border-left:3px solid ${isReal ? '#10B981' : '#2563EB'};">
-                            <strong>Profile Summary:</strong> ${cand.bio || cand.summary || 'Registered candidate user on Idea2Impact.'}
+                            <strong>Profile Summary:</strong> ${cand.bio || cand.summary || 'Registered candidate user on TalentProof.'}
                           </div>
 
                           <!-- Matched Competencies Badges -->
@@ -12067,7 +12069,7 @@ class App {
                       <span class="badge badge-verified" style="font-size:0.7rem;">${p.status || 'In Deal Pipeline'}</span>
                     </div>
                     <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
-                      ✉️ <a href="mailto:${p.founder_email || 'founder@idea2impact.dev'}" style="color:var(--secondary); text-decoration:none;">${p.founder_email || 'founder@idea2impact.dev'}</a>
+                      ✉️ <a href="mailto:${p.founder_email || 'founder@talentproof.dev'}" style="color:var(--secondary); text-decoration:none;">${p.founder_email || 'founder@talentproof.dev'}</a>
                       • Shared: ${new Date(p.shared_at || Date.now()).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}
                     </div>
                   </div>

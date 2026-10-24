@@ -1,4 +1,4 @@
-// Idea2Impact - Comprehensive Technical Skills & Dynamic Quiz Generator
+// TalentProof - Comprehensive Technical Skills & Dynamic Quiz Generator
 
 export const SKILLS_CATALOG = [
   {

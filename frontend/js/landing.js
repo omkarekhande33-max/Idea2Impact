@@ -1,4 +1,4 @@
-// Idea2Impact - Landing Page Controller
+// TalentProof - Landing Page Controller
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('i2i_token');
   let user = null;

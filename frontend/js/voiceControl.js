@@ -1,8 +1,8 @@
 /**
- * Idea2Impact - Voice Monitoring & Voice Control Accessibility System
+ * TalentProof - Voice Monitoring & Voice Control Accessibility System
  * 
  * Empowers motor-impaired and keyboard/mouse disabled users to effortlessly 
- * navigate, interact, type, and control the entire Idea2Impact platform hands-free.
+ * navigate, interact, type, and control the entire TalentProof platform hands-free.
  * 
  * Supports both English and conversational Hindi / Hinglish commands with 
  * smart interim speech detection so user commands execute instantaneously.
@@ -1251,7 +1251,7 @@ export class VoiceAccessibilitySystem {
         <div class="voice-modal-header">
           <div class="voice-modal-title" id="voice-modal-title-text">
             <span>🎙️</span>
-            <span>Idea2Impact Voice Accessibility Guide (English &amp; Hinglish)</span>
+            <span>TalentProof Voice Accessibility Guide (English &amp; Hinglish)</span>
           </div>
           <button type="button" class="voice-modal-close" id="voice-modal-close-btn" aria-label="Close Guide">✕</button>
         </div>

@@ -1334,7 +1334,7 @@ def chat_gemini_pro(payload: GeminiIdeaPromptRequest):
         "analysis": analysis,
         "founder": {
             "name": founder_profile.get("full_name", "Sarah Lin"),
-            "email": founder_profile.get("email", "founder@idea2impact.io")
+            "email": founder_profile.get("email", "founder@talentproof.io")
         },
         "created_at": datetime.now(timezone.utc).isoformat()
     })
@@ -1347,7 +1347,7 @@ def chat_gemini_pro(payload: GeminiIdeaPromptRequest):
         "founder": {
             "id": fid,
             "name": founder_profile.get("full_name", "Sarah Lin"),
-            "email": founder_profile.get("email", "founder@idea2impact.io")
+            "email": founder_profile.get("email", "founder@talentproof.io")
         }
     }
 
@@ -1373,7 +1373,7 @@ def download_roles_pdf_by_session(session_id: str):
             )
         raise HTTPException(status_code=404, detail="Session not found")
 
-    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@talentproof.io"})
     analysis = session.get("analysis", {})
     pdf_bytes = generate_roles_specification_pdf(founder_info, analysis)
     safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
@@ -1386,7 +1386,7 @@ def download_roles_pdf_by_session(session_id: str):
 @router.post("/founder/export-roles-pdf")
 def export_roles_pdf_direct(payload: Dict[str, Any]):
     """Direct POST export for Roles & Skills PDF with JSON payload."""
-    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@talentproof.io"})
     analysis = payload.get("analysis", payload)
     pdf_bytes = generate_roles_specification_pdf(founder_info, analysis)
     safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
@@ -1422,7 +1422,7 @@ def download_investor_pdf_by_session(session_id: str):
             )
         raise HTTPException(status_code=404, detail="Session not found")
 
-    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    founder_info = session.get("founder", {"name": "Sarah Lin", "email": "founder@talentproof.io"})
     analysis = session.get("analysis", {})
     pdf_bytes = generate_investor_deep_pitch_pdf(founder_info, analysis)
     safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
@@ -1435,7 +1435,7 @@ def download_investor_pdf_by_session(session_id: str):
 @router.post("/founder/export-investor-pdf")
 def export_investor_pdf_direct(payload: Dict[str, Any]):
     """Direct POST export for Deep Explanation & Investor Pitch PDF with JSON payload."""
-    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@idea2impact.io"})
+    founder_info = payload.get("founder", {"name": "Sarah Lin", "email": "founder@talentproof.io"})
     analysis = payload.get("analysis", payload)
     pdf_bytes = generate_investor_deep_pitch_pdf(founder_info, analysis)
     safe_title = re.sub(r"[^\w\-]", "_", analysis.get("title", "Startup"))
@@ -1462,7 +1462,7 @@ def share_to_hr(payload: ShareToHrRequest):
         "session_id": payload.session_id,
         "founder_id": fid,
         "founder_name": founder.get("full_name", "Sarah Lin"),
-        "founder_email": founder.get("email", "founder@idea2impact.io"),
+        "founder_email": founder.get("email", "founder@talentproof.io"),
         "idea_title": payload.idea_title,
         "industry": payload.industry or "Technology",
         "roles": payload.roles,
@@ -1598,7 +1598,7 @@ def share_to_investor(payload: ShareToInvestorRequest):
         "session_id": payload.session_id,
         "founder_id": fid,
         "founder_name": founder.get("full_name", "Sarah Lin"),
-        "founder_email": founder.get("email", "founder@idea2impact.io"),
+        "founder_email": founder.get("email", "founder@talentproof.io"),
         "founder_avatar": founder.get("avatar_url", "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"),
         "startup_name": payload.startup_name,
         "tagline": payload.tagline or "Autonomous innovation.",

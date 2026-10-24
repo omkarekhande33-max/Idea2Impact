@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo   Starting Idea2Impact Server (FastAPI + Relational API)
+echo   Starting TalentProof Server (FastAPI + Relational API)
 echo ========================================================
 echo.
 echo Server running at: http://127.0.0.1:8000

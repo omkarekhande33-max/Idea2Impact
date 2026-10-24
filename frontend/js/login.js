@@ -1,4 +1,4 @@
-// Idea2Impact - Dedicated Login & Registration Controller
+// TalentProof - Dedicated Login & Registration Controller
 import { api } from './api.js';
 import { state, DEFAULT_USERS } from './state.js';
 
