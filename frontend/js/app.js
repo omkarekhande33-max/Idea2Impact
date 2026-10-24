@@ -955,7 +955,7 @@ class App {
     // Render Popup Modal
     const hostName = activeMeet.host_name || 'koomal@123456';
     const hostRole = activeMeet.host_role || 'Executive Recruiter, NovaTech Systems';
-    const roomUrl = activeMeet.room_url || 'https://meet.google.com/nova-tech-interview';
+    const roomUrl = activeMeet.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
     const agenda = activeMeet.agenda || 'Dual-Tier 75/25 competency evaluation, architecture screening, and team alignment.';
 
     const modal = document.createElement('div');
@@ -2230,15 +2230,16 @@ class App {
 
             let bubbleContent = m.text;
             if (typeof m.text === 'string' && m.text.includes('meet.google.com')) {
+              const detectedMeetUrl = (m.text.match(/https:\/\/meet\.google\.com\/[a-zA-Z0-9-]+/) || [])[0] || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
               bubbleContent = `
                 <div>${m.text}</div>
                 <div style="margin-top:0.65rem;">
                   ${isMeetAccepted ? `
-                    <a href="https://meet.google.com/nova-tech-interview" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
+                    <a href="${detectedMeetUrl}" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
                       🎥 Connected • Re-enter Meet
                     </a>
                   ` : `
-                    <button type="button" class="btn btn-xs btn-primary cand-accept-meet-btn" data-url="https://meet.google.com/nova-tech-interview" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
+                    <button type="button" class="btn btn-xs btn-primary cand-accept-meet-btn" data-url="${detectedMeetUrl}" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
                       ✅ Accept Request & Join Google Meet
                     </button>
                   `}
@@ -2339,10 +2340,11 @@ class App {
 
         let bubbleContent = m.text;
         if (typeof m.text === 'string' && m.text.includes('meet.google.com')) {
+          const detectedMeetUrl = (m.text.match(/https:\/\/meet\.google\.com\/[a-zA-Z0-9-]+/) || [])[0] || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
           bubbleContent = `
             <div>${m.text}</div>
             <div style="margin-top:0.65rem;">
-              <a href="https://meet.google.com/nova-tech-interview" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
+              <a href="${detectedMeetUrl}" target="_blank" class="btn btn-xs btn-primary" style="background:#16A34A; border-color:#16A34A; font-weight:800; cursor:pointer;">
                 🎥 Join Google Meet
               </a>
             </div>
@@ -2502,7 +2504,7 @@ class App {
             const timeDisplay = mtg.scheduled_at
               ? new Date(mtg.scheduled_at).toLocaleString([], { dateStyle:'medium', timeStyle:'short' })
               : (mtg.time || 'Thursday, 5:00 PM UTC');
-            const meetLink = mtg.meeting_link || 'https://meet.google.com/nova-tech-interview';
+            const meetLink = mtg.meeting_link || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
 
             return `
               <div class="sb-job-card" style="border-left:4px solid #2563EB;">
@@ -3053,7 +3055,7 @@ class App {
           if (raw) activeMeet = JSON.parse(raw);
         } catch (e) {}
 
-        const targetUrl = roomUrl || activeMeet?.room_url || 'https://meet.google.com/nova-tech-interview';
+        const targetUrl = roomUrl || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
         const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
         const myCandName = (state.activeUser && state.activeUser.name) || candidateName || 'rushikesh@12345';
         const hrHostId = activeMeet?.host_id || 'hr-koomal123456';
@@ -3135,7 +3137,7 @@ class App {
     this.appContainer.querySelectorAll('.cand-accept-meet-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const url = btn.dataset.url || 'https://meet.google.com/nova-tech-interview';
+        const url = btn.dataset.url || activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
         handleAcceptMeetRequest(url);
       });
     });
@@ -3439,7 +3441,7 @@ class App {
             recipient_id: 'hr-01',
             meeting_type: meetType,
             scheduled_at: scheduledIso,
-            meeting_link: 'https://meet.google.com/nova-tech-interview',
+            meeting_link: localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe',
             agenda: meetAgenda || `75/25 technical competency discussion and interview screening for ${meetType}.`
           });
 
@@ -8360,7 +8362,7 @@ class App {
       } catch (e) {}
 
       const isSessionActive = activeMeet && activeMeet.status === 'active';
-      const meetUrl = activeMeet?.room_url || 'https://meet.google.com/nova-tech-interview';
+      const meetUrl = activeMeet?.room_url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
 
       // Ensure we have all registered candidate profiles
       const allCandidates = this.getAllCandidatesList(candidates);
@@ -9196,6 +9198,9 @@ class App {
                 </button>
                 <button class="btn btn-primary btn-sm" id="hr-chat-open-meet-btn" style="background:#16A34A; border-color:#16A34A; font-weight:700;">
                   🎥 Open Google Meet Room
+                </button>
+                <button class="btn btn-outline btn-sm" id="hr-chat-config-meet-btn" title="Change or customize Google Meet link (Current: https://meet.google.com/gdm-skqy-fwe)" style="padding:0.4rem 0.6rem; font-size:0.75rem; font-weight:700; color:#475569;">
+                  ⚙️ Meet Link
                 </button>
                 <button class="btn btn-outline btn-sm" id="hr-chat-view-dossier-btn">
                   🎯 View Dossier
@@ -10445,7 +10450,7 @@ class App {
         state.showToast('📡 Opening Google Meet room and dispatching joining request to all candidates...', 'info');
 
         const allCands = this.getAllCandidatesList(candidates);
-        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+        const meetUrl = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
         const candStatusMap = {};
 
         allCands.forEach(c => {
@@ -10548,7 +10553,7 @@ class App {
         const contactEmail = activeContactEl ? activeContactEl.dataset.contactEmail : 'rushikesh@12345';
         const hrHostName = state.activeUser?.name || 'koomal@123456';
         const hrHostId = hrId || state.activeUser?.id || 'hr-koomal123456';
-        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+        const meetUrl = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
 
         state.showToast(`📡 Launching Google Meet & sending joining request to ${contactName}...`, 'info');
 
@@ -10633,6 +10638,20 @@ class App {
       chatMeetBtn.addEventListener('click', handleOpenMeetForCurrentChat);
     }
 
+    // Chat Header Configure Meet Link button
+    const configMeetBtn = this.appContainer.querySelector('#hr-chat-config-meet-btn');
+    if (configMeetBtn) {
+      configMeetBtn.addEventListener('click', () => {
+        const current = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
+        const updated = prompt('Enter Google Meet Room URL for candidate interviews:', current);
+        if (updated && updated.trim()) {
+          const cleanUrl = updated.trim();
+          localStorage.setItem('i2i_hr_custom_meet_url', cleanUrl);
+          state.showToast('✅ Google Meet room link updated: ' + cleanUrl, 'success');
+        }
+      });
+    }
+
     if (!window._hrMeetAcceptedListenerAttached) {
       window._hrMeetAcceptedListenerAttached = true;
       window.addEventListener('i2i_meet_request_accepted', (e) => {
@@ -10679,7 +10698,7 @@ class App {
     // Copy Meet Link buttons
     this.appContainer.querySelectorAll('.hr-copy-meet-link-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const url = btn.dataset.url || 'https://meet.google.com/nova-tech-interview';
+        const url = btn.dataset.url || localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
         if (navigator.clipboard) {
           navigator.clipboard.writeText(url).then(() => {
             state.showToast('📋 Google Meet room link copied to clipboard!', 'info');
@@ -10748,7 +10767,7 @@ class App {
       btn.addEventListener('click', async () => {
         const cId = btn.dataset.candidateId;
         const cName = btn.dataset.candidateName;
-        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+        const meetUrl = localStorage.getItem('i2i_hr_custom_meet_url') || 'https://meet.google.com/gdm-skqy-fwe';
 
         const currentHrName = state.activeUser?.name || 'koomal@123456';
         await api.sendMessage({

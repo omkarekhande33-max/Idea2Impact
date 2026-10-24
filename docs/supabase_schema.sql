@@ -489,7 +489,7 @@ ON CONFLICT DO NOTHING;
 -- Seed meetings
 INSERT INTO public.meetings (id, requester_id, recipient_id, meeting_type, scheduled_at, status, meeting_link, agenda) VALUES
 ('mtg-01', 'inv-01', 'found-01', 'Investor Pitch & Due Diligence', '2026-03-15T18:00:00Z', 'Confirmed', 'https://meet.google.com/xyz-idea-impact', 'Review enterprise pilot metrics, customer acquisition pipeline, and cap table.'),
-('mtg-02', 'hr-01', 'cand-01', 'Technical Architecture Deep Dive', '2026-03-12T17:00:00Z', 'Confirmed', 'https://meet.google.com/nova-tech-interview', 'FastAPI async pipeline design and PostgreSQL indexing strategy.')
+('mtg-02', 'hr-01', 'cand-01', 'Technical Architecture Deep Dive', '2026-03-12T17:00:00Z', 'Confirmed', 'https://meet.google.com/gdm-skqy-fwe', 'FastAPI async pipeline design and PostgreSQL indexing strategy.')
 ON CONFLICT DO NOTHING;
 
 -- Seed audit_logs

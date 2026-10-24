@@ -7099,7 +7099,7 @@
       "meeting_type": "Technical Architecture Deep Dive",
       "scheduled_at": "2026-03-12T17:00:00Z",
       "status": "Confirmed",
-      "meeting_link": "https://meet.google.com/nova-tech-interview",
+      "meeting_link": "https://meet.google.com/gdm-skqy-fwe",
       "agenda": "FastAPI async pipeline design and PostgreSQL indexing strategy."
     },
     {
