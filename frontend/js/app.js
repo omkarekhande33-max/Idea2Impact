@@ -884,6 +884,261 @@ class App {
   }
 
   // =========================================================================
+  // Candidate Interview Popup Modal ("HR wants to conduct interview")
+  // =========================================================================
+  checkAndShowCandidateInterviewPopup() {
+    if (state.currentRole !== 'candidate') return;
+
+    let activeMeet = null;
+    try {
+      const raw = localStorage.getItem('i2i_active_meet_request');
+      if (raw) activeMeet = JSON.parse(raw);
+    } catch (e) {
+      activeMeet = null;
+    }
+
+    if (!activeMeet || activeMeet.status !== 'active') {
+      const existing = document.getElementById('interview-request-popup-modal');
+      if (existing) existing.remove();
+      return;
+    }
+
+    const myCandId = state.activeUser?.id || 'cand-rushikesh12345';
+    const myCandName = (state.activeUser?.name || 'rushikesh@12345').toLowerCase().trim();
+    const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+
+    // Check if this meet request applies to this candidate
+    let isForMe = false;
+    let candidateMeetStatus = 'pending';
+
+    if (activeMeet.target_candidate_id) {
+      if (activeMeet.target_candidate_id === myCandId ||
+          (activeMeet.target_candidate_name && activeMeet.target_candidate_name.toLowerCase().includes(myCandName)) ||
+          myCandName.includes((activeMeet.target_candidate_name || '').toLowerCase())) {
+        isForMe = true;
+      }
+    } else {
+      isForMe = true;
+    }
+
+    if (activeMeet.candidates) {
+      for (const [k, cData] of Object.entries(activeMeet.candidates)) {
+        if (k === myCandId || 
+            (cData.name && cData.name.toLowerCase().trim() === myCandName) ||
+            (cData.email && myCandEmail && cData.email.toLowerCase().trim() === myCandEmail)) {
+          isForMe = true;
+          candidateMeetStatus = cData.status || 'pending';
+          break;
+        }
+      }
+    }
+
+    if (!isForMe) return;
+
+    // If already accepted, don't show the popup modal
+    if (candidateMeetStatus === 'accepted') {
+      const existing = document.getElementById('interview-request-popup-modal');
+      if (existing) existing.remove();
+      return;
+    }
+
+    // Check if dismissed in this session for this specific meeting
+    if (sessionStorage.getItem(`i2i_dismissed_meet_${activeMeet.id}`)) {
+      return;
+    }
+
+    // Check if modal already rendered in DOM
+    if (document.getElementById('interview-request-popup-modal')) {
+      return;
+    }
+
+    // Render Popup Modal
+    const hostName = activeMeet.host_name || 'koomal@123456';
+    const hostRole = activeMeet.host_role || 'Executive Recruiter, NovaTech Systems';
+    const roomUrl = activeMeet.room_url || 'https://meet.google.com/nova-tech-interview';
+    const agenda = activeMeet.agenda || 'Dual-Tier 75/25 competency evaluation, architecture screening, and team alignment.';
+
+    const modal = document.createElement('div');
+    modal.className = 'interview-request-popup-overlay';
+    modal.id = 'interview-request-popup-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+
+    modal.innerHTML = `
+      <div class="interview-request-popup-card">
+        <div class="interview-popup-header">
+          <div class="interview-pulse-badge">
+            <span class="interview-pulse-dot"></span>
+            <span>🔴 LIVE INTERVIEW REQUEST</span>
+          </div>
+          <button type="button" class="interview-popup-close-btn" id="interview-popup-dismiss-btn" title="Dismiss">✕</button>
+        </div>
+
+        <div class="interview-popup-body">
+          <div class="interview-popup-icon-wrap">
+            <div class="interview-popup-avatar-box">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" alt="${hostName}" class="interview-popup-avatar-img" />
+              <span class="interview-popup-meet-badge">🎥</span>
+            </div>
+            <div class="interview-popup-title-info">
+              <h3 class="interview-popup-heading">HR wants to conduct interview</h3>
+              <p class="interview-popup-subheading">
+                <strong>${hostName}</strong> (${hostRole}) has sent you a live Google Meet joining request to conduct your technical interview.
+              </p>
+            </div>
+          </div>
+
+          <div class="interview-details-box">
+            <div class="interview-detail-row">
+              <span class="detail-label">Candidate:</span>
+              <span class="detail-val"><strong>${state.activeUser?.name || 'rushikesh@12345'}</strong> (Verified Candidate)</span>
+            </div>
+            <div class="interview-detail-row">
+              <span class="detail-label">Agenda:</span>
+              <span class="detail-val">${agenda}</span>
+            </div>
+            <div class="interview-detail-row">
+              <span class="detail-label">Platform:</span>
+              <span class="detail-val" style="color:#16A34A; font-weight:700;">Google Meet Official</span>
+            </div>
+            <div class="interview-detail-row">
+              <span class="detail-label">Room URL:</span>
+              <span class="detail-val"><a href="${roomUrl}" target="_blank" style="color:#2563EB; text-decoration:underline;">${roomUrl}</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="interview-popup-actions">
+          <button type="button" class="btn btn-outline" id="interview-popup-view-tab-btn" style="font-weight:700;">
+            📅 Open "Meet with HR" Tab
+          </button>
+          <button type="button" class="btn btn-ghost" id="interview-popup-later-btn" style="color:#64748B;">
+            Later
+          </button>
+          <button type="button" class="btn btn-primary interview-popup-approve-btn" id="interview-popup-approve-btn">
+            <span>✅ Approve & Join Google Meet</span>
+            <span style="font-size:1.1rem;">→</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Play subtle alert tone for candidate
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      }
+    } catch(e) {}
+
+    // Wire popup buttons
+    const closeBtn = modal.querySelector('#interview-popup-dismiss-btn');
+    const laterBtn = modal.querySelector('#interview-popup-later-btn');
+    const viewTabBtn = modal.querySelector('#interview-popup-view-tab-btn');
+    const approveBtn = modal.querySelector('#interview-popup-approve-btn');
+
+    const dismissModal = () => {
+      sessionStorage.setItem(`i2i_dismissed_meet_${activeMeet.id}`, 'true');
+      modal.remove();
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', dismissModal);
+    if (laterBtn) laterBtn.addEventListener('click', dismissModal);
+
+    if (viewTabBtn) {
+      viewTabBtn.addEventListener('click', () => {
+        modal.remove();
+        state.setTab('meet-hr');
+      });
+    }
+
+    if (approveBtn) {
+      approveBtn.addEventListener('click', async () => {
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = '<span>⏳ Joining Google Meet...</span>';
+
+        // 1. Mark accepted in localStorage
+        try {
+          const raw = localStorage.getItem('i2i_active_meet_request');
+          if (raw) {
+            const mData = JSON.parse(raw);
+            if (mData.candidates) {
+              if (mData.candidates[myCandId]) {
+                mData.candidates[myCandId].status = 'accepted';
+                mData.candidates[myCandId].accepted_at = new Date().toISOString();
+              }
+              for (const [k, c] of Object.entries(mData.candidates)) {
+                if (c.name && c.name.toLowerCase().includes(myCandName)) {
+                  c.status = 'accepted';
+                  c.accepted_at = new Date().toISOString();
+                }
+              }
+            }
+            localStorage.setItem('i2i_active_meet_request', JSON.stringify(mData));
+          }
+        } catch(e) {}
+
+        // 2. Post automated chat message to HR
+        const nowIso = new Date().toISOString();
+        const candName = state.activeUser?.name || 'rushikesh@12345';
+        try {
+          await api.sendMessage({
+            sender_id: myCandId,
+            sender_role: 'candidate',
+            sender_name: candName,
+            receiver_id: activeMeet.host_id || 'hr-koomal123456',
+            receiver_role: 'hr',
+            receiver_name: hostName,
+            channel: 'candidate',
+            text: `✅ I have approved your Google Meet joining request and entered the room (${roomUrl})! Ready to communicate with you.`,
+            timestamp: nowIso
+          });
+        } catch(e) {
+          console.warn('Could not send acceptance chat', e);
+        }
+
+        // 3. Broadcast to HR across tabs
+        window.dispatchEvent(new CustomEvent('i2i_meet_request_accepted', {
+          detail: {
+            candidateId: myCandId,
+            candidateName: candName,
+            roomUrl: roomUrl
+          }
+        }));
+        window.dispatchEvent(new Event('storage'));
+        try {
+          if (window.BroadcastChannel) {
+            const bc = new BroadcastChannel('i2i_meet_sync');
+            bc.postMessage({ type: 'meet_accepted', candidateId: myCandId, candidateName: candName, roomUrl: roomUrl });
+          }
+        } catch(e) {}
+
+        // 4. Open Google Meet in new tab for candidate
+        window.open(roomUrl, '_blank');
+
+        state.showToast(`🎉 Interview Approved! Connected to Google Meet with ${hostName}.`, 'success');
+        modal.remove();
+
+        // 5. Re-render Candidate Dashboard so "Meet with HR" shows connected
+        await this.renderCandidateDashboard();
+      });
+    }
+  }
+
+  // =========================================================================
   // 2. CANDIDATE DASHBOARD (Section 6.2 & 2.1)
   // =========================================================================
   async renderCandidateDashboard() {
@@ -944,27 +1199,41 @@ class App {
 
     const isMeetActive = activeMeet && activeMeet.status === 'active';
     let candidateMeetStatus = 'pending';
-    if (isMeetActive && activeMeet.candidates) {
-      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
-      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
-      const myCandName = (candidateName || '').toLowerCase().trim();
+    const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+    const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+    const myCandName = (candidateName || state.activeUser?.name || 'rushikesh@12345').toLowerCase().trim();
 
-      for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
-        if (cId === myCandId || 
-            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
-            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
-          candidateMeetStatus = cData.status || 'pending';
-          break;
+    let isForMe = false;
+    if (isMeetActive) {
+      if (!activeMeet.target_candidate_id) {
+        isForMe = true;
+      } else if (activeMeet.target_candidate_id === myCandId ||
+                 (activeMeet.target_candidate_name && activeMeet.target_candidate_name.toLowerCase().includes(myCandName)) ||
+                 myCandName.includes((activeMeet.target_candidate_name || '').toLowerCase())) {
+        isForMe = true;
+      }
+
+      if (activeMeet.candidates) {
+        for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
+          if (cId === myCandId || 
+              (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
+              (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+            isForMe = true;
+            candidateMeetStatus = cData.status || 'pending';
+            break;
+          }
         }
       }
     }
     const isMeetAccepted = candidateMeetStatus === 'accepted';
+    const hostName = activeMeet?.host_name || 'koomal@123456';
+    const hostRole = activeMeet?.host_role || 'Executive Recruiter, NovaTech Systems';
 
     this.appContainer.innerHTML = `
       <div class="container" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
 
         <!-- Live Google Meet Interview Joining Request Banner -->
-        ${isMeetActive ? `
+        ${(isMeetActive && isForMe) ? `
           <div class="card" id="cand-live-meet-hero-banner" style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #064E3B 100%); color:#FFFFFF; border:2px solid ${isMeetAccepted ? '#10B981' : '#3B82F6'}; border-radius:var(--radius-lg); padding:1.25rem 1.6rem; margin-bottom:1.5rem; box-shadow:0 12px 28px -6px rgba(16,185,129,0.3); position:relative; overflow:hidden;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.2rem; position:relative; z-index:1;">
               <div style="display:flex; align-items:center; gap:1rem;">
@@ -977,7 +1246,7 @@ class App {
                       🔴 LIVE GOOGLE MEET INVITATION
                     </span>
                     <span style="font-size:0.8rem; color:#A7F3D0; font-weight:700;">
-                      Host: Elena Rostova (NovaTech HR)
+                      Host: ${hostName} (${hostRole})
                     </span>
                     ${isMeetAccepted ? `
                       <span class="badge" style="background:#10B981; color:#fff; font-size:0.72rem; font-weight:700;">
@@ -993,7 +1262,7 @@ class App {
                     Live Technical Screening & 75/25 Architecture Screen
                   </h3>
                   <p style="font-size:0.84rem; color:#CBD5E1; margin:0; line-height:1.4;">
-                    Elena Rostova opened the official Google Meet room and sent an interview joining request to you. Join now to communicate live on Google Meet.
+                    ${hostName} opened the official Google Meet room and sent an interview joining request to you. Join now to communicate live on Google Meet.
                   </p>
                 </div>
               </div>
@@ -1005,7 +1274,7 @@ class App {
                   </a>
                 ` : `
                   <button type="button" class="btn btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1.4rem; font-size:0.95rem; box-shadow:0 6px 16px rgba(22,163,74,0.4); cursor:pointer;">
-                    ✅ Accept Request & Join Google Meet →
+                    ✅ Approve Request & Join Google Meet →
                   </button>
                 `}
                 <button type="button" class="btn btn-outline btn-sm cand-quick-msg-hr-btn" style="color:#CBD5E1; border-color:rgba(255,255,255,0.25); font-size:0.8rem;">
@@ -1114,6 +1383,9 @@ class App {
 
     // Attach event listeners for Candidate interactions
     this.attachCandidateEvents({ passport, jobs, assessments, applications, skills, candidateSkills, messages, meetings, candidateId, candidateName });
+
+    // Check and show incoming interview popup modal if HR has initiated a Google Meet
+    this.checkAndShowCandidateInterviewPopup();
   }
 
   renderCandidateTabContent(tab, data) {
@@ -2114,21 +2386,35 @@ class App {
 
     const isMeetActive = activeMeet && activeMeet.status === 'active';
     let candidateMeetStatus = 'pending';
-    if (isMeetActive && activeMeet.candidates) {
-      const myCandId = state.activeUser?.id || candidateId || 'cand-01';
-      const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
-      const myCandName = (candidateName || '').toLowerCase().trim();
+    const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+    const myCandEmail = (state.activeUser?.email || '').toLowerCase().trim();
+    const myCandName = (candidateName || state.activeUser?.name || 'rushikesh@12345').toLowerCase().trim();
 
-      for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
-        if (cId === myCandId || 
-            (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
-            (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
-          candidateMeetStatus = cData.status || 'pending';
-          break;
+    let isForMe = false;
+    if (isMeetActive) {
+      if (!activeMeet.target_candidate_id) {
+        isForMe = true;
+      } else if (activeMeet.target_candidate_id === myCandId ||
+                 (activeMeet.target_candidate_name && activeMeet.target_candidate_name.toLowerCase().includes(myCandName)) ||
+                 myCandName.includes((activeMeet.target_candidate_name || '').toLowerCase())) {
+        isForMe = true;
+      }
+
+      if (activeMeet.candidates) {
+        for (const [cId, cData] of Object.entries(activeMeet.candidates)) {
+          if (cId === myCandId || 
+              (cData.email && cData.email.toLowerCase().trim() === myCandEmail) || 
+              (cData.name && cData.name.toLowerCase().trim() === myCandName)) {
+            isForMe = true;
+            candidateMeetStatus = cData.status || 'pending';
+            break;
+          }
         }
       }
     }
     const isMeetAccepted = candidateMeetStatus === 'accepted';
+    const hostName = activeMeet?.host_name || 'koomal@123456';
+    const hostRole = activeMeet?.host_role || 'Executive Recruiter, NovaTech Systems';
 
     return `
       <div class="dashboard-header" style="margin-bottom:1.25rem;">
@@ -2146,7 +2432,7 @@ class App {
         <div style="display:flex; flex-direction:column; gap:1.25rem;">
 
           <!-- Live Active Interview Request from HR Card -->
-          ${isMeetActive ? `
+          ${(isMeetActive && isForMe) ? `
             <div class="card" style="background:#FFFFFF; border:2px solid ${isMeetAccepted ? '#10B981' : '#2563EB'}; border-radius:var(--radius-md); padding:1.25rem 1.4rem; box-shadow:0 8px 24px rgba(37,99,235,0.12);">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.65rem;">
                 <div style="display:flex; align-items:center; gap:0.45rem;">
@@ -2164,7 +2450,7 @@ class App {
                 Live Technical Screening & 75/25 Architecture Screen
               </h4>
               <p style="font-size:0.82rem; color:#64748B; margin:0 0 0.75rem 0;">
-                Host: <strong>Elena Rostova</strong> (Executive Recruiter, NovaTech Systems) • Candidate: <strong>${candidateName}</strong>
+                Host: <strong>${hostName}</strong> (${hostRole}) • Candidate: <strong>${state.activeUser?.name || candidateName || 'rushikesh@12345'}</strong>
               </p>
 
               <div style="background:#F8FAFC; border-radius:var(--radius-sm); padding:0.75rem 0.9rem; border:1px solid #E2E8F0; margin-bottom:0.85rem;">
@@ -2183,14 +2469,14 @@ class App {
                     🎥 In Session • Re-open Google Meet →
                   </a>
                   <span style="font-size:0.8rem; color:#15803D; font-weight:700;">
-                    ✓ Accepted & Connected with HR
+                    ✓ Accepted & Connected with HR (${hostName})
                   </span>
                 ` : `
                   <button type="button" class="btn btn-primary cand-accept-meet-btn" data-url="${activeMeet.room_url}" style="background:#16A34A; border-color:#16A34A; font-weight:800; font-size:0.92rem; padding:0.6rem 1.25rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer; box-shadow:0 4px 12px rgba(22,163,74,0.35);">
-                    ✅ Accept Request & Join Google Meet →
+                    ✅ Approve Request & Join Google Meet →
                   </button>
                   <span style="font-size:0.8rem; color:#64748B;">
-                    Accepting request will launch Google Meet and notify Elena Rostova.
+                    Approving request will launch Google Meet and notify ${hostName}.
                   </span>
                 `}
               </div>
@@ -2768,8 +3054,10 @@ class App {
         } catch (e) {}
 
         const targetUrl = roomUrl || activeMeet?.room_url || 'https://meet.google.com/nova-tech-interview';
-        const myCandId = state.activeUser?.id || candidateId || 'cand-01';
-        const myCandName = (state.activeUser && state.activeUser.name) || candidateName || 'Alex Rivera';
+        const myCandId = state.activeUser?.id || candidateId || 'cand-rushikesh12345';
+        const myCandName = (state.activeUser && state.activeUser.name) || candidateName || 'rushikesh@12345';
+        const hrHostId = activeMeet?.host_id || 'hr-koomal123456';
+        const hrHostName = activeMeet?.host_name || 'koomal@123456';
 
         // 1. Update candidate acceptance status in localStorage
         if (activeMeet && activeMeet.candidates) {
@@ -2804,11 +3092,11 @@ class App {
             sender_id: myCandId,
             sender_role: 'candidate',
             sender_name: myCandName,
-            receiver_id: 'hr-01',
+            receiver_id: hrHostId,
             receiver_role: 'hr',
-            receiver_name: 'Elena Rostova',
+            receiver_name: hrHostName,
             channel: 'candidate',
-            text: `✅ I have accepted your Google Meet joining request and entered the room (${targetUrl})! Ready to communicate with you.`,
+            text: `✅ I have approved your Google Meet joining request and entered the room (${targetUrl})! Ready to communicate with you.`,
             timestamp: nowIso
           });
         } catch (e) {
@@ -2824,11 +3112,17 @@ class App {
           }
         }));
         window.dispatchEvent(new Event('storage'));
+        try {
+          if (window.BroadcastChannel) {
+            const bc = new BroadcastChannel('i2i_meet_sync');
+            bc.postMessage({ type: 'meet_accepted', candidateId: myCandId, candidateName: myCandName, roomUrl: targetUrl });
+          }
+        } catch(e) {}
 
         // 4. Open Google Meet in new window/tab for the candidate to communicate!
         window.open(targetUrl, '_blank');
 
-        state.showToast(`🎉 Request accepted! Joined Google Meet room with Elena Rostova.`, 'success');
+        state.showToast(`🎉 Request approved! Joined Google Meet room with ${hrHostName}.`, 'success');
 
         // Re-render to update UI to accepted state
         await this.renderCandidateDashboard();
@@ -2862,17 +3156,30 @@ class App {
     // Real-time listener for incoming HR broadcast & cross-tab chat sync
     if (!window._candMeetBroadcastListenerAttached) {
       window._candMeetBroadcastListenerAttached = true;
-      window.addEventListener('i2i_meet_broadcast_started', () => {
+      const handleIncomingMeetSignal = (record) => {
         if (state.currentRole === 'candidate') {
           state.showToast('🔴 Incoming Google Meet invitation from HR!', 'info');
+          this.checkAndShowCandidateInterviewPopup();
           this.renderCandidateDashboard();
         }
-      });
+      };
+      window.addEventListener('i2i_meet_broadcast_started', (e) => handleIncomingMeetSignal(e.detail));
+      window.addEventListener('i2i_meet_request_sent', (e) => handleIncomingMeetSignal(e.detail));
       window.addEventListener('storage', (e) => {
         if (e.key === 'i2i_active_meet_request' && state.currentRole === 'candidate') {
-          this.renderCandidateDashboard();
+          handleIncomingMeetSignal();
         }
       });
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_meet_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.type === 'meet_request') {
+              handleIncomingMeetSignal(e.data.record);
+            }
+          };
+        }
+      } catch(e) {}
     }
 
     if (!window._candChatSyncAttached) {
@@ -2933,6 +3240,7 @@ class App {
       setInterval(async () => {
         const isCandRole = state.currentRole === 'candidate';
         if (isCandRole) {
+          this.checkAndShowCandidateInterviewPopup();
           try {
             const latest = await api.getMessages('candidate');
             if (Array.isArray(latest)) {
@@ -10230,10 +10538,130 @@ class App {
       btn.addEventListener('click', handleOpenGoogleMeetBroadcast);
     });
 
+    // Chat Header Open Meet button (Specifically for this active candidate!)
+    const handleOpenMeetForCurrentChat = async () => {
+      try {
+        const contactsList = this.appContainer.querySelector('#hr-contacts-list');
+        const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
+        const contactId = activeContactEl ? activeContactEl.dataset.contactId : 'cand-rushikesh12345';
+        const contactName = activeContactEl ? activeContactEl.dataset.contactName : 'rushikesh@12345';
+        const contactEmail = activeContactEl ? activeContactEl.dataset.contactEmail : 'rushikesh@12345';
+        const hrHostName = state.activeUser?.name || 'koomal@123456';
+        const hrHostId = hrId || state.activeUser?.id || 'hr-koomal123456';
+        const meetUrl = 'https://meet.google.com/nova-tech-interview';
+
+        state.showToast(`📡 Launching Google Meet & sending joining request to ${contactName}...`, 'info');
+
+        const meetRecord = {
+          id: `meet-req-${Date.now()}`,
+          room_url: meetUrl,
+          host_id: hrHostId,
+          host_name: hrHostName,
+          host_role: 'Executive Recruiter, NovaTech Systems',
+          target_candidate_id: contactId,
+          target_candidate_name: contactName,
+          target_candidate_email: contactEmail,
+          title: `NovaTech Technical Interview with ${contactName}`,
+          agenda: 'Dual-Tier 75/25 competency evaluation, architecture screening, and team alignment.',
+          status: 'active',
+          created_at: new Date().toISOString(),
+          candidates: {
+            [contactId]: {
+              id: contactId,
+              name: contactName,
+              email: contactEmail,
+              target_role: 'Senior Software Engineer (AI)',
+              status: 'pending',
+              requested_at: new Date().toISOString(),
+              accepted_at: null
+            }
+          }
+        };
+
+        // 1. Store in localStorage
+        localStorage.setItem('i2i_active_meet_request', JSON.stringify(meetRecord));
+
+        // 2. Send official invitation message in the direct chat with this candidate
+        const nowIso = new Date().toISOString();
+        const inviteText = `🎥 ${hrHostName} has opened the live Google Meet interview room! Please approve the joining request in 'Meet with HR' to communicate: ${meetUrl}`;
+        await api.sendMessage({
+          sender_id: hrHostId,
+          sender_role: 'hr',
+          sender_name: hrHostName,
+          receiver_id: contactId,
+          receiver_role: 'candidate',
+          receiver_name: contactName,
+          channel: 'candidate',
+          text: inviteText,
+          timestamp: nowIso
+        });
+
+        // 3. Append to local chat view if in chat
+        if (typeof appendBubble === 'function') {
+          const hrAvatar = state.activeUser?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150';
+          appendBubble('hr', hrHostName, inviteText, hrAvatar, nowIso);
+        }
+
+        // 4. Open Google Meet room for HR in a new tab so HR is in the room waiting for candidate
+        window.open(meetUrl, '_blank');
+
+        // 5. Broadcast to candidate windows & tabs
+        window.dispatchEvent(new CustomEvent('i2i_meet_broadcast_started', { detail: meetRecord }));
+        window.dispatchEvent(new CustomEvent('i2i_meet_request_sent', { detail: meetRecord }));
+        window.dispatchEvent(new Event('storage'));
+        try {
+          if (window.BroadcastChannel) {
+            const bc = new BroadcastChannel('i2i_meet_sync');
+            bc.postMessage({ type: 'meet_request', record: meetRecord });
+          }
+        } catch(e) {}
+
+        state.showToast(`🎉 Google Meet Room opened! Joining request sent to ${contactName}.`, 'success');
+
+        if (chatMeetBtn) {
+          chatMeetBtn.innerHTML = '🎥 In Session • Re-open Google Meet →';
+        }
+      } catch (err) {
+        console.error('Chat meet error', err);
+        state.showToast('Error opening Google Meet room: ' + err.message, 'danger');
+      }
+    };
+
     // Chat Header Open Meet button
     const chatMeetBtn = this.appContainer.querySelector('#hr-chat-open-meet-btn');
     if (chatMeetBtn) {
-      chatMeetBtn.addEventListener('click', handleOpenGoogleMeetBroadcast);
+      chatMeetBtn.addEventListener('click', handleOpenMeetForCurrentChat);
+    }
+
+    if (!window._hrMeetAcceptedListenerAttached) {
+      window._hrMeetAcceptedListenerAttached = true;
+      window.addEventListener('i2i_meet_request_accepted', (e) => {
+        const candName = e.detail?.candidateName || 'Candidate';
+        state.showToast(`🎉 Candidate ${candName} has accepted your interview request and joined Google Meet!`, 'success');
+        const btn = this.appContainer.querySelector('#hr-chat-open-meet-btn');
+        if (btn) {
+          btn.innerHTML = '✅ Candidate Connected • Join Meet Room →';
+          btn.style.background = '#10B981';
+          btn.style.borderColor = '#10B981';
+        }
+      });
+      try {
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('i2i_meet_sync');
+          bc.onmessage = (e) => {
+            if (e.data?.type === 'meet_accepted') {
+              const candName = e.data.candidateName || 'Candidate';
+              state.showToast(`🎉 Candidate ${candName} has accepted your interview request and joined Google Meet!`, 'success');
+              const btn = this.appContainer.querySelector('#hr-chat-open-meet-btn');
+              if (btn) {
+                btn.innerHTML = '✅ Candidate Connected • Join Meet Room →';
+                btn.style.background = '#10B981';
+                btn.style.borderColor = '#10B981';
+              }
+            }
+          };
+        }
+      } catch(e) {}
     }
 
     // Re-send Alert to All button
