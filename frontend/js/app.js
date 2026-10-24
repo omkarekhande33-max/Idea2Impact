@@ -4091,6 +4091,238 @@ class App {
   }
 
   // =========================================================================
+  // PRE-ASSESSMENT CAMERA & ENVIRONMENT VERIFICATION GATE
+  // Ensures candidate cannot view questions or start exam timer without webcam
+  // =========================================================================
+  promptPreExamCameraGate(asm, testedSkillNames = []) {
+    return new Promise((resolve) => {
+      let activeStream = null;
+
+      const gateOverlay = document.createElement('div');
+      gateOverlay.id = 'pre-exam-camera-gate-modal';
+      gateOverlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 10050;
+        background: rgba(11, 15, 25, 0.94);
+        backdrop-filter: blur(12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        overflow-y: auto;
+      `;
+
+      gateOverlay.innerHTML = `
+        <div class="proctor-gate-card" style="position:relative;">
+          <!-- Close / Exit Setup Button -->
+          <button type="button" id="gate-close-x-btn" style="position:absolute; top:1.25rem; right:1.25rem; background:transparent; border:none; color:#94A3B8; font-size:1.6rem; cursor:pointer; line-height:1; transition:color 150ms ease;" title="Cancel Assessment">
+            &times;
+          </button>
+
+          <div style="display:flex; align-items:center; gap:0.85rem;">
+            <div style="width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg, #2563EB, #1D4ED8); display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+              🛡️
+            </div>
+            <div>
+              <h2 style="font-size:1.3rem; font-weight:800; color:#F8FAFC; margin:0;">AI Proctoring Hardware Verification</h2>
+              <div style="font-size:0.82rem; color:#94A3B8; margin-top:0.25rem;">
+                Assessment: <strong style="color:#60A5FA;">${asm.title || 'Skills Evaluation'}</strong>
+                ${testedSkillNames.length > 0 ? ` · <span style="color:#CBD5E1;">${testedSkillNames.join(', ')}</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Mandatory Requirement Notice -->
+          <div style="background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); border-radius:8px; padding:0.85rem 1.1rem; display:flex; align-items:flex-start; gap:0.75rem;">
+            <span style="font-size:1.3rem; line-height:1;">⚠️</span>
+            <div style="font-size:0.82rem; color:#FCA5A5; line-height:1.45;">
+              <strong style="color:#FFF;">Camera Access is Mandatory to Start Quiz:</strong> Under exam integrity guidelines, you cannot view questions or begin the 15-minute timer until your live webcam feed is active and verified.
+            </div>
+          </div>
+
+          <!-- Video Preview Box -->
+          <div class="proctor-gate-preview-box" id="gate-preview-box">
+            <video id="gate-preview-video" autoplay playsinline muted style="display:none; width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
+            
+            <!-- Inactive State (Default) -->
+            <div id="gate-inactive-prompt" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.5rem; gap:0.6rem;">
+              <div class="proctor-cam-pulse" style="font-size:2.8rem; margin-bottom:0.25rem;">📷</div>
+              <div style="font-weight:700; font-size:1.05rem; color:#F8FAFC;">Webcam Access Required</div>
+              <p style="font-size:0.8rem; color:#94A3B8; margin:0; max-width:340px; line-height:1.45;">
+                Click the button below to allow camera & microphone access. Your stream is processed on your device for AI face, gaze, and room verification.
+              </p>
+              <button type="button" id="gate-request-cam-btn" class="btn btn-primary" style="background:linear-gradient(135deg, #2563EB, #1D4ED8); border:none; font-weight:700; font-size:0.95rem; padding:0.7rem 1.6rem; border-radius:8px; cursor:pointer; box-shadow:0 4px 16px rgba(37,99,235,0.45); display:inline-flex; align-items:center; gap:0.6rem; margin-top:0.4rem; pointer-events:auto;">
+                <span>🎥</span> Allow Camera Access
+              </button>
+            </div>
+
+            <!-- Blocked / Error State (Shown if browser denies) -->
+            <div id="gate-error-prompt" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.25rem; background:rgba(220, 38, 38, 0.18); border:1px solid #EF4444; border-radius:8px; margin:1rem; max-width:380px;">
+              <span style="font-size:1.8rem; margin-bottom:0.25rem;">🚫</span>
+              <div style="font-weight:700; font-size:0.9rem; color:#FCA5A5; margin-bottom:0.35rem;">Camera Blocked by Browser</div>
+              <div style="font-size:0.75rem; color:#CBD5E1; line-height:1.45; text-align:left; margin-bottom:0.85rem;">
+                1. Look at your browser address bar at the top of the window.<br/>
+                2. Click the <strong>camera 📷</strong> or <strong>lock 🔒</strong> icon.<br/>
+                3. Set <strong>Camera</strong> to <strong>Always Allow</strong>.<br/>
+                4. Click "Retry Camera Access" below.
+              </div>
+              <button type="button" id="gate-retry-cam-btn" class="btn btn-danger" style="background:#DC2626; border:none; font-weight:700; font-size:0.85rem; padding:0.55rem 1.25rem; border-radius:6px; cursor:pointer; pointer-events:auto;">
+                🔄 Retry Camera Access
+              </button>
+            </div>
+
+            <!-- Verified Overlay Tag -->
+            <div id="gate-verified-tag" style="display:none; position:absolute; bottom:12px; left:12px; background:rgba(16, 185, 129, 0.92); backdrop-filter:blur(4px); color:#FFF; font-size:0.78rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:20px; box-shadow:0 2px 10px rgba(0,0,0,0.35); align-items:center; gap:0.4rem;">
+              <span>✅</span> Webcam Verified & Active
+            </div>
+          </div>
+
+          <!-- Pre-flight Security Checklist -->
+          <div class="proctor-gate-checklist">
+            <div id="check-camera" style="display:flex; align-items:center; gap:0.5rem; color:#94A3B8;">
+              <span id="check-camera-icon">⚪</span> <span>Webcam Connection</span>
+            </div>
+            <div id="check-mic" style="display:flex; align-items:center; gap:0.5rem; color:#94A3B8;">
+              <span id="check-mic-icon">⚪</span> <span>Microphone Level</span>
+            </div>
+            <div id="check-display" style="display:flex; align-items:center; gap:0.5rem; color:#10B981;">
+              <span>✅</span> <span>Anti-Cheat Watermark</span>
+            </div>
+            <div id="check-rules" style="display:flex; align-items:center; gap:0.5rem; color:#10B981;">
+              <span>✅</span> <span>Tab Switch Monitor</span>
+            </div>
+          </div>
+
+          <!-- Gate Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-top:0.35rem;">
+            <button type="button" id="gate-cancel-btn" class="btn btn-outline" style="border-color:#475569; color:#94A3B8; font-weight:600; padding:0.65rem 1.35rem;">
+              Cancel & Exit
+            </button>
+            
+            <button type="button" id="gate-start-exam-btn" class="btn" disabled style="background:#334155; color:#94A3B8; font-weight:800; font-size:0.95rem; padding:0.75rem 1.75rem; border-radius:8px; border:none; opacity:0.45; cursor:not-allowed; transition:all 200ms ease; display:flex; align-items:center; gap:0.6rem;">
+              <span id="gate-start-lock-icon">🔒</span> <span id="gate-start-text">Camera Access Required to Start</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(gateOverlay);
+
+      const videoEl = gateOverlay.querySelector('#gate-preview-video');
+      const previewBox = gateOverlay.querySelector('#gate-preview-box');
+      const inactivePrompt = gateOverlay.querySelector('#gate-inactive-prompt');
+      const errorPrompt = gateOverlay.querySelector('#gate-error-prompt');
+      const verifiedTag = gateOverlay.querySelector('#gate-verified-tag');
+      const checkCamIcon = gateOverlay.querySelector('#check-camera-icon');
+      const checkMicIcon = gateOverlay.querySelector('#check-mic-icon');
+      const startBtn = gateOverlay.querySelector('#gate-start-exam-btn');
+      const lockIcon = gateOverlay.querySelector('#gate-start-lock-icon');
+      const startText = gateOverlay.querySelector('#gate-start-text');
+
+      const requestCameraAccess = async () => {
+        inactivePrompt.style.display = 'none';
+        errorPrompt.style.display = 'none';
+
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("Camera API is not supported in this browser environment.");
+          }
+
+          try {
+            activeStream = await navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+              audio: true
+            });
+          } catch (avErr) {
+            console.warn("Combined video+audio failed, falling back to video-only", avErr);
+            activeStream = await navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+              audio: false
+            });
+          }
+
+          // Camera successfully obtained!
+          videoEl.srcObject = activeStream;
+          videoEl.style.display = 'block';
+          await videoEl.play();
+
+          previewBox.classList.add('verified');
+          if (verifiedTag) verifiedTag.style.display = 'inline-flex';
+          if (checkCamIcon) {
+            checkCamIcon.textContent = '✅';
+            checkCamIcon.parentElement.style.color = '#10B981';
+          }
+
+          const hasAudio = activeStream.getAudioTracks().length > 0;
+          if (checkMicIcon) {
+            checkMicIcon.textContent = hasAudio ? '✅' : '⚠️';
+            checkMicIcon.parentElement.style.color = hasAudio ? '#10B981' : '#F59E0B';
+            if (!hasAudio) {
+              checkMicIcon.parentElement.innerHTML = '<span>⚠️</span> <span>Microphone (Muted/Bypassed)</span>';
+            }
+          }
+
+          // Unlock and illuminate Start Exam button
+          startBtn.disabled = false;
+          startBtn.style.opacity = '1';
+          startBtn.style.cursor = 'pointer';
+          startBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+          startBtn.style.color = '#FFFFFF';
+          startBtn.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+          startBtn.classList.add('proctor-gate-pulse-btn');
+          lockIcon.textContent = '🚀';
+          startText.textContent = 'Start Proctored Assessment';
+        } catch (err) {
+          console.warn("Camera permission error in pre-exam gate:", err);
+          inactivePrompt.style.display = 'none';
+          errorPrompt.style.display = 'flex';
+          videoEl.style.display = 'none';
+          previewBox.classList.remove('verified');
+          if (verifiedTag) verifiedTag.style.display = 'none';
+          if (checkCamIcon) {
+            checkCamIcon.textContent = '❌';
+            checkCamIcon.parentElement.style.color = '#EF4444';
+          }
+        }
+      };
+
+      // Bind Button Listeners
+      const reqBtn = gateOverlay.querySelector('#gate-request-cam-btn');
+      if (reqBtn) reqBtn.addEventListener('click', requestCameraAccess);
+
+      const retryBtn = gateOverlay.querySelector('#gate-retry-cam-btn');
+      if (retryBtn) retryBtn.addEventListener('click', requestCameraAccess);
+
+      const cancelSetup = () => {
+        if (activeStream) {
+          activeStream.getTracks().forEach(t => t.stop());
+          activeStream = null;
+        }
+        gateOverlay.remove();
+        resolve(null);
+      };
+
+      const cancelBtn = gateOverlay.querySelector('#gate-cancel-btn');
+      if (cancelBtn) cancelBtn.addEventListener('click', cancelSetup);
+
+      const closeXBtn = gateOverlay.querySelector('#gate-close-x-btn');
+      if (closeXBtn) closeXBtn.addEventListener('click', cancelSetup);
+
+      startBtn.addEventListener('click', () => {
+        if (!activeStream || !activeStream.active) {
+          alert("Camera access must be granted before starting the assessment.");
+          return;
+        }
+        // Detach stream from preview video before handing over to exam video
+        videoEl.srcObject = null;
+        gateOverlay.remove();
+        resolve(activeStream);
+      });
+    });
+  }
+
+  // =========================================================================
   // INTERACTIVE ASSESSMENT QUIZ MODAL WITH AI PROCTORING & INTEGRITY TRACKING
   // =========================================================================
   async openAssessmentModal(assessmentIdOrSkills, candidateId, options = {}) {
@@ -4117,11 +4349,20 @@ class App {
       return;
     }
 
+    // =========================================================================
+    // MANDATORY PRE-EXAM CAMERA GATE: Candidate CANNOT start quiz without camera!
+    // =========================================================================
+    const verifiedStream = await this.promptPreExamCameraGate(asm, testedSkillNames);
+    if (!verifiedStream) {
+      state.showToast("Assessment cancelled. Camera access is required to take proctored tests.", "info");
+      return;
+    }
+
     const questions = asm.questions || [];
     let currentQIndex = 0;
     const answers = {};
     let violationsCount = 0;
-    let videoStream = null;
+    let videoStream = verifiedStream;
     let cocoModel = null;
     let detectionInterval = null;
     let simulatedCanvasInterval = null;
@@ -4154,8 +4395,8 @@ class App {
         </div>
         <div style="display:flex; align-items:center; gap:1.25rem;">
           <!-- Camera Status Indicator & Request Trigger -->
-          <button type="button" id="proctor-camera-indicator" class="btn btn-xs" style="background:rgba(239,68,68,0.25); border:1px solid #EF4444; color:#FCA5A5; font-size:0.75rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:4px; cursor:pointer;" title="Click to allow or retry camera access">
-            🔴 Camera Required
+          <button type="button" id="proctor-camera-indicator" class="btn btn-xs" style="background:rgba(16, 185, 129, 0.25); border:1px solid #10B981; color:#6EE7B7; font-size:0.75rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:4px; cursor:pointer;" title="Camera is active and monitoring test integrity">
+            🟢 Camera Live
           </button>
           <div style="text-align:right;">
             <span style="font-size:0.72rem; color:#94A3B8; text-transform:uppercase; letter-spacing:0.5px; display:block;">Time Remaining</span>
@@ -4233,18 +4474,18 @@ class App {
               <div class="proctor-telemetry-pill" id="proctor-telemetry-status">🟡 Initializing Vision...</div>
 
               <!-- Camera Access Request & Troubleshoot Overlay -->
-              <div class="proctor-cam-permission-overlay" id="proctor-cam-permission-box">
+              <div class="proctor-cam-permission-overlay hidden" id="proctor-cam-permission-box">
                 <div class="proctor-cam-pulse" style="font-size:2.2rem; margin-bottom:0.25rem;">📷</div>
-                <div style="font-weight:800; font-size:0.88rem; color:#F8FAFC;">Camera & Mic Access Required</div>
+                <div style="font-weight:800; font-size:0.88rem; color:#F8FAFC;">Camera Access Required</div>
                 <p style="font-size:0.72rem; color:#94A3B8; margin:0.35rem 0 0.75rem; text-align:center; max-width:220px; line-height:1.35;">
-                  AI Proctoring requires camera access to monitor face presence, gaze direction, multi-person presence, and unauthorized devices.
+                  Webcam stream disconnected or blocked. Camera is mandatory for AI proctoring integrity.
                 </p>
-                <button type="button" class="btn btn-primary btn-xs" id="proctor-grant-cam-btn" style="background:#2563EB; border-color:#3B82F6; font-weight:700; padding:0.4rem 0.85rem; border-radius:6px; cursor:pointer;">
-                  🎥 Allow Camera Access
+                <button type="button" class="btn btn-primary btn-xs" id="proctor-grant-cam-btn" style="background:#2563EB; border-color:#3B82F6; font-weight:700; padding:0.4rem 0.85rem; border-radius:6px; cursor:pointer; pointer-events:auto; position:relative; z-index:60;">
+                  🎥 Reconnect Camera
                 </button>
                 <div id="proctor-cam-troubleshoot" style="display:none; font-size:0.7rem; color:#FCA5A5; margin-top:0.6rem; text-align:center; max-width:220px; line-height:1.35; background:rgba(220,38,38,0.18); border:1px solid rgba(239,68,68,0.35); padding:0.45rem; border-radius:4px;">
-                  ⚠️ Camera blocked by browser. Click the camera icon in your address bar to allow permission, then click below:
-                  <button type="button" class="btn btn-xs" id="proctor-retry-cam-btn" style="background:#DC2626; color:#FFF; border:none; margin-top:0.4rem; width:100%; font-weight:700; padding:0.3rem 0.5rem; border-radius:4px; cursor:pointer;">
+                  ⚠️ Camera blocked by browser. Click the lock/camera icon in your address bar to allow permission:
+                  <button type="button" class="btn btn-xs" id="proctor-retry-cam-btn" style="background:#DC2626; color:#FFF; border:none; margin-top:0.4rem; width:100%; font-weight:700; padding:0.3rem 0.5rem; border-radius:4px; cursor:pointer; pointer-events:auto; position:relative; z-index:60;">
                     🔄 Retry Camera Access
                   </button>
                 </div>
@@ -4279,42 +4520,14 @@ class App {
             </div>
           </div>
 
-          <div style="margin-top:auto; background:#1E293B; border:1px solid #334155; border-radius:var(--radius-md); padding:0.85rem;">
-            <div style="font-size:0.78rem; font-weight:700; color:#CBD5E1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.35rem;">
-              Security Simulation Bench
+          <!-- Clean Continuous Exam Guard Card (No Simulation Bench!) -->
+          <div style="margin-top:auto; background:#1E293B; border:1px solid #334155; border-radius:var(--radius-md); padding:0.9rem;">
+            <div style="font-size:0.75rem; font-weight:800; color:#38BDF8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>🛡️</span> Continuous Exam Guard
             </div>
-            <p style="font-size:0.7rem; color:#94A3B8; margin-bottom:0.5rem; line-height:1.35;">
-              Test camera detection, multi-person, gaze deviation, and voice guards:
+            <p style="font-size:0.72rem; color:#94A3B8; margin:0; line-height:1.45;">
+              Webcam feed, face presence, gaze orientation, and room acoustics are continuously monitored by AI Proctoring. Any detected recording devices, tab switching, or external assistance will immediately auto-submit and disqualify the examination.
             </p>
-            <div style="display:flex; flex-direction:column; gap:0.35rem;">
-              <button type="button" class="btn btn-xs" id="sim-camera-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
-                📷 Simulate Camera Detection (Auto-Submit)
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-phone-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
-                📱 Simulate Phone Detection (Auto-Submit)
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-multi-person-btn" style="background:#7F1D1D; color:#FCA5A5; border:1px solid #DC2626; width:100%; text-align:left; font-weight:700;">
-                👥 Simulate Multiple People (Auto-Submit)
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-gaze-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
-                👀 Simulate Gaze Deviation / Looking Away
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-face-absent-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
-                👤 Simulate Face Absent (Candidate Out of Frame)
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-voice-btn" style="background:#854D0E; color:#FEF08A; border:1px solid #CA8A04; width:100%; text-align:left; font-weight:700;">
-                🎙️ Simulate Unauthorized Voice / Whispering
-              </button>
-              <button type="button" class="btn btn-xs" id="toggle-camera-btn" style="background:#1E3A8A; color:#BFDBFE; border:1px solid #3B82F6; width:100%; text-align:left; font-weight:700;">
-                🎥 Grant / Test Camera Permission
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-tab-btn" style="background:#334155; color:#E2E8F0; border:1px solid #475569; width:100%; text-align:left;">
-                🪟 Simulate Tab Switch Violation
-              </button>
-              <button type="button" class="btn btn-xs" id="sim-sound-btn" style="background:#334155; color:#E2E8F0; border:1px solid #475569; width:100%; text-align:left;">
-                🔊 Test Acoustic Warning Alarm
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -4555,22 +4768,41 @@ class App {
           throw new Error("Camera API not available in this browser");
         }
 
-        // Attempt requesting both video and audio for comprehensive proctoring
-        try {
-          videoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
-            audio: true
-          });
-        } catch (avErr) {
-          console.warn("Combined video+audio failed, falling back to video only", avErr);
-          videoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
-            audio: false
-          });
+        // If videoStream was verified in pre-flight gate, reuse it directly; otherwise request
+        if (!videoStream || !videoStream.active) {
+          try {
+            videoStream = await navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
+              audio: true
+            });
+          } catch (avErr) {
+            console.warn("Combined video+audio failed, falling back to video only", avErr);
+            videoStream = await navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
+              audio: false
+            });
+          }
         }
 
         videoEl.srcObject = videoStream;
         await videoEl.play();
+
+        // Monitor camera stream continuity: trigger warning/disconnect if candidate stops stream
+        videoStream.getVideoTracks().forEach(track => {
+          track.onended = () => {
+            if (isTerminated) return;
+            console.warn("Webcam track disconnected mid-exam");
+            if (permBox) permBox.classList.remove('hidden');
+            if (troubleshoot) troubleshoot.style.display = 'block';
+            if (camIndicator) {
+              camIndicator.style.background = 'rgba(239, 68, 68, 0.25)';
+              camIndicator.style.borderColor = '#EF4444';
+              camIndicator.style.color = '#FCA5A5';
+              camIndicator.textContent = '🔴 Camera Disconnected';
+            }
+            triggerSuspiciousActivity("WEBCAM FEED DISCONNECTED MID-EXAM");
+          };
+        });
 
         // Camera access granted successfully!
         if (permBox) permBox.classList.add('hidden');
@@ -4891,182 +5123,7 @@ class App {
 
     startWebcamAndProctor();
 
-    // Security Simulation Bench Handlers
-    // 1. Simulate Secondary Camera
-    const simCamBtn = overlay.querySelector('#sim-camera-btn');
-    if (simCamBtn) {
-      simCamBtn.addEventListener('click', () => {
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(40, 40, 110, 110);
-        ctx.fillStyle = '#DC2626';
-        ctx.fillRect(40, 16, 240, 24);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('🚨 CAMERA DETECTED (98%)', 46, 32);
-
-        autoSubmitDueToViolation(
-          "CAMERA_DETECTED",
-          "Unauthorized secondary camera or recording device detected in candidate camera feed (Simulated Demo).",
-          98
-        );
-      });
-    }
-
-    // 2. Simulate Mobile Phone
-    const simPhoneBtn = overlay.querySelector('#sim-phone-btn');
-    if (simPhoneBtn) {
-      simPhoneBtn.addEventListener('click', () => {
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(40, 40, 100, 150);
-        ctx.fillStyle = '#DC2626';
-        ctx.fillRect(40, 16, 220, 24);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('🚨 CELL PHONE DETECTED (96%)', 46, 32);
-
-        autoSubmitDueToViolation(
-          "MOBILE_PHONE_DETECTED",
-          "Unauthorized mobile phone detected in camera feed (Simulated Demo).",
-          96
-        );
-      });
-    }
-
-    // 3. Simulate Multiple People (Auto-Submit)
-    const simMultiBtn = overlay.querySelector('#sim-multi-person-btn');
-    if (simMultiBtn) {
-      simMultiBtn.addEventListener('click', () => {
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        // Person 1 (Candidate)
-        ctx.strokeStyle = '#3B82F6';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(25, 40, 115, 180);
-        ctx.fillStyle = '#1D4ED8';
-        ctx.fillRect(25, 18, 135, 22);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('PRIMARY CANDIDATE', 29, 33);
-
-        // Person 2 (Unauthorized secondary person)
-        ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(165, 40, 125, 180);
-        ctx.fillStyle = '#DC2626';
-        ctx.fillRect(165, 18, 145, 22);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('🚨 2ND PERSON DETECTED', 169, 33);
-
-        const personPill = overlay.querySelector('#hud-person-pill');
-        const personText = overlay.querySelector('#hud-person-text');
-        if (personPill && personText) {
-          personPill.className = 'proctor-hud-pill status-red';
-          personText.textContent = '🚨 2 PEOPLE DETECTED';
-        }
-
-        autoSubmitDueToViolation(
-          "MULTIPLE_PERSONS_DETECTED",
-          "Multiple individuals (2 people) detected in candidate camera frame. Anti-cheat rules strictly prohibit external assistance (Simulated Demo).",
-          97
-        );
-      });
-    }
-
-    // 4. Simulate Gaze Deviation / Looking Away
-    const simGazeBtn = overlay.querySelector('#sim-gaze-btn');
-    if (simGazeBtn) {
-      simGazeBtn.addEventListener('click', () => {
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(40, 40, 140, 170);
-        ctx.fillStyle = '#D97706';
-        ctx.fillRect(40, 18, 235, 22);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('⚠️ GAZE DEVIATION: LOOKING AWAY', 44, 33);
-
-        // Draw off-screen sight line
-        ctx.strokeStyle = '#FBBF24';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(110, 90);
-        ctx.lineTo(10, 90);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        const gazePill = overlay.querySelector('#hud-gaze-pill');
-        const gazeText = overlay.querySelector('#hud-gaze-text');
-        if (gazePill && gazeText) {
-          gazePill.className = 'proctor-hud-pill status-yellow';
-          gazeText.textContent = 'Gaze: Looking Left (Off-Axis)';
-        }
-
-        triggerSuspiciousActivity("FACE / GAZE DEVIATION: Candidate looking away from test interface (Simulated Demo)");
-      });
-    }
-
-    // 5. Simulate Face Absent / Out of Frame
-    const simAbsentBtn = overlay.querySelector('#sim-face-absent-btn');
-    if (simAbsentBtn) {
-      simAbsentBtn.addEventListener('click', () => {
-        const ctx = canvasEl.getContext('2d');
-        canvasEl.width = 320;
-        canvasEl.height = 240;
-        ctx.fillStyle = '#0F172A';
-        ctx.fillRect(0, 0, 320, 240);
-        ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([6, 6]);
-        ctx.strokeRect(50, 40, 220, 160);
-        ctx.setLineDash([]);
-        ctx.fillStyle = '#DC2626';
-        ctx.fillRect(40, 18, 240, 22);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('⚠️ FACE ABSENT: CANDIDATE OUT OF VIEW', 44, 33);
-
-        const personPill = overlay.querySelector('#hud-person-pill');
-        const personText = overlay.querySelector('#hud-person-text');
-        if (personPill && personText) {
-          personPill.className = 'proctor-hud-pill status-red';
-          personText.textContent = 'Face Not Detected';
-        }
-
-        triggerSuspiciousActivity("FACE ABSENT: Candidate left examination camera view (Simulated Demo)");
-      });
-    }
-
-    // 6. Simulate Unauthorized Voice / Whispering Detected
-    const simVoiceBtn = overlay.querySelector('#sim-voice-btn');
-    if (simVoiceBtn) {
-      simVoiceBtn.addEventListener('click', () => {
-        const fill = overlay.querySelector('#audio-meter-fill');
-        const meterStatus = overlay.querySelector('#audio-meter-status');
-        if (fill) fill.style.width = '94%';
-        if (meterStatus) {
-          meterStatus.textContent = '🚨 High Voice Activity (94%)';
-          meterStatus.style.color = '#EF4444';
-        }
-
-        triggerSuspiciousActivity("UNAUTHORIZED SPEECH / BACKGROUND VOICE DETECTED IN ROOM (Simulated Demo)");
-      });
-    }
-
-    // Camera Request / Permission Handlers
+    // Camera Reconnect Handler if feed stops
     const triggerCamPermission = () => startWebcamAndProctor(true);
     const grantBtn = overlay.querySelector('#proctor-grant-cam-btn');
     if (grantBtn) grantBtn.addEventListener('click', triggerCamPermission);
@@ -5074,20 +5131,8 @@ class App {
     const retryBtn = overlay.querySelector('#proctor-retry-cam-btn');
     if (retryBtn) retryBtn.addEventListener('click', triggerCamPermission);
 
-    const toggleBtn = overlay.querySelector('#toggle-camera-btn');
-    if (toggleBtn) toggleBtn.addEventListener('click', triggerCamPermission);
-
     const camInd = overlay.querySelector('#proctor-camera-indicator');
     if (camInd) camInd.addEventListener('click', triggerCamPermission);
-
-    overlay.querySelector('#sim-tab-btn')?.addEventListener('click', () => {
-      triggerSuspiciousActivity("SIMULATED TAB SWITCH DETECTED");
-    });
-
-    overlay.querySelector('#sim-sound-btn')?.addEventListener('click', () => {
-      playAcousticAlarm();
-      state.showToast("Acoustic alarm sounded (880Hz / 440Hz alert tone)", "info");
-    });
 
     // Cleanup resources
     const cleanupExam = () => {

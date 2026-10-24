@@ -1790,12 +1790,21 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  z-index: 15;
+  z-index: 50;
   text-align: center;
+  pointer-events: auto;
+}
+
+.proctor-cam-permission-overlay button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 60;
 }
 
 .proctor-cam-permission-overlay.hidden {
   display: none !important;
+  pointer-events: none !important;
 }
 
 .proctor-cam-pulse {
@@ -1936,6 +1945,67 @@
   font-size: 0.9rem;
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
   animation: shake 0.5s ease-in-out infinite alternate;
+}
+
+/* Pre-Assessment Camera Verification Gate Modal */
+.proctor-gate-card {
+  background: #0F172A;
+  border: 1.5px solid #334155;
+  border-radius: var(--radius-lg);
+  max-width: 660px;
+  width: 92%;
+  padding: 2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: modalPop 0.25s ease;
+  color: #F8FAFC;
+}
+
+.proctor-gate-preview-box {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 4 / 3;
+  margin: 0 auto;
+  background: #020617;
+  border: 2px dashed #475569;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.proctor-gate-preview-box.verified {
+  border: 2.5px solid #10B981 !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.35) !important;
+}
+
+.proctor-gate-checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background: #1E293B;
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md);
+  border: 1px solid #334155;
+  font-size: 0.8rem;
+}
+
+.proctor-gate-card button {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.proctor-gate-pulse-btn {
+  animation: gateBtnPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes gateBtnPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 6px 22px rgba(16, 185, 129, 0.65); }
 }
 
 @keyframes shake {
