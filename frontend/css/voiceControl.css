@@ -12,7 +12,7 @@
   --voice-glow-idle: 0 8px 24px rgba(15, 23, 42, 0.35);
 }
 
-/* Floating Voice Control Widget Container */
+/* Floating Voice Control Widget Container (Draggable) */
 .voice-widget-root {
   position: fixed;
   bottom: 24px;
@@ -24,6 +24,75 @@
   gap: 12px;
   pointer-events: none; /* children enable pointer events */
   font-family: var(--font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+  touch-action: none;
+}
+
+.voice-widget-root.is-dragging {
+  cursor: grabbing !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.voice-widget-root.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+  transition: none !important;
+}
+
+.voice-widget-root.is-dragging .voice-feedback-card,
+.voice-widget-root.is-dragging .voice-quick-pill,
+.voice-widget-root.is-dragging .voice-orb-btn {
+  box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba(59, 130, 246, 0.6) !important;
+  transform: scale(1.02);
+}
+
+/* Drag Handles & Cues */
+.voice-feedback-header.voice-drag-handle {
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.voice-drag-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.voice-drag-cue:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #F8FAFC;
+}
+
+.voice-pill-drag-grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #64748B;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 4px;
+  margin-right: 2px;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.voice-pill-drag-grip:hover {
+  color: #F8FAFC;
 }
 
 /* Live Speech Transcript & Feedback Toast */
@@ -42,6 +111,7 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   opacity: 0;
   transform: translateY(16px) scale(0.96);
+  cursor: grab;
 }
 
 .voice-feedback-card.visible {
@@ -202,6 +272,8 @@
   color: #E2E8F0;
   font-size: 0.82rem;
   font-weight: 600;
+  cursor: grab;
+  user-select: none;
 }
 
 .voice-quick-btn {

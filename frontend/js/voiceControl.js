@@ -39,6 +39,7 @@ export class VoiceAccessibilitySystem {
 
   init() {
     this.buildWidgetDOM();
+    this.makeWidgetDraggable();
     this.setupKeyboardShortcuts();
     this.initRecognition();
     
@@ -241,7 +242,12 @@ export class VoiceAccessibilitySystem {
       return;
     }
 
-    // 4. Viewport Scrolling (English & Hindi)
+    // 4. Voice Widget Repositioning by Voice ("move to top", "move left", "reset position", etc.)
+    if (this.tryWidgetMoveCommand(lower)) {
+      return;
+    }
+
+    // 5. Viewport Scrolling (English & Hindi)
     if (this.tryScrollCommand(lower)) {
       return;
     }
@@ -520,6 +526,43 @@ export class VoiceAccessibilitySystem {
       return true;
     }
 
+    return false;
+  }
+
+  /* -------------------------------------------------------------
+   * Voice Widget Repositioning by Voice (English + Hindi)
+   * ----------------------------------------------------------- */
+  tryWidgetMoveCommand(lower) {
+    if (this.hasKeywords(lower, ['move top', 'move to top', 'widget top', 'upar karo widget', 'upar le jao widget', 'upar shift'])) {
+      this.moveWidgetTo('top-right');
+      this.showFeedback('↗ Moved voice widget to top', 'success');
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return true;
+    }
+    if (this.hasKeywords(lower, ['move bottom', 'move to bottom', 'widget bottom', 'niche karo widget', 'niche le jao widget', 'niche shift'])) {
+      this.moveWidgetTo('bottom-right');
+      this.showFeedback('↘ Moved voice widget to bottom', 'success');
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return true;
+    }
+    if (this.hasKeywords(lower, ['move left', 'move to left', 'widget left', 'left karo widget', 'baaye karo widget'])) {
+      this.moveWidgetTo('bottom-left');
+      this.showFeedback('↙ Moved voice widget to left', 'success');
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return true;
+    }
+    if (this.hasKeywords(lower, ['move right', 'move to right', 'widget right', 'right karo widget', 'daaye karo widget'])) {
+      this.moveWidgetTo('bottom-right');
+      this.showFeedback('↘ Moved voice widget to right', 'success');
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return true;
+    }
+    if (this.hasKeywords(lower, ['reset position', 'reset widget', 'wapas lagao', 'widget reset', 'default position'])) {
+      this.moveWidgetTo('reset');
+      this.showFeedback('↺ Reset voice widget position', 'success');
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return true;
+    }
     return false;
   }
 
@@ -934,12 +977,16 @@ export class VoiceAccessibilitySystem {
     root.setAttribute('aria-label', 'Voice Navigation and Control Assistant');
 
     root.innerHTML = `
-      <!-- Live Voice Feedback Card -->
-      <div class="voice-feedback-card visible" id="voice-feedback-card" aria-live="polite">
-        <div class="voice-feedback-header">
+      <!-- Live Voice Feedback Card (Draggable) -->
+      <div class="voice-feedback-card visible" id="voice-feedback-card" aria-live="polite" title="Drag to move anywhere on screen">
+        <div class="voice-feedback-header voice-drag-handle" id="voice-card-drag-handle" title="Click and drag to move Voice Control">
           <div class="voice-status-pill status-idle" id="voice-status-pill">
             <span class="voice-status-dot"></span>
             <span id="voice-status-text">Voice Ready</span>
+          </div>
+          <div class="voice-drag-cue" title="Click and drag to move Voice Control">
+            <span class="voice-drag-dots">⠿</span>
+            <span>DRAG</span>
           </div>
           <div class="voice-audio-bars" id="voice-audio-bars" title="Audio Activity">
             <span class="voice-audio-bar"></span>
@@ -957,7 +1004,8 @@ export class VoiceAccessibilitySystem {
 
       <!-- Action Pill & Orb -->
       <div class="voice-bar-row">
-        <div class="voice-quick-pill" id="voice-quick-pill">
+        <div class="voice-quick-pill" id="voice-quick-pill" title="Drag to move Voice Control">
+          <span class="voice-pill-drag-grip" id="voice-pill-drag-grip" title="Click and drag to move Voice Control">⠿</span>
           <button type="button" class="voice-quick-btn" id="voice-tags-btn" title="Show numbers on clickable items">
             🔢 Numbers
           </button>
@@ -1006,6 +1054,186 @@ export class VoiceAccessibilitySystem {
     });
     this.domElements.readBtn.addEventListener('click', () => this.readPageContent());
     this.domElements.helpBtn.addEventListener('click', () => this.openHelpModal());
+  }
+
+  /* -------------------------------------------------------------
+   * Draggable Widget Capability (Free-floating Anywhere on Screen)
+   * ----------------------------------------------------------- */
+  makeWidgetDraggable() {
+    const root = this.domElements.root;
+    if (!root) return;
+
+    const clampX = (x) => {
+      const w = root.offsetWidth || 340;
+      const maxX = Math.max(0, window.innerWidth - w - 12);
+      return Math.min(Math.max(12, x), maxX);
+    };
+
+    const clampY = (y) => {
+      const h = root.offsetHeight || 130;
+      const maxY = Math.max(0, window.innerHeight - h - 12);
+      return Math.min(Math.max(12, y), maxY);
+    };
+
+    // Restore saved position from localStorage
+    try {
+      const rawPos = localStorage.getItem('i2i_voice_widget_pos');
+      if (rawPos) {
+        const pos = JSON.parse(rawPos);
+        if (typeof pos.x === 'number' && typeof pos.y === 'number') {
+          requestAnimationFrame(() => {
+            root.style.left = `${clampX(pos.x)}px`;
+            root.style.top = `${clampY(pos.y)}px`;
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+          });
+        }
+      }
+    } catch (e) {}
+
+    // Maintain within screen bounds when window is resized
+    window.addEventListener('resize', () => {
+      if (root.style.left && root.style.left !== 'auto') {
+        const currentX = parseInt(root.style.left, 10);
+        const currentY = parseInt(root.style.top, 10);
+        root.style.left = `${clampX(currentX)}px`;
+        root.style.top = `${clampY(currentY)}px`;
+      }
+    });
+
+    // Drag tracking variables
+    let isDragging = false;
+    let hasMoved = false;
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let startWidgetLeft = 0;
+    let startWidgetTop = 0;
+
+    const onPointerDown = (e) => {
+      // Only primary mouse button or touch
+      if (e.button && e.button !== 0) return;
+
+      // Do not initiate drag when clicking actionable buttons, inputs, links
+      if (e.target.closest('button')) {
+        return;
+      }
+      if (e.target.closest('input') || e.target.closest('a')) {
+        return;
+      }
+
+      const rect = root.getBoundingClientRect();
+      startWidgetLeft = rect.left;
+      startWidgetTop = rect.top;
+      startPointerX = e.clientX;
+      startPointerY = e.clientY;
+      isDragging = true;
+      hasMoved = false;
+
+      // Switch to explicit left/top in px before moving
+      root.style.left = `${startWidgetLeft}px`;
+      root.style.top = `${startWidgetTop}px`;
+      root.style.right = 'auto';
+      root.style.bottom = 'auto';
+
+      document.addEventListener('pointermove', onPointerMove, { passive: false });
+      document.addEventListener('pointerup', onPointerUp);
+      document.addEventListener('pointercancel', onPointerUp);
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+
+      const deltaX = e.clientX - startPointerX;
+      const deltaY = e.clientY - startPointerY;
+
+      if (!hasMoved && (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4)) {
+        hasMoved = true;
+        root.classList.add('is-dragging');
+      }
+
+      if (hasMoved) {
+        e.preventDefault();
+        const nextX = clampX(startWidgetLeft + deltaX);
+        const nextY = clampY(startWidgetTop + deltaY);
+        root.style.left = `${nextX}px`;
+        root.style.top = `${nextY}px`;
+      }
+    };
+
+    const onPointerUp = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+
+      if (hasMoved) {
+        root.classList.remove('is-dragging');
+        const rect = root.getBoundingClientRect();
+        try {
+          localStorage.setItem('i2i_voice_widget_pos', JSON.stringify({
+            x: Math.round(rect.left),
+            y: Math.round(rect.top)
+          }));
+        } catch (err) {}
+      } else {
+        root.classList.remove('is-dragging');
+      }
+    };
+
+    // Attach listeners to draggable areas: feedback card and quick pill
+    if (this.domElements.card) {
+      this.domElements.card.addEventListener('pointerdown', onPointerDown);
+    }
+    const quickPill = root.querySelector('#voice-quick-pill');
+    if (quickPill) {
+      quickPill.addEventListener('pointerdown', onPointerDown);
+    }
+  }
+
+  moveWidgetTo(position) {
+    const root = this.domElements.root;
+    if (!root) return;
+    const w = root.offsetWidth || 340;
+    const h = root.offsetHeight || 130;
+    let targetX = 24;
+    let targetY = 24;
+
+    switch (position) {
+      case 'top-left':
+        targetX = 24;
+        targetY = 24;
+        break;
+      case 'top-right':
+        targetX = window.innerWidth - w - 24;
+        targetY = 24;
+        break;
+      case 'bottom-left':
+        targetX = 24;
+        targetY = window.innerHeight - h - 24;
+        break;
+      case 'bottom-right':
+      case 'reset':
+      default:
+        targetX = window.innerWidth - w - 24;
+        targetY = window.innerHeight - h - 24;
+        break;
+    }
+
+    root.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+    root.style.left = `${targetX}px`;
+    root.style.top = `${targetY}px`;
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+
+    setTimeout(() => {
+      root.style.transition = '';
+    }, 400);
+
+    try {
+      localStorage.setItem('i2i_voice_widget_pos', JSON.stringify({ x: Math.round(targetX), y: Math.round(targetY) }));
+    } catch(e) {}
   }
 
   buildHelpModalDOM() {
@@ -1087,6 +1315,8 @@ export class VoiceAccessibilitySystem {
               <div class="voice-cmd-category-title"><span>🔊</span> Voice Reading &amp; Help</div>
               <ul class="voice-cmd-list">
                 <li class="voice-cmd-item"><span class="voice-phrase">"Kya karna hai" / "Help"</span><span class="voice-desc">Voice instructions</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Move to top" / "Move left"</span><span class="voice-desc">Reposition widget</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Reset position"</span><span class="voice-desc">Reset bottom-right</span></li>
                 <li class="voice-cmd-item"><span class="voice-phrase">"Read page" / "Padho"</span><span class="voice-desc">Read summary aloud</span></li>
                 <li class="voice-cmd-item"><span class="voice-phrase">"Stop" / "Ruko"</span><span class="voice-desc">Stop voice speech</span></li>
                 <li class="voice-cmd-item"><span class="voice-phrase">Alt + V</span><span class="voice-desc">Mic toggle shortcut</span></li>
