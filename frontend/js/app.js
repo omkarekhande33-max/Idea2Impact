@@ -1843,6 +1843,8 @@ class App {
       );
     }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
+    api.markMessagesAsRead(m => m.channel === 'candidate' && (m.sender_role === 'hr' || (m.sender_name && m.sender_name.includes('koomal')))).catch(() => {});
+
     const quickChips = [
       '📅 Inquire about technical interview schedule',
       '🌟 Follow up on my 75/25 assessment rating',
@@ -2876,14 +2878,32 @@ class App {
       window._candChatSyncAttached = true;
       let lastKnownCandSig = '';
       const refreshCandidateIfActive = async (cachedMsgs = null) => {
-        const isCandRole = state.currentRole === 'candidate' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'candidate');
-        if (isCandRole && state.activeTab === 'hr-messages') {
-          const candMsgBox = document.getElementById('cand-chat-messages-container');
-          if (candMsgBox) {
-            const latest = cachedMsgs || await api.getMessages('candidate');
-            this.updateCandidateChatMessages(latest);
+        const isCandRole = state.currentRole === 'candidate';
+        if (isCandRole) {
+          const latest = cachedMsgs || await api.getMessages('candidate');
+          if (state.activeTab === 'hr-messages') {
+            const candMsgBox = document.getElementById('cand-chat-messages-container');
+            if (candMsgBox) {
+              this.updateCandidateChatMessages(latest);
+            } else {
+              await this.renderCandidateDashboard();
+            }
           } else {
-            await this.renderCandidateDashboard();
+            const hrUnread = (latest || []).filter(m => (m.sender_role === 'hr' || (m.sender_name && m.sender_name.includes('koomal')) || (m.sender_id && m.sender_id.includes('koomal'))) && !m.is_read).length;
+            const badgeEl = this.appContainer.querySelector('.sb-nav-link[data-tab="hr-messages"] .sb-badge-unread');
+            const navLink = this.appContainer.querySelector('.sb-nav-link[data-tab="hr-messages"]');
+            if (badgeEl) {
+              if (hrUnread > 0) {
+                badgeEl.textContent = hrUnread;
+              } else {
+                badgeEl.remove();
+              }
+            } else if (hrUnread > 0 && navLink) {
+              const b = document.createElement('span');
+              b.className = 'sb-badge-unread';
+              b.textContent = hrUnread;
+              navLink.appendChild(b);
+            }
           }
         }
       };
@@ -2910,8 +2930,8 @@ class App {
       } catch (e) {}
 
       setInterval(async () => {
-        const isCandRole = state.currentRole === 'candidate' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'candidate');
-        if (isCandRole && state.activeTab === 'hr-messages') {
+        const isCandRole = state.currentRole === 'candidate';
+        if (isCandRole) {
           try {
             const latest = await api.getMessages('candidate');
             if (Array.isArray(latest)) {
@@ -7575,7 +7595,6 @@ class App {
 
     const defaults = [
       { id: 'cand-rushikesh12345', name: 'rushikesh@12345', full_name: 'rushikesh@12345', username: 'rushikesh@12345', email: 'rushikesh@12345', target_role: 'Senior Software Engineer specializing in AI', avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh' },
-      { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
       { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
       { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
       { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
@@ -7590,8 +7609,8 @@ class App {
     });
 
     list.sort((a, b) => {
-      const aIsRushi = (a.name || '').includes('rushikesh') || (a.id || '').includes('rushikesh');
-      const bIsRushi = (b.name || '').includes('rushikesh') || (b.id || '').includes('rushikesh');
+      const aIsRushi = (a.name || '').toLowerCase() === 'rushikesh@12345' || (a.id || '').toLowerCase() === 'cand-rushikesh12345';
+      const bIsRushi = (b.name || '').toLowerCase() === 'rushikesh@12345' || (b.id || '').toLowerCase() === 'cand-rushikesh12345';
       if (aIsRushi && !bIsRushi) return -1;
       if (bIsRushi && !aIsRushi) return 1;
       return 0;
@@ -8435,7 +8454,6 @@ class App {
       // 3. Built-in candidate profiles catalog to guarantee ALL candidates are visible even offline
       const defaultCandidates = [
         { id: 'cand-rushikesh12345', name: 'rushikesh@12345', full_name: 'rushikesh@12345', email: 'rushikesh@12345', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', badge: 'Registered User', isRegistered: true },
-        { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', bio: 'Full stack software engineer with verified skill passport.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', bio: 'Full Stack Developer with Python, React and Cloud experience.', badge: 'Registered User', isRegistered: true },
         { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', bio: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.', badge: 'Registered User', isRegistered: true },
@@ -8470,30 +8488,38 @@ class App {
         const cEmail = c.email || '';
         if (!cId && !cName) return;
 
+        // Ensure rushikesh is strictly mapped to rushikesh@12345
+        const isRushi = (cId && cId.toLowerCase().includes('rushikesh')) ||
+                        (cName && cName.toLowerCase().includes('rushikesh')) ||
+                        (cEmail && cEmail.toLowerCase().includes('rushikesh'));
+        const finalId = isRushi ? 'cand-rushikesh12345' : cId;
+        const finalName = isRushi ? 'rushikesh@12345' : (cName || 'Candidate');
+        const finalEmail = isRushi ? 'rushikesh@12345' : cEmail;
+
         const exists = contacts.some(cc => 
-          (cId && cc.id === cId) || 
-          (cEmail && cc.email && cc.email.toLowerCase() === cEmail.toLowerCase()) || 
-          (cName && cc.name && cc.name.toLowerCase().trim() === cName.toLowerCase().trim())
+          (finalId && cc.id === finalId) || 
+          (finalEmail && cc.email && cc.email.toLowerCase() === finalEmail.toLowerCase()) || 
+          (finalName && cc.name && cc.name.toLowerCase().trim() === finalName.toLowerCase().trim())
         );
 
         if (!exists) {
-          const roleTitle = c.target_role || c.title || (c.bio && c.bio.length < 40 ? c.bio : 'Full-Stack Developer');
+          const roleTitle = c.target_role || c.title || (c.bio && c.bio.length < 40 ? c.bio : 'Senior Software Engineer (AI)');
           contacts.push({
-            id: cId || `cand-${Math.random().toString(36).substring(2, 8)}`,
-            name: cName || 'Candidate',
+            id: finalId || `cand-${Math.random().toString(36).substring(2, 8)}`,
+            name: finalName,
             roleTitle: roleTitle,
-            avatar: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cName || 'Candidate')}`,
+            avatar: c.avatar_url || c.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(finalName)}`,
             badge: 'Registered User',
             verifiedSkill: c.bio || c.summary || 'Verified Candidate Account',
-            email: cEmail || `${(cName || 'candidate').toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
+            email: finalEmail || `${finalName.toLowerCase().replace(/\s+/g, '.')}@idea2impact.dev`
           });
         }
       });
 
-      // Sort contacts: prioritize rushikesh@12345 and candidates with recent messages
+      // Sort contacts: prioritize rushikesh@12345 at the very top!
       contacts.sort((a, b) => {
-        const aIsRushi = (a.name || '').toLowerCase().includes('rushikesh') || (a.id || '').toLowerCase().includes('rushikesh');
-        const bIsRushi = (b.name || '').toLowerCase().includes('rushikesh') || (b.id || '').toLowerCase().includes('rushikesh');
+        const aIsRushi = (a.name || '').toLowerCase() === 'rushikesh@12345' || (a.id || '').toLowerCase() === 'cand-rushikesh12345' || (a.email || '').toLowerCase() === 'rushikesh@12345';
+        const bIsRushi = (b.name || '').toLowerCase() === 'rushikesh@12345' || (b.id || '').toLowerCase() === 'cand-rushikesh12345' || (b.email || '').toLowerCase() === 'rushikesh@12345';
         if (aIsRushi && !bIsRushi) return -1;
         if (bIsRushi && !aIsRushi) return 1;
 
@@ -8699,15 +8725,21 @@ class App {
     let activeId = this.activeContactId[channel];
     if (!activeId || !contacts.some(c => c.id === activeId)) {
       if (isCandidate) {
-        const rushi = contacts.find(c => (c.name || '').includes('rushikesh') || (c.id || '').includes('rushikesh'));
+        const rushi = contacts.find(c => (c.name || '').toLowerCase() === 'rushikesh@12345' || (c.id || '').toLowerCase() === 'cand-rushikesh12345' || (c.email || '').toLowerCase() === 'rushikesh@12345') ||
+                      contacts.find(c => (c.name || '').includes('rushikesh') || (c.id || '').includes('rushikesh'));
         activeId = rushi ? rushi.id : (contacts.length > 0 ? contacts[0].id : null);
       } else {
-        const omkar = contacts.find(c => (c.name || '').includes('omkar') || (c.id || '').includes('omkar'));
+        const omkar = contacts.find(c => (c.name || '').toLowerCase() === 'omkar@12345' || (c.id || '').toLowerCase() === 'found-omkar12345' || (c.email || '').toLowerCase() === 'omkar@12345') ||
+                      contacts.find(c => (c.name || '').includes('omkar') || (c.id || '').includes('omkar'));
         activeId = omkar ? omkar.id : (contacts.length > 0 ? contacts[0].id : null);
       }
       this.activeContactId[channel] = activeId;
     }
     const activeContact = contacts.find(c => c.id === activeId) || (contacts.length > 0 ? contacts[0] : null);
+
+    if (isCandidate) {
+      api.markMessagesAsRead(m => m.channel === 'candidate' && (m.sender_role === 'candidate' || (m.sender_name && m.sender_name.includes('rushikesh')))).catch(() => {});
+    }
 
     const threadMessages = activeContact ? allMessages.filter(m => {
       if (m.channel !== channel) return false;
@@ -9457,7 +9489,7 @@ class App {
           } catch (e) {}
 
           const defaultCands = [
-            { id: 'cand-3354dd', name: 'rushikesh wagh', full_name: 'rushikesh wagh', email: 'rushikeshwagh2501@gmail.com', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', is_registered: true },
+            { id: 'cand-rushikesh12345', name: 'rushikesh@12345', full_name: 'rushikesh@12345', email: 'rushikesh@12345', target_role: 'Senior Software Engineer specializing in AI', bio: 'Senior Software Engineer specializing in AI & distributed systems.', is_registered: true },
             { id: 'cand-291eba', name: 'Test User', full_name: 'Test User', email: 'testuser99@gmail.com', target_role: 'Software Engineer', bio: 'Full stack software engineer with verified skill passport.', is_registered: true },
             { id: 'cand-15d122', name: 'Aarav Patel', full_name: 'Aarav Patel', email: 'aarav.patel@test.io', target_role: 'Full-Stack Cloud Engineer', bio: 'Full Stack Developer with Python, React and Cloud experience.', is_registered: true },
             { id: 'cand-01', name: 'Alex Rivera', full_name: 'Alex Rivera', email: 'alex.rivera@example.com', target_role: 'Senior Full-Stack Engineer', bio: 'Full-Stack Engineer specialized in scalable Python backends, FastAPI microservices, and React SPAs.' },
@@ -9954,6 +9986,11 @@ class App {
           let replyText = '';
           if (isCandidate) {
             const candReplies = {
+              'cand-rushikesh12345': [
+                "Thank you Koomal! I'm excited about this opportunity. I'm ready to walk through my 75/25 verified assessment results and architecture experience.",
+                "Sounds excellent Koomal! I'm available for the technical screen anytime this week.",
+                "Thank you for reaching out! Looking forward to discussing the role."
+              ],
               'cand-01': [
                 "Thank you Elena! I'm excited about this opportunity. That time works great for me, and I'm ready to walk through our FastAPI production architecture.",
                 "Sounds excellent! I've also verified my PostgreSQL indexing and Docker deployment skills if the team wants to cover those in the technical round.",
@@ -10082,8 +10119,8 @@ class App {
       if (simulateBtn) {
         simulateBtn.addEventListener('click', () => {
           const activeContactEl = contactsList?.querySelector('.hr-contact-item.active') || contactsList?.querySelector('.hr-contact-item');
-          const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-01' : 'found-01');
-          const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'Alex Rivera' : 'Sarah Lin');
+          const contactId = activeContactEl ? activeContactEl.dataset.contactId : (isCandidate ? 'cand-rushikesh12345' : 'found-01');
+          const contactName = activeContactEl ? activeContactEl.dataset.contactName : (isCandidate ? 'rushikesh@12345' : 'Sarah Lin');
           const contactAvatar = activeContactEl ? activeContactEl.querySelector('.hr-contact-avatar')?.src : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
           triggerSimulatedReply(contactId, contactName, contactAvatar);
@@ -10333,15 +10370,23 @@ class App {
       window._hrChatSyncAttached = true;
       let lastKnownHrSig = '';
       const refreshHrIfActive = async (cachedMsgs = null) => {
-        const isHrRole = state.currentRole === 'hr' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'hr');
+        const isHrRole = state.currentRole === 'hr';
         if (isHrRole) {
-          const hrMsgBox = document.getElementById('hr-chat-messages-container');
           const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
+          const latest = cachedMsgs || await api.getMessages(ch);
+          const hrMsgBox = document.getElementById('hr-chat-messages-container');
           if (hrMsgBox) {
-            const latest = cachedMsgs || await api.getMessages(ch);
             this.updateHrChatMessages(latest, ch);
           } else if (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline') {
             await this.renderHrDashboard();
+          } else {
+            // Update unread badge on candidate-messages tab
+            const candUnread = (latest || []).filter(m => m.channel === 'candidate' && m.sender_role === 'candidate' && !m.is_read).length;
+            const badgeEl = this.appContainer.querySelector('.sidebar-link[data-tab="candidate-messages"] .sidebar-badge');
+            if (badgeEl) {
+              badgeEl.textContent = candUnread || '';
+              badgeEl.style.display = candUnread > 0 ? 'inline-block' : 'none';
+            }
           }
         }
       };
@@ -10368,8 +10413,8 @@ class App {
       } catch (e) {}
 
       setInterval(async () => {
-        const isHrRole = state.currentRole === 'hr' || (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_role') === 'hr');
-        if (isHrRole && (state.activeTab === 'candidate-messages' || state.activeTab === 'founder-messages' || state.activeTab === 'pipeline')) {
+        const isHrRole = state.currentRole === 'hr';
+        if (isHrRole) {
           try {
             const ch = state.activeTab === 'founder-messages' ? 'founder' : 'candidate';
             const latest = await api.getMessages(ch);

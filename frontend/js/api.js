@@ -114,15 +114,15 @@ export const DEFAULT_CANDIDATE_PROFILES = [
     skills: ['Modern JavaScript & Frontend', 'React', 'TypeScript', 'UI/UX']
   },
   {
-    id: 'cand-3354dd',
-    username: 'tiger',
-    full_name: 'rushikesh wagh',
-    name: 'rushikesh wagh',
+    id: 'cand-rushikesh12345',
+    username: 'rushikesh@12345',
+    full_name: 'rushikesh@12345',
+    name: 'rushikesh@12345',
     role: 'candidate',
     target_role: 'Senior Software Engineer specializing in AI',
     title: 'Senior Software Engineer specializing in AI',
-    email: 'rushikeshwagh2501@gmail.com',
-    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh%20wagh',
+    email: 'rushikesh@12345',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=rushikesh',
     bio: 'Senior Software Engineer specializing in AI & distributed systems.',
     summary: 'Senior Software Engineer specializing in AI & distributed systems.',
     experience_years: 4,
@@ -363,7 +363,7 @@ class ApiService {
     }
 
     const url = `${API_BASE}${endpoint}`;
-    const token = localStorage.getItem('i2i_token');
+    const token = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('i2i_token')) || localStorage.getItem('i2i_token');
     const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
 
     const controller = new AbortController();

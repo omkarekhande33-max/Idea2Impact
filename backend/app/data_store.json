@@ -8621,6 +8621,125 @@
       "user_id": "hr-koomal123456",
       "details": "User koomal@123456 logged in successfully",
       "timestamp": "2026-10-24T09:07:10.861335+00:00"
+    },
+    {
+      "id": "log-aa688114",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-24T11:08:05.864189+00:00"
+    },
+    {
+      "id": "log-e37ea7e1",
+      "event": "Direct Message Sent",
+      "user_id": "hr-koomal123456",
+      "details": "Message sent from hr to candidate (candidate channel)",
+      "timestamp": "2026-10-24T11:08:31.670736+00:00"
+    },
+    {
+      "id": "log-b477c3f6",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:20:51.152132+00:00"
+    },
+    {
+      "id": "log-a236acd1",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:20:59.183214+00:00"
+    },
+    {
+      "id": "log-78dc9a8b",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:21:14.596303+00:00"
+    },
+    {
+      "id": "log-352acafb",
+      "event": "User Login",
+      "user_id": "hr-koomal123456",
+      "details": "User koomal@123456 logged in successfully",
+      "timestamp": "2026-10-24T11:21:14.707232+00:00"
+    },
+    {
+      "id": "log-3de33cf3",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:21:40.037583+00:00"
+    },
+    {
+      "id": "log-24aef6ac",
+      "event": "User Login",
+      "user_id": "hr-koomal123456",
+      "details": "User koomal@123456 logged in successfully",
+      "timestamp": "2026-10-24T11:21:40.181814+00:00"
+    },
+    {
+      "id": "log-8cc970b5",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-24T11:21:40.249253+00:00"
+    },
+    {
+      "id": "log-f4dba9e6",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:23:25.706768+00:00"
+    },
+    {
+      "id": "log-63f5eef7",
+      "event": "User Login",
+      "user_id": "hr-koomal123456",
+      "details": "User koomal@123456 logged in successfully",
+      "timestamp": "2026-10-24T11:23:25.895928+00:00"
+    },
+    {
+      "id": "log-7ca3e911",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-24T11:23:26.004912+00:00"
+    },
+    {
+      "id": "log-2f89730a",
+      "event": "Direct Message Sent",
+      "user_id": "hr-koomal123456",
+      "details": "Message sent from hr to candidate (candidate channel)",
+      "timestamp": "2026-10-24T11:23:26.143695+00:00"
+    },
+    {
+      "id": "log-b9b45716",
+      "event": "User Login",
+      "user_id": "cand-rushikesh12345",
+      "details": "User rushikesh@12345 logged in successfully",
+      "timestamp": "2026-10-24T11:28:57.353492+00:00"
+    },
+    {
+      "id": "log-2449469b",
+      "event": "User Login",
+      "user_id": "hr-koomal123456",
+      "details": "User koomal@123456 logged in successfully",
+      "timestamp": "2026-10-24T11:28:57.528176+00:00"
+    },
+    {
+      "id": "log-28945c1b",
+      "event": "Direct Message Sent",
+      "user_id": "cand-rushikesh12345",
+      "details": "Message sent from candidate to hr (candidate channel)",
+      "timestamp": "2026-10-24T11:28:57.630303+00:00"
+    },
+    {
+      "id": "log-e527589b",
+      "event": "Direct Message Sent",
+      "user_id": "hr-koomal123456",
+      "details": "Message sent from hr to candidate (candidate channel)",
+      "timestamp": "2026-10-24T11:28:57.739591+00:00"
     }
   ],
   "match_results": [
@@ -20003,6 +20122,97 @@
       "text": "Reply from Koomal HR mode: Received your message Rushikesh, looking forward to meeting!",
       "channel": "candidate",
       "timestamp": "2026-10-23T16:07:23.693761+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-626b3fc5",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Automated API test message from rushikesh@12345 to koomal@123456",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T11:08:05.801554+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-04d04ae6",
+      "sender_id": "hr-koomal123456",
+      "receiver_id": "cand-rushikesh12345",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "koomal@123456",
+      "receiver_name": "rushikesh@12345",
+      "text": "Automated API reply from koomal@123456 to rushikesh@12345: Ready for technical interview!",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T11:08:31.619821+00:00",
+      "is_read": false
+    },
+    {
+      "id": "msg-75e66ec5",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Hello Koomal, I am ready for the technical interview!",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T12:00:00Z",
+      "is_read": false
+    },
+    {
+      "id": "msg-3ab0e4ed",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Hello Koomal, I am ready for the technical interview!",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T12:00:00Z",
+      "is_read": false
+    },
+    {
+      "id": "msg-4ac9fe0c",
+      "sender_id": "hr-koomal123456",
+      "receiver_id": "cand-rushikesh12345",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "koomal@123456",
+      "receiver_name": "rushikesh@12345",
+      "text": "Hello Rushikesh! Glad to hear that. Let's schedule the technical screen.",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T12:01:00Z",
+      "is_read": false
+    },
+    {
+      "id": "msg-a419fea0",
+      "sender_id": "cand-rushikesh12345",
+      "receiver_id": "hr-koomal123456",
+      "sender_role": "candidate",
+      "receiver_role": "hr",
+      "sender_name": "rushikesh@12345",
+      "receiver_name": "koomal@123456",
+      "text": "Hello Koomal, I am ready for the technical interview!",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T12:00:00Z",
+      "is_read": false
+    },
+    {
+      "id": "msg-e0e8693c",
+      "sender_id": "hr-koomal123456",
+      "receiver_id": "cand-rushikesh12345",
+      "sender_role": "hr",
+      "receiver_role": "candidate",
+      "sender_name": "koomal@123456",
+      "receiver_name": "rushikesh@12345",
+      "text": "Hello Rushikesh! Glad to hear that. Let's schedule the technical screen.",
+      "channel": "candidate",
+      "timestamp": "2026-10-24T12:01:00Z",
       "is_read": false
     }
   ]
