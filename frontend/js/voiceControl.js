@@ -3,6 +3,9 @@
  * 
  * Empowers motor-impaired and keyboard/mouse disabled users to effortlessly 
  * navigate, interact, type, and control the entire Idea2Impact platform hands-free.
+ * 
+ * Supports both English and conversational Hindi / Hinglish commands with 
+ * smart interim speech detection so user commands execute instantaneously.
  */
 
 export class VoiceAccessibilitySystem {
@@ -12,7 +15,7 @@ export class VoiceAccessibilitySystem {
       autoStart: false,
       speechFeedback: true,
       soundEffects: true,
-      lang: 'en-US'
+      lang: 'en-IN' // Supports English with Indian accent / Hinglish naturally
     }, options);
 
     this.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -26,6 +29,9 @@ export class VoiceAccessibilitySystem {
     this.numberBadges = [];
     this.isNumbersVisible = false;
     this.restartTimeout = null;
+    this.interimDebounceTimer = null;
+    this.lastExecutedPhrase = '';
+    this.lastExecutedTimestamp = 0;
     this.domElements = {};
 
     this.init();
@@ -58,14 +64,14 @@ export class VoiceAccessibilitySystem {
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.lang = this.options.lang;
-      this.recognition.maxAlternatives = 1;
+      this.recognition.maxAlternatives = 3;
 
       this.recognition.onstart = () => {
         this.isListening = true;
         this.updateStatus('listening', 'Monitoring Voice...');
         this.playTone(520, 0.12, 'sine');
         this.animateWaveBars(true);
-        this.announceAria('Voice monitoring activated. Listening for commands.');
+        this.announceAria('Voice monitoring active. Listening for commands.');
       };
 
       this.recognition.onresult = (event) => {
@@ -81,19 +87,32 @@ export class VoiceAccessibilitySystem {
           }
         }
 
+        // Show live transcription immediately
         if (interimTranscript) {
           this.showTranscript(interimTranscript, true);
+
+          // Fast interim execution: don't make user wait 3-5 seconds for browser to trigger isFinal!
+          // Debounce 900ms after user stops uttering interim words, then auto-execute.
+          clearTimeout(this.interimDebounceTimer);
+          const candidateText = interimTranscript.trim();
+          if (candidateText.length >= 2) {
+            this.interimDebounceTimer = setTimeout(() => {
+              if (this.isListening && candidateText) {
+                this.executeIfNew(candidateText);
+              }
+            }, 950);
+          }
         }
 
         if (finalTranscript) {
+          clearTimeout(this.interimDebounceTimer);
           const cleanText = finalTranscript.trim();
           this.showTranscript(cleanText, false);
-          this.handleCommand(cleanText);
+          this.executeIfNew(cleanText);
         }
       };
 
       this.recognition.onerror = (event) => {
-        // Silently ignore normal pauses in continuous speech
         if (event.error === 'no-speech') {
           return;
         }
@@ -107,7 +126,6 @@ export class VoiceAccessibilitySystem {
 
       this.recognition.onend = () => {
         this.animateWaveBars(false);
-        // If continuous mode is enabled and user hasn't explicitly stopped, restart immediately
         if (this.isListening && this.isContinuous) {
           clearTimeout(this.restartTimeout);
           this.restartTimeout = setTimeout(() => {
@@ -127,6 +145,21 @@ export class VoiceAccessibilitySystem {
     } catch (e) {
       console.error("Failed to initialize Speech Recognition:", e);
     }
+  }
+
+  executeIfNew(phrase) {
+    if (!phrase) return;
+    const now = Date.now();
+    const normalized = phrase.toLowerCase().trim().replace(/[.,!?;:]/g, '');
+
+    // Avoid double execution within 2 seconds for exact same phrase
+    if (this.lastExecutedPhrase === normalized && (now - this.lastExecutedTimestamp) < 2200) {
+      return;
+    }
+
+    this.lastExecutedPhrase = normalized;
+    this.lastExecutedTimestamp = now;
+    this.handleCommand(phrase);
   }
 
   toggleListening() {
@@ -156,6 +189,7 @@ export class VoiceAccessibilitySystem {
     localStorage.setItem('i2i_voice_active', 'false');
     this.playTone(330, 0.15, 'sine');
     clearTimeout(this.restartTimeout);
+    clearTimeout(this.interimDebounceTimer);
     try {
       if (this.recognition) this.recognition.stop();
     } catch (e) {}
@@ -166,174 +200,231 @@ export class VoiceAccessibilitySystem {
 
   /* -------------------------------------------------------------
    * Command Interpretation & Action Dispatcher
+   * (Supports English + Hinglish / Conversational Natural Language)
    * ----------------------------------------------------------- */
   handleCommand(phrase) {
     if (!phrase) return;
     const lower = phrase.toLowerCase().trim().replace(/[.,!?;:]/g, '');
-    this.updateStatus('processing', 'Processing...');
+    this.updateStatus('processing', 'Executing...');
 
-    // 1. Check for Number Tags Navigation (e.g. "click 3", "select 5", "5", "tag 2")
-    if (this.isNumbersVisible || /^(click|select|choose|open|press|tap)?\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)$/.test(lower)) {
-      const numberMatched = this.parseSpokenNumber(lower);
-      if (numberMatched !== null) {
-        const handled = this.clickElementByNumber(numberMatched);
-        if (handled) return;
-      }
-    }
-
-    // 2. Number Badges Visibility
-    if (/(show|display|turn on|view)\s+(numbers|tags|badges|labels)/.test(lower) || lower === 'numbers' || lower === 'show numbers') {
-      this.showNumberBadges();
-      this.speak("Displaying numbered targets. Say a number to click.");
-      this.showFeedback("Numbered badges shown. Say a number or 'Click #' to activate.", "success");
+    // 1. Conversational Queries ("Kya karna hai", "What to do", "Help", "Kaise chalega")
+    if (this.isHelpOrGuidanceQuery(lower)) {
+      this.openHelpModal();
+      this.speak("You can say: Open jobs, Scroll down, Show numbers, or Send message. Opening guide.");
+      this.showFeedback("Say 'Jobs', 'Scroll down', 'Show numbers', or 'Read page'.", "success");
+      this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    if (/(hide|clear|remove|dismiss)\s+(numbers|tags|badges|labels)/.test(lower) || lower === 'hide numbers') {
+    // 2. Number Tags Mode / Spoken Numbers
+    // Checks "1", "2", "ek", "do", "click 3", "chuno 4"
+    const numberMatched = this.parseSpokenNumber(lower);
+    if (numberMatched !== null) {
+      const handled = this.clickElementByNumber(numberMatched);
+      if (handled) return;
+    }
+
+    // 3. Show / Hide Numbers overlay
+    if (this.hasKeywords(lower, ['show numbers', 'numbers', 'tag', 'tags', 'badges', 'tag lagao', 'number dikhao', 'kya click'])) {
+      this.showNumberBadges();
+      this.speak("Showing numbers. Say any number to click it.");
+      this.showFeedback("Numbered targets shown! Say '1', '2', 'Click 3' to activate.", "success");
+      this.updateStatus('listening', 'Monitoring Voice...');
+      return;
+    }
+
+    if (this.hasKeywords(lower, ['hide numbers', 'clear numbers', 'tag hatao', 'number hatao', 'hatao tags'])) {
       this.hideNumberBadges();
       this.speak("Hiding numbers.");
-      this.showFeedback("Numbered badges hidden.", "info");
+      this.showFeedback("Numbers hidden.", "info");
+      this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    // 3. Navigation Commands (Tabs, Workspaces, Pages)
-    if (this.tryNavigationCommand(lower)) {
-      return;
-    }
-
-    // 4. Scrolling & Viewport Control
+    // 4. Viewport Scrolling (English & Hindi)
     if (this.tryScrollCommand(lower)) {
       return;
     }
 
-    // 5. Typing & Form Input ("type hello", "enter test@email.com", "search python")
+    // 5. Navigation Commands (Tabs, Workspaces, Pages)
+    if (this.tryNavigationCommand(lower)) {
+      return;
+    }
+
+    // 6. Typing & Form Input ("type hello", "likho message", "search React")
     if (this.tryTypingCommand(lower, phrase)) {
       return;
     }
 
-    // 6. Generic Click Commands ("click send", "click apply", "click post job")
+    // 7. Direct Click Commands ("click send", "bhejo", "click apply", "login karo")
     if (this.tryClickCommand(lower)) {
       return;
     }
 
-    // 7. Screen Reader / Voice Reading
-    if (/(read|speak)\s+(page|content|summary|article|this)/.test(lower) || lower === 'read page' || lower === 'read summary') {
+    // 8. Screen Reading / Read Aloud
+    if (this.hasKeywords(lower, ['read page', 'read', 'padho', 'sunao', 'padh ke batao', 'bol ke batao', 'read summary'])) {
       this.readPageContent();
       return;
     }
 
-    if (/(stop|cancel|quiet|silence)\s+(speaking|reading|voice|sound)/.test(lower) || lower === 'stop reading' || lower === 'be quiet') {
+    if (this.hasKeywords(lower, ['stop reading', 'stop', 'quiet', 'silence', 'chup', 'ruko', 'ruk jao', 'band karo'])) {
       this.stopSpeaking();
-      this.showFeedback("Speech output stopped.", "info");
+      this.showFeedback("Speech audio silenced.", "info");
+      this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    // 8. Help & Guides
-    if (/(help|what can i say|show commands|voice commands|guide)/.test(lower)) {
-      this.openHelpModal();
-      this.speak("Opening Voice Commands guide.");
-      this.showFeedback("Voice commands guide opened.", "success");
-      return;
-    }
-
-    if (/(close help|close guide|close modal|cancel|dismiss|escape)/.test(lower)) {
+    // 9. Close Modal / Dialog
+    if (this.hasKeywords(lower, ['close', 'close modal', 'cancel', 'dismiss', 'escape', 'hatao modal', 'band'])) {
       this.closeHelpModal();
-      this.speak("Closed modal.");
+      this.speak("Closed.");
+      this.showFeedback("Modal closed", "info");
+      this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    // 9. Voice Monitor Control
-    if (/(pause voice|mute mic|stop listening|sleep)/.test(lower)) {
+    // 10. Pause Voice Control
+    if (this.hasKeywords(lower, ['pause voice', 'stop listening', 'mute mic', 'sleep', 'so jao'])) {
       this.speak("Pausing voice monitoring.");
       this.stopListening();
       return;
     }
 
-    // Unrecognized command
+    // 11. Smart Content Fallback: Does the spoken phrase contain any button or link text?
+    if (this.tryFuzzyButtonClick(lower)) {
+      return;
+    }
+
+    // Unrecognized phrase
     this.updateStatus('listening', 'Monitoring Voice...');
-    this.showFeedback(`Unrecognized: "${phrase}". Say "Help" for command list.`, 'warning');
+    this.showFeedback(`Heard: "${phrase}". Say "Kya karna hai" or "Help" for actions.`, 'warning');
+  }
+
+  isHelpOrGuidanceQuery(text) {
+    const helpPhrases = [
+      'kya karna hai', 'kya kare', 'kya kar sakte hai', 'kya karu', 
+      'kaise chalega', 'kaise use kare', 'kya bolu', 'kya bole',
+      'help', 'guide', 'what to do', 'what can i do', 'how to use',
+      'commands', 'show commands', 'what can i say'
+    ];
+    return helpPhrases.some(hp => text.includes(hp));
+  }
+
+  hasKeywords(text, keywords) {
+    return keywords.some(kw => text.includes(kw));
   }
 
   /* -------------------------------------------------------------
-   * Specific Command Handlers
+   * Navigation Handler (English + Hindi/Hinglish)
    * ----------------------------------------------------------- */
   tryNavigationCommand(lower) {
-    // Tab switching for Idea2Impact Dashboard
-    const tabMap = {
-      // Candidate tabs
-      'jobs': ['jobs', 'job', 'analyze', 'match', 'roles', 'job match'],
-      'competencies': ['competencies', 'competency', 'skills', 'skill passport', 'passport', 'my skills'],
-      'applications': ['applications', 'applied', 'applied roles', 'my applications'],
-      'hr-messages': ['hr messages', 'hr message', 'recruiter messages', 'recruiter message', 'hr chat', 'message hr'],
-      'meet-hr': ['meet with hr', 'meet hr', 'video call', 'interview meet', 'scheduled interview'],
-      
-      // HR tabs
-      'overview': ['overview', 'dashboard', 'executive dashboard', 'summary'],
-      'create-job': ['create job', 'post job', 'post new job', 'new job', 'post 75 25 job'],
-      'candidates': ['candidates', 'candidate dossier', 'talent', 'talent pool', 'dossier', 'candidate list'],
-      'candidate-messages': ['candidate messages', 'candidate message', 'candidate chat', 'messages with candidate'],
-      'interviews': ['interviews', 'offers', 'pipeline', 'interview list', 'job offers']
-    };
+    // 1. Analyze & Match / Jobs tab
+    if (this.hasKeywords(lower, ['job', 'jobs', 'naukri', 'analyze', 'match', 'roles'])) {
+      this.navigateToTab('jobs');
+      return true;
+    }
 
-    // Check tab navigation
-    for (const [tabKey, aliases] of Object.entries(tabMap)) {
-      const match = aliases.some(alias => 
-        lower === alias || 
-        lower === `go to ${alias}` || 
-        lower === `open ${alias}` || 
-        lower === `switch to ${alias}` || 
-        lower === `show ${alias}`
-      );
-      if (match) {
-        this.navigateToTab(tabKey);
-        return true;
+    // 2. Competencies / Skill Passport tab
+    if (this.hasKeywords(lower, ['competenc', 'skill', 'passport', 'hunar', 'certificate'])) {
+      this.navigateToTab('competencies');
+      return true;
+    }
+
+    // 3. Applied Roles tab
+    if (this.hasKeywords(lower, ['applied', 'application', 'apply kiya'])) {
+      this.navigateToTab('applications');
+      return true;
+    }
+
+    // 4. HR Messages tab (Candidate view)
+    if (this.hasKeywords(lower, ['hr message', 'message hr', 'hr se baat', 'recruiter message'])) {
+      this.navigateToTab('hr-messages');
+      return true;
+    }
+
+    // 5. Candidate Messages tab (HR view)
+    if (this.hasKeywords(lower, ['candidate message', 'candidate chat', 'messages with candidate'])) {
+      this.navigateToTab('candidate-messages');
+      return true;
+    }
+
+    // Generic Message / Chat (works in both Candidate & HR mode)
+    if (this.hasKeywords(lower, ['message', 'messages', 'chat', 'inbox', 'baat karo', 'khat'])) {
+      const activeRole = this.getActiveRole();
+      if (activeRole === 'hr') {
+        this.navigateToTab('candidate-messages');
+      } else {
+        this.navigateToTab('hr-messages');
       }
+      return true;
     }
 
-    // Page navigation
-    if (/(go to |open )?(home|landing|homepage)/.test(lower)) {
+    // 6. Meet with HR tab
+    if (this.hasKeywords(lower, ['meet', 'interview', 'video call', 'meeting', 'mulaqat'])) {
+      this.navigateToTab('meet-hr');
+      return true;
+    }
+
+    // 7. Executive Dashboard / Overview (HR mode)
+    if (this.hasKeywords(lower, ['overview', 'executive', 'dashboard pe', 'main dashboard'])) {
+      this.navigateToTab('overview');
+      return true;
+    }
+
+    // 8. Create Job / Post Job (HR mode)
+    if (this.hasKeywords(lower, ['post job', 'create job', 'nayi job', 'job post', 'job banao'])) {
+      this.navigateToTab('create-job');
+      return true;
+    }
+
+    // 9. Candidates / Dossier (HR mode)
+    if (this.hasKeywords(lower, ['candidate', 'candidates', 'talent', 'dossier', 'ummeedwar'])) {
+      this.navigateToTab('candidates');
+      return true;
+    }
+
+    // 10. Interviews / Offers (HR mode)
+    if (this.hasKeywords(lower, ['offer', 'offers', 'pipeline'])) {
+      this.navigateToTab('interviews');
+      return true;
+    }
+
+    // 11. External Pages
+    if (this.hasKeywords(lower, ['home', 'landing', 'homepage', 'ghar'])) {
       this.speak("Navigating to Home.");
-      this.showFeedback("Going to Home page...", "success");
-      setTimeout(() => { window.location.href = 'index.html'; }, 600);
+      this.showFeedback("Opening Home page...", "success");
+      setTimeout(() => { window.location.href = 'index.html'; }, 500);
       return true;
     }
 
-    if (/(go to |open )?(roadmap|skill roadmap|learning hub)/.test(lower)) {
+    if (this.hasKeywords(lower, ['roadmap', 'learning', 'curriculum', 'padhai'])) {
       this.speak("Navigating to Skill Roadmap.");
-      this.showFeedback("Going to Roadmap...", "success");
-      setTimeout(() => { window.location.href = 'roadmap.html'; }, 600);
+      this.showFeedback("Opening Roadmap...", "success");
+      setTimeout(() => { window.location.href = 'roadmap.html'; }, 500);
       return true;
     }
 
-    if (/(go to |open )?(login|sign in|portal)/.test(lower)) {
-      this.speak("Navigating to Sign In.");
-      this.showFeedback("Going to Login page...", "success");
-      setTimeout(() => { window.location.href = 'login.html'; }, 600);
+    if (this.hasKeywords(lower, ['login', 'sign in', 'portal', 'khata'])) {
+      this.speak("Navigating to Login.");
+      this.showFeedback("Opening Login...", "success");
+      setTimeout(() => { window.location.href = 'login.html'; }, 500);
       return true;
     }
 
-    if (/(go to |open )?dashboard/.test(lower)) {
-      this.speak("Opening Dashboard.");
-      this.showFeedback("Going to Dashboard...", "success");
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
-      return true;
-    }
-
-    // Role Switcher Commands (Demo persona switch)
-    if (/(switch to |become |role )candidate/.test(lower)) {
+    // 12. Mode switching
+    if (this.hasKeywords(lower, ['candidate mode', 'switch to candidate', 'candidate bano'])) {
       this.switchRole('candidate');
       return true;
     }
-    if (/(switch to |become |role )(hr|recruiter)/.test(lower)) {
+    if (this.hasKeywords(lower, ['hr mode', 'recruiter mode', 'switch to hr', 'recruiter bano'])) {
       this.switchRole('hr');
       return true;
     }
 
-    // Logout
-    if (lower === 'logout' || lower === 'sign out' || lower === 'log out') {
+    // 13. Logout
+    if (this.hasKeywords(lower, ['logout', 'sign out', 'log out', 'band karo session'])) {
       this.speak("Signing out.");
-      const logoutBtn = document.querySelector('[data-action="logout"], #logout-btn, button:has-text("Logout"), button:has-text("Sign Out")') ||
-                        Array.from(document.querySelectorAll('button, a')).find(el => /sign\s*out|log\s*out/i.test(el.textContent));
+      const logoutBtn = Array.from(document.querySelectorAll('button, a')).find(el => /sign\s*out|log\s*out/i.test(el.textContent));
       if (logoutBtn) {
         logoutBtn.click();
       } else {
@@ -347,28 +438,33 @@ export class VoiceAccessibilitySystem {
     return false;
   }
 
+  getActiveRole() {
+    if (window.state && window.state.currentRole) return window.state.currentRole;
+    return sessionStorage.getItem('i2i_role') || localStorage.getItem('i2i_role') || 'candidate';
+  }
+
   navigateToTab(tabKey) {
     const navLink = document.querySelector(`[data-tab="${tabKey}"]`);
     if (navLink) {
       navLink.click();
       const tabName = navLink.textContent.trim() || tabKey;
       this.speak(`Opened ${tabName}`);
-      this.showFeedback(`✓ Navigated to ${tabName}`, 'success');
+      this.showFeedback(`✓ Navigated to: ${tabName}`, 'success');
       this.playTone(660, 0.1, 'sine');
       this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    // Try finding via window.state or dispatching custom event
+    // Try state.js singleton
     if (window.state && typeof window.state.setTab === 'function') {
       window.state.setTab(tabKey);
       this.speak(`Switched tab to ${tabKey}`);
-      this.showFeedback(`✓ Switched to ${tabKey}`, 'success');
+      this.showFeedback(`✓ Switched tab: ${tabKey}`, 'success');
       this.updateStatus('listening', 'Monitoring Voice...');
       return;
     }
 
-    this.showFeedback(`Tab "${tabKey}" is not currently available in this view.`, 'warning');
+    this.showFeedback(`Tab "${tabKey}" is not currently in this view.`, 'warning');
     this.updateStatus('listening', 'Monitoring Voice...');
   }
 
@@ -376,56 +472,71 @@ export class VoiceAccessibilitySystem {
     const roleChip = document.querySelector(`[data-role="${role}"], .role-chip[data-role="${role}"]`);
     if (roleChip) {
       roleChip.click();
-      this.speak(`Switched role to ${role}`);
-      this.showFeedback(`✓ Switched mode to ${role.toUpperCase()}`, 'success');
+      this.speak(`Switched mode to ${role}`);
+      this.showFeedback(`✓ Switched mode: ${role.toUpperCase()}`, 'success');
     } else if (window.state && typeof window.state.setRole === 'function') {
       window.state.setRole(role);
-      this.speak(`Switched role to ${role}`);
-      this.showFeedback(`✓ Switched mode to ${role.toUpperCase()}`, 'success');
+      this.speak(`Switched mode to ${role}`);
+      this.showFeedback(`✓ Switched mode: ${role.toUpperCase()}`, 'success');
     } else {
-      this.showFeedback(`Could not switch to ${role} from current view.`, 'warning');
+      this.showFeedback(`Cannot switch to ${role} from current view.`, 'warning');
     }
+    this.updateStatus('listening', 'Monitoring Voice...');
   }
 
+  /* -------------------------------------------------------------
+   * Viewport Scrolling (English + Hindi)
+   * ----------------------------------------------------------- */
   tryScrollCommand(lower) {
-    if (lower === 'scroll down' || lower === 'page down' || lower === 'down') {
-      window.scrollBy({ top: 450, behavior: 'smooth' });
-      this.showFeedback('Scrolled down', 'info');
+    // Scroll Down
+    if (this.hasKeywords(lower, ['scroll down', 'down', 'niche', 'niche jao', 'niche scroll', 'page down'])) {
+      window.scrollBy({ top: 480, behavior: 'smooth' });
+      this.showFeedback('↓ Scrolled down', 'info');
       this.updateStatus('listening', 'Monitoring Voice...');
       return true;
     }
-    if (lower === 'scroll up' || lower === 'page up' || lower === 'up') {
-      window.scrollBy({ top: -450, behavior: 'smooth' });
-      this.showFeedback('Scrolled up', 'info');
+
+    // Scroll Up
+    if (this.hasKeywords(lower, ['scroll up', 'up', 'upar', 'uupor', 'upar jao', 'upar scroll', 'page up'])) {
+      window.scrollBy({ top: -480, behavior: 'smooth' });
+      this.showFeedback('↑ Scrolled up', 'info');
       this.updateStatus('listening', 'Monitoring Voice...');
       return true;
     }
-    if (lower === 'scroll to top' || lower === 'go to top' || lower === 'top') {
+
+    // Scroll to Top
+    if (this.hasKeywords(lower, ['scroll to top', 'top', 'sabse upar', 'shuruat'])) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.showFeedback('Scrolled to top', 'info');
+      this.showFeedback('↑ Scrolled to top', 'info');
       this.updateStatus('listening', 'Monitoring Voice...');
       return true;
     }
-    if (lower === 'scroll to bottom' || lower === 'bottom of page' || lower === 'bottom') {
+
+    // Scroll to Bottom
+    if (this.hasKeywords(lower, ['scroll to bottom', 'bottom', 'sabse niche', 'aakhri'])) {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      this.showFeedback('Scrolled to bottom', 'info');
+      this.showFeedback('↓ Scrolled to bottom', 'info');
       this.updateStatus('listening', 'Monitoring Voice...');
       return true;
     }
+
     return false;
   }
 
+  /* -------------------------------------------------------------
+   * Typing & Form Input Handler
+   * ----------------------------------------------------------- */
   tryTypingCommand(lower, rawPhrase) {
-    // "type [text]", "enter [text]", "write [text]"
-    const typeMatch = rawPhrase.match(/^(?:type|enter|write)\s+(.+)$/i);
+    // "type [text]", "likho [text]", "enter [text]"
+    const typeMatch = rawPhrase.match(/^(?:type|likho|enter|write)\s+(.+)$/i);
     if (typeMatch) {
       const textToType = typeMatch[1];
       this.typeTextIntoActiveElement(textToType);
       return true;
     }
 
-    // "search for [query]", "search [query]"
-    const searchMatch = rawPhrase.match(/^search(?:\s+for)?\s+(.+)$/i);
+    // "search for [query]", "dhoondo [query]"
+    const searchMatch = rawPhrase.match(/^(?:search(?:\s+for)?|dhoondo)\s+(.+)$/i);
     if (searchMatch) {
       const query = searchMatch[1];
       const searchInput = document.querySelector('input[type="search"], input[name*="search"], input[placeholder*="search" i], input[id*="search" i]');
@@ -437,14 +548,14 @@ export class VoiceAccessibilitySystem {
         this.speak(`Searching for ${query}`);
         this.showFeedback(`✓ Searched: "${query}"`, 'success');
         
-        // Trigger submit if in form or enter
         const enterEvt = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true });
         searchInput.dispatchEvent(enterEvt);
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
     }
 
-    // "focus message" / "focus chat" / "message [text]"
+    // "focus message", "focus chat", "message [text]"
     if (lower.startsWith('focus message') || lower.startsWith('focus chat') || lower.startsWith('message ')) {
       const chatInput = document.querySelector('#chat-input, textarea[placeholder*="message" i], input[placeholder*="message" i], textarea');
       if (chatInput) {
@@ -453,49 +564,54 @@ export class VoiceAccessibilitySystem {
           const content = rawPhrase.slice(8);
           this.typeTextIntoActiveElement(content);
         } else {
-          this.showFeedback('Message input focused. Say "Type [message]" to write.', 'info');
+          this.showFeedback('Chat input focused. Say "Type [text]" to write.', 'info');
         }
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
     }
 
-    // "send message" / "send"
-    if (lower === 'send' || lower === 'send message' || lower === 'submit message') {
+    // Send Message / Bhejo
+    if (this.hasKeywords(lower, ['send', 'bhejo', 'send message', 'message bhejo', 'submit message'])) {
       const sendBtn = document.querySelector('#chat-send-btn, button[id*="send" i], button.chat-send-btn') ||
-                      Array.from(document.querySelectorAll('button')).find(b => /send/i.test(b.textContent));
+                      Array.from(document.querySelectorAll('button')).find(b => /send|bhejo/i.test(b.textContent));
       if (sendBtn) {
         sendBtn.click();
-        this.speak("Message sent");
-        this.showFeedback("✓ Sent message", "success");
+        this.speak("Message sent.");
+        this.showFeedback("✓ Message Sent!", "success");
         this.playTone(880, 0.1, 'sine');
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
     }
 
-    // "clear" / "clear input"
-    if (lower === 'clear' || lower === 'clear input' || lower === 'erase') {
+    // Clear input
+    if (this.hasKeywords(lower, ['clear', 'erase', 'saf karo', 'hatao text'])) {
       const activeEl = document.activeElement;
       if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
         activeEl.value = '';
         activeEl.dispatchEvent(new Event('input', { bubbles: true }));
         activeEl.dispatchEvent(new Event('change', { bubbles: true }));
         this.showFeedback("Cleared input text", "info");
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
     }
 
-    // "submit" / "press enter"
-    if (lower === 'submit' || lower === 'press enter' || lower === 'enter') {
+    // Submit / Press Enter
+    if (this.hasKeywords(lower, ['submit', 'press enter', 'enter karo', 'dakhil karo'])) {
       const activeEl = document.activeElement;
       if (activeEl && activeEl.form) {
         activeEl.form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
         this.showFeedback("Submitted form", "success");
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
       const submitBtn = document.querySelector('button[type="submit"], input[type="submit"]');
       if (submitBtn) {
         submitBtn.click();
         this.showFeedback("Submitted form", "success");
+        this.updateStatus('listening', 'Monitoring Voice...');
         return true;
       }
     }
@@ -506,7 +622,6 @@ export class VoiceAccessibilitySystem {
   typeTextIntoActiveElement(text) {
     let target = document.activeElement;
     
-    // If not focused on an input/textarea, try to find sensible default input
     if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) {
       target = document.querySelector('#chat-input, input:not([type="hidden"]), textarea');
       if (target) {
@@ -525,55 +640,74 @@ export class VoiceAccessibilitySystem {
       this.highlightElement(target);
       this.updateStatus('listening', 'Monitoring Voice...');
     } else {
-      this.showFeedback('No text input field is currently active or focused.', 'warning');
+      this.showFeedback('No input field focused. Click an input or say "Focus message".', 'warning');
       this.updateStatus('listening', 'Monitoring Voice...');
     }
   }
 
+  /* -------------------------------------------------------------
+   * Direct Clicking by Name / Text
+   * ----------------------------------------------------------- */
   tryClickCommand(lower) {
-    // Check for "click [something]", "press [something]", "tap [something]"
-    const clickMatch = lower.match(/^(?:click|press|select|open|tap)\s+(.+)$/);
+    const clickMatch = lower.match(/^(?:click|press|select|open|tap|chuno|daba)(?:\s+on|\s+pe)?\s+(.+)$/);
     if (!clickMatch) return false;
 
     const targetLabel = clickMatch[1].trim();
+    return this.clickMatchingElement(targetLabel);
+  }
 
-    // Priority targets
+  tryFuzzyButtonClick(lower) {
+    // If user mentions a notable button name, auto click it
+    const candidateButtons = Array.from(document.querySelectorAll(
+      'button, a, input[type="button"], input[type="submit"], [role="button"], .btn'
+    )).filter(el => {
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).display !== 'none';
+    });
+
+    for (const btn of candidateButtons) {
+      const txt = (btn.textContent || '').trim().toLowerCase();
+      if (txt.length >= 3 && lower.includes(txt)) {
+        this.highlightElement(btn);
+        btn.click();
+        this.speak(`Clicked ${txt}`);
+        this.showFeedback(`✓ Clicked: "${txt}"`, 'success');
+        this.playTone(740, 0.1, 'sine');
+        this.updateStatus('listening', 'Monitoring Voice...');
+        return true;
+      }
+    }
+    return false;
+  }
+
+  clickMatchingElement(targetLabel) {
     const candidates = Array.from(document.querySelectorAll(
       'button, a, input[type="button"], input[type="submit"], [role="button"], label, .role-chip, .tab-chip, .mobile-tab-chip, .nav-link'
     )).filter(el => {
-      // Must be visible
       const rect = el.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0 || window.getComputedStyle(el).display === 'none') {
-        return false;
-      }
-      return true;
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).display !== 'none';
     });
 
-    // Find best match
     let bestEl = null;
     let bestScore = 0;
 
     for (const el of candidates) {
       const text = (el.textContent || '').trim().toLowerCase();
       const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase();
-      const title = (el.getAttribute('title') || '').toLowerCase();
       const val = (el.value || '').toLowerCase();
       const id = (el.id || '').toLowerCase();
 
-      // Exact match
       if (text === targetLabel || ariaLabel === targetLabel || val === targetLabel) {
         bestEl = el;
         bestScore = 100;
         break;
       }
 
-      // Starts with
       if (text.startsWith(targetLabel) || ariaLabel.startsWith(targetLabel)) {
         if (bestScore < 80) { bestEl = el; bestScore = 80; }
       }
 
-      // Contains
-      if (text.includes(targetLabel) || ariaLabel.includes(targetLabel) || title.includes(targetLabel) || id.includes(targetLabel)) {
+      if (text.includes(targetLabel) || ariaLabel.includes(targetLabel) || id.includes(targetLabel)) {
         if (bestScore < 60) { bestEl = el; bestScore = 60; }
       }
     }
@@ -589,22 +723,20 @@ export class VoiceAccessibilitySystem {
       return true;
     }
 
-    this.showFeedback(`Could not find button or link matching "${targetLabel}". Say "Show Numbers" to see all click targets.`, 'warning');
+    this.showFeedback(`Could not find "${targetLabel}". Say "Show numbers" to see all targets.`, 'warning');
     this.updateStatus('listening', 'Monitoring Voice...');
     return false;
   }
 
   /* -------------------------------------------------------------
-   * Vimium-Style Number Badges (Hands-Free Accessibility)
+   * Vimium Number Badges (Hands-Free Accessibility)
    * ----------------------------------------------------------- */
   showNumberBadges() {
     this.hideNumberBadges();
 
-    // Query all interactive elements
     const elements = Array.from(document.querySelectorAll(
       'button, a, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .role-chip, .nav-link, .mobile-tab-chip'
     )).filter(el => {
-      // Must be visible in viewport
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return false;
       if (rect.bottom < 0 || rect.top > window.innerHeight) return false;
@@ -629,6 +761,7 @@ export class VoiceAccessibilitySystem {
     });
 
     this.isNumbersVisible = true;
+    if (this.domElements.tagsBtn) this.domElements.tagsBtn.classList.add('active');
   }
 
   hideNumberBadges() {
@@ -639,6 +772,7 @@ export class VoiceAccessibilitySystem {
     });
     this.numberBadges = [];
     this.isNumbersVisible = false;
+    if (this.domElements.tagsBtn) this.domElements.tagsBtn.classList.remove('active');
   }
 
   clickElementByNumber(num) {
@@ -653,24 +787,43 @@ export class VoiceAccessibilitySystem {
         match.element.focus();
       }
       this.speak(`Activated number ${num}`);
-      this.showFeedback(`✓ Clicked [${num}]: ${match.element.textContent.trim().slice(0, 24) || 'Target'}`, 'success');
+      this.showFeedback(`✓ Activated [${num}]: ${(match.element.textContent || 'Element').trim().slice(0, 24)}`, 'success');
       this.playTone(800, 0.1, 'triangle');
-      // Auto-hide tags after successful action
-      setTimeout(() => this.hideNumberBadges(), 1000);
+      setTimeout(() => this.hideNumberBadges(), 1200);
+      this.updateStatus('listening', 'Monitoring Voice...');
       return true;
     }
     return false;
   }
 
   parseSpokenNumber(text) {
+    // English + Hindi spoken numbers
     const wordNumbers = {
-      'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-      'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
-      'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20
+      'zero': 0, 'shunya': 0,
+      'one': 1, 'ek': 1,
+      'two': 2, 'do': 2,
+      'three': 3, 'teen': 3,
+      'four': 4, 'char': 4,
+      'five': 5, 'panch': 5,
+      'six': 6, 'chhe': 6, 'che': 6,
+      'seven': 7, 'saat': 7,
+      'eight': 8, 'aath': 8,
+      'nine': 9, 'nau': 9,
+      'ten': 10, 'dus': 10,
+      'eleven': 11, 'gyarah': 11,
+      'twelve': 12, 'barah': 12,
+      'thirteen': 13, 'terah': 13,
+      'fourteen': 14, 'chaudah': 14,
+      'fifteen': 15, 'pandrah': 15,
+      'sixteen': 16, 'solah': 16,
+      'seventeen': 17, 'satrah': 17,
+      'eighteen': 18, 'atharah': 18,
+      'nineteen': 19, 'unnis': 19,
+      'twenty': 20, 'bees': 20
     };
 
-    const digitsMatch = text.match(/\d+/);
+    // If it's a direct digit or "click 3"
+    const digitsMatch = text.match(/\b\d+\b/);
     if (digitsMatch) {
       return parseInt(digitsMatch[0], 10);
     }
@@ -689,7 +842,6 @@ export class VoiceAccessibilitySystem {
   speak(text) {
     if (!this.speechFeedbackEnabled || !('speechSynthesis' in window)) return;
     
-    // Cancel prior speech
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -731,7 +883,7 @@ export class VoiceAccessibilitySystem {
 
     let summary = `Page heading: ${document.title}. `;
     if (headings.length > 0) {
-      summary += `Sections on this page include: ${headings.join('. ')}. `;
+      summary += `Sections include: ${headings.join('. ')}. `;
     }
 
     const firstParagraph = mainEl.querySelector('p');
@@ -739,7 +891,7 @@ export class VoiceAccessibilitySystem {
       summary += `Overview: ${firstParagraph.textContent.trim().slice(0, 200)}.`;
     }
 
-    summary += ` Say "Show Numbers" to navigate clickable items.`;
+    summary += ` Say "Show Numbers" to navigate clickable targets.`;
     this.speak(summary);
     this.showFeedback("Reading page summary aloud...", "info");
   }
@@ -766,16 +918,13 @@ export class VoiceAccessibilitySystem {
 
       osc.start();
       osc.stop(ctx.currentTime + duration);
-    } catch (e) {
-      // AudioContext could be blocked by autoplay policies until gesture
-    }
+    } catch (e) {}
   }
 
   /* -------------------------------------------------------------
    * DOM Construction & UI Feedback
    * ----------------------------------------------------------- */
   buildWidgetDOM() {
-    // Avoid double injection
     if (document.getElementById('i2i-voice-widget-root')) return;
 
     const root = document.createElement('div');
@@ -786,11 +935,11 @@ export class VoiceAccessibilitySystem {
 
     root.innerHTML = `
       <!-- Live Voice Feedback Card -->
-      <div class="voice-feedback-card" id="voice-feedback-card" aria-live="polite">
+      <div class="voice-feedback-card visible" id="voice-feedback-card" aria-live="polite">
         <div class="voice-feedback-header">
           <div class="voice-status-pill status-idle" id="voice-status-pill">
             <span class="voice-status-dot"></span>
-            <span id="voice-status-text">Voice Idle</span>
+            <span id="voice-status-text">Voice Ready</span>
           </div>
           <div class="voice-audio-bars" id="voice-audio-bars" title="Audio Activity">
             <span class="voice-audio-bar"></span>
@@ -801,7 +950,7 @@ export class VoiceAccessibilitySystem {
           </div>
         </div>
         <div class="voice-transcript-text" id="voice-transcript-text">
-          <span class="voice-transcript-interim">Say "Help" or click the mic to begin voice control.</span>
+          <span class="voice-transcript-interim">Say "Jobs", "Scroll down", or "Kya karna hai"</span>
         </div>
         <div class="voice-action-result hidden" id="voice-action-result"></div>
       </div>
@@ -825,14 +974,12 @@ export class VoiceAccessibilitySystem {
         </button>
       </div>
 
-      <!-- Hidden ARIA live region for screen readers -->
       <div id="voice-aria-announcer" class="sr-only" aria-live="assertive" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
     `;
 
     document.body.appendChild(root);
     this.buildHelpModalDOM();
 
-    // Cache elements
     this.domElements = {
       root,
       card: document.getElementById('voice-feedback-card'),
@@ -849,15 +996,12 @@ export class VoiceAccessibilitySystem {
       ariaAnnouncer: document.getElementById('voice-aria-announcer')
     };
 
-    // Event Listeners
     this.domElements.orbBtn.addEventListener('click', () => this.toggleListening());
     this.domElements.tagsBtn.addEventListener('click', () => {
       if (this.isNumbersVisible) {
         this.hideNumberBadges();
-        this.domElements.tagsBtn.classList.remove('active');
       } else {
         this.showNumberBadges();
-        this.domElements.tagsBtn.classList.add('active');
       }
     });
     this.domElements.readBtn.addEventListener('click', () => this.readPageContent());
@@ -879,81 +1023,79 @@ export class VoiceAccessibilitySystem {
         <div class="voice-modal-header">
           <div class="voice-modal-title" id="voice-modal-title-text">
             <span>🎙️</span>
-            <span>Idea2Impact Voice Accessibility Guide</span>
+            <span>Idea2Impact Voice Accessibility Guide (English &amp; Hinglish)</span>
           </div>
           <button type="button" class="voice-modal-close" id="voice-modal-close-btn" aria-label="Close Guide">✕</button>
         </div>
         <div class="voice-modal-body">
           <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:8px;">
-            Full hands-free voice control designed for users with motor, dexterity, or visual impairments. Speak naturally or use the commands below:
+            Hands-free voice control designed for motor-impaired and keyboard/mouse disabled users. Speak in English, Hindi, or conversational Hinglish:
           </p>
           <div class="voice-command-grid">
             <div class="voice-cmd-category">
               <div class="voice-cmd-category-title"><span>🧭</span> Workspace Navigation</div>
               <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Go to jobs"</span><span class="voice-desc">Open Match tab</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Go to skills"</span><span class="voice-desc">Skill Passport</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Open messages"</span><span class="voice-desc">Direct Chat</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Post job"</span><span class="voice-desc">HR Job Creator</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Switch to HR"</span><span class="voice-desc">Recruiter Mode</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Go to Roadmap"</span><span class="voice-desc">Skill Curriculum</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Jobs" / "Jobs kholo"</span><span class="voice-desc">Open Match tab</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Skills" / "Skills dikhao"</span><span class="voice-desc">Skill Passport</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Messages" / "Chat kholo"</span><span class="voice-desc">Direct Messaging</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Meet" / "Interview call"</span><span class="voice-desc">Video Meeting</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Post job" / "Nayi job"</span><span class="voice-desc">Post 75/25 Job</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Roadmap" / "Learning"</span><span class="voice-desc">Skill Roadmap</span></li>
               </ul>
             </div>
 
             <div class="voice-cmd-category">
               <div class="voice-cmd-category-title"><span>🔢</span> Numbered Target Clicks</div>
               <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Show numbers"</span><span class="voice-desc">Tag all buttons [1, 2, 3]</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Click [number]"</span><span class="voice-desc">e.g. "Click 5"</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Choose 2"</span><span class="voice-desc">Select item #2</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Hide numbers"</span><span class="voice-desc">Dismiss tags</span></li>
-              </ul>
-            </div>
-
-            <div class="voice-cmd-category">
-              <div class="voice-cmd-category-title"><span>🖱️</span> Direct Element Clicking</div>
-              <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Click Apply"</span><span class="voice-desc">Click Apply button</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Click Send"</span><span class="voice-desc">Send chat message</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Click Sign In"</span><span class="voice-desc">Submit Login form</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Click [button name]"</span><span class="voice-desc">Any visible button</span></li>
-              </ul>
-            </div>
-
-            <div class="voice-cmd-category">
-              <div class="voice-cmd-category-title"><span>⌨️</span> Typing &amp; Forms</div>
-              <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Type [text]"</span><span class="voice-desc">Write in active input</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Search for React"</span><span class="voice-desc">Find in search box</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Focus message"</span><span class="voice-desc">Focus chat input</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Clear"</span><span class="voice-desc">Erase input box</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Submit"</span><span class="voice-desc">Press Enter / submit</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Show numbers" / "Tag lagao"</span><span class="voice-desc">Tag all buttons [1, 2, 3]</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"1" / "Ek" / "Click 1"</span><span class="voice-desc">Click item #1</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"5" / "Panch" / "Click 5"</span><span class="voice-desc">Click item #5</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Hide numbers" / "Tag hatao"</span><span class="voice-desc">Dismiss tags</span></li>
               </ul>
             </div>
 
             <div class="voice-cmd-category">
               <div class="voice-cmd-category-title"><span>📜</span> Scrolling Viewport</div>
               <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll down"</span><span class="voice-desc">Smooth scroll down</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll up"</span><span class="voice-desc">Smooth scroll up</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll to top"</span><span class="voice-desc">Jump to top</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll down" / "Niche jao"</span><span class="voice-desc">Scroll down</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll up" / "Upar jao"</span><span class="voice-desc">Scroll up</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Scroll to top" / "Sabse upar"</span><span class="voice-desc">Jump to top</span></li>
                 <li class="voice-cmd-item"><span class="voice-phrase">"Scroll to bottom"</span><span class="voice-desc">Jump to bottom</span></li>
               </ul>
             </div>
 
             <div class="voice-cmd-category">
-              <div class="voice-cmd-category-title"><span>🔊</span> Voice Reading &amp; Controls</div>
+              <div class="voice-cmd-category-title"><span>⌨️</span> Typing &amp; Messages</div>
               <ul class="voice-cmd-list">
-                <li class="voice-cmd-item"><span class="voice-phrase">"Read page"</span><span class="voice-desc">Aloud page overview</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Stop reading"</span><span class="voice-desc">Silence voice speech</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">"Pause voice"</span><span class="voice-desc">Pause microphone</span></li>
-                <li class="voice-cmd-item"><span class="voice-phrase">Alt + V</span><span class="voice-desc">Keyboard mic shortcut</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Type [text]" / "Likho [text]"</span><span class="voice-desc">Type in active field</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Send" / "Bhejo"</span><span class="voice-desc">Send chat message</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Search for Python"</span><span class="voice-desc">Find in search box</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Clear" / "Hatao"</span><span class="voice-desc">Clear field text</span></li>
+              </ul>
+            </div>
+
+            <div class="voice-cmd-category">
+              <div class="voice-cmd-category-title"><span>🖱️</span> Direct Element Clicking</div>
+              <ul class="voice-cmd-list">
+                <li class="voice-cmd-item"><span class="voice-phrase">"Click Apply"</span><span class="voice-desc">Apply button</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Click Sign In"</span><span class="voice-desc">Login button</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Click [Button Name]"</span><span class="voice-desc">Any visible button</span></li>
+              </ul>
+            </div>
+
+            <div class="voice-cmd-category">
+              <div class="voice-cmd-category-title"><span>🔊</span> Voice Reading &amp; Help</div>
+              <ul class="voice-cmd-list">
+                <li class="voice-cmd-item"><span class="voice-phrase">"Kya karna hai" / "Help"</span><span class="voice-desc">Voice instructions</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Read page" / "Padho"</span><span class="voice-desc">Read summary aloud</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">"Stop" / "Ruko"</span><span class="voice-desc">Stop voice speech</span></li>
+                <li class="voice-cmd-item"><span class="voice-phrase">Alt + V</span><span class="voice-desc">Mic toggle shortcut</span></li>
               </ul>
             </div>
           </div>
         </div>
         <div class="voice-modal-footer">
-          <span>Press <strong>Alt + V</strong> anytime to toggle voice control.</span>
+          <span>Press <strong>Alt + V</strong> anytime or say <strong>"Kya karna hai"</strong> for assistance.</span>
           <button type="button" class="btn btn-primary btn-sm" id="voice-modal-ok-btn" style="padding: 6px 16px;">Got It</button>
         </div>
       </div>
@@ -982,16 +1124,13 @@ export class VoiceAccessibilitySystem {
 
   setupKeyboardShortcuts() {
     window.addEventListener('keydown', (e) => {
-      // Alt + V to toggle voice
       if (e.altKey && (e.key === 'v' || e.key === 'V')) {
         e.preventDefault();
         this.toggleListening();
       }
-      // Escape closes modal or numbers
       if (e.key === 'Escape') {
         if (this.isNumbersVisible) {
           this.hideNumberBadges();
-          if (this.domElements.tagsBtn) this.domElements.tagsBtn.classList.remove('active');
         }
         this.closeHelpModal();
       }
@@ -1048,10 +1187,7 @@ export class VoiceAccessibilitySystem {
       if (this.domElements.actionResult) {
         this.domElements.actionResult.classList.add('hidden');
       }
-      if (!this.isListening && this.domElements.card) {
-        this.domElements.card.classList.remove('visible');
-      }
-    }, 4500);
+    }, 5000);
   }
 
   animateWaveBars(animating) {
@@ -1090,7 +1226,6 @@ export function initVoiceControl(options = {}) {
   return voiceAssistant;
 }
 
-// Automatically mount when loaded in browser environments
 if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => initVoiceControl());
